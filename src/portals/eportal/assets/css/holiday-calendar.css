@@ -1,0 +1,115 @@
+.holiday-calendar-table .p-datatable {
+    border-radius: 8px;
+}
+.calendar-card {
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff;
+  transition: 0.2s;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;   /* prevents overflow */
+}
+
+.calendar-card:hover {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.calendar-header {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #333;
+  font-size: 14px;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr)); /*important */
+  font-size: 12px;
+  text-align: center;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #666;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr)); /*important */
+  gap: 4px;
+}
+
+.calendar-day {
+  width: 1.5rem  !important;
+  height: 1.5rem  !important;
+  text-align: center;
+  padding: 2px 0;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+  min-width: 0;  /*critical fix */
+}
+
+.calendar-day:hover {
+  /* background: #f3858c; */
+}
+
+.holiday-day {
+  background: #ffd3d5; /* #ff4d5a; */
+  color: #ff0000; /* white; */
+  font-weight: 600;
+}
+
+.weekoff-day {
+  color: #ff0000; /*#0d6efd; */
+  font-weight: 500;
+}
+
+.today-day {
+  border: 2px solid #ff9800;
+  font-weight: 700;
+}
+
+.empty {
+  visibility: hidden;
+}
+
+
+.dream-btn {
+  background-color: #ff9800 !important;
+  border-color: #FE9F43 !important;
+  color: #fff !important;
+}
+
+.dream-btn:hover {
+  background-color: #e6892f !important;
+  border-color: #e6892f !important;
+  color: #fff !important;
+}
+
+.dream-btn:focus {
+  box-shadow: 0 0 0 0.2rem rgba(254, 159, 67, 0.4);
+}
+
+
+
+
+/*----Holiday Rules----*/
+.holiday-rules-content ol {
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
+.holiday-rules-content li {
+  margin-bottom: 12px;   /* space between points */
+  line-height: 1.7;
+}
+
+.holiday-rules-content p {
+  margin-bottom: 12px;
+}
+
+
+

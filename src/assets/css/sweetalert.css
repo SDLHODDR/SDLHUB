@@ -1,0 +1,40 @@
+.dreampos-btn-primary {
+    background: #28c76f !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 10px 24px !important;
+    font-weight: 600 !important;
+    min-width: 100px !important;
+}
+
+.dreampos-btn-danger {
+    background: #ea5455 !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 10px 24px !important;
+    font-weight: 600 !important;
+    min-width: 100px !important;
+}
+
+.dreampos-btn-warning {
+    background: #ff9f43 !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 10px 24px !important;
+    font-weight: 600 !important;
+}
+
+.dreampos-btn-outline {
+    background: #fff !important;
+    color: #6c757d !important;
+    border: 1px solid #dcdcdc !important;
+    border-radius: 6px !important;
+    padding: 10px 24px !important;
+}
+
+.swal2-popup.dreampos-popup {
+    border-radius: 12px !important;
+}

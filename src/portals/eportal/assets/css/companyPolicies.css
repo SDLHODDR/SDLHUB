@@ -1,0 +1,216 @@
+/* ==========================================
+   COMPANY POLICIES
+========================================== */
+
+.company-policies-table {
+    width: 100%;
+}
+
+.company-policies-grid {
+    width: 100%;
+}
+
+/* ==========================================
+   SEARCH
+========================================== */
+
+.search-set {
+    width: 100%;
+}
+
+.search-input {
+    width: 100%;
+}
+
+.search-input input {
+    width: 100%;
+}
+
+/* ==========================================
+   DATATABLE
+========================================== */
+
+.company-policies-grid .p-datatable-wrapper {
+    overflow-x: auto !important;
+}
+
+.company-policies-grid .p-datatable-table {
+    min-width: 900px;
+}
+
+.company-policies-grid .p-datatable-thead > tr > th {
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.company-policies-grid .p-datatable-tbody > tr > td {
+    vertical-align: middle;
+}
+
+/* Description column wrap */
+
+.company-policies-grid .p-datatable-tbody td:nth-child(2) {
+    white-space: normal;
+    min-width: 250px;
+}
+
+/* ==========================================
+   ACTION BUTTON
+========================================== */
+
+.company-policies-grid .btn {
+    min-width: 36px;
+}
+
+/* ==========================================
+   PRIME PAGINATOR
+========================================== */
+
+.company-policies-grid .p-paginator {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    overflow: visible !important;
+}
+
+.company-policies-grid .p-paginator-pages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.company-policies-grid .p-paginator-current {
+    white-space: nowrap;
+}
+
+/* ==========================================
+   PAGINATOR DROPDOWN FIX
+========================================== */
+
+.company-policies-grid .p-dropdown,
+.p-paginator .p-dropdown {
+    width: auto !important;
+    min-width: 90px !important;
+}
+
+.company-policies-grid .p-dropdown-label,
+.p-paginator .p-dropdown-label {
+    padding: 0.45rem 0.75rem;
+}
+
+.company-policies-grid .p-dropdown-trigger,
+.p-paginator .p-dropdown-trigger {
+    width: 2rem;
+}
+
+.company-policies-grid .p-dropdown-panel,
+.p-dropdown-panel {
+    z-index: 99999 !important;
+}
+
+.company-policies-grid .p-inputwrapper {
+    width: auto !important;
+}
+
+/* ==========================================
+   PAGE HEADER
+========================================== */
+
+.page-header {
+    gap: 12px;
+}
+
+/* ==========================================
+   TABLET
+========================================== */
+
+@media (max-width: 991px) {
+
+    .company-policies-grid .p-datatable-table {
+        min-width: 800px;
+    }
+}
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 768px) {
+
+    .page-header {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .breadcrumb {
+        margin-bottom: 0;
+    }
+
+    .company-policies-grid .p-paginator {
+        font-size: 12px;
+        gap: 8px;
+    }
+
+    .company-policies-grid .p-paginator-current {
+        width: 100%;
+        text-align: center;
+        order: 10;
+    }
+
+    .company-policies-grid .p-paginator-rpp-options {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .company-policies-grid .p-dropdown {
+        min-width: 85px !important;
+    }
+
+    .company-policies-grid .p-datatable-table {
+        min-width: 700px;
+    }
+}
+
+/* ==========================================
+   SMALL MOBILE
+========================================== */
+
+@media (max-width: 576px) {
+
+    .page-title h4 {
+        font-size: 18px;
+    }
+
+    .page-title h6 {
+        font-size: 13px;
+    }
+
+    .company-policies-grid .p-paginator {
+        gap: 6px;
+    }
+
+    .company-policies-grid .p-paginator-page,
+    .company-policies-grid .p-paginator-next,
+    .company-policies-grid .p-paginator-prev,
+    .company-policies-grid .p-paginator-first,
+    .company-policies-grid .p-paginator-last {
+        min-width: 30px;
+        height: 30px;
+    }
+
+    .company-policies-grid .p-dropdown {
+        width: 90px !important;
+    }
+
+    .company-policies-grid .p-paginator-current {
+        font-size: 11px;
+    }
+
+    .company-policies-grid .p-datatable-table {
+        min-width: 650px;
+    }
+}

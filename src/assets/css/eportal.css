@@ -1,0 +1,47 @@
+/* Compact layout */
+
+.eportal-layout .page-wrapper .content {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+}
+
+.eportal-layout .page-header {
+    margin-bottom: 8px !important;
+}
+
+.eportal-layout .card {
+    margin-bottom: 12px !important;
+}
+
+.eportal-layout .card-body {
+    padding: 12px !important;
+}
+
+@media (max-width: 991px) {
+
+    #sidebar {
+        display: block !important;
+        width: 280px;
+        z-index: 1050;
+    }
+
+    #horizontal-menu {
+        display: none !important;
+    }
+
+    #sidebar .submenu > ul {
+        display: none;
+    }
+
+    #sidebar .submenu.submenu-open > ul {
+        display: block !important;
+    }
+
+    #sidebar .menu-arrow {
+        cursor: pointer;
+    }
+
+    #sidebar .submenu ul li {
+        padding-left: 15px;
+    }
+}
