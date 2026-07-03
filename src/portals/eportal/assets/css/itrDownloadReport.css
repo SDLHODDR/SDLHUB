@@ -1,0 +1,141 @@
+/* ===============================
+   ITR DOWNLOAD REPORT
+================================ */
+
+.itr-report-table {
+    width: 100%;
+}
+
+.itr-report-table .p-datatable-wrapper {
+    overflow-x: auto !important;
+}
+
+.itr-report-table .p-datatable-thead > tr > th {
+    white-space: nowrap;
+}
+
+.itr-report-table .p-datatable-tbody > tr > td {
+    white-space: nowrap;
+}
+
+/* paginator */
+
+.itr-report-table .p-paginator {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.itr-report-table .p-dropdown {
+    min-width: 90px !important;
+}
+
+@media (max-width: 768px) {
+
+    .itr-report-table .p-paginator {
+        font-size: 12px;
+    }
+
+    .itr-report-table .p-paginator-current {
+        width: 100%;
+        text-align: center;
+    }
+
+    .itr-report-table .p-dropdown {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .itr-report-table .p-paginator-page,
+    .itr-report-table .p-paginator-prev,
+    .itr-report-table .p-paginator-next {
+        min-width: 30px;
+        height: 30px;
+    }
+}
+.filter-btn-group {
+    width: 100%;
+}
+
+.filter-btn-group .btn {
+    min-width: 100px;
+}
+
+input[type="date"] {
+    min-height: 38px;
+}
+
+.itr-report-table .p-datatable-wrapper {
+    overflow-x: auto;
+}
+
+@media (max-width: 991px) {
+
+    .filter-btn-group {
+        margin-top: 5px;
+    }
+
+    .filter-btn-group .btn {
+        flex: 1;
+    }
+
+    input[type="date"] {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .filter-btn-group {
+        flex-direction: column;
+    }
+
+    .filter-btn-group .btn {
+        width: 100%;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+/* Calendar Responsive Fix */
+
+.p-calendar {
+    width: 100%;
+}
+
+.p-calendar .p-inputtext {
+    width: 100%;
+}
+
+.p-datepicker {
+    z-index: 99999 !important;
+}
+
+.card,
+.card-body,
+.container-fluid {
+    overflow: visible !important;
+}
+
+@media (max-width: 768px) {
+    .p-datepicker {
+        width: 95vw !important;
+        max-width: 400px;
+    }
+
+    .p-calendar {
+        width: 100%;
+    }
+}
+

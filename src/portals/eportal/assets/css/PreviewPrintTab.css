@@ -1,0 +1,220 @@
+/*==================================================
+    SCREEN
+==================================================*/
+
+.print-container {
+    background: #fff;
+    padding: 15px;
+}
+
+.print-table {
+    width: 100%;
+    border-collapse: collapse !important;
+}
+
+.print-table td,
+.print-table th {
+    border: 1px solid #000 !important;
+    padding: 8px !important;
+    vertical-align: middle;
+}
+
+/* Employee Details */
+
+.print-table .label {
+    width: 25%;
+    font-weight: 700;
+    background: #fafafa;
+}
+
+.print-table .value {
+    width: 25%;
+}
+
+/* Section Heading */
+
+.print-table .sectionHeader {
+    background: #d9d9d9 !important;
+    font-weight: 700 !important;
+    text-decoration: underline;
+    text-align: left;
+}
+
+/* Table Header */
+
+.print-table .headCell {
+    background: #efefef !important;
+    text-align: center;
+    font-weight: 700;
+}
+
+/* Body */
+
+.print-table .bodyText {
+    text-align: left;
+    word-break: break-word;
+}
+
+.print-table .bodyCenter {
+    text-align: center;
+}
+
+.print-table .bodyAmount {
+    text-align: right;
+}
+
+/* Totals */
+
+.print-table .totalLabel {
+    background: #f5f5f5 !important;
+    text-align: right;
+    font-weight: 700;
+}
+
+.print-table .totalValue {
+    background: #f5f5f5 !important;
+    text-align: right;
+    font-weight: 700;
+}
+
+/* Summary */
+
+.print-table .amountLabel {
+    text-align: right;
+    font-weight: 700;
+}
+
+.print-table .amountValue {
+    text-align: right;
+    font-weight: 700;
+}
+
+/* Declaration */
+
+.print-table .declarationCell {
+    padding: 15px !important;
+    line-height: 1.8;
+}
+
+/* Page Break */
+
+.print-table .tableRow {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+/*==================================================
+    PRINT
+==================================================*/
+
+@media print {
+
+    @page {
+        size: A4 portrait;
+        margin: 10mm;
+    }
+
+    html,
+    body {
+        background: #fff !important;
+        margin: 0;
+        padding: 0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Hide UI */
+
+    .sidebar,
+    .header,
+    .page-header,
+    .breadcrumb,
+    .card-header,
+    .btn,
+    .navbar,
+    .footer {
+        display: none !important;
+    }
+
+    .card,
+    .card-body {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .print-container {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .print-table {
+        width: 100%;
+        border-collapse: collapse !important;
+    }
+
+    .print-table thead {
+        display: table-header-group;
+    }
+
+    .print-table tfoot {
+        display: table-footer-group;
+    }
+
+    .print-table tbody {
+        display: table-row-group;
+    }
+
+    .print-table tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .print-table td,
+    .print-table th {
+        border: 1px solid #000 !important;
+        padding: 8px !important;
+        vertical-align: middle;
+    }
+
+    .print-table .sectionHeader {
+        background: #d9d9d9 !important;
+        font-weight: 700 !important;
+    }
+
+    .print-table .headCell {
+        background: #efefef !important;
+        font-weight: 700 !important;
+    }
+
+    .print-table .totalLabel,
+    .print-table .totalValue {
+        background: #f5f5f5 !important;
+    }
+
+    .print-table .label {
+        background: #fafafa !important;
+    }
+
+    .print-table .amountLabel,
+    .print-table .totalLabel,
+    .print-table .amountValue,
+    .print-table .totalValue,
+    .print-table .bodyAmount {
+        text-align: right !important;
+    }
+
+    .print-table .bodyCenter {
+        text-align: center !important;
+    }
+
+    .print-table .bodyText {
+        text-align: left !important;
+    }
+
+    .print-table .declarationCell {
+        line-height: 1.8;
+        padding: 15px !important;
+    }
+}

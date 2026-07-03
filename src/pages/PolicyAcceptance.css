@@ -1,0 +1,66 @@
+.card {
+    border-radius: 12px;
+}
+
+.card-header {
+    border-bottom: 1px solid #eef2f7;
+}
+
+.btn-primary {
+    border-radius: 8px;
+}
+
+.progress {
+    border-radius: 20px;
+}
+
+.alert {
+    border-radius: 8px;
+}
+
+iframe {
+    background: #fff;
+}
+
+.form-check-input,
+.form-check-label {
+    cursor: pointer;
+}
+
+.pdf-card {
+  height: calc(100vh - 280px);
+}
+
+.policy-btn {
+    min-width: 180px;
+}
+
+@media (max-width: 991px) {
+
+    .pdf-card {
+        min-height: 450px;
+        height: auto;
+    }
+
+    .policy-btn {
+        width: 100%;
+    }
+
+    .card-body {
+        padding: 1rem !important;
+    }
+
+    h4 {
+        font-size: 1.1rem;
+    }
+
+    h5 {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .pdf-card {
+        min-height: 250px;
+    }
+}

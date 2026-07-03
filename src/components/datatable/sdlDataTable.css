@@ -1,0 +1,91 @@
+/* ==============================
+   SDL DATATABLE
+================================= */
+
+.p-datatable.p-datatable-sm{
+    font-size:14px;
+}
+
+/* Header */
+
+.p-datatable .p-datatable-thead > tr > th{
+    background:#f8f9fc;
+    color:#1b2850;
+    font-weight:600;
+    font-size:14px;
+    padding:8px 10px;
+    border:none;
+    border-bottom:1px solid #e9ecef;
+}
+
+/* Body */
+
+.p-datatable .p-datatable-tbody > tr > td{
+    padding:6px 8px;
+    border:none;
+    border-bottom:1px solid #f2f4f8;
+    vertical-align:middle;
+}
+
+/* Alternate rows */
+
+.p-datatable .p-datatable-tbody > tr:nth-child(even){
+    background:#fcfcfd;
+}
+
+/* Hover */
+
+.p-datatable .p-datatable-tbody > tr:hover{
+    background:#f5f9ff;
+    transition:.2s;
+}
+
+/* Sort icon */
+
+.p-sortable-column:hover{
+    background:#eef4ff !important;
+}
+
+/* Empty message */
+
+.p-datatable .p-datatable-emptymessage td{
+    padding:30px;
+    text-align:center;
+    color:#888;
+}
+
+/* Paginator */
+
+.p-paginator{
+    border:none;
+    padding:12px 8px;
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page{
+    border-radius:6px;
+}
+
+.p-paginator .p-paginator-page.p-highlight{
+    background:#ff9f43;
+    color:#fff;
+}
+
+/* Loading */
+
+.p-datatable-loading-overlay{
+    background:rgba(255,255,255,.7);
+}
+
+/* Responsive */
+
+.p-datatable-wrapper{
+    border-radius:8px;
+}
+
+/* Sticky Header */
+
+.p-datatable-scrollable .p-datatable-thead > tr > th{
+    position:sticky;
+    top:0;
+    z-index:2;
+}

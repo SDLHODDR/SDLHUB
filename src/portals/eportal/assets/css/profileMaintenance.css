@@ -1,0 +1,151 @@
+/* ==========================================
+   PROFILE MAINTENANCE RESPONSIVE
+========================================== */
+
+.profile-maintenance {
+    overflow-x: hidden;
+}
+
+/* Tabs */
+
+.profile-tabs {
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.profile-tabs .nav-link {
+    white-space: nowrap;
+}
+
+/* Action buttons */
+
+.action-btn-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.action-btn-group .btn {
+    min-width: 110px;
+}
+
+/* Menu Header */
+
+.menu-header {
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Submenus */
+
+.submenu-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px;
+}
+
+/* Prime Dropdown */
+
+.profile-selector .p-dropdown {
+    width: 100%;
+}
+
+/* DataTable */
+
+.profile-users-grid {
+    width: 100%;
+}
+
+.profile-users-grid .p-datatable-wrapper {
+    overflow-x: auto !important;
+}
+
+/* Prime paginator */
+
+.profile-users-grid .p-paginator {
+    display: flex !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.profile-users-grid .p-paginator-pages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.profile-users-grid .p-dropdown {
+    min-width: 80px !important;
+    width: auto !important;
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .profile-tabs .nav-item {
+        width: 100%;
+    }
+
+    .profile-tabs .nav-link {
+        width: 100%;
+        text-align: center;
+    }
+
+    .action-btn-group {
+        justify-content: stretch;
+        margin-top: 10px;
+    }
+
+    .action-btn-group .btn {
+        flex: 1 1 calc(50% - 8px);
+        min-width: unset;
+    }
+
+    .submenu-container {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .profile-users-grid .p-paginator {
+        font-size: 12px;
+    }
+
+    .profile-users-grid .p-paginator-current {
+        width: 100%;
+        text-align: center;
+    }
+
+    .profile-users-grid .p-paginator-rpp-options {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .action-btn-group .btn {
+        flex: 1 1 100%;
+    }
+
+    .profile-users-grid .p-paginator {
+        gap: 6px;
+    }
+
+    .profile-users-grid .p-paginator-page,
+    .profile-users-grid .p-paginator-next,
+    .profile-users-grid .p-paginator-prev {
+        min-width: 30px;
+        height: 30px;
+    }
+}

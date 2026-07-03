@@ -1,0 +1,12 @@
+.policy-report-grid .p-datatable-wrapper {
+    overflow-x: auto;
+}
+
+.policy-report-grid .p-datatable-thead > tr > th,
+.policy-report-grid .p-datatable-tbody > tr > td {
+    white-space: nowrap;
+}
+
+.policy-report-grid .p-paginator {
+    justify-content: center;
+}
