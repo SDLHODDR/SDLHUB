@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./PolicyAcceptance.css";
+import "../assets/css/PolicyAcceptance.css";
 import {
-  notifySuccess,
-  notifyError,
-  notifyWarning,
+  notifyError
 } from "../services/alertService";
 
 import {
@@ -197,6 +195,8 @@ const PolicyAcceptance = () => {
 
 return (
   <>  
+  <div className="policy-page">
+    <div className="policy-card">
   <div className="container-fluid bg-light min-vh-100 d-flex flex-column p-0">
     {/* ======================================================
         HEADER
@@ -353,7 +353,7 @@ return (
 
             {/* Center */}
             <div className="col-lg-4 my-3 my-lg-0">
-              <div className="border rounded p-3 bg-light">
+              <div className="border rounded p-3 bg-light acknowledgement-box">
                 <div className="form-check">
                   <input
                     id="policyAccept"
@@ -385,10 +385,10 @@ return (
 
             {/* Right */}
             <div className="col-lg-3 text-center text-lg-end mt-3 mt-lg-0">
-              <div className="alert alert-warning small py-2 mb-3">
-                Access to ePortal remains restricted until
-                all mandatory policies are accepted.
-              </div>
+             <div className="alert policy-warning mb-3">
+                Access to ePortal remains restricted until all mandatory
+                policies are accepted.
+            </div>
 
               <button
                   onClick={handleAccept}
@@ -407,6 +407,8 @@ return (
       </div>
     </div>
   </div>
+  </div>
+</div>
 
 </>
 );
