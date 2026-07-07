@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { LOGOS, STOREIMAGES } from "../assets/assets";
 import { useEffect, useState, useContext } from "react";
-import { AuthContext } from "../auth/AuthProvider";
+import AuthContext from "../auth/AuthContext";
 //import AuthorizationSettings from "../components/authorization/AuthorizationSettings";
 
 

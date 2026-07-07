@@ -1,7 +1,7 @@
-import {useState, useMemo, useEffect, useRef} from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 
-import SDLDataTable from "../components/datatable/SDLDataTable"; 
-import SDLSearch from "../components/datatable/SDLSearch"; 
+import SDLDataTable from "../components/datatable/SDLDataTable";
+import SDLSearch from "../components/datatable/SDLSearch";
 
 import { STOREIMAGES } from "../assets/assets";
 import {
@@ -14,7 +14,7 @@ import {
   notifySuccess,
   notifyError,
   notifyWarning,
-  confirmAction
+  confirmAction,
 } from "../services/alertService";
 
 const MyProfile = () => {
@@ -237,7 +237,7 @@ const MyProfile = () => {
 
     const result = await confirmAction(
       "Delete Family Member",
-      `Are you sure you want to delete ${row.name}?`
+      `Are you sure you want to delete ${row.name}?`,
     );
 
     if (!result.isConfirmed) {
@@ -606,50 +606,50 @@ const MyProfile = () => {
   );
 
   const familyColumns = [
-  {
-    field: "name",
-    header: "Name",
-    sortable: true,
-  },
-  {
-    field: "relation",
-    header: "Relation",
-    sortable: true,
-  },
-  {
-    field: "age",
-    header: "Age",
-    sortable: true,
-  },
-  {
-    field: "dob",
-    header: "DOB",
-    sortable: true,
-  },
-  {
-    field: "aadhaar",
-    header: "Aadhaar",
-    sortable: true,
-  },
-  {
-    field: "dependent",
-    header: "Dependent",
-    sortable: true,
-  },
-  ...(canManageFamily
-    ? [
-        {
-          header: "Actions",
-          body: actionBody,
-          exportable: false,
-          style: {
-            width: "120px",
-            textAlign: "center",
+    {
+      field: "name",
+      header: "Name",
+      sortable: true,
+    },
+    {
+      field: "relation",
+      header: "Relation",
+      sortable: true,
+    },
+    {
+      field: "age",
+      header: "Age",
+      sortable: true,
+    },
+    {
+      field: "dob",
+      header: "DOB",
+      sortable: true,
+    },
+    {
+      field: "aadhaar",
+      header: "Aadhaar",
+      sortable: true,
+    },
+    {
+      field: "dependent",
+      header: "Dependent",
+      sortable: true,
+    },
+    ...(canManageFamily
+      ? [
+          {
+            header: "Actions",
+            body: actionBody,
+            exportable: false,
+            style: {
+              width: "120px",
+              textAlign: "center",
+            },
           },
-        },
-      ]
-    : []),
-];
+        ]
+      : []),
+  ];
   /* ================= RENDER ================= */
 
   return (
@@ -909,13 +909,12 @@ const MyProfile = () => {
 
                 <div className="tab-pane" id="familyDetails">
                   <div className="d-flex justify-content-between align-items-center flex-wrap row-gap-3 mb-3">
-                    
-                 <SDLSearch
+                    <SDLSearch
                       value={searchQuery}
                       onChange={setSearchQuery}
                       placeholder="Search..."
                       style={{ width: "280px" }}
-                  />
+                    />
 
                     {canManageFamily && (
                       <a
@@ -934,7 +933,7 @@ const MyProfile = () => {
                   </div>
 
                   <div className="table-responsive">
-                   <SDLDataTable
+                    <SDLDataTable
                       data={filteredFamilyData}
                       columns={familyColumns}
                       loading={false}
@@ -944,7 +943,7 @@ const MyProfile = () => {
                       dataKey="id"
                       emptyMessage="No family members found"
                       tableStyle={{ minWidth: "800px" }}
-                  />
+                    />
                   </div>
                 </div>
 
@@ -999,6 +998,13 @@ const MyProfile = () => {
                             <strong>Shift:</strong>
                           </td>
                           <td>{emp.SHFT_LABEL}</td>
+                        </tr>
+
+                        <tr>
+                          <td>
+                            <strong>Experience:</strong>
+                          </td>
+                          <td>{emp.EXPERIENCE}</td>
                         </tr>
                       </tbody>
                     </table>

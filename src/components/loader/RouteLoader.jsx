@@ -6,14 +6,19 @@ const RouteLoader = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
+    const start = setTimeout(() => {
+      setLoading(true);
+    }, 0);
 
-    const timer = setTimeout(() => {
+    const stop = setTimeout(() => {
       setLoading(false);
       window.scrollTo(0, 0);
-    }, 300); // smooth transition
+    }, 300);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(start);
+      clearTimeout(stop);
+    };
   }, [location.pathname]);
 
   if (!loading) return null;

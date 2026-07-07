@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "../assets/css/PolicyAcceptance.css";
 import {
@@ -30,48 +30,69 @@ const PolicyAcceptance = () => {
   ======================================================
   */
 
-  const loadPendingPolicies = async () => {
-    try {
+ const loadPendingPolicies = useCallback(async (isMounted = () => true) => {
+  try {
+    if (isMounted()) {
       setLoading(true);
+    }
 
-      const res = await getPendingPolicies();
+    const res = await getPendingPolicies();
 
-      if (res?.status) {
-        const pendingPolicies = res?.policies || [];
+    if (!isMounted()) return;
 
-        setPolicies(pendingPolicies);
+    if (res?.status) {
+      const pendingPolicies = res?.policies || [];
 
-        /*
-        -----------------------------------------
-        ALL POLICIES ACCEPTED
-        -----------------------------------------
-        */
-        if (pendingPolicies.length === 0) {
-          sessionStorage.removeItem("HAS_PENDING_POLICY");
+      setPolicies(pendingPolicies);
+      setCurrentIndex(0);
+      setChecked(false);
 
-          navigate("/eportal/dashboard", {
-            replace: true,
-          });
-        } else {
-          sessionStorage.setItem("HAS_PENDING_POLICY", "true");
-        }
+      if (pendingPolicies.length === 0) {
+        sessionStorage.removeItem("HAS_PENDING_POLICY");
+
+        navigate("/eportal/dashboard", {
+          replace: true,
+        });
+      } else {
+        sessionStorage.setItem("HAS_PENDING_POLICY", "true");
       }
-    } catch (error) {
-      notifyError("Pending policy load error:", error);
-    } finally {
+    } else {
+      notifyError(res?.message || "Unable to load pending policies.");
+    }
+  } catch (err) {
+    console.error(err);
+
+    if (isMounted()) {
+      notifyError("Unable to load pending policies.");
+    }
+  } finally {
+    if (isMounted()) {
       setLoading(false);
     }
+  }
+}, [navigate]);
+
+/*useEffect(() => {
+  let mounted = true;
+
+  const isMounted = () => mounted;
+
+  loadPendingPolicies(isMounted);
+
+  return () => {
+    mounted = false;
   };
+}, [loadPendingPolicies]); */
 
-  /*
-  ======================================================
-  INITIAL LOAD
-  ======================================================
-  */
 
-  useEffect(() => {
+useEffect(() => {
+  const timer = setTimeout(() => {
     loadPendingPolicies();
-  }, []);
+  }, 0);
+
+  return () => clearTimeout(timer);
+}, [loadPendingPolicies]);
+
 
   useEffect(() => {
   const handleResize = () => {
@@ -102,7 +123,7 @@ const PolicyAcceptance = () => {
   const handleAccept = async () => {
     try {
       if (!checked) {
-        alert("Please confirm policy acceptance");
+        notifyError("Please confirm policy acceptance.");
         return;
       }
 
@@ -158,7 +179,10 @@ const PolicyAcceptance = () => {
     } catch (error) {
       console.error("Accept policy error:", error);
 
-      notifyError("Something went wrong");
+      notifyError(
+        error?.response?.data?.message ||
+        "Something went wrong."
+      );
     } finally {
       setBtnLoading(false);
     }
