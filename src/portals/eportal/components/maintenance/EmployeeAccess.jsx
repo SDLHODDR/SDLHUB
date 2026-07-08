@@ -1,8 +1,9 @@
-import { useContext, useState, useEffect, useMemo, useRef } from "react";
-import { AuthContext } from "../../../../auth/AuthProvider";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { EMPLOYEE_ACCESS_MESSAGES } from "../../constants/messages/employeeAccessMessages";
+import { COMMON_WARNING } from "../../constants/messages/commonMessages";
 
 import {
     getEmployeeAccessDropdowns,
@@ -20,8 +21,6 @@ import {
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 
 const EmployeeAccess = () => {
-
-    const { user } = useContext(AuthContext);
 
     const [companies, setCompanies] = useState([]);
     const [divisions, setDivisions] = useState([]);
@@ -64,10 +63,10 @@ const EmployeeAccess = () => {
                     setDivisions(res.divisions || []);
                     setDepartments(res.departments || []);
                 } else {
-                    notifyError("Failed to load dropdown data");
+                    notifyError(EMPLOYEE_ACCESS_MESSAGES.ERROR.LOAD_DROPDOWNS);
                 }
-            } catch {
-                notifyError("Error loading dropdown data");
+            } catch {    
+                notifyError(EMPLOYEE_ACCESS_MESSAGES.ERROR.LOAD_DROPDOWNS_EXCEPTION);
             }
             setLoadingDropdowns(false);
         };
@@ -103,12 +102,12 @@ const EmployeeAccess = () => {
                 setProfiles(res.profiles || []);
                 setGroups(res.groups || []);
                 setDataLoaded(true);
-            } else {
-                notifyError("Failed to load employee access data");
+            } else {  
+                notifyError(EMPLOYEE_ACCESS_MESSAGES.ERROR.LOAD_EMPLOYEE_ACCESS);
             }
 
-        } catch {
-            notifyError("Error fetching employee access data");
+        } catch {  
+            notifyError(EMPLOYEE_ACCESS_MESSAGES.ERROR.LOAD_EMPLOYEE_ACCESS_EXCEPTION);
         } finally {
             setLoadingData(false);
         }
@@ -209,7 +208,7 @@ const EmployeeAccess = () => {
                     hasSelection = true;
 
                     if (!emp.profiles || emp.profiles.length === 0) {
-                        notifyWarning(`Please assign profile to ${emp.empName}`);
+                         notifyWarning(EMPLOYEE_ACCESS_MESSAGES.WARNING.ASSIGN_PROFILE(emp.empName));
                         return;
                     }
 
@@ -221,14 +220,15 @@ const EmployeeAccess = () => {
             }
         }
 
-        if (!hasSelection) {
-            notifyWarning("Please select at least one group or employee");
+        if (!hasSelection) {      
+            notifyWarning(EMPLOYEE_ACCESS_MESSAGES.WARNING.SELECT_GROUP_OR_EMPLOYEE);
+
             return;
         }
 
         const confirm = await confirmAction(
-            "Save Profile Assignment?",
-            "Selected employee profiles will be updated"
+            EMPLOYEE_ACCESS_MESSAGES.CONFIRMATION.SAVE_TITLE,
+            EMPLOYEE_ACCESS_MESSAGES.CONFIRMATION.SAVE_MESSAGE
         );
 
         if (!confirm) return;
@@ -289,7 +289,7 @@ const EmployeeAccess = () => {
             <div className="page-header">
                 <div className="add-item d-flex">
                     <div className="page-title">
-                        <h4> Employee Access</h4>
+                        <h4>{EMPLOYEE_ACCESS_MESSAGES.PAGE.TITLE}</h4>
                     </div>
                 </div>
 
@@ -339,8 +339,11 @@ const EmployeeAccess = () => {
                             className="btn btn-warning w-100"
                             onClick={handleShowData}
                             disabled={loadingData}
-                        >
-                            {loadingData ? "Loading..." : "Show Data"}
+                        >                            
+                            {loadingData
+                                ? EMPLOYEE_ACCESS_MESSAGES.BUTTON.LOADING
+                                : EMPLOYEE_ACCESS_MESSAGES.BUTTON.SHOW_DATA}
+                        
                         </button>
                     </div>
 
@@ -350,7 +353,7 @@ const EmployeeAccess = () => {
                 {loadingData && (
                     <div className="card p-4 text-center mt-3">
                         <div className="spinner-border text-primary"></div>
-                        <div className="mt-2">Loading data...</div>
+                        <div className="mt-2">{EMPLOYEE_ACCESS_MESSAGES.LOADING.DATA}</div>
                     </div>
                 )}
 
@@ -358,7 +361,8 @@ const EmployeeAccess = () => {
                 {!loadingData && dataLoaded && groups.length === 0 && (
                     <div className="card text-center p-5 mt-3">
                         <div style={{ fontSize: "50px", opacity: 0.7 }}>📭</div>
-                        <h5 className="mt-3">No Data Found</h5>
+                        <h5 className="mt-3">{COMMON_WARNING.NO_DATA}</h5>
+                        
                     </div>
                 )}
 
@@ -397,15 +401,15 @@ const EmployeeAccess = () => {
                                 />
 
                                 <b
-  onClick={() => toggleCollapse(group.groupCode)}
-  style={{ cursor: "pointer" }}
->
-  <FontAwesomeIcon
-    icon={collapsedGroups[group.groupCode] ? faChevronRight : faChevronDown}
-    style={{ marginRight: "6px", fontSize: "12px" }}
-  />
-  {group.groupCode} - {group.groupName}
-</b>
+                                onClick={() => toggleCollapse(group.groupCode)}
+                                style={{ cursor: "pointer" }}
+                                >
+                                <FontAwesomeIcon
+                                    icon={collapsedGroups[group.groupCode] ? faChevronRight : faChevronDown}
+                                    style={{ marginRight: "6px", fontSize: "12px" }}
+                                />
+                                {group.groupCode} - {group.groupName}
+                                </b>
 
                                 <div className="ms-auto" style={{ width: 350 }}>
                                     <Select

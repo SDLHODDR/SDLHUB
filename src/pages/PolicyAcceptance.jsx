@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import "./PolicyAcceptance.css";
+import "../assets/css/PolicyAcceptance.css";
 import {
-  notifySuccess,
-  notifyError,
-  notifyWarning,
+  notifyError
 } from "../services/alertService";
 
 import {
@@ -32,48 +30,69 @@ const PolicyAcceptance = () => {
   ======================================================
   */
 
-  const loadPendingPolicies = async () => {
-    try {
+ const loadPendingPolicies = useCallback(async (isMounted = () => true) => {
+  try {
+    if (isMounted()) {
       setLoading(true);
+    }
 
-      const res = await getPendingPolicies();
+    const res = await getPendingPolicies();
 
-      if (res?.status) {
-        const pendingPolicies = res?.policies || [];
+    if (!isMounted()) return;
 
-        setPolicies(pendingPolicies);
+    if (res?.status) {
+      const pendingPolicies = res?.policies || [];
 
-        /*
-        -----------------------------------------
-        ALL POLICIES ACCEPTED
-        -----------------------------------------
-        */
-        if (pendingPolicies.length === 0) {
-          sessionStorage.removeItem("HAS_PENDING_POLICY");
+      setPolicies(pendingPolicies);
+      setCurrentIndex(0);
+      setChecked(false);
 
-          navigate("/eportal/dashboard", {
-            replace: true,
-          });
-        } else {
-          sessionStorage.setItem("HAS_PENDING_POLICY", "true");
-        }
+      if (pendingPolicies.length === 0) {
+        sessionStorage.removeItem("HAS_PENDING_POLICY");
+
+        navigate("/eportal/dashboard", {
+          replace: true,
+        });
+      } else {
+        sessionStorage.setItem("HAS_PENDING_POLICY", "true");
       }
-    } catch (error) {
-      notifyError("Pending policy load error:", error);
-    } finally {
+    } else {
+      notifyError(res?.message || "Unable to load pending policies.");
+    }
+  } catch (err) {
+    console.error(err);
+
+    if (isMounted()) {
+      notifyError("Unable to load pending policies.");
+    }
+  } finally {
+    if (isMounted()) {
       setLoading(false);
     }
+  }
+}, [navigate]);
+
+/*useEffect(() => {
+  let mounted = true;
+
+  const isMounted = () => mounted;
+
+  loadPendingPolicies(isMounted);
+
+  return () => {
+    mounted = false;
   };
+}, [loadPendingPolicies]); */
 
-  /*
-  ======================================================
-  INITIAL LOAD
-  ======================================================
-  */
 
-  useEffect(() => {
+useEffect(() => {
+  const timer = setTimeout(() => {
     loadPendingPolicies();
-  }, []);
+  }, 0);
+
+  return () => clearTimeout(timer);
+}, [loadPendingPolicies]);
+
 
   useEffect(() => {
   const handleResize = () => {
@@ -104,7 +123,7 @@ const PolicyAcceptance = () => {
   const handleAccept = async () => {
     try {
       if (!checked) {
-        alert("Please confirm policy acceptance");
+        notifyError("Please confirm policy acceptance.");
         return;
       }
 
@@ -160,7 +179,10 @@ const PolicyAcceptance = () => {
     } catch (error) {
       console.error("Accept policy error:", error);
 
-      notifyError("Something went wrong");
+      notifyError(
+        error?.response?.data?.message ||
+        "Something went wrong."
+      );
     } finally {
       setBtnLoading(false);
     }
@@ -197,6 +219,8 @@ const PolicyAcceptance = () => {
 
 return (
   <>  
+  <div className="policy-page">
+    <div className="policy-card">
   <div className="container-fluid bg-light min-vh-100 d-flex flex-column p-0">
     {/* ======================================================
         HEADER
@@ -353,7 +377,7 @@ return (
 
             {/* Center */}
             <div className="col-lg-4 my-3 my-lg-0">
-              <div className="border rounded p-3 bg-light">
+              <div className="border rounded p-3 bg-light acknowledgement-box">
                 <div className="form-check">
                   <input
                     id="policyAccept"
@@ -385,10 +409,10 @@ return (
 
             {/* Right */}
             <div className="col-lg-3 text-center text-lg-end mt-3 mt-lg-0">
-              <div className="alert alert-warning small py-2 mb-3">
-                Access to ePortal remains restricted until
-                all mandatory policies are accepted.
-              </div>
+             <div className="alert policy-warning mb-3">
+                Access to ePortal remains restricted until all mandatory
+                policies are accepted.
+            </div>
 
               <button
                   onClick={handleAccept}
@@ -407,6 +431,8 @@ return (
       </div>
     </div>
   </div>
+  </div>
+</div>
 
 </>
 );

@@ -1,0 +1,309 @@
+/* ======================================================
+   PAGE
+====================================================== */
+
+.policy-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #eef4fb 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+}
+
+.policy-card {
+    width: 100%;
+    max-width: 1250px;
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.bg-primary {
+    background: linear-gradient(90deg, #ff8a00, #ffb347) !important;
+}
+
+.bg-primary h4 {
+    font-size: 1.7rem;
+    font-weight: 700;
+}
+
+.bg-primary small {
+    opacity: .95;
+    font-size: .92rem;
+}
+
+/* ======================================================
+   CARDS
+====================================================== */
+
+.card {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
+    overflow: hidden;
+}
+
+.card-header {
+    background: #fff;
+    border-bottom: 1px solid #edf2f7;
+    padding: 16px 20px;
+}
+
+.card-body {
+    background: #fff;
+}
+
+/* ======================================================
+   PDF
+====================================================== */
+
+.pdf-card {
+    height: calc(100vh - 280px);
+}
+
+iframe {
+    background: #fff;
+    display: block;
+}
+
+/* ======================================================
+   BUTTON
+====================================================== */
+
+.policy-btn {
+    min-width: 200px;
+    width: 100%;
+    border-radius: 10px;
+    font-weight: 600;
+    padding: 12px 24px;
+    transition: all .25s ease;
+}
+
+.policy-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(0,0,0,.18);
+}
+
+.policy-btn:disabled {
+    opacity: .6;
+}
+
+/* ======================================================
+   PROGRESS BAR
+====================================================== */
+
+.progress {
+    height: 8px !important;
+    border-radius: 20px;
+    background: rgba(255,255,255,.35);
+}
+
+.progress-bar {
+    background: #fff;
+    border-radius: 20px;
+}
+
+/* ======================================================
+   BADGE
+====================================================== */
+
+.badge.bg-info {
+    background: #edf5ff !important;
+    color: #1f5ebc !important;
+    padding: 8px 14px;
+    font-size: .75rem;
+    font-weight: 600;
+    border-radius: 20px;
+}
+
+/* ======================================================
+   POLICY TITLE
+====================================================== */
+
+h5 {
+    color: #24324b;
+    font-weight: 700;
+}
+
+/* ======================================================
+   ACKNOWLEDGEMENT BOX
+====================================================== */
+
+.border.rounded.bg-light {
+    border: 2px solid #ffe0b2 !important;
+    background: #fffaf3 !important;
+    border-radius: 12px !important;
+    transition: .3s;
+}
+
+.border.rounded.bg-light:hover {
+    border-color: #ff9800 !important;
+    box-shadow: 0 10px 24px rgba(255,152,0,.12);
+}
+
+/* ======================================================
+   CHECKBOX
+====================================================== */
+
+.form-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.form-check-input {
+    width: 24px;
+    height: 24px;
+    margin-top: 2px;
+    cursor: pointer;
+    border: 2px solid #ff9800 !important;
+}
+
+.form-check-input:checked {
+    background-color: #ff9800;
+    border-color: #ff9800;
+    box-shadow: 0 0 0 .25rem rgba(255,152,0,.20);
+}
+
+.form-check-label {
+    cursor: pointer;
+    width: 100%;
+}
+
+.form-check-label strong {
+    display: block;
+    font-size: 1.05rem;
+    color: #24324b;
+    margin-bottom: 6px;
+}
+
+.form-check-label .small {
+    color: #5d6778;
+    line-height: 1.6;
+}
+
+/* ======================================================
+   WARNING BOX
+====================================================== */
+
+.policy-warning {
+    background: #fff8e6;
+    border: 1px solid #ffe4a3;
+    border-left: 5px solid #ff9800;
+    color: #8a5a00;
+    border-radius: 10px;
+    padding: 15px 18px;
+    font-size: .92rem;
+    text-align: left;
+    line-height: 1.6;
+}
+
+/* ======================================================
+   LINKS
+====================================================== */
+
+a {
+    transition: .25s;
+}
+
+a:hover {
+    opacity: .8;
+}
+
+/* ======================================================
+   ALERT
+====================================================== */
+
+.alert {
+    border-radius: 10px;
+}
+
+/* ======================================================
+   GENERAL
+====================================================== */
+
+.form-check-input,
+.form-check-label {
+    cursor: pointer;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 991px) {
+
+    .policy-page {
+        padding: 20px;
+        align-items: flex-start;
+    }
+
+    .pdf-card {
+        min-height: 450px;
+        height: auto;
+    }
+
+    .policy-btn {
+        width: 100%;
+    }
+
+    .card-body {
+        padding: 1rem !important;
+    }
+
+    .bg-primary h4 {
+        font-size: 1.4rem;
+    }
+
+    h5 {
+        font-size: 1.1rem;
+    }
+
+    .policy-warning {
+        margin-top: 20px;
+    }
+
+    .form-check {
+        gap: 12px;
+    }
+
+    .form-check-input {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+@media (max-width: 767px) {
+
+    .policy-page {
+        padding: 12px;
+    }
+
+    .pdf-card {
+        min-height: 260px;
+    }
+
+    .card-header {
+        padding: 14px 16px;
+    }
+
+    .bg-primary {
+        padding: 20px !important;
+    }
+
+    .bg-primary h4 {
+        font-size: 1.3rem;
+    }
+
+    .policy-btn {
+        margin-top: 15px;
+    }
+
+    .form-check-label strong {
+        font-size: 1rem;
+    }
+}

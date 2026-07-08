@@ -8,7 +8,7 @@ import {
   notifyError,
   confirmAction,
 } from "../../../services/alertService";
-import { AuthContext } from "../../../auth/AuthProvider";
+import AuthContext from "../../../auth/AuthContext";
 
 import Select from "react-select";
 import "../assets/css/conferencebookingmodal.css";

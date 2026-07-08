@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { getMenu } from "../../services/menuService";
-import useOnceEffect from "../../../../hooks/useOnceEffect";
 import { LOGOS } from "../../../../assets/assets";
 
 const HorizontalMenu = () => {
@@ -15,21 +14,24 @@ const HorizontalMenu = () => {
 		return "/" + route.replace(".php", "").replaceAll("_", "-");
 	};
 
-	const fetchMenus = async () => {
-		try {
+	useEffect(() => {
+		const loadMenus = async () => {
+			try {
 			const res = await getMenu();
 
-			if (res.status) {
+			console.log("API Response:", res);
+
+			if (res?.status) {
+				console.log("Setting menus...");
 				setMenus(res.menu || []);
 			}
-		} catch (err) {
-			console.error("Menu fetch error:", err);
-		}
-	};
+			} catch (err) {
+			console.error(err);
+			}
+		};
 
-	useOnceEffect(() => {
-		fetchMenus();
-	});
+		loadMenus();
+	}, []);
 
 	const isChildActive = (route) => {
 		const formattedRoute = formatRoute(route);

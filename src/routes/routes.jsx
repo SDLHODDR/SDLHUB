@@ -3,6 +3,7 @@ import MainLayout from "../layout/MainLayout";
 import ProtectedRoute from "../auth/ProtectedRoute";
 import { routeConfig } from "./routeConfig"; 
 import PolicyGuard from "../auth/PolicyGuard";
+import PolicyAcceptance from '../pages/PolicyAcceptance';
 
 import NotFound from "../pages/NotFound"; 
 
@@ -11,38 +12,50 @@ const AppRoutes = () => {
 
     <Routes>
 
-            {/* Public */}
-            {routeConfig.public.map((route, index) => (
-                <Route
-                key={index}
-                path={route.path}
-                element={<route.element />}
-                />
-            ))}
-
-            {/* Protected Layout Wrapper */}
+        {/* Public */}
+        {routeConfig.public.map((route, index) => (
             <Route
+            key={index}
+            path={route.path}
+            element={<route.element />}
+            />
+        ))}
+
+        {/* Policy page (NO MainLayout) */}
+        <Route
+            path="/policy-acceptance"
             element={
-                <ProtectedRoute>
-                    <PolicyGuard>
-                        <MainLayout />
-                    </PolicyGuard>
-                </ProtectedRoute>
+            <ProtectedRoute>
+                <PolicyAcceptance />
+            </ProtectedRoute>
             }
-            >
-            {routeConfig.protected.map((route, index) => (
+        />
+
+        {/* Application */}
+        <Route
+            element={
+            <ProtectedRoute>
+                <PolicyGuard>
+                <MainLayout />
+                </PolicyGuard>
+            </ProtectedRoute>
+            }
+        >
+            {routeConfig.protected
+            .filter(r => r.path !== "/policy-acceptance")
+            .map((route, index) => (
                 <Route
                 key={index}
                 path={route.path}
                 element={<route.element />}
                 />
             ))}
-            </Route>
+        </Route>
 
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="*" element={<NotFound />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<NotFound />} />
 
-        </Routes>
+    </Routes>
 
     )           
    
