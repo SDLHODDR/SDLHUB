@@ -2,30 +2,39 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { LOGOS, STOREIMAGES } from "../assets/assets";
 import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../auth/AuthProvider";
-//import AuthorizationSettings from "../components/authorization/AuthorizationSettings";
-
+import AuthorizationDropdown from "../components/authorization/AuthorizationDropdown";
+import { useDispatch, useSelector } from "react-redux";
+import { getAuthroizationTaskCount } from "../store/eportal/ePortalAuthorizationCountSlice";
 
 const HeaderTop = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const {user, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [headerImage, setHeaderImage] = useState("");
 
+  const successCnt = useSelector((state) => state.eportalAuthCounts.success);
+  // const countData = useSelector((state) => state.eportalAuthCounts.data);
+  const dispatch = useDispatch();
+  console.log("==========SuccessCNT============", successCnt);  
   useEffect(() => {
-      if (user?.profile_image) {
-          setHeaderImage(
-              `${user.profile_image}?v=${new Date().getTime()}`
-          );
-      }
+    dispatch(getAuthroizationTaskCount());
+  }, []);
+
+  
+
+  useEffect(() => {
+    if (user?.profile_image) {
+      setHeaderImage(`${user.profile_image}?v=${new Date().getTime()}`);
+    }
   }, [user?.profile_image]);
 
-  const handleLogout = async () => {    
+  const handleLogout = async () => {
     await logout();
     navigate("/login", { replace: true });
   };
 
- //Mobile Menu starts
+  //Mobile Menu starts
   const sidebarOverlay = () => {
     document?.querySelector(".main-wrapper")?.classList?.toggle("slide-nav");
     document?.querySelector(".sidebar-overlay")?.classList?.toggle("opened");
@@ -37,14 +46,14 @@ const HeaderTop = () => {
     document.querySelector("html")?.classList.remove("menu-opened");
   }, [location.pathname]);
 
- //Mobile Menu ends
-useEffect(() => {
+  //Mobile Menu ends
+  useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(
         document.fullscreenElement ||
-        document.mozFullScreenElement ||
-        document.webkitFullscreenElement ||
-        document.msFullscreenElement
+          document.mozFullScreenElement ||
+          document.webkitFullscreenElement ||
+          document.msFullscreenElement,
       );
     };
 
@@ -57,28 +66,28 @@ useEffect(() => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
       document.removeEventListener(
         "mozfullscreenchange",
-        handleFullscreenChange
+        handleFullscreenChange,
       );
       document.removeEventListener(
         "webkitfullscreenchange",
-        handleFullscreenChange
+        handleFullscreenChange,
       );
       document.removeEventListener(
         "msfullscreenchange",
-        handleFullscreenChange
+        handleFullscreenChange,
       );
     };
   }, []);
 
-const toggleFullscreen = (elem) => {
+  const toggleFullscreen = (elem) => {
     const doc = document;
     elem = elem || document.documentElement;
     if (
-    !doc.fullscreenElement &&
-    !doc.mozFullScreenElement &&
-    !doc.webkitFullscreenElement &&
-    !doc.msFullscreenElement)
-    {
+      !doc.fullscreenElement &&
+      !doc.mozFullScreenElement &&
+      !doc.webkitFullscreenElement &&
+      !doc.msFullscreenElement
+    ) {
       if (elem.requestFullscreen) {
         elem.requestFullscreen();
       } else if (elem.msRequestFullscreen) {
@@ -99,14 +108,15 @@ const toggleFullscreen = (elem) => {
     }
   };
 
+  
+
   return (
     <div className="header">
       <div className="main-header">
-
         {/* Logo Section */}
         <div className="header-left active">
           <Link to="/eportal/dashboard" className="logo logo-normal">
-            <img src={LOGOS.MAIN} alt="Img" style={{width:90}}/>
+            <img src={LOGOS.MAIN} alt="Img" style={{ width: 90 }} />
           </Link>
 
           <Link to="/eportal/dashboard" className="logo logo-white">
@@ -118,23 +128,22 @@ const toggleFullscreen = (elem) => {
           </Link>
         </div>
 
-		<Link
-            id="mobile_btn"
-            className="mobile_btn"
-            to="#"
-            onClick={sidebarOverlay}>
-            
-            <span className="bar-icon">
-              <span />
-              <span />
-              <span />
-            </span>
-          </Link>
+        <Link
+          id="mobile_btn"
+          className="mobile_btn"
+          to="#"
+          onClick={sidebarOverlay}
+        >
+          <span className="bar-icon">
+            <span />
+            <span />
+            <span />
+          </span>
+        </Link>
 
         <ul className="nav user-menu">
-		 
-		  {/* Search */}
-          <li className="nav-item nav-searchinputs " >
+          {/* Search */}
+          <li className="nav-item nav-searchinputs ">
             <div className="top-nav-search d-none">
               <div className="searchinputs input-group">
                 <input type="text" placeholder="Search" />
@@ -147,74 +156,92 @@ const toggleFullscreen = (elem) => {
             </div>
           </li>
 
-         {/* Select Store */}
-            <li className="nav-item dropdown has-arrow main-drop select-store-dropdown d-none">
-              <Link
-                to="#"
-                className="dropdown-toggle nav-link select-store"
-                data-bs-toggle="dropdown">
-                
-                <span className="user-info">
-                  <span className="user-letter">
-                    <img
-                      src={STOREIMAGES.STORE.STORE_01}
-                      alt="Store Logo"
-                      className="img-fluid" />
-                    
-                  </span>
-                  <span className="user-detail">
-                    <span className="user-name">Freshmart</span>
-                  </span>
+          {/* Select Store */}
+          <li className="nav-item dropdown has-arrow main-drop select-store-dropdown d-none">
+            <Link
+              to="#"
+              className="dropdown-toggle nav-link select-store"
+              data-bs-toggle="dropdown"
+            >
+              <span className="user-info">
+                <span className="user-letter">
+                  <img
+                    src={STOREIMAGES.STORE.STORE_01}
+                    alt="Store Logo"
+                    className="img-fluid"
+                  />
                 </span>
-              </Link> 
-              <div className="dropdown-menu dropdown-menu-right">
-                <Link to="#" className="dropdown-item">
-                  <img src={STOREIMAGES.STORE.STORE_01} alt="Store Logo" className="img-fluid" />
-                  Freshmart
-                </Link>
-                <Link to="#" className="dropdown-item">
-                  <img src={STOREIMAGES.STORE.STORE_02}  alt="Store Logo" className="img-fluid" />
-                  Grocery Apex
-                </Link>
-                <Link to="#" className="dropdown-item">
-                  <img src={STOREIMAGES.STORE.STORE_03}  alt="Store Logo" className="img-fluid" />
-                  Grocery Bevy
-                </Link>
-                <Link to="#" className="dropdown-item">
-                  <img src={STOREIMAGES.STORE.STORE_04}  alt="Store Logo" className="img-fluid" />
-                  Grocery Eden
-                </Link>
-              </div>
-            </li>
-            {/* /Select Store */}
-
-           
-      			<li className="nav-item nav-item-box">
-              <Link
-                to="#"
-                id="btnFullscreen"
-                onClick={() => toggleFullscreen()}
-                className={isFullscreen ? "Exit Fullscreen" : "Go Fullscreen"}>
-                
-                {/* <i data-feather="maximize" /> */}
-                <i className="ti ti-maximize"></i>
+                <span className="user-detail">
+                  <span className="user-name">Freshmart</span>
+                </span>
+              </span>
+            </Link>
+            <div className="dropdown-menu dropdown-menu-right">
+              <Link to="#" className="dropdown-item">
+                <img
+                  src={STOREIMAGES.STORE.STORE_01}
+                  alt="Store Logo"
+                  className="img-fluid"
+                />
+                Freshmart
               </Link>
-            </li>
+              <Link to="#" className="dropdown-item">
+                <img
+                  src={STOREIMAGES.STORE.STORE_02}
+                  alt="Store Logo"
+                  className="img-fluid"
+                />
+                Grocery Apex
+              </Link>
+              <Link to="#" className="dropdown-item">
+                <img
+                  src={STOREIMAGES.STORE.STORE_03}
+                  alt="Store Logo"
+                  className="img-fluid"
+                />
+                Grocery Bevy
+              </Link>
+              <Link to="#" className="dropdown-item">
+                <img
+                  src={STOREIMAGES.STORE.STORE_04}
+                  alt="Store Logo"
+                  className="img-fluid"
+                />
+                Grocery Eden
+              </Link>
+            </div>
+          </li>
+          {/* /Select Store */}
+
+          {/* <AuthorizationSettings /> */}
+
+          { 
+            successCnt && <AuthorizationDropdown />
+          }  
+          
+
+          <li className="nav-item nav-item-box">
+            <Link
+              to="#"
+              id="btnFullscreen"
+              onClick={() => toggleFullscreen()}
+              className={isFullscreen ? "Exit Fullscreen" : "Go Fullscreen"}
+            >
+              {/* <i data-feather="maximize" /> */}
+              <i className="ti ti-maximize"></i>
+            </Link>
+          </li>
 
           {/* Profile Dropdown */}
           <li className="nav-item dropdown has-arrow main-drop profile-nav">
-            <a
-              href="#!"
-              className="nav-link userset"
-              data-bs-toggle="dropdown"
-            >
+            <a href="#!" className="nav-link userset" data-bs-toggle="dropdown">
               <span className="user-info p-0">
-                <span className="user-letter">       
-                    <img
-                        src={headerImage || STOREIMAGES.PROFILE.AVATAR_1}
-                        alt="Profile"
-                        className="img-fluid"
-                    />
+                <span className="user-letter">
+                  <img
+                    src={headerImage || STOREIMAGES.PROFILE.AVATAR_1}
+                    alt="Profile"
+                    className="img-fluid"
+                  />
                 </span>
               </span>
             </a>
@@ -222,24 +249,21 @@ const toggleFullscreen = (elem) => {
             <div className="dropdown-menu menu-drop-user">
               <div className="profileset d-flex align-items-center">
                 <span className="user-img me-2">
-                  
                   <img
-                      src={headerImage || STOREIMAGES.PROFILE.AVATAR_1}
-                      alt="Profile"
+                    src={headerImage || STOREIMAGES.PROFILE.AVATAR_1}
+                    alt="Profile"
                   />
                 </span>
-                <div>					
-                 	<h6 className="fw-medium">
-						{user?.name || "Guest User"}
-					</h6>
-					<p>{user?.empcode || "User"}</p>
+                <div>
+                  <h6 className="fw-medium">{user?.name || "Guest User"}</h6>
+                  <p>{user?.empcode || "User"}</p>
                 </div>
               </div>
 
               <Link className="dropdown-item" to="eportal/my-profile">
-                <i className="ti ti-user-circle me-2"></i>MyProfile 
+                <i className="ti ti-user-circle me-2"></i>MyProfile
               </Link>
-             {/*}
+              {/*}
               <Link className="dropdown-item" to="/reports">
                 <i className="ti ti-file-text me-2"></i>Reports
               </Link> */}
@@ -287,7 +311,6 @@ const toggleFullscreen = (elem) => {
             </button>
           </div>
         </div>
-
       </div>
     </div>
   );
