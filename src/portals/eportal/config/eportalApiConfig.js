@@ -55,6 +55,21 @@ export const EPORTAL_API = {
     IT_REMARKS: "/dashboard/itRemarks.php",
     ACCESS_DATA: "/dashboard/getDashboardAccessData.php"
   },
+  GATEPASS: {
+    GPData: "/gatepass/gp_info_sv.php", // GP Info Data
+    SAVEGPData: "/gatepass/gp_save.php", // GP Info Data
+    SAVEGPDataAuth: "/gatepass/gp_save.php", // GP Info Data
+    EDITGPData: "/gatepass/gp_save.php", // GP Info Data
+    EDITGPDataAuth: "/gatepass/gp_save.php", // GP Info Data
+    DELETEGPData: "/gatepass/gp_save.php", // GP Info Data
+    GP_LIST: "/gatepass/gp_list.php",
+    GET_GP_LIST: "/gatepass/gp_get_list.php",
+    SENDAUTHGPData: "/gatepass/gp_auth.php",
+    RESENDAUTHGPData: "/gatepass/gp_auth.php",
+    AUTHGPData: "/gatepass/gp_svauth.php",
+    REJECTGPData: "/gatepass/gp_svauth.php",
+    CLOSEGPData: "/gatepass/gp_save.php"
+  },
   IT_RETURN:{
     GET_INCOME_DATA: "/itreturn/getItReturnData.php", // Get income Data
     GET_DEDUCTION_DATA: "/itreturn/getDeductionData.php", // Get deduction Data
@@ -83,5 +98,9 @@ export const EPORTAL_API = {
     GET_ENDORSEMENT_REPORT: "/reports/getPolicyEndorsementReport.php",
     GET_ACCEPTANCE_DETAILS: "/reports/getPolicyAcceptanceDetails.php",
     EXPORT_ACCEPTANCE_REPORT: "/reports/exportPolicyAcceptanceReport.php", 
+  },
+  AUTHORIZATION: {
+    TASKDATA: "/getAuthorization.php", // GP Info Data
+    TASKTABLEDATA: "/getTable.php",
   },
 }

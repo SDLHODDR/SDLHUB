@@ -1,6 +1,6 @@
 import Login from "../auth/Login";
 import ForgotPassword from "../auth/ForgotPassword";
-//import AuthorizationRequests from "../components/authorization/AuthorizationRequests";
+
 
 // Site-Dashboards components
 //import HRMSDashboard from  "../portals/hrms/pages/components/Dashboard";
@@ -26,6 +26,9 @@ import PolicyEndorsementReport from "../portals/eportal/components/reports/Polic
 
 import PolicyAcceptance from '../pages/PolicyAcceptance';
 
+import OutdoorDuty from "../portals/eportal/components/my-activities/OutdoorDuty";
+import OutdoorDutyAuthorization from "../components/authorization/OutdoorDutyAuthorization";
+
 // Sitewise Protected components
 //-------------------ePortal------------------------------------------------
 import MyProfile from '../pages/MyProfile';
@@ -42,10 +45,10 @@ export const routeConfig = {
 
   protected: [
     //{ path: "eportal/ticket-booking-req", element: TicketBooking },
-    //{ path: "eportal/gatepass", element: OutdoorDuty },
+    { path: "eportal/gatepass", element: OutdoorDuty },
     //{ path: "eportal/leave", element: Leave },
     { path: "eportal/dashboard", element: Dashboard },
-    //{ path: "eportal/authorization-requests", element: AuthorizationRequests },
+    
 
     { path: "eportal/my-documents", element: MyDocuments },
     { path: "eportal/company-policies", element: CompanyPolicies },
@@ -60,7 +63,11 @@ export const routeConfig = {
     { path: "eportal/download-itr", element: DownloadITRDocs },
     { path: "policy-acceptance", element: PolicyAcceptance },
     { path: "eportal/itr-report", element: ItrDownloadReport },
-    { path: "eportal/policy-endorsement-report", element: PolicyEndorsementReport },    
+    { path: "eportal/policy-endorsement-report", element: PolicyEndorsementReport },   
+    // { path: "eportal/taskauthorization/109", element: LeaveAuthorization },
+    // { path: "eportal/taskauthorization/346", element: TicketBookingAuthorization },
+    { path: "eportal/taskauthorization/349", element: OutdoorDutyAuthorization },
+    // { path: "eportal/taskauthorization/357", element: ConferenceRoomsAuthorization },
 
     //EPP
    // { path: "epp/dashboard", element: EppDashboard },

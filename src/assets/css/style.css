@@ -831,11 +831,14 @@ ul .btn-primary:not(:disabled):not(.disabled):active:focus, ul .btn-primary:not(
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  color: #ffffff;
+  color: #000;
+  /* color: #ffffff; */
   font-weight: 500;
 }
+
 .avatar a.badge:hover {
-  color: #ffffff;
+  color:#000
+  /* color: #ffffff; */
 }
 .avatar img {
   width: 100%;
@@ -46094,3 +46097,7 @@ span.flatpickr-weekday {
 }
 
 /*# sourceMappingURL=style.css.map */
+
+.auth-cnt {
+  color:#000 !important;
+}
