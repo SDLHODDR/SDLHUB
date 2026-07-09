@@ -4,10 +4,12 @@ import { useEffect, useState, useContext } from "react";
 import AuthContext from "../auth/AuthContext";
 //import AuthorizationSettings from "../components/authorization/AuthorizationSettings";
 
-
 const HeaderTop = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isPolicyPage = location.pathname === "/policy-acceptance";
+
   const {user, logout } = useContext(AuthContext);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [headerImage, setHeaderImage] = useState("");
@@ -100,11 +102,14 @@ const toggleFullscreen = (elem) => {
   };
 
   return (
-    <div className="header">
-      <div className="main-header">
+    <div className={`header ${isPolicyPage ? "policy-header" : ""}`}>
+      <div className={`main-header ${isPolicyPage ? "policy-main-header" : ""}`}>
 
         {/* Logo Section */}
-        <div className="header-left active">
+        <div className={`header-left active ${
+                  isPolicyPage ? "policy-header-left" : ""
+              }`}
+          >
           <Link to="/eportal/dashboard" className="logo logo-normal">
             <img src={LOGOS.MAIN} alt="Img" style={{width:90}}/>
           </Link>
@@ -118,18 +123,20 @@ const toggleFullscreen = (elem) => {
           </Link>
         </div>
 
-		<Link
-            id="mobile_btn"
-            className="mobile_btn"
-            to="#"
-            onClick={sidebarOverlay}>
-            
-            <span className="bar-icon">
+		{!isPolicyPage && (
+      <Link
+          id="mobile_btn"
+          className="mobile_btn"
+          to="#"
+          onClick={sidebarOverlay}
+      >
+          <span className="bar-icon">
               <span />
               <span />
               <span />
-            </span>
-          </Link>
+          </span>
+      </Link>
+      )}
 
         <ul className="nav user-menu">
 		 

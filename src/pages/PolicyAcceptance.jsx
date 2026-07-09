@@ -24,6 +24,14 @@ const PolicyAcceptance = () => {
   const HRMS_DOC_BASE_URL = import.meta.env.VITE_HRMS_DOC_BASE_URL;
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+  useEffect(() => {
+    document.body.classList.add("policy-layout");
+
+    return () => {
+        document.body.classList.remove("policy-layout");
+    };
+}, []);
+
   /*
   ======================================================
   LOAD PENDING POLICIES

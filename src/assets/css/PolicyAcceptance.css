@@ -307,3 +307,91 @@ a:hover {
         font-size: 1rem;
     }
 }
+
+/* ======================================================
+   POLICY LAYOUT
+====================================================== */
+
+body.policy-layout .header {
+    left: 0 !important;
+    width: 100% !important;
+}
+
+body.policy-layout .page-wrapper {
+    margin-left: 0 !important;
+    padding-top: 65px;
+}
+
+body.policy-layout #sidebar,
+body.policy-layout .sidebar-horizontal,
+body.policy-layout .sidebar-overlay {
+    display: none !important;
+}
+
+
+
+@media (min-width: 992px) {
+
+    body.policy-layout .header .header-left {
+        display: flex !important;       
+        align-items: center;
+        justify-content: center;
+    }
+
+    body.policy-layout .header .main-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    body.policy-layout .header .user-menu {
+        margin-left: auto;
+    }
+}
+
+/* ---------- HEADER ---------- */
+
+body.policy-layout .header .main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 28px;          /* same feel as dashboard */
+}
+
+/* left logo */
+
+body.policy-layout .header .header-left {
+    display: flex !important;
+
+    position: static;
+    float: none;
+
+    width: auto;
+    min-width: auto;
+    flex: 0 0 auto;
+}
+
+/* logo */
+
+body.policy-layout .logo-normal {
+    display: flex !important;
+}
+
+body.policy-layout .logo-white,
+body.policy-layout .logo-small {
+    display: none !important;
+}
+
+/* profile */
+
+body.policy-layout .user-menu {
+    margin-left: auto;
+    padding-right: 0;
+}
+
+/* hide hamburger */
+
+body.policy-layout #mobile_btn {
+    display: none;
+}
