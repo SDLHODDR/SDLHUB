@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -12,12 +12,11 @@ import { renderConferenceTooltip } from "../../utils/tooltipHelper";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 
 const ConferenceRoom = () => {
-
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   const [rows, setRows] = useState(10);
   const [showScheduler, setShowScheduler] = useState(false);
 
@@ -28,7 +27,7 @@ const ConferenceRoom = () => {
 
   const openModal = (row = null) => {
     if (row) {
-      setSelectedBooking(row);  // null = add new booking
+      setSelectedBooking(row); // null = add new booking
     } else {
       setSelectedBooking({});
     }
@@ -41,29 +40,29 @@ const ConferenceRoom = () => {
   };
 
   /* ================= FETCH DATA ================= */
-  
-const fetchData = async () => {
-  setLoading(true);
 
-  try {
-    const res = await getConferenceRooms();
+  const fetchData = async () => {
+    setLoading(true);
 
-    if (res.status) {
-      setBookings(res.data || []);
-    } else {
+    try {
+      const res = await getConferenceRooms();
+
+      if (res.status) {
+        setBookings(res.data || []);
+      } else {
+        setBookings([]);
+      }
+    } catch (err) {
+      console.error(err);
       setBookings([]);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error(err);
-    setBookings([]);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-useEffect(() => {
-  fetchData();
-}, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   /* ================= DATE FORMATTER ================= 
 
@@ -116,7 +115,7 @@ useEffect(() => {
     return bookings.filter(
       (item) =>
         item.ROOM_LABEL?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.DT?.toLowerCase().includes(searchQuery.toLowerCase())
+        item.DT?.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [searchQuery, bookings]);
 
@@ -147,42 +146,42 @@ useEffect(() => {
 
   const serialBody = (rowData, options) => options.rowIndex + 1;
 
-const durationBody = (row) => (
-  <OverlayTrigger
-    placement="right"
-    overlay={renderConferenceTooltip(row)}
-    delay={{ show: 200, hide: 100 }}
-    container={document.body}
-  >
-    <span>{calculateDuration(row.STARTTIME, row.ENDTIME)}</span>
-  </OverlayTrigger>
-);
-
-const reasonBody = (row) => {
-  const text = row.REMARKS || "-";
-
-  return (
-    <span title={text}>
-      {text.length > 25 ? text.substring(0, 25) + "..." : text}
-    </span>
+  const durationBody = (row) => (
+    <OverlayTrigger
+      placement="right"
+      overlay={renderConferenceTooltip(row)}
+      delay={{ show: 200, hide: 100 }}
+      container={document.body}
+    >
+      <span>{calculateDuration(row.STARTTIME, row.ENDTIME)}</span>
+    </OverlayTrigger>
   );
-};
 
-const statusBody = (row) => getStatusBadge(row.STATUS);
+  const reasonBody = (row) => {
+    const text = row.REMARKS || "-";
 
-const actionBody = (row) => (
-  <a
-    href="#"
-    onClick={(e) => {
-      e.preventDefault();
-      openModal(row);
-    }}
-    className="btn btn-icon btn-sm btn-primary"
-    title="View"
-  >
-    <i className="ti ti-eye"></i>
-  </a>
-);
+    return (
+      <span title={text}>
+        {text.length > 25 ? text.substring(0, 25) + "..." : text}
+      </span>
+    );
+  };
+
+  const statusBody = (row) => getStatusBadge(row.STATUS);
+
+  const actionBody = (row) => (
+    <a
+      href="#"
+      onClick={(e) => {
+        e.preventDefault();
+        openModal(row);
+      }}
+      className="btn btn-icon btn-sm btn-primary"
+      title="View"
+    >
+      <i className="ti ti-eye"></i>
+    </a>
+  );
 
   return (
     <>
@@ -193,13 +192,12 @@ const actionBody = (row) => (
           </div>
         </div>
 
-          <BreadcrumbNav
+        <BreadcrumbNav
           items={[
-              { text: "Home", link: "/eportal/dashboard" },
-              { text: "Holiday Calendar" },
+            { text: "Home", link: "/eportal/dashboard" },
+            { text: "Conference Room" },
           ]}
-          />
-
+        />
       </div>
       <div className="row">
         <div className="card">
@@ -233,32 +231,30 @@ const actionBody = (row) => (
         </div>
       </div>
 
-      {showScheduler && (
-        <ConferenceScheduler bookings={bookings} />
-      )}
+      {showScheduler && <ConferenceScheduler bookings={bookings} />}
       <div className="row">
         <div className="card">
           <div className="card-body">
             {/* SEARCH */}
             <div className="row mb-3">
-    <div className="col-lg-4 col-md-6">
-        <div className="search-set">
-            <div className="search-input position-relative">
-                <span className="btn-searchset">
-                    <i className="ti ti-search"></i>
-                </span>
+              <div className="col-lg-4 col-md-6">
+                <div className="search-set">
+                  <div className="search-input position-relative">
+                    <span className="btn-searchset">
+                      <i className="ti ti-search"></i>
+                    </span>
 
-                <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Search Room / Date..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Search Room / Date..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-        </div>
-    </div>
-</div>
             {/* TABLE */}
             {loading ? (
               <div className="p-4 text-center">
@@ -269,74 +265,49 @@ const actionBody = (row) => (
                 No bookings found
               </div>
             ) : (
-             <DataTable
-    value={filteredData}
-    loading={loading}
-    paginator={filteredData.length > 10}
-    rows={rows}
-    rowsPerPageOptions={[10, 25, 50, 100]}
-    onPage={(e) => setRows(e.rows)}
-    stripedRows
-    showGridlines
-    removableSort
-    responsiveLayout="scroll"
-    scrollable
-    paginatorDropdownAppendTo="self"
-    emptyMessage="No bookings found"
-    className="p-datatable-sm"
-    dataKey="ID"
->
-    <Column
-        header="#"
-        body={serialBody}
-        style={{ width: "70px" }}
-    />
+              <DataTable
+                value={filteredData}
+                loading={loading}
+                paginator={filteredData.length > 10}
+                rows={rows}
+                rowsPerPageOptions={[10, 25, 50, 100]}
+                onPage={(e) => setRows(e.rows)}
+                stripedRows
+                showGridlines
+                removableSort
+                responsiveLayout="scroll"
+                scrollable
+                paginatorDropdownAppendTo="self"
+                emptyMessage="No bookings found"
+                className="p-datatable-sm"
+                dataKey="ID"
+              >
+                <Column
+                  header="#"
+                  body={serialBody}
+                  style={{ width: "70px" }}
+                />
 
-    <Column
-        field="ROOM_LABEL"
-        header="Room"
-        sortable
-    />
+                <Column field="ROOM_LABEL" header="Room" sortable />
 
-    <Column
-        field="DT"
-        header="Date"
-        sortable
-    />
+                <Column field="DT" header="Date" sortable />
 
-    <Column
-        header="Duration"
-        body={durationBody}
-    />
+                <Column header="Duration" body={durationBody} />
 
-    <Column
-        field="BOOK_BY_NAME"
-        header="Booked By"
-        sortable
-    />
+                <Column field="BOOK_BY_NAME" header="Booked By" sortable />
 
-    <Column
-        field="CHG_ON"
-        header="Requested On"
-        sortable
-    />
+                <Column field="CHG_ON" header="Requested On" sortable />
 
-    <Column
-        header="Reason"
-        body={reasonBody}
-    />
+                <Column header="Reason" body={reasonBody} />
 
-    <Column
-        header="Status"
-        body={statusBody}
-    />
+                <Column header="Status" body={statusBody} />
 
-    <Column
-        header="Action"
-        body={actionBody}
-        style={{ width: "90px" }}
-    />
-</DataTable>
+                <Column
+                  header="Action"
+                  body={actionBody}
+                  style={{ width: "90px" }}
+                />
+              </DataTable>
             )}
           </div>
         </div>
@@ -358,7 +329,6 @@ const actionBody = (row) => (
           onClose={() => setShowAllBookings(false)}
         />
       )}
-
     </>
   );
 };

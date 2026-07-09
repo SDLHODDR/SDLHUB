@@ -163,6 +163,7 @@ export const saveExemptions = async (payload) => {
 
     return res.data; // IMPORTANT
   } catch (error) {
+    console.error("Error saving Exemption data:", error);
     throw error;
   }
 };
