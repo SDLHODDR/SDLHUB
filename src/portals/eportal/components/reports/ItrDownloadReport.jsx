@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
-
 import {
   getItrDownloadReport,
   exportItrDownloadReport,
@@ -144,9 +143,7 @@ const ItrDownloadReport = () => {
 
     const result = await exportItrDownloadReport(filters);
 
-    if (result.success) {
-      notifySuccess("Excel exported successfully");
-    } else {
+    if (!result.success) {
       notifyError(result.message || "Failed to export report");
     }
   };
@@ -239,19 +236,40 @@ const ItrDownloadReport = () => {
 
     if (!keyword) return rows;
 
-    return rows.filter((row) =>
-        String(row.DOWNLOAD_TIME ?? "").toLowerCase().includes(keyword) ||
-        String(row.EMP_CODE ?? "").toLowerCase().includes(keyword) ||
-        String(row.TARGET_EMP_CODE ?? "").toLowerCase().includes(keyword) ||
-        String(row.DOWNLOAD_TYPE ?? "").toLowerCase().includes(keyword) ||
-        String(row.FINANCIAL_YEAR ?? "").toLowerCase().includes(keyword) ||
-        String(row.FILE_NAME ?? "").toLowerCase().includes(keyword) ||
-        String(row.FILE_SIZE_MB ?? "").toLowerCase().includes(keyword) ||
-        String(row.STATUS ?? "").toLowerCase().includes(keyword) ||
-        String(row.BROWSER_NAME ?? "").toLowerCase().includes(keyword) ||
-        String(row.IP_ADDRESS ?? "").toLowerCase().includes(keyword)
+    return rows.filter(
+      (row) =>
+        String(row.DOWNLOAD_TIME ?? "")
+          .toLowerCase()
+          .includes(keyword) ||
+        String(row.EMP_CODE ?? "")
+          .toLowerCase()
+          .includes(keyword) ||
+        String(row.TARGET_EMP_CODE ?? "")
+          .toLowerCase()
+          .includes(keyword) ||
+        String(row.DOWNLOAD_TYPE ?? "")
+          .toLowerCase()
+          .includes(keyword) ||
+        String(row.FINANCIAL_YEAR ?? "")
+          .toLowerCase()
+          .includes(keyword) ||
+        String(row.FILE_NAME ?? "")
+          .toLowerCase()
+          .includes(keyword) ||
+        String(row.FILE_SIZE_MB ?? "")
+          .toLowerCase()
+          .includes(keyword) ||
+        String(row.STATUS ?? "")
+          .toLowerCase()
+          .includes(keyword) ||
+        String(row.BROWSER_NAME ?? "")
+          .toLowerCase()
+          .includes(keyword) ||
+        String(row.IP_ADDRESS ?? "")
+          .toLowerCase()
+          .includes(keyword),
     );
-}, [rows, globalFilter]);
+  }, [rows, globalFilter]);
 
   return (
     <div className="container-fluid">
@@ -270,11 +288,22 @@ const ItrDownloadReport = () => {
         />
       </div>
 
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <button className="btn btn-success" onClick={handleExport}>
-          <i className="fas fa-file-excel me-2"></i>
-          Export Excel
-        </button>
+      {/* Export Section */}
+      <div className="card shadow-sm mb-3">
+        <div className="card-body py-3 px-4">
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+              <h6 className="mb-1 fw-semibold">Download ITR Download Report</h6>
+              <small className="text-muted">
+                Export the complete download history to Excel.
+              </small>
+            </div>
+            <button className="btn btn-success px-4" onClick={handleExport}>
+              <i className="fas fa-file-excel me-2"></i>
+              Export Excel
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Filters */}

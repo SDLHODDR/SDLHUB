@@ -1,40 +1,78 @@
+/* ==============================
+   DreamPOS SweetAlert Buttons
+============================== */
+
+.dreampos-btn-primary,
+.dreampos-btn-danger,
+.dreampos-btn-warning,
+.dreampos-btn-outline {
+    border-radius: 6px !important;
+    padding: 10px 24px !important;
+    font-weight: 600 !important;
+    min-width: 100px !important;
+    transition: all .2s ease;
+}
+
+/* Success */
 .dreampos-btn-primary {
     background: #28c76f !important;
+    border: 1px solid #28c76f !important;
     color: #fff !important;
-    border: none !important;
-    border-radius: 6px !important;
-    padding: 10px 24px !important;
-    font-weight: 600 !important;
-    min-width: 100px !important;
 }
 
+/* Danger */
 .dreampos-btn-danger {
     background: #ea5455 !important;
+    border: 1px solid #ea5455 !important;
     color: #fff !important;
-    border: none !important;
-    border-radius: 6px !important;
-    padding: 10px 24px !important;
-    font-weight: 600 !important;
-    min-width: 100px !important;
 }
 
+/* Warning */
 .dreampos-btn-warning {
     background: #ff9f43 !important;
+    border: 1px solid #ff9f43 !important;
     color: #fff !important;
-    border: none !important;
-    border-radius: 6px !important;
-    padding: 10px 24px !important;
+}
+
+/* Secondary */
+.dreampos-btn-outline {
+    background: #fff !important;
+    border: 1px solid #dcdcdc !important;
+    color: #6c757d !important;
+}
+
+/* Hover */
+.dreampos-btn-primary:hover {
+    background: #24b263 !important;
+    border-color: #24b263 !important;
+}
+
+.dreampos-btn-danger:hover {
+    background: #d73d40 !important;
+    border-color: #d73d40 !important;
+}
+
+.dreampos-btn-warning:hover {
+    background: #f38a22 !important;
+    border-color: #f38a22 !important;
+}
+
+.dreampos-btn-outline:hover {
+    background: #f8f9fa !important;
+}
+
+/* SweetAlert Popup */
+.swal2-popup.dreampos-popup {
+    border-radius: 12px !important;
+    padding: 1.8rem !important;
+}
+
+/* Title */
+.swal2-title {
     font-weight: 600 !important;
 }
 
-.dreampos-btn-outline {
-    background: #fff !important;
-    color: #6c757d !important;
-    border: 1px solid #dcdcdc !important;
-    border-radius: 6px !important;
-    padding: 10px 24px !important;
-}
-
-.swal2-popup.dreampos-popup {
-    border-radius: 12px !important;
+/* Content */
+.swal2-html-container {
+    font-size: 15px !important;
 }
