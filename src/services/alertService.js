@@ -56,10 +56,10 @@ export const confirmAction = async (
     showCancelButton: true,
     confirmButtonText: "Continue",
     cancelButtonText: "Cancel",
-    customClass: {
-      popup: "dreampos-popup",
-      confirmButton: "dreampos-btn-warning",
-      cancelButton: "dreampos-btn-outline",
+     customClass: {
+        popup: "dreampos-popup",
+        confirmButton: "dreampos-btn-primary",
+        cancelButton: "dreampos-btn-outline",
     },
     buttonsStyling: false,
   });

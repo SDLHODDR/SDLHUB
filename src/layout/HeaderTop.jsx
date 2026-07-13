@@ -10,7 +10,10 @@ import { getAuthroizationTaskCount } from "../store/eportal/ePortalAuthorization
 const HeaderTop = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useContext(AuthContext);
+
+  const isPolicyPage = location.pathname === "/policy-acceptance";
+
+  const {user, logout } = useContext(AuthContext);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [headerImage, setHeaderImage] = useState("");
 
@@ -112,10 +115,14 @@ const HeaderTop = () => {
   
 
   return (
-    <div className="header">
-      <div className="main-header">
+    <div className={`header ${isPolicyPage ? "policy-header" : ""}`}>
+      <div className={`main-header ${isPolicyPage ? "policy-main-header" : ""}`}>
+
         {/* Logo Section */}
-        <div className="header-left active">
+        <div className={`header-left active ${
+                  isPolicyPage ? "policy-header-left" : ""
+              }`}
+          >
           <Link to="/eportal/dashboard" className="logo logo-normal">
             <img src={LOGOS.MAIN} alt="Img" style={{ width: 90 }} />
           </Link>
@@ -129,18 +136,20 @@ const HeaderTop = () => {
           </Link>
         </div>
 
-        <Link
+		{!isPolicyPage && (
+      <Link
           id="mobile_btn"
           className="mobile_btn"
           to="#"
           onClick={sidebarOverlay}
-        >
+      >
           <span className="bar-icon">
-            <span />
-            <span />
-            <span />
+              <span />
+              <span />
+              <span />
           </span>
-        </Link>
+      </Link>
+      )}
 
         <ul className="nav user-menu">
           {/* Search */}

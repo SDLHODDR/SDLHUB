@@ -107,3 +107,21 @@ export const getProfileUsers = async (profileId) => {
     throw error;
   }
 };
+
+/* ---------------- ADD PROFILE ------------------- */
+
+export const addProfile = async (payload) => {
+  try {
+    const res = await eportalAPI.post(
+      EPORTAL_API.PROFILE_MAINTENANCE.ADD_PROFILE,
+      payload,
+      { withCredentials: true }
+    );
+
+    return res.data;
+
+  } catch (error) {
+    console.error("Add new profile error:", error);
+    throw error;
+  }
+};

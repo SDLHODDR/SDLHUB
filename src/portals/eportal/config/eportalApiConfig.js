@@ -29,6 +29,7 @@ export const EPORTAL_API = {
     REJECTCBRData: "/conference/authConferenceRooms.php",
   },
   PROFILE_MAINTENANCE: {
+    ADD_PROFILE: "/profile/addProfile.php",
     GET_PROFILES: "/profile/getProfiles.php",
     GET_PROFILE_ACCESS: "/profile/getProfileAccess.php",
     SAVE_DASH: "/profile/saveDash.php",

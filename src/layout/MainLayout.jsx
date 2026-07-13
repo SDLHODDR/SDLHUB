@@ -13,6 +13,8 @@ const MainLayout = () => {
   const location = useLocation();
   const portal = location.pathname.split("/")[1];
 
+  const isPolicyPage = location.pathname === "/policy-acceptance";
+
   // Cancel pending API requests on route change
   useEffect(() => {
     cancelAllRequests();
@@ -24,7 +26,8 @@ const MainLayout = () => {
       "menu-horizontal",
       "eportal-layout",
       "epp-layout",
-      "hrms-layout"
+      "hrms-layout",
+      "policy-layout"
     );
 
     document.documentElement.removeAttribute("data-layout");
@@ -43,17 +46,21 @@ const MainLayout = () => {
       document.body.classList.add("epp-layout");
     }
 
+    if (isPolicyPage) {
+        document.body.classList.add("policy-layout");
+    }
+
     return () => {
       document.body.classList.remove(
         "menu-horizontal",
         "eportal-layout",
         "epp-layout",
-        "hrms-layout"
+        "hrms-layout",
+        "policy-layout"
       );
-
       document.documentElement.removeAttribute("data-layout");
     };
-  }, [portal]);
+  }, [portal,isPolicyPage]);
 
   return (
     <div className="main-wrapper">

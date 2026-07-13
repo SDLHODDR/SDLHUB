@@ -4,6 +4,7 @@ import ProtectedRoute from "../auth/ProtectedRoute";
 import { routeConfig } from "./routeConfig"; 
 import PolicyGuard from "../auth/PolicyGuard";
 import PolicyAcceptance from '../pages/PolicyAcceptance';
+import PolicyLayout from "../layout/PolicyLayout";
 
 import NotFound from "../pages/NotFound"; 
 
@@ -23,13 +24,17 @@ const AppRoutes = () => {
 
         {/* Policy page (NO MainLayout) */}
         <Route
-            path="/policy-acceptance"
             element={
-            <ProtectedRoute>
-                <PolicyAcceptance />
-            </ProtectedRoute>
+                <ProtectedRoute>
+                    <PolicyLayout />
+                </ProtectedRoute>
             }
-        />
+        >
+            <Route
+                path="/policy-acceptance"
+                element={<PolicyAcceptance />}
+            />
+        </Route>   
 
         {/* Application */}
         <Route

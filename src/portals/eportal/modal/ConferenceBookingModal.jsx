@@ -338,7 +338,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       } else {
         notifyError(res.message);
       }
-    } catch (err) {
+    } catch {
       notifyError("Action failed");
     } finally {
       setLoading(false);
@@ -368,7 +368,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       } else {
         notifyError(res.message);
       }
-    } catch (err) {
+    } catch {
       notifyError("Delete failed");
     } finally {
       setLoading(false);
@@ -398,7 +398,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       } else {
         notifyError(res.message);
       }
-    } catch (err) {
+    } catch {
       notifyError("Cancel failed");
     } finally {
       setLoading(false);
@@ -729,7 +729,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
                     className="btn btn-primary"
                     onClick={handleEditBooking}
                   >
-                    Edit Booking
+                    Update
                   </button>
 
                   <button

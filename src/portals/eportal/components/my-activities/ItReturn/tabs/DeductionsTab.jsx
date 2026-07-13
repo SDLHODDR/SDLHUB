@@ -29,18 +29,6 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
   // PREVENT DUPLICATE API CALLS
   const hasFetched = useRef(false);
 
-  /* =========================================
-     INITIAL LOAD
-  ========================================= */
-
-  useEffect(() => {
-    // Prevent StrictMode duplicate execution
-    if (hasFetched.current) return;
-
-    hasFetched.current = true;
-
-    fetchDeductions();
-  }, []);
 
   /* =========================================
      FETCH DEDUCTIONS
@@ -80,6 +68,19 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
   };
 
   /* =========================================
+     INITIAL LOAD
+  ========================================= */
+
+  useEffect(() => {
+    // Prevent StrictMode duplicate execution
+    if (hasFetched.current) return;
+
+    hasFetched.current = true;
+
+    fetchDeductions();
+  }, []);
+
+  /* =========================================
      ATTACHMENT URL
   ========================================= */
 
@@ -103,7 +104,6 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
           AMOUNT: value,
         };
       }
-
       return item;
     });
 
@@ -114,7 +114,6 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
     ];
 
     const currentId = Number(itaxId);
-
     const oppositeIdsToClear = new Set();
 
     pairs.forEach(([a, b]) => {
@@ -130,12 +129,19 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
           AMOUNT: "",
         };
       }
-
       return item;
     });
 
     setDeductions(finalUpdated);
   };
+
+/*
+| Pair       | Meaning                                               |
+| ---------- | ----------------------------------------------------- |
+| `[21, 93]` | If 21 is filled, clear 93. If 93 is filled, clear 21. |
+| `[8, 94]`  | If 8 is filled, clear 94. If 94 is filled, clear 8.   |
+| `[43, 44]` | If 43 is filled, clear 44. If 44 is filled, clear 43. |
+*/
 
   /* =========================================
      FILE CHANGE
