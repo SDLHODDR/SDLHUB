@@ -28,6 +28,10 @@ import PolicyAcceptance from '../pages/PolicyAcceptance';
 
 import OutdoorDuty from "../portals/eportal/components/my-activities/OutdoorDuty";
 import OutdoorDutyAuthorization from "../components/authorization/OutdoorDutyAuthorization";
+import TicketBookingAuthorization from "../components/authorization/TicketBookingAuthorization";
+import TicketBooking from "../portals/eportal/components/my-activities/TicketBooking";
+import Leave from "../portals/eportal/components/my-activities/Leaves";
+import LeavesAuthorization from "../components/authorization/LeavesAuthorization";
 
 // Sitewise Protected components
 //-------------------ePortal------------------------------------------------
@@ -44,9 +48,9 @@ export const routeConfig = {
   ],
 
   protected: [
-    //{ path: "eportal/ticket-booking-req", element: TicketBooking },
+    { path: "eportal/ticket-booking-req", element: TicketBooking },
     { path: "eportal/gatepass", element: OutdoorDuty },
-    //{ path: "eportal/leave", element: Leave },
+    { path: "eportal/leave", element: Leave },
     { path: "eportal/dashboard", element: Dashboard },
     
 
@@ -64,8 +68,8 @@ export const routeConfig = {
     { path: "policy-acceptance", element: PolicyAcceptance },
     { path: "eportal/itr-report", element: ItrDownloadReport },
     { path: "eportal/policy-endorsement-report", element: PolicyEndorsementReport },   
-    // { path: "eportal/taskauthorization/109", element: LeaveAuthorization },
-    // { path: "eportal/taskauthorization/346", element: TicketBookingAuthorization },
+    { path: "eportal/taskauthorization/109", element: LeavesAuthorization },
+    { path: "eportal/taskauthorization/346", element: TicketBookingAuthorization },
     { path: "eportal/taskauthorization/349", element: OutdoorDutyAuthorization },
     // { path: "eportal/taskauthorization/357", element: ConferenceRoomsAuthorization },
 

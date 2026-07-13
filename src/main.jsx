@@ -24,7 +24,7 @@ import "./assets/css/sweetalert.css";
 
 import RouteLoader from "./components/loader/RouteLoader";
 import { Provider } from "react-redux";
-import { store } from "./store";
+import { store } from "./store/store.js";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
     <StrictMode>

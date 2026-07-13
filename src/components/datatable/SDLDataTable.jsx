@@ -31,12 +31,28 @@ const SDLDataTable = ({
             className={`p-datatable-sm ${className}`}
             {...rest}
         >
-            {columns.map((col, index) => (
-                <Column
-                    key={col.field || index}
-                    {...col}
-                />
-            ))}
+            {/* {columns.map((col, index) => {
+                // Never let a stray `key` property inside col leak into the spread —
+                // it silently overrides the explicit key below and causes
+                // "two children with same key" / spread-key warnings.
+                const { key: _ignoredKey, ...colProps } = col;
+                const columnKey = col.field ?? _ignoredKey ?? index;
+
+                return <Column key={columnKey} {...colProps} />;
+            })} */}
+            {columns.map((col, index) => {
+                const { key: _ignoredKey, ...colProps } = col;
+                const columnKey = col.field ?? _ignoredKey ?? `col-${index}`;
+
+                return (
+                    <Column
+                        key={columnKey}
+                        columnKey={columnKey}
+                        {...colProps}
+                    />
+                );
+            })}
+
         </DataTable>
     );
 };

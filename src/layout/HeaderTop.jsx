@@ -1,7 +1,8 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { LOGOS, STOREIMAGES } from "../assets/assets";
 import { useEffect, useState, useContext } from "react";
-import { AuthContext } from "../auth/AuthProvider";
+import AuthContext from "../auth/AuthContext";
+
 import AuthorizationDropdown from "../components/authorization/AuthorizationDropdown";
 import { useDispatch, useSelector } from "react-redux";
 import { getAuthroizationTaskCount } from "../store/eportal/ePortalAuthorizationCountSlice";
@@ -19,7 +20,7 @@ const HeaderTop = () => {
   console.log("==========SuccessCNT============", successCnt);  
   useEffect(() => {
     dispatch(getAuthroizationTaskCount());
-  }, []);
+  }, [dispatch]);
 
   
 
