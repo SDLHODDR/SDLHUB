@@ -3,35 +3,43 @@ import BreadcrumbNav from "../../portals/eportal/components/breadcrumb-nav/Bread
 import SDLDataTable from "../datatable/SDLDataTable";
 import SDLSearch from "../datatable/SDLSearch";
 import "../../portals/eportal/assets/css/companyPolicies.css";
-import OutdoorDutyAuthorizationModal from "../../portals/eportal/modal/OutdoorDutyAuthorizationModal";
+
+import LeavesAuthorizationModal from "../../portals/eportal/modal/LeavesAuthorizationModal";
 //import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { getAuthDataResponse } from "../../store/eportal/ePortalAuthorizationDataSlice";
 import { getAuthroizationTaskCount } from "../../store/eportal/ePortalAuthorizationCountSlice";
 
-const OutdoorDutyAuthorization = () => {
+const LeavesAuthorization = () => {
   const dispatch = useDispatch();
-  const authODdata = useSelector((state) => state.eportalAuthData.data);
+  const authLRdata = useSelector((state) => state.eportalAuthData.data);
   const loading = useSelector((state) => state.eportalAuthData.loading);
   const [searchQuery, setSearchQuery] = useState("");
   const [listData, setListData] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    dispatch(getAuthDataResponse({ task_id: 349 }));
+    dispatch(getAuthDataResponse({ task_id: 109 }));
   }, [dispatch, refreshKey]);
 
   useEffect(() => {
     let mounted = true;
     try {
-      const flattened = (authODdata || []).map((item) => {
+      const flattened = (authLRdata || []).map((item) => {
         const details = Array.isArray(item.DETAILS) ? {} : item.DETAILS || {};
         return {
           ...item,
-          OUT_TYPE: details.OUT_TYPE || "",
+          LVE_DATE_FR: details.LVE_DATE_FR || "",
+          LVE_DATE_TO: details.LVE_DATE_TO || "",
+           LVE_START_ON: details.LVE_START_ON || "",
+            LVE_END_ON: details.LVE_END_ON || "",
           REMARKS: details.REMARKS || "",
-          GPASS_DATE: details.GPASS_DATE || "",
-          DETAIL_STATUS: details.STATUS || "",
+          LVE_CODE: details.LVE_CODE || "",
+          TOTAL_DAYS: details.TOTAL_DAYS || "",
+           REASON: details.REASON || "",
+          status: details.status || "",
+          STATUS: details.STATUS || "",
+          statusColor: details.statusColor || "",
         };
       });
       if (mounted) setListData(flattened);
@@ -42,45 +50,38 @@ const OutdoorDutyAuthorization = () => {
     return () => {
       mounted = false;
     };
-  }, [authODdata]);
+  }, [authLRdata]);
 
-  // useMemo now runs on every render, no matter what
+  //useMemo now runs on every render, no matter what
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) return listData;
     const query = searchQuery.trim().toLowerCase();
     return listData.filter(
       (item) =>
-        (item.OUT_TYPE || "").toLowerCase().includes(query) ||
         (item.REMARKS || "").toLowerCase().includes(query) ||
         (item.REQUEST_FOR || "").toLowerCase().includes(query) ||
+        (item.LVE_CODE || "").toLowerCase().includes(query) ||
         (item.CREATED_BY || "").toLowerCase().includes(query),
     );
   }, [searchQuery, listData]);
 
-  const OUT_TYPE_LABELS = {
-    OI: "In/Out same day",
-    OD: "Out for full day",
-    FO: "First Half Out",
-    SO: "Second Half Out",
-    FW: "Field Work",
-    TO: "Tour",
-  };
-  /*
-   ================= Form modal constants ================= */
-  const [selectedOutduty, setSelectedOutduty] = useState(null);
+  
+  /* ================= Form modal constants ================= */
+  const [selectedLeaves, setSelectedLeaves] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
   const openModal = (row = null) => {
+    //console.log("================ROW===================", row);
     if (row) {
-      setSelectedOutduty(row); // null = add new booking
+      setSelectedLeaves(row); // null = add new booking
     } else {
-      setSelectedOutduty({});
+      setSelectedLeaves({});
     }
     setShowModal(true);
   };
 
   const closeModal = () => {
-    setSelectedOutduty(null);
+    setSelectedLeaves(null);
     setShowModal(false);
   };
 
@@ -105,15 +106,7 @@ const OutdoorDutyAuthorization = () => {
       },
     },
     { field: "CREATED_BY", header: "Task From", sortable: true },
-    {
-      field: "OUT_TYPE",
-      header: "OUT TYPE",
-      sortable: true,
-      body: (rowData) => {
-        const code = rowData?.OUT_TYPE;
-        return OUT_TYPE_LABELS[code] || code || "-";
-      },
-    },
+  
     {
       field: "REMARKS",
       header: "REMARKS",
@@ -128,9 +121,14 @@ const OutdoorDutyAuthorization = () => {
           </div>
         );
       },
-      style: { minWidth: "450px" },
+      // style: { minWidth: "450px" },
     },
-    { field: "GPASS_DATE", header: "GPASS DATE", sortable: true },
+    { field: "LVE_DATE_FR", header: "From", sortable: true },
+    { field: "LVE_DATE_TO", header: "TO", sortable: true },
+     { field: "LVE_START_ON", header: "LVE_START_ON", sortable: true },
+     { field: "LVE_END_ON", header: "LVE_END_ON", sortable: true },
+     { field: "LVE_CODE", header: "From", sortable: true },
+     { field: "TOTAL_DAYS", header: "Total Days", sortable: true },
     { field: "CREATED_ON", header: "Created On", sortable: true },
     {
       field: "STATUS",
@@ -150,18 +148,18 @@ const OutdoorDutyAuthorization = () => {
   // Conditional return happens LAST, after every hook has been called
   if (loading) return <div>Loading...</div>;
 
-  console.log("===========OD Data Authorization=========", authODdata);
+  console.log("===========TB Data Authorization=========", authLRdata);
 
   return (
     <>
       <div className="page-header">
         <div className="page-title">
-          <h4>Outdoor Duty Authorization</h4>
+          <h4>Leaves Authorization</h4>
         </div>
         <BreadcrumbNav
           items={[
             { text: "Home", link: "/eportal/dashboard" },
-            { text: "Outdoor Duty Authorization" },
+            { text: "Leaves Authorization" },
           ]}
         />
       </div>
@@ -193,13 +191,13 @@ const OutdoorDutyAuthorization = () => {
       </div>
       {/* ================= MODAL ================= */}
       {showModal && (
-        <OutdoorDutyAuthorizationModal
-          outddorduty={selectedOutduty}
+        <LeavesAuthorizationModal
+          leaves={selectedLeaves}
           isOpen={true}
           onClose={closeModal}
           onSuccess={() => {
             console.log("Refreshing this table...");
-            setRefreshKey((prev) => prev + 1);
+            setRefreshKey(prev => prev + 1);
             dispatch(getAuthroizationTaskCount()); // refetches the badge/counter
           }}
         />
@@ -208,4 +206,4 @@ const OutdoorDutyAuthorization = () => {
   );
 };
 
-export default OutdoorDutyAuthorization;
+export default LeavesAuthorization;

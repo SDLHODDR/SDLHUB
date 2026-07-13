@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-// import { getTaskTableData } from "../../services/authorizationService";
 import { eportalAPI } from "../../services/api";
 import { EPORTAL_API } from "../../portals/eportal/config/eportalApiConfig";
 
@@ -12,17 +11,15 @@ const initialState = {
   success: false,
   successMessage: "",
   status: false,
-  authFor: "outdoorduty",
-  // page: 1,
-  // limit: 10,
+  authFor: "leaves"
 };
 
-export const getOutDoorDutyAuthResponse = createAsyncThunk(
-  "fetch/outdoordutyauth",
+export const getLeavesDataResponse = createAsyncThunk(
+  "fetch/lrdatatable",
   async (payload, { rejectWithValue }) => {
     try {
       const response = await eportalAPI.post(
-      EPORTAL_API.AUTHORIZATION.TASKTABLEDATA, 
+      EPORTAL_API.LEAVEREQUEST.GET_LR_LIST, 
       payload, 
       {
         withCredentials: true,
@@ -45,8 +42,8 @@ export const getOutDoorDutyAuthResponse = createAsyncThunk(
   },
 );
 
-export const outdoorDutyAuthSlice = createSlice({
-  name: "eportalAuthOD",
+export const myActivitiesLRSlice = createSlice({
+  name: "eportalLRData",
   initialState,
   reducers: {
     closeError: (state) => {
@@ -61,32 +58,23 @@ export const outdoorDutyAuthSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getOutDoorDutyAuthResponse.pending, (state) => {
+      .addCase(getLeavesDataResponse.pending, (state) => {
         state.loading = true;
         state.error = false;
       })
-      .addCase(getOutDoorDutyAuthResponse.fulfilled, (state, action) => {
+      .addCase(getLeavesDataResponse.fulfilled, (state, action) => {
         console.log(action);
-        // state.data = action.payload.data;
-        // state.success = action.payload.data.success;
-        // state.page = action.payload.data.page;
-        // state.limit = action.payload.data.limit;
-        // state.totalRecords = action.payload.data.totalRecords;
-        // state.successMessage = "Data fetched successfully";
-        // state.status = "idle";
-        // state.authFor = "outdoorduty";
-
         state.loading = false;
-        state.data = action.payload.tasks || [];
+        state.data = action.payload || [];
         state.page = action.payload.page;
         state.limit = action.payload.limit;
         state.totalRecords = action.payload.totalRecords;
         state.success = !!action.payload.status;
         state.successMessage = "Data fetched successfully";
         state.status = "idle";
-        state.authFor = "outdoorduty";
+        state.authFor = "leaves";
       })
-      .addCase(getOutDoorDutyAuthResponse.rejected, (state, action) => {
+      .addCase(getLeavesDataResponse.rejected, (state, action) => {
         state.loading = false;
         state.success = false;
         state.error = true;
@@ -96,5 +84,5 @@ export const outdoorDutyAuthSlice = createSlice({
   },
 });
 
-export default outdoorDutyAuthSlice.reducer;
-export const { closeError, closeSuccess } = outdoorDutyAuthSlice.actions;
+export default myActivitiesLRSlice.reducer;
+export const { closeError, closeSuccess } = myActivitiesLRSlice.actions;

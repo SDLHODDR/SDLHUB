@@ -1,8 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
-import { useDispatch } from "react-redux";
-//import { getePortalResponse } from "../../store/ePortalSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { getOutdoorDutyDataResponse } from "../../../../store/eportal/ePortalOutdoorDutySlice";
 import { 
-  getOutDuties,
   sendauthGPDataDetails,
   resendauthGPDataDetails,
   deleteGPData,
@@ -17,49 +16,45 @@ import { outdoorDutyColumns } from "../../utils/columnHandlers/outdoorDutyColumn
 import Swal from "sweetalert2";
 import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
 
-const MODULESLICE = "outdoorDuty";
+//const MODULESLICE = "outdoorDuty";
 
 const OutdoorDuty = () => {
-  const [listData, setListData] = useState([]);
-  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
+  const [listData, setListData] = useState([]);
+  const [loader, setLoader] = useState(true);
+  const outdoorDutydata = useSelector((state) => state.eportalODData.data);
+  const loading = useSelector((state) => state.eportalODData.loading);
   const [searchQuery, setSearchQuery] = useState("");
-
-  
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const response = await getOutDuties();
+  useEffect(() => {
+    dispatch(getOutdoorDutyDataResponse());
+  }, [dispatch, refreshKey]);
 
-      if (response?.status) {
-        setListData(
-          (response.data || []).map((item, index) => ({
-            id: item.id || index,
-            asonDate: item.asondate || "-",
-            outType: item.outtype || "-",
-            statusText: item.approval || "-",
-            remarks: item.remarks || "-",
-            statusColor: item.statusColor || "-",
-            status: item.status || "-",
-          })),
-        );
-      } else {
-        setListData([]);
-      }
+  console.log("=====", outdoorDutydata);
+  useEffect(() => {
+    let mounted = true;
+    try {
+      const flattened = (outdoorDutydata.data || []).map((item, index) => {
+        return {
+          id: item.id || index,
+          asonDate: item.asondate || "-",
+          outType: item.outtype || "-",
+          statusText: item.approval || "-",
+          remarks: item.remarks || "-",
+          statusColor: item.statusColor || "-",
+          status: item.status || "-",
+        };
+      });
+      if (mounted) setListData(flattened);
     } catch (error) {
       console.error(error);
-
-      setListData([]);
-    } finally {
-      setLoading(false);
+      if (mounted) setListData([]);
     }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+    return () => {
+      mounted = false;
+    };
+  }, [outdoorDutydata]);
 
   /* ================= SEARCH FILTER ================= */
   const filteredData = useMemo(() => {
@@ -74,8 +69,6 @@ const OutdoorDuty = () => {
     );
   }, [searchQuery, listData]);
 
-  
-
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: "create",
@@ -83,7 +76,7 @@ const OutdoorDuty = () => {
   });
 
   const openModal = (config = {}) => {
-    setLoading(true);
+    setLoader(true);
     console.log("=======config========", config);
     if (config.modalDate) {
       const currentDate = new Date();
@@ -117,7 +110,7 @@ const OutdoorDuty = () => {
     });
 
     //console.log("=======modalState========", modalState);
-    setLoading(false);
+    setLoader(false);
   };
 
   const formSettings = {
@@ -137,16 +130,19 @@ const OutdoorDuty = () => {
       ...prev,
       isOpen: false,
     }));
-    setLoading(false);
+    setLoader(false);
   };
 
   const handleSuccess = () => {
     console.log("----------------OutdoorDuty.jsx: handleSuccess called----------------");
-    fetchData();
+    dispatch(getOutdoorDutyDataResponse());
     // refresh GenericDataTable (Add/Edit/Delete flow)
     setRefreshKey(prev => prev + 1);
     // refresh Authorization table (if passed)
-    dispatch(getAuthroizationTaskCount());
+    //dispatch(getAuthroizationTaskCount({
+      // user_id:
+    //}
+    //);
   };
 
   // =========================
@@ -179,7 +175,7 @@ const OutdoorDuty = () => {
           });
 
           //cacheRef.current = {};
-          fetchData();
+          //dispatch(getOutdoorDutyDataResponse());
           handleSuccess?.();
         } else {
           Swal.fire({
@@ -221,7 +217,7 @@ const OutdoorDuty = () => {
           });
 
           //cacheRef.current = {};
-          fetchData();
+          //fetchData();
           handleSuccess?.();
         } else {
           Swal.fire({
@@ -253,7 +249,7 @@ const OutdoorDuty = () => {
         await closeGPTicket({ ID: id, closeTicket: true });
   
         //cacheRef.current = {};
-        fetchData();
+        dispatch(getOutdoorDutyDataResponse());
   
       } catch (err) {
         console.error(err);
@@ -299,7 +295,7 @@ const OutdoorDuty = () => {
           });
 
           //cacheRef.current = {};
-          fetchData();
+          //fetchData();
           handleSuccess?.();
         } else {
           Swal.fire({
@@ -327,6 +323,9 @@ const OutdoorDuty = () => {
       deleteGP
     });
   }, []);
+
+  console.log("==============ListData===========", listData);
+    console.log("==============Data===========", filteredData);
 
   return (
     <>
