@@ -6,7 +6,7 @@ import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import SDLCalendar from "../../../../components/calendar/SDLCalendar";
-// import LeavesModal from "../../modal/LeavesModal";
+import LeavesModal from "../../modal/LeavesModal";
 import { leavesColumns } from "../../utils/columnHandlers/leavesColumns";
 import Swal from "sweetalert2";
 import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
@@ -23,7 +23,7 @@ const Leaves = () => {
   useEffect(() => {
     dispatch(getLeavesDataResponse());
   }, [dispatch, refreshKey]);
-   console.log("=====", leavesData);
+  console.log("=====", leavesData);
 
   useEffect(() => {
     let mounted = true;
@@ -74,27 +74,6 @@ const Leaves = () => {
 
   const openModal = (config = {}) => {
     setLoader(true);
-    if (config.modalDate) {
-      const currentDate = new Date();
-      const modalDate = new Date(config.modalDate);
-
-      // Remove time portion for accurate day comparison
-      currentDate.setHours(0, 0, 0, 0);
-      modalDate.setHours(0, 0, 0, 0);
-
-      const diffTime = Math.abs(currentDate - modalDate);
-      const diffDays = diffTime / (1000 * 60 * 60 * 24);
-
-      if (diffDays > 25) {
-        Swal.fire({
-          icon: "warning",
-          title: "Not Permitted",
-          text: "It is not permitted to raise an Ticket Booking request",
-        });
-
-        return;
-      }
-    }
 
     setModalState({
       isOpen: true,
@@ -107,37 +86,37 @@ const Leaves = () => {
     setLoader(false);
   };
 
-  // const formSettings = {
-  //   isOpen: false,
-  //   modalPage: "Leave",
-  //   mode: "create",
-  //   modeLabel: "Add",
-  //   modalDate: null,
-  //   form_header: "Leaves",
-  //   form_text: "Manage Your leaves",
-  //   showHeader: true,
-  //   showLayout: true,
-  // };
+  const formSettings = {
+    isOpen: false,
+    modalPage: "Leave",
+    mode: "create",
+    modeLabel: "Add",
+    modalDate: null,
+    form_header: "Leaves",
+    form_text: "Manage Your leaves",
+    showHeader: true,
+    showLayout: true,
+  };
 
-  // const closeModal = () => {
-  //   setModalState((prev) => ({
-  //     ...prev,
-  //     isOpen: false,
-  //   }));
-  //   setLoader(false);
-  // };
+  const closeModal = () => {
+    setModalState((prev) => ({
+      ...prev,
+      isOpen: false,
+    }));
+    setLoader(false);
+  };
 
   const handleSuccess = () => {
-      dispatch(getLeavesDataResponse());
-      // refresh GenericDataTable (Add/Edit/Delete flow)
-      setRefreshKey((prev) => prev + 1);
-      // refresh Authorization table (if passed)
-      dispatch(getAuthroizationTaskCount());
-    };
-  
-    // Build handlers (sendAuth, resendAuth, updateRemarks, closeTicketTB, viewTB, editTB, deleteTB)
-    const handlers = createLeavesHandlers({ handleSuccess, openModal });
-    const columns = leavesColumns(handlers);
+    dispatch(getLeavesDataResponse());
+    // refresh GenericDataTable (Add/Edit/Delete flow)
+    setRefreshKey((prev) => prev + 1);
+    // refresh Authorization table (if passed)
+    dispatch(getAuthroizationTaskCount());
+  };
+
+  // Build handlers (sendAuth, resendAuth, updateRemarks, closeTicketTB, viewTB, editTB, deleteTB)
+  const handlers = createLeavesHandlers({ handleSuccess, openModal });
+  const columns = leavesColumns(handlers);
 
   // console.log("==============ListData===========", listData);
   //   console.log("==============Data===========", filteredData);
@@ -199,14 +178,14 @@ const Leaves = () => {
         </div>
       </div>
       {/* ================= MODAL ================= */}
-      {/* {modalState.isOpen && (
+      {modalState.isOpen && (
         <LeavesModal
           formSettings={formSettings}
           modalState={modalState}
           closeModal={closeModal}
           onSuccess={handleSuccess}
         />
-      )} */}
+      )}
     </>
   );
 };

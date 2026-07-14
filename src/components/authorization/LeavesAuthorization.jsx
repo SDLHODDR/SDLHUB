@@ -4,7 +4,7 @@ import SDLDataTable from "../datatable/SDLDataTable";
 import SDLSearch from "../datatable/SDLSearch";
 import "../../portals/eportal/assets/css/companyPolicies.css";
 
-import LeavesAuthorizationModal from "../../portals/eportal/modal/LeavesAuthorizationModal";
+//import LeavesAuthorizationModal from "../../portals/eportal/modal/LeavesAuthorizationModal";
 //import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { getAuthDataResponse } from "../../store/eportal/ePortalAuthorizationDataSlice";
@@ -190,7 +190,7 @@ const LeavesAuthorization = () => {
         </div>
       </div>
       {/* ================= MODAL ================= */}
-      {showModal && (
+      {/* {showModal && (
         <LeavesAuthorizationModal
           leaves={selectedLeaves}
           isOpen={true}
@@ -201,7 +201,7 @@ const LeavesAuthorization = () => {
             dispatch(getAuthroizationTaskCount()); // refetches the badge/counter
           }}
         />
-      )}
+      )} */}
     </>
   );
 };

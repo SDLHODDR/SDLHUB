@@ -34,9 +34,6 @@ export const getLRDataDetails = async (payload = {}) => {
     PORTALAPI.LEAVEREQUEST.LRData,
     payload,
     {
-      // headers: {
-      //   "X-CSRF-Token": csrfToken
-      // },
       withCredentials: true
     }
   );
@@ -49,9 +46,6 @@ export const saveLRData = async (payload = {}) => {
     PORTALAPI.LEAVEREQUEST.SAVELRData,
     payload,
     {
-      // headers: {
-      //   "X-CSRF-Token": csrfToken
-      // },
       withCredentials: true
     }
   );
@@ -64,9 +58,6 @@ export const saveLRDataAUTH = async (payload = {}) => {
     PORTALAPI.LEAVEREQUEST.SAVELRDataAuth,
     payload,
     {
-      // headers: {
-      //   "X-CSRF-Token": csrfToken
-      // },
       withCredentials: true
     }
   );
@@ -74,14 +65,11 @@ export const saveLRDataAUTH = async (payload = {}) => {
   return res.data || [];
 };
 
-export const editLRRData = async (payload = {}) => {
+export const editLRData = async (payload = {}) => {
   const res = await eportalAPI.post(
     PORTALAPI.LEAVEREQUEST.SAVELRData,
     payload,
     {
-      // headers: {
-      //   "X-CSRF-Token": csrfToken
-      // },
       withCredentials: true
     }
   );
@@ -94,9 +82,6 @@ export const editLRDataAUTH = async (payload = {}) => {
     PORTALAPI.LEAVEREQUEST.SAVELRDataAuth,
     payload,
     {
-      // headers: {
-      //   "X-CSRF-Token": csrfToken
-      // },
       withCredentials: true
     }
   );
@@ -109,9 +94,6 @@ export const authLRData = async (payload = {}) => {
     PORTALAPI.LEAVEREQUEST.AUTHLRData,
     payload,
     {
-      // headers: {
-      //   "X-CSRF-Token": csrfToken
-      // },
       withCredentials: true
     }
   );
@@ -124,9 +106,6 @@ export const rejectLRData = async (payload = {}) => {
     PORTALAPI.LEAVEREQUEST.REJECTLEAVEData,
     payload,
     {
-      // headers: {
-      //   "X-CSRF-Token": csrfToken
-      // },
       withCredentials: true
     }
   );
@@ -140,9 +119,6 @@ export const deleteLRData = async (payload = {}) => {
     PORTALAPI.LEAVEREQUEST.SAVELRData,
     payload,
     {
-      // headers: {
-      //   "X-CSRF-Token": csrfToken
-      // },
       withCredentials: true
     }
   );
@@ -155,60 +131,12 @@ export const getTBRList = async (payload = {}) => {
     PORTALAPI.LEAVEREQUEST.LR_LIST,
     payload,
     {
-      // headers: {
-      //   "X-CSRF-Token": csrfToken
-      // },
       withCredentials: true
     }
   );
 
   return res.data || { data: [], total: 0 };
 };
-
-// export const sendauthTBDataDetails = async (payload = {}) => {
-//   const res = await eportalAPI.post(
-//     PORTALAPI.LEAVEREQUEST.SENDAUTHTBData,
-//     payload,
-//     {
-//       // headers: {
-//       //   "X-CSRF-Token": csrfToken
-//       // },
-//       withCredentials: true
-//     }
-//   );
-  
-//   return res || [];
-// };
-
-// export const closeTBTicket = async (payload = {}) => {
-//   const res = await eportalAPI.post(
-//     PORTALAPI.TICKETBOOKING.CLOSETBData,
-//     payload,
-//     {
-//       // headers: {
-//       //   "X-CSRF-Token": csrfToken
-//       // },
-//       withCredentials: true
-//     }
-//   );
-  
-//   return res || [];
-// };
-
-// export const resendauthTBDataDetails = async (payload = {}) => {
-//   const res = await eportalAPI.post(
-//     PORTALAPI.TICKETBOOKING.RESENDAUTHTBData,
-//     payload,
-//     {
-//       // headers: {
-//       //   "X-CSRF-Token": csrfToken
-//       // },
-//       withCredentials: true
-//     }
-//   );
-  
-//   return res || [];
-// };
 
 export const isDateAllowed = (date) => {
   const clickedDate = moment(date).startOf("day");
@@ -243,9 +171,6 @@ export const checkCL = async (payload = {}) => {
     PORTALAPI.LEAVEREQUEST.CHECKCLDATA,
     payload,
     {
-      // headers: {
-      //   "X-CSRF-Token": csrfToken
-      // },
       withCredentials: true
     }
   );
@@ -258,9 +183,6 @@ export const checkOL = async (payload = {}) => {
     PORTALAPI.LEAVEREQUEST.CHECKOLDATA,
     payload,
     {
-      // headers: {
-      //   "X-CSRF-Token": csrfToken
-      // },
       withCredentials: true
     }
   );
