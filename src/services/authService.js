@@ -1,50 +1,46 @@
-import { coreAPI, secureAPI } from "./api";
+import { request } from "./request";
 import { PORTALAPI } from "./apiConfig";
 
 /* ============================
    LOGIN
 ============================ */
-export const login = async (payload) => {
-  try {
-    const res = await secureAPI.post(PORTALAPI.AUTH.LOGIN, payload);
-    return res.data;
-  } catch (err) {
-    console.error("Login API error:", err);
-    throw err;
-  }
-};
+export const login = (payload) =>
+  request({
+    url: PORTALAPI.AUTH.LOGIN,
+    method: "POST",
+    data: payload,
+  });
 
 /* ============================
    LOGOUT
 ============================ */
-export const logoutAPI = async () => {
-  try {
-    const res = await secureAPI.post(PORTALAPI.AUTH.LOGOUT);
-    return res.data;
-  } catch (err) {
-    console.error("Logout API error:", err);
-    throw err;
-  }
-};
+export const logoutAPI = () =>
+  request({
+    url: PORTALAPI.AUTH.LOGOUT,
+    method: "POST",
+  });
 
-let sessionPromise = null;
 /* ============================
    SESSION CHECK (CRITICAL)
 ============================ */
-export const checkSession = async () => {
-  // Prevent duplicate parallel calls
+
+let sessionPromise = null;
+
+export const checkSession = () => {
   if (sessionPromise) {
     return sessionPromise;
   }
 
-  sessionPromise = secureAPI
-    .get(PORTALAPI.AUTH.SESSION_CHECK)
-    .then((res) => res.data)
+  sessionPromise = request({
+    url: PORTALAPI.AUTH.SESSION_CHECK,
+    method: "GET",
+  })
     .catch((err) => {
-      //  IMPORTANT: Ignore canceled requests
-      if (err.code === "ERR_CANCELED") {
+      // Ignore cancelled requests
+      if (err?.code === "ERR_CANCELED") {
         return null;
       }
+
       console.error("Session check failed:", err);
       return null;
     })
@@ -58,54 +54,40 @@ export const checkSession = async () => {
 /* ============================
    FORGOT PASSWORD
 ============================ */
-export const forgotPassword = async (payload) => {
-  try {
-    const res = await coreAPI.post(
-      PORTALAPI.AUTH.FORGOT_PASSWORD,
-      payload
-    );
-    return res.data;
-  } catch (err) {
-    console.error("Forgot password API error:", err);
-    throw err;
-  }
-};
+
+export const forgotPassword = (payload) =>
+  request({
+    url: PORTALAPI.AUTH.FORGOT_PASSWORD,
+    method: "POST",
+    data: payload,
+  });
 
 /* ============================
    RESET PASSWORD
 ============================ */
-export const resetPassword = async (payload) => {
-  try {
-    const res = await secureAPI.post(
-      PORTALAPI.AUTH.RESET_PASSWORD,
-      payload
-    );
-    return res.data;
-  } catch (err) {
-    console.error("Reset password API error:", err);
-    throw err;
-  }
-};
+
+export const resetPassword = (payload) =>
+  request({
+    url: PORTALAPI.AUTH.RESET_PASSWORD,
+    method: "POST",
+    data: payload,
+  });
 
 /* ============================
    VERIFY OTP
 ============================ */
-export const verifyOtp = async (payload) => {
-  try {
-    const res = await secureAPI.post(
-      PORTALAPI.AUTH.VERIFY_OTP,
-      payload
-    );
-    return res.data;
-  } catch (err) {
-    console.error("Verify OTP API error:", err);
-    throw err;
-  }
-};
+
+export const verifyOtp = (payload) =>
+  request({
+    url: PORTALAPI.AUTH.VERIFY_OTP,
+    method: "POST",
+    data: payload,
+  });
 
 /* ============================
    NORMALIZE USER
 ============================ */
+
 export const normalizeUser = (user) => ({
   name: user.NAME || user.name,
   role: user.ROLE || user.role || "User",

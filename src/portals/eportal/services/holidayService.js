@@ -1,37 +1,34 @@
-import { eportalAPI } from "../../../services/api";
+import { eportalRequest } from "../../../services/request";
 import { EPORTAL_API } from "../config/eportalApiConfig";
 
-export const getHolidays = async (year) => {
-  try {
-    const res = await eportalAPI.get(
-      EPORTAL_API.HOLIDAYS.GET_HOLIDAYS,
-      {
-        params: { year },      
-        withCredentials: true, // PHP session
-      }
-    );
+/* ---------------------------
+   HOLIDAYS
+---------------------------- */
 
-    return res.data;
-  } catch (error) {
-    console.error("Error fetching holidays:", error);
-    throw error;
-  }
-};
+export const getHolidays = (year) =>
+  eportalRequest({
+    url: EPORTAL_API.HOLIDAYS.GET_HOLIDAYS,
+    method: "GET",
+    params: { year },
 
-// GET HOLIDAY RULES
-export const getHolidayRules = async (year) => {
-  try {  
-    const res = await eportalAPI.get(
-      EPORTAL_API.HOLIDAYS.GET_HOLIDAY_RULES,
-      {
-        params: { year },      
-        withCredentials: true, // PHP session
-      }
-    );
+    fallback: {
+      status: false,
+      data: [],
+    },
+  });
 
-    return res.data;
-  } catch (error) {
-    console.error("Error fetching holidays:", error);
-    throw error;
-  }
-};
+/* ---------------------------
+   HOLIDAY RULES
+---------------------------- */
+
+export const getHolidayRules = (year) =>
+  eportalRequest({
+    url: EPORTAL_API.HOLIDAYS.GET_HOLIDAY_RULES,
+    method: "GET",
+    params: { year },
+
+    fallback: {
+      status: false,
+      data: [],
+    },
+  });

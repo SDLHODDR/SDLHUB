@@ -1,11 +1,11 @@
-import { request } from "../../../services/request"; // central handler
+import { eportalRequest } from "../../../services/request"; // central handler
 import { EPORTAL_API } from "../config/eportalApiConfig";
 
 /* ---------------------------
    POLICIES API
 ---------------------------- */
 export const getPolicies = () =>
-  request({
+  eportalRequest({
     url: EPORTAL_API.POLICIES.GET_POLICIES,
     method: "GET",
 
@@ -28,7 +28,7 @@ export const getPolicies = () =>
 
 
 export const getActivePolicies = () =>
-  request({
+  eportalRequest({
     url: EPORTAL_API.POLICIES.GET_ACTIVE_POLICIES,
     method: "GET",
 

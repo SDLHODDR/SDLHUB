@@ -23,30 +23,37 @@ const MyDocuments = () => {
 
   /* ================= FETCH DATA ================= */
 
-  useEffect(() => {
-    fetchPayslips();
-    fetchDocuments();
-  }, []);
-
   const fetchPayslips = async () => {
     if (payslipFetchedRef.current) return; //prevent duplicate call
+
     payslipFetchedRef.current = true;
+    setLoadingPayslip(true);
 
     try {
       const response = await getPayslips();
 
-      if (response.status) {
-        setPayslips(response.data);
+      const payslips =
+        response?.status && Array.isArray(response.data)
+          ? response.data
+          : [];
 
-        if (response.data.length > 0) {
-          setSelectedPdf(response.data[0].downloadUrl);
-        }
-      } else {
-        setPayslips([]);
-      }
+      setPayslips(payslips);
+
+      setSelectedPdf(
+        payslips.length > 0 ? payslips[0].downloadUrl : null
+      );
+
+      // Clear any previous error
+      setError(null);
     } catch (err) {
-      console.error("Payslip fetch error:", err);
-      setError("Failed to load payslips");
+      // Ignore cancelled requests
+      if (!err.cancelled) {
+        console.error("Payslip fetch error:", err);
+        setError(err.message || "Failed to load payslips");
+      }
+
+      setPayslips([]);
+      setSelectedPdf(null);
     } finally {
       setLoadingPayslip(false);
     }
@@ -55,25 +62,38 @@ const MyDocuments = () => {
   const fetchDocuments = async () => {
     if (documentFetchedRef.current) return; // prevent duplicate call
     documentFetchedRef.current = true;
+    setLoadingDocs(true);
 
     try {
       const response = await getDocuments();
 
-      if (response.status) {
-        setDocuments(response.data);
+      const documents =
+        response?.status && Array.isArray(response.data)
+          ? response.data
+          : [];
 
-        if (response.data.length > 0) {
-          setSelectedDoc(response.data[0].previewUrl);
-        }
-      } else {
-        setDocuments([]);
-      }
+      setDocuments(documents);
+
+      setSelectedDoc(
+        documents.length > 0 ? documents[0].previewUrl : null
+      );
     } catch (err) {
-      console.error("Document fetch error:", err);
+      // Ignore cancelled requests
+      if (!err.cancelled) {
+        console.error("Document fetch error", err);
+      }
+
+      setDocuments([]);
+      setSelectedDoc(null);
     } finally {
       setLoadingDocs(false);
     }
   };
+
+  useEffect(() => {
+    fetchPayslips();
+    fetchDocuments();
+  }, []);
 
   return (
     <>

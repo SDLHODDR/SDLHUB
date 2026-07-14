@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { getAttendanceLog } from "../../../services/dashboardService";
 
 const formatDate = (date) =>
-  new Date(date).toLocaleDateString("en-GB", {
+  date.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -21,23 +21,21 @@ const formatAPIDate = (date) =>
    TIME HELPERS
 ========================= */
 
-const timeToMinutes = (timeStr) => {
-  if (!timeStr) return 0;
-
+const timeToMinutes = (timeStr = "") => {
   const match = timeStr.match(/(\d+)h\s*(\d+)m/i);
 
   if (match) {
-    return parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+    return Number(match[1]) * 60 + Number(match[2]);
   }
 
   const hoursMatch = timeStr.match(/(\d+)h/i);
   if (hoursMatch) {
-    return parseInt(hoursMatch[1], 10) * 60;
+    return Number(hoursMatch[1]) * 60;
   }
 
   const minsMatch = timeStr.match(/(\d+)m/i);
   if (minsMatch) {
-    return parseInt(minsMatch[1], 10);
+    return Number(minsMatch[1]);
   }
 
   return 0;
@@ -54,53 +52,92 @@ const minutesToTime = (minutes) => {
 };
 
 const AttendanceLog = ({ initialData = null }) => {
-  const [date, setDate] = useState(new Date("02-APR-2025"));
-  const [records, setRecords] = useState(initialData?.records || []);
-  const [summary, setSummary] = useState(initialData?.summary || null);
+  const [date, setDate] = useState(new Date());
+
+  const [records, setRecords] = useState(
+    initialData?.records || []
+  );
+
+  const [summary, setSummary] = useState(
+    initialData?.summary || null
+  );
+
   const [loading, setLoading] = useState(false);
 
   /* ---------------------------
-     LOAD FUNCTION
+     LOAD ATTENDANCE
   ---------------------------- */
-  const load = useCallback(async (d) => {
+
+  const load = useCallback(async (selectedDate) => {
+    setLoading(true);
+
     try {
-      setLoading(true);
+      const response = await getAttendanceLog(
+        formatAPIDate(selectedDate)
+      );
 
-      const formatted = formatAPIDate(d);
-      const res = await getAttendanceLog(formatted);
+      /*
+       * If eportalRequest returns response.data:
+       * response.records / response.summary
+       *
+       * If it returns axios response:
+       * response.data.records / response.data.summary
+       */
 
-      setRecords(res?.records || []);
-      setSummary(res?.summary || null);
-    } catch (e) {
-      console.error("Attendance load failed", e);
+      const data = response?.data || response || {};
+
+      setRecords(data.records || []);
+      setSummary(data.summary || null);
+    } catch (err) {
+      console.error("Attendance load failed:", err);
+      setRecords([]);
+      setSummary(null);
     } finally {
       setLoading(false);
     }
   }, []);
 
   /* ---------------------------
-     INITIAL LOAD
+     INITIAL DASHBOARD DATA
   ---------------------------- */
+
+  const initialized = useRef(false);
+
   useEffect(() => {
-    if (!initialData) {
-      load(date);
+    if (!initialized.current && initialData) {
+      setRecords(initialData.records || []);
+      setSummary(initialData.summary || null);
+      initialized.current = true;
+      return; // Don't fetch today's data again
     }
-  }, [initialData, date, load]);
+
+    load(date);
+  }, [date, initialData, load]);
+
+  /* ---------------------------
+     LOAD WHEN DATE CHANGES
+  ---------------------------- */
+
+  useEffect(() => {
+    load(date);
+  }, [date, load]);
 
   /* ---------------------------
      DATE NAVIGATION
   ---------------------------- */
-  const changeDate = (days) => {
-    const newDate = new Date(date);
-    newDate.setDate(date.getDate() + days);
 
-    setDate(newDate);
-    load(newDate);
+  const changeDate = (days) => {
+    setDate(prev => {
+      const next = new Date(prev);
+      next.setDate(next.getDate() + days);
+      return next;
+    });
   };
 
   /* ---------------------------
      DESK SUMMARY
   ---------------------------- */
+
   const deskSummary = (() => {
     if (!summary?.byLocation?.length) {
       return {
@@ -115,11 +152,11 @@ const AttendanceLog = ({ initialData = null }) => {
     summary.byLocation.forEach((item) => {
       const mins = timeToMinutes(item.formatted);
 
-      const isDeskLocation =
+      const isDesk =
         item.location === "5th Floor Main" ||
         item.location === "6th Floor Main";
 
-      if (isDeskLocation) {
+      if (isDesk) {
         onDeskMinutes += mins;
       } else {
         offDeskMinutes += mins;
@@ -134,7 +171,8 @@ const AttendanceLog = ({ initialData = null }) => {
 
   return (
     <div className="card shadow-sm border-0 h-100">
-      {/* HEADER */}
+      {/* Header */}
+
       <div className="card-header d-flex justify-content-between align-items-center">
         <button
           className="btn btn-sm btn-light"
@@ -155,16 +193,15 @@ const AttendanceLog = ({ initialData = null }) => {
         </button>
       </div>
 
-      {/* SUMMARY */}
+      {/* Summary */}
+
       {summary && (
         <div className="mx-2 mt-2 p-2 bg-light rounded">
-          <div className="fw-semibold mb-1">
-            Summary
-          </div>
+          <div className="fw-semibold mb-1">Summary</div>
 
-          {summary.byLocation?.map((item, i) => (
+          {summary.byLocation?.map((item, index) => (
             <div
-              key={i}
+              key={index}
               className="d-flex justify-content-between small"
             >
               <span>{item.location}</span>
@@ -188,12 +225,12 @@ const AttendanceLog = ({ initialData = null }) => {
 
           <div className="d-flex justify-content-between fw-semibold">
             <span>Total</span>
-            <span>{summary.totalOfficeTime}</span>
+            <span>{summary.totalOfficeTime || "00h 00m"}</span>
           </div>
         </div>
       )}
 
-      {/* BODY */}
+      {/* Body */}
       <div className="card-body p-2">
         <div style={{ maxHeight: 250, overflowY: "auto" }}>
           {loading ? (
@@ -205,9 +242,9 @@ const AttendanceLog = ({ initialData = null }) => {
               No Activity Available
             </div>
           ) : (
-            records.map((item, i) => (
+            records.map((item, index) => (
               <div
-                key={i}
+                key={index}
                 className="d-flex align-items-start mb-2 p-2 rounded"
                 style={{
                   background: "#f8f9fa",

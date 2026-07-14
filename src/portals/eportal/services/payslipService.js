@@ -1,11 +1,11 @@
-import { request } from "../../../services/request";
+import { eportalRequest } from "../../../services/request";
 import { EPORTAL_API } from "../config/eportalApiConfig";
 
 /* ---------------------------
    PAYSLIPS API
 ---------------------------- */
 export const getPayslips = () =>
-  request({
+  eportalRequest({
     url: EPORTAL_API.PAYSLIPS.GET_PAYSLIPS,
     method: "GET",
 

@@ -1,71 +1,47 @@
-import { eportalAPI } from "../../../services/api";
+import { eportalRequest } from "../../../services/request";
 import { EPORTAL_API } from "../config/eportalApiConfig";
+import { downloadFile } from "../../../services/downloadFile";
 
 /* ==========================================
    POLICY SUMMARY REPORT
 ========================================== */
-export const getPolicyEndorsementReport = async () => {
-  try {
-    const response = await eportalAPI.get(
-      EPORTAL_API.POLICY_ENDORSEMENT.GET_ENDORSEMENT_REPORT,
-      {
-        withCredentials: true,
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error fetching policy endorsement report:",
-      error
-    );
-    throw error;
-  }
-};
+
+export const getPolicyEndorsementReport = () =>
+  eportalRequest({
+    url: EPORTAL_API.POLICY_ENDORSEMENT.GET_ENDORSEMENT_REPORT,
+    method: "GET",
+    fallback: {
+      status: false,
+      data: [],
+    },
+  });
 
 /* ==========================================
    POLICY ACCEPTANCE DETAILS
 ========================================== */
-export const getPolicyAcceptanceDetails = async (
-  policyId
-) => {
-  try {
-    const response = await eportalAPI.post(
-      EPORTAL_API.POLICY_ENDORSEMENT.GET_ACCEPTANCE_DETAILS,
-      {
-        policy_id: policyId,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      }
-    );
 
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error fetching policy acceptance details:",
-      error
-    );
-
-    throw error;
-  }
-};
+export const getPolicyAcceptanceDetails = (policyId) =>
+  eportalRequest({
+    url: EPORTAL_API.POLICY_ENDORSEMENT.GET_ACCEPTANCE_DETAILS,
+    method: "POST",
+    data: {
+      policy_id: policyId,
+    },
+  });
 
 /* ==========================================
    EXPORT POLICY ACCEPTANCE REPORT
 ========================================== */
-export const exportPolicyAcceptanceReport = async (
-    policyId
-) => {
-    const response = await eportalAPI.get(
-        `${EPORTAL_API.POLICY_ENDORSEMENT.EXPORT_ACCEPTANCE_REPORT}?policy_id=${policyId}`,
-        {
-            responseType: "blob",
-            withCredentials: true,
-        }
-    );
 
-    return response.data;
+export const exportPolicyAcceptanceReport = async (policyId) => {
+  const response = await eportalRequest({
+    url: EPORTAL_API.POLICY_ENDORSEMENT.EXPORT_ACCEPTANCE_REPORT,
+    method: "GET",
+    params: {
+      policy_id: policyId,
+    },
+    responseType: "blob",
+  });
+
+  downloadFile(response, "Policy_Acceptance_Report.xlsx");
 };

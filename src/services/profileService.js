@@ -1,75 +1,54 @@
-import { coreAPI } from "./api";
+import { coreRequest } from "./request";
 import { PORTALAPI } from "./apiConfig";
 
-export const getProfile = async () => {
-  const res = await coreAPI.get(
-    PORTALAPI.PROFILE.GET_PROFILE_DATA,
-    {
-      withCredentials: true,
-    }
-  );
+/* ============================
+   PROFILE
+============================ */
 
-  return res.data;
-};
-
-export const getSalaryStructure = async () => {
-  const res = await coreAPI.get(PORTALAPI.SALARY.GET, {
-    withCredentials: true,
+export const getProfile = () =>
+  coreRequest({
+    url: PORTALAPI.PROFILE.GET_PROFILE_DATA,
+    method: "GET",
+    dedupe: true,
+    fallback: {},
   });
-  return res.data;
-};
 
-export const uploadProfileImage = async (formData) => {
-    try {
-        const res = await coreAPI.post(
-            PORTALAPI.PROFILE.UPLOAD_PROFILE_IMAGE,
-            formData,
-            {
-                headers: {
-                    "Content-Type": "multipart/form-data", // override JSON
-                },
-            }
-        );
-        return res.data;
-    } catch (error) {
-        console.error("Upload Image API Error:", error);
-        return { status: false, message: "Upload failed" };
-    }
-};
+export const uploadProfileImage = (formData) =>
+  coreRequest({
+    url: PORTALAPI.PROFILE.UPLOAD_PROFILE_IMAGE,
+    method: "POST",
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 
 /* ============================
-   SAVE FAMILY MEMBER
+   SALARY
 ============================ */
-export const saveFamilyMember = async (payload) => {
-    try {
-        const res = await coreAPI.post(
-            PORTALAPI.PROFILE.SAVE_FAMILY_MEMBER,
-            payload
-        );
 
-        return res.data;
-    } catch (error) {
-        console.error("Save family member error:", error);
-        throw error;
-    }
-};
+export const getSalaryStructure = () =>
+  coreRequest({
+    url: PORTALAPI.SALARY.GET,
+    method: "GET",
+    dedupe: true,
+    fallback: {},
+  });
 
 /* ============================
-   DELETE FAMILY MEMBER
+   FAMILY
 ============================ */
-export const deleteFamilyMember = async (payload) => {
-    try {
-        const res = await coreAPI.post(
-            PORTALAPI.PROFILE.DELETE_FAMILY_MEMBER,
-            payload
-        );
 
-        return res.data;
-    } catch (error) {
-        console.error(error);
-        throw error;
-    }
-};
+export const saveFamilyMember = (payload) =>
+  coreRequest({
+    url: PORTALAPI.PROFILE.SAVE_FAMILY_MEMBER,
+    method: "POST",
+    data: payload,
+  });
 
-
-
+export const deleteFamilyMember = (payload) =>
+  coreRequest({
+    url: PORTALAPI.PROFILE.DELETE_FAMILY_MEMBER,
+    method: "POST",
+    data: payload,
+  });

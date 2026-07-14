@@ -1,16 +1,13 @@
-import { request } from "../../../services/request";
+import { eportalRequest } from "../../../services/request";
 import { EPORTAL_API } from "../config/eportalApiConfig";
 
 /* ---------------------------
    DOCUMENTS API
 ---------------------------- */
 export const getDocuments = () =>
-  request({
+  eportalRequest ({
     url: EPORTAL_API.DOCUMENTS.GET_DOCUMENTS,
     method: "GET",
-
-    // IMPORTANT FIX
-    isEportal: true,
 
     // prevent duplicate calls
     dedupe: true,
@@ -22,6 +19,6 @@ export const getDocuments = () =>
     // safe fallback
     fallback: {
       status: false,
-      data: []
-    }
+      data: [],
+    },
   });
