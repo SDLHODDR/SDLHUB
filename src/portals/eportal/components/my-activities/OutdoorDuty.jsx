@@ -1,12 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getOutdoorDutyDataResponse } from "../../../../store/eportal/ePortalOutdoorDutySlice";
-import { 
-  sendauthGPDataDetails,
-  resendauthGPDataDetails,
-  deleteGPData,
-  closeGPTicket
-} from "../../services/outdoorDutyService";
+import { createOutdoorDutyHandlers } from "../../utils/outdoorDutyHandlers"; // adjust path
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
@@ -16,22 +11,19 @@ import { outdoorDutyColumns } from "../../utils/columnHandlers/outdoorDutyColumn
 import Swal from "sweetalert2";
 import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
 
-//const MODULESLICE = "outdoorDuty";
-
 const OutdoorDuty = () => {
   const dispatch = useDispatch();
   const [listData, setListData] = useState([]);
-  const [loader, setLoader] = useState(true);
+  const [loading, setLoading] = useState(true);
   const outdoorDutydata = useSelector((state) => state.eportalODData.data);
-  const loading = useSelector((state) => state.eportalODData.loading);
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
+    setLoading(true);
     dispatch(getOutdoorDutyDataResponse());
   }, [dispatch, refreshKey]);
 
-  console.log("=====", outdoorDutydata);
   useEffect(() => {
     let mounted = true;
     try {
@@ -46,15 +38,23 @@ const OutdoorDuty = () => {
           status: item.status || "-",
         };
       });
-      if (mounted) setListData(flattened);
+      if (mounted) {
+        setListData(flattened);
+        setLoading(false); // data processed — stop showing spinner
+      }
     } catch (error) {
       console.error(error);
-      if (mounted) setListData([]);
+      if (mounted) {
+        setListData([]);
+        setLoading(false); // still stop the spinner even on error, so we can show "No bookings found" instead of spinning forever
+      }
     }
     return () => {
       mounted = false;
     };
   }, [outdoorDutydata]);
+  console.log("=====", outdoorDutydata);
+ 
 
   /* ================= SEARCH FILTER ================= */
   const filteredData = useMemo(() => {
@@ -76,12 +76,12 @@ const OutdoorDuty = () => {
   });
 
   const openModal = (config = {}) => {
-    setLoader(true);
+    setLoading(true);
     console.log("=======config========", config);
     if (config.modalDate) {
       const currentDate = new Date();
       const modalDate = new Date(config.modalDate);
-      
+
       // Remove time portion for accurate day comparison
       currentDate.setHours(0, 0, 0, 0);
       modalDate.setHours(0, 0, 0, 0);
@@ -110,7 +110,7 @@ const OutdoorDuty = () => {
     });
 
     //console.log("=======modalState========", modalState);
-    setLoader(false);
+    setLoading(false);
   };
 
   const formSettings = {
@@ -119,213 +119,41 @@ const OutdoorDuty = () => {
     mode: "create",
     modeLabel: "Add",
     modalDate: null,
-    form_header : "Outdoor Duty",
-    form_text : "Manage Your outdoor duty",
-    showHeader : true,
-    showLayout : true,
-  }
+    form_header: "Outdoor Duty",
+    form_text: "Manage Your outdoor duty",
+    showHeader: true,
+    showLayout: true,
+  };
 
   const closeModal = () => {
     setModalState((prev) => ({
       ...prev,
       isOpen: false,
     }));
-    setLoader(false);
+    setLoading(false);
   };
 
   const handleSuccess = () => {
-    console.log("----------------OutdoorDuty.jsx: handleSuccess called----------------");
+    console.log(
+      "----------------OutdoorDuty.jsx: handleSuccess called----------------",
+    );
     dispatch(getOutdoorDutyDataResponse());
     // refresh GenericDataTable (Add/Edit/Delete flow)
-    setRefreshKey(prev => prev + 1);
+    setRefreshKey((prev) => prev + 1);
     // refresh Authorization table (if passed)
-    //dispatch(getAuthroizationTaskCount({
-      // user_id:
-    //}
-    //);
+    dispatch(getAuthroizationTaskCount());
   };
 
-  // =========================
-  // COLUMNS (memo)
-  // APIs
-  // =========================
-  const sendAuth = async (id) => {
-      const result = await Swal.fire({
-        title: "Send for Authorization?",
-        icon: "question",
-        showCancelButton: true
-      });
-  
-      if (!result.isConfirmed) return;
-  
-      //try {
-        //await sendauthGPDataDetails({ ID: id, sendAuth: true });
-        const response = await sendauthGPDataDetails({
-          ID: id,
-          sendAuth: true
-        });
-
-        if (response?.status) {
-          await Swal.fire({
-            icon: "success",
-            title: "Sent!",
-            text:
-              response?.message ||
-              "Authorization request sent successfully."
-          });
-
-          //cacheRef.current = {};
-          //dispatch(getOutdoorDutyDataResponse());
-          handleSuccess?.();
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Failed!",
-            text:
-              response?.message ||
-              "Unable to send authorization request."
-          });
-        }
-      //} 
-      // catch {
-      //   Swal.fire("Error!", "", "error");
-      // }
-  };
-
-  const resendAuth = async (id) => {
-      const result = await Swal.fire({
-        title: "Resend Authorization?",
-        icon: "warning",
-        showCancelButton: true
-      });
-  
-      if (!result.isConfirmed) return;
-  
-      //try {
-        const response = await resendauthGPDataDetails({
-          ID: id,
-          resendAuth: true
-        });
-        
-        if (response?.status) {
-          await Swal.fire({
-            icon: "success",
-            title: "Resent!",
-            text:
-              response?.message ||
-              "Authorization request resent successfully."
-          });
-
-          //cacheRef.current = {};
-          //fetchData();
-          handleSuccess?.();
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Failed!",
-            text:
-              response?.message ||
-              "Unable to resend authorization request."
-          });
-        }
-      // } catch {
-      //   Swal.fire("Error!", "", "error");
-      // }
-    };
-
-    const updateRemarks = (rowData) => {
-      console.log("============", rowData);
-
-      openModal({
-        mode: "edit",
-        id: rowData.id,
-        data: rowData,
-        isPostRemark:true
-      });
-    };
-
-    const closeTicketGP = async (id) => {
-      try {
-        await closeGPTicket({ ID: id, closeTicket: true });
-  
-        //cacheRef.current = {};
-        dispatch(getOutdoorDutyDataResponse());
-  
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    const viewGP = (id) => openModal(null, "view", id);
-    const editGP = (rowData) => {
-      console.log("============", rowData);
-
-      openModal({
-        mode: "edit",
-        id: rowData.id,
-        data: rowData,
-      });
-    };
-
-    const deleteGP = async (id) => {
-      const result = await Swal.fire({
-        title: "Are you sure?",
-        text: "Delete this Outdoor Duty request?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, Delete!"
-      });
-  
-      if (!result.isConfirmed) return;
-      console.log("========Dleete payload=====", { deleteOD: true, delteId: id });
-      //try {
-        //await deleteGPData({ deleteOD: true, delteId: id });
-        const response = await deleteGPData({
-          deleteOD: true,
-          delteId: id
-        });
-  
-        if (response?.status) {
-          await Swal.fire({
-            icon: "success",
-            title: "Deleted!",
-            text:
-              response?.message ||
-              "Gatepass deleted successfully"
-          });
-
-          //cacheRef.current = {};
-          //fetchData();
-          handleSuccess?.();
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Failed!",
-            text:
-              response?.message ||
-              "Delete failed"
-          });
-        }
-      //} 
-      //catch {
-      //   Swal.fire("Error!", "Delete failed", "error");
-      // }
-    };
-
-  const columns = useMemo(() => {
-    return outdoorDutyColumns({
-      sendAuth,
-      resendAuth,
-      updateRemarks,
-      closeTicketGP,
-      viewGP,
-      editGP,
-      deleteGP
-    });
-  }, []);
+  // Build handlers (sendAuth, resendAuth, updateRemarks, closeTicketTB, viewTB, editTB, deleteTB)
+  const handlers = createOutdoorDutyHandlers({
+    dispatch,
+    handleSuccess,
+    openModal,
+  });
+  const columns = outdoorDutyColumns(handlers);
 
   console.log("==============ListData===========", listData);
-    console.log("==============Data===========", filteredData);
+  console.log("==============Data===========", filteredData);
 
   return (
     <>
@@ -352,7 +180,7 @@ const OutdoorDuty = () => {
           <div className="row">
             {/* ================= LEFT SIDE OUTDOOR DUTY LIST ================= */}
             <div className="col-xl-3 border-end">
-              <SDLCalendar openModal={openModal}/>
+              <SDLCalendar openModal={openModal} />
             </div>
             {/* ================= RIGHT SIDE PDF PREVIEW ================= */}
             <div className="col-xl-9 d-flex flex-column">
@@ -370,14 +198,23 @@ const OutdoorDuty = () => {
                     />
                   </div>
                 </div>
-                {/* ================= TABLE ================= */}
-                <SDLDataTable
-                  data={filteredData}
-                  columns={columns}
-                  loading={loading}
-                  emptyMessage="No outdoor duties found"
-                  removableSort
-                />
+                {loading ? (
+                  <div className="p-4 text-center">
+                    <div className="spinner-border text-warning"></div>
+                  </div>
+                ) : filteredData.length === 0 ? (
+                  <div className="p-4 text-center text-muted">
+                    No bookings found
+                  </div>
+                ) : (
+                  <SDLDataTable
+                    data={filteredData}
+                    columns={columns}
+                    loading={loading}
+                    emptyMessage="No outdoor duties found"
+                    removableSort
+                  />
+                )}
               </div>
             </div>
           </div>
