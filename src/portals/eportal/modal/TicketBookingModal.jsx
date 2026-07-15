@@ -89,12 +89,16 @@ const TicketBookingModal = ({
 
     setIsSubmitting(true); // disable immediately
 
+    console.log("============ formData=======", formData);
+    console.log("============ modalState id =======", modalState);
+
     try {
       const isEdit = modalState.mode === "edit";
       const payload = {
         ...formData,
         ...(modalState.id && { id: modalState.id }),
-        ...(isEdit ? { editTbData: true } : { saveTbData: true }),
+        ...({ ID: modalState.id }), 
+        ...(isEdit ? { editTbrData: true } : { saveTbrData: true }),
       };
       const apiCall = isEdit ? editTBRData : saveTBRData;
       const response = await apiCall(payload);
@@ -147,7 +151,7 @@ const TicketBookingModal = ({
       const payload = {
         ...formData,
         ...(modalState.id && { id: modalState.id }),
-        ...(isEdit ? { editTbData: true } : { saveTbData: true }),
+        ...(isEdit ? { editTbrData: true } : { saveTbrData: true }),
         withAuth: true,
       };
       const apiCall = isEdit ? editTBRDataAUTH : saveTBRDataAUTH;
@@ -234,6 +238,31 @@ const TicketBookingModal = ({
           initial[field.name] = field.value ?? "";
         }
       });
+    });
+
+    // SELECT fields sometimes arrive with the human-readable label as
+    // "value" (e.g. "Train") instead of the option key (e.g. "T").
+    // Reverse-map label -> key so <select value={...}> actually matches
+    // one of the <option value={key}> elements.
+    const selectGroup = types.SELECT || {};
+    Object.values(selectGroup).forEach((field) => {
+        if (!field?.name) return;
+
+        const options = field.options;
+        // Only handle the {key: label} shape (TRVL_MODE-style), not the
+        // array-of-objects shape (TRVL_CLASS/EMP_CODE-style).
+        if (!options || Array.isArray(options)) return;
+
+        const currentVal = initial[field.name];
+        if (currentVal && !(currentVal in options)) {
+            const matchedKey = Object.entries(options).find(
+                ([, label]) => label === currentVal,
+            )?.[0];
+
+            if (matchedKey) {
+                initial[field.name] = matchedKey;
+            }
+        }
     });
 
     // Format Date
