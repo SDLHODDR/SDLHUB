@@ -198,15 +198,15 @@ const OutdoorDuty = () => {
                     />
                   </div>
                 </div>
-                {loading ? (
+                {/* {loading ? (
                   <div className="p-4 text-center">
                     <div className="spinner-border text-warning"></div>
                   </div>
                 ) : filteredData.length === 0 ? (
                   <div className="p-4 text-center text-muted">
-                    No bookings found
+                    No requests found
                   </div>
-                ) : (
+                ) : ( */}
                   <SDLDataTable
                     data={filteredData}
                     columns={columns}
@@ -214,7 +214,7 @@ const OutdoorDuty = () => {
                     emptyMessage="No outdoor duties found"
                     removableSort
                   />
-                )}
+                {/*  )} */}
               </div>
             </div>
           </div>

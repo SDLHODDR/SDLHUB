@@ -219,11 +219,12 @@ const OutdoorDutyModal = ({
         // }
     };
 
+    console.log("****************** GPData *******************", gpData);
     // Initialize Form
     // ===========================
     useEffect(() => {
-        //const gpFormData = gpData?.form_data;
-        const gpFormData = gpData?.formData;
+        const gpFormData = gpData?.form_data;
+        //const gpFormData = gpData?.formData;
         const gpFormDataHdn = gpData?.hidden;
 
         if (!gpFormData) return;
@@ -340,8 +341,8 @@ const OutdoorDutyModal = ({
         return Object.keys(newErrors).length === 0;
     };
 
-    //const outTypeField = Object.values(gpData?.form_data || {}).find(
-    const outTypeField = Object.values(gpData?.formData || {}).find(    
+    const outTypeField = Object.values(gpData?.form_data || {}).find(
+    //const outTypeField = Object.values(gpData?.formData || {}).find(    
         (field) => field?.name === "OUT_TYPE",
     );
 

@@ -169,7 +169,7 @@ const TicketBooking = () => {
             </div>
             {/* ================= RIGHT SIDE PDF PREVIEW ================= */}
             <div className="col-xl-9 d-flex flex-column">
-              <h6 className="mb-3">Ticket Bookin Preview</h6>
+              <h6 className="mb-3">Ticket Booking Preview</h6>
               <div className="position-relative flex-grow-1">
                 {/* ================= SEARCH ================= */}
                 <div className="row mb-3">
