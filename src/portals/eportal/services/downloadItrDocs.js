@@ -1,60 +1,38 @@
-import { eportalAPI } from "../../../services/api";
+import { eportalRequest } from "../../../services/request";
 import { EPORTAL_API } from "../config/eportalApiConfig";
 
 /* ============================
    DOWNLOAD ITR DOCUMENTS ZIP
-=============================== */
-export const downloadDocuments = async (payload) => {
-  try {
-    const res = await eportalAPI.post(
-      EPORTAL_API.DOWNLOAD_ITR.DOWNLOAD_ITR_DOCUMENT,
-      payload,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    return res.data;
+============================ */
 
-  } catch (error) {
-    console.error("Error downloading ITR docs:", error);
-    throw error;
-  }
-};
+export const downloadDocuments = (payload) =>
+  eportalRequest({
+    url: EPORTAL_API.DOWNLOAD_ITR.DOWNLOAD_ITR_DOCUMENT,
+    method: "POST",
+    data: payload,
+  });
 
-export const downloadDeclarations = async (payload) => {
-  try {
-    const res = await eportalAPI.post(
-      EPORTAL_API.DOWNLOAD_ITR.DOWNLOAD_ITR_DECLARAION,
-      payload,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    return res.data;
+/* ============================
+   DOWNLOAD ITR DECLARATIONS
+============================ */
 
-  } catch (error) {
-    console.error("Error downloading ITR docs:", error);
-    throw error;
-  }
-};
+export const downloadDeclarations = (payload) =>
+  eportalRequest({
+    url: EPORTAL_API.DOWNLOAD_ITR.DOWNLOAD_ITR_DECLARAION,
+    method: "POST",
+    data: payload,
+  });
 
+/* ============================
+   GET EMPLOYEE DROPDOWN
+============================ */
 
-export const getEmployeeDropdown = async () => {
-  try {
-    const res = await eportalAPI.get(
-      EPORTAL_API.DOWNLOAD_ITR.GET_EMPLOYEE_DROPDOWN,
-      {
-        withCredentials: true // important if using PHP session
-      }
-    );
-    return res.data;
-
-  } catch (error) {
-    console.error("Error fetching Employee dropdown data:", error);
-    throw error;
-  }
-};
+export const getEmployeeDropdown = () =>
+  eportalRequest({
+    url: EPORTAL_API.DOWNLOAD_ITR.GET_EMPLOYEE_DROPDOWN,
+    method: "GET",
+    fallback: {
+      status: false,
+      data: [],
+    },
+  });

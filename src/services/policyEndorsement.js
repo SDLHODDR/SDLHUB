@@ -1,46 +1,25 @@
-import { coreAPI } from "./api";
+import { request } from "./request";
 import { PORTALAPI } from "./apiConfig";
 
-/*
-========================================
-GET PENDING POLICIES
-========================================
-*/
-export const getPendingPolicies = async () => {
-    try {
-        const response = await coreAPI.get(
-            PORTALAPI.POLICY_ENDORSEMENT.GET_PENDING_POLICIES,
-            {
-                withCredentials: true,
-            }
-        );
-        return response.data;
+/* ========================================
+   GET PENDING POLICIES
+======================================== */
 
-    } catch (error) {
-        console.error("Get pending policies error:", error);
-        throw error;
-    }
-};
+export const getPendingPolicies = () =>
+  request({
+    url: PORTALAPI.POLICY_ENDORSEMENT.GET_PENDING_POLICIES,
+    method: "GET",
+    dedupe: true,
+    fallback: [],
+  });
 
-/*
-========================================
-ACCEPT POLICY
-========================================
-*/
-export const acceptPolicy = async (payload) => {
+/* ========================================
+   ACCEPT POLICY
+======================================== */
 
-    try {
-        const response = await coreAPI.post(
-            PORTALAPI.POLICY_ENDORSEMENT.ACCEPT_POLICY,
-            payload,
-            {
-                withCredentials: true,
-            }
-        );
-        return response.data;
-
-    } catch (error) {
-        console.error("Accept policy error:", error);
-        throw error;
-    }
-};
+export const acceptPolicy = (payload) =>
+  request({
+    url: PORTALAPI.POLICY_ENDORSEMENT.ACCEPT_POLICY,
+    method: "POST",
+    data: payload,
+  });

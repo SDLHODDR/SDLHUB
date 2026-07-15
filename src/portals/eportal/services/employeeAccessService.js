@@ -1,59 +1,44 @@
-import { eportalAPI } from "../../../services/api";
+import { eportalRequest } from "../../../services/request";
 import { EPORTAL_API } from "../config/eportalApiConfig";
 
-export const getEmployeeAccessDropdowns = async () => {
-  try {
-    const res = await eportalAPI.get(
-      EPORTAL_API.EMPLOYEE_ACCESS.GET_EMPLOYEE_ACCESS_DROPDOWNS,
-      {
-        withCredentials: true // important if using PHP session
-      }
-    );
+/* ============================
+   GET EMPLOYEE ACCESS DROPDOWNS
+============================ */
 
-    return res.data;
-  } catch (error) {
-    console.error("Error fetching Employee Access dropdown data:", error);
-    throw error;
-  }
-};
+export const getEmployeeAccessDropdowns = () =>
+  eportalRequest({
+    url: EPORTAL_API.EMPLOYEE_ACCESS.GET_EMPLOYEE_ACCESS_DROPDOWNS,
+    method: "GET",
+    fallback: {
+      status: false,
+      companies: [],
+      divisions: [],
+      departments: [],
+    },
+  });
 
-export const getEmployeeAccessData = async (payload) => {
-  try {
-    const res = await eportalAPI.post(   
-       EPORTAL_API.EMPLOYEE_ACCESS.GET_EMPLOYEE_ACCESS_DATA,
-      payload,
-      { withCredentials:true }
-    );
-    return res.data;
+/* ============================
+   GET EMPLOYEE ACCESS DATA
+============================ */
 
-  } catch(err){
-    console.error("Employee Access API error", err);
-    throw err;
-  }
-};
+export const getEmployeeAccessData = (payload) =>
+  eportalRequest({
+    url: EPORTAL_API.EMPLOYEE_ACCESS.GET_EMPLOYEE_ACCESS_DATA,
+    method: "POST",
+    data: payload,
+  });
 
-/* ================= SAVE EMPLOYEE ACCESS ================= */
+/* ============================
+   SAVE EMPLOYEE PROFILES
+============================ */
 
-export const saveEmployeeProfiles = async (payload) => {
-  try {
-
-    const res = await eportalAPI.post(
-      EPORTAL_API.EMPLOYEE_ACCESS.SAVE_EMPLOYEE_PROFILES,
-      payload,
-      { withCredentials:true }
-    );
-
-    return res.data;
-
-  } catch(err){
-
-    console.error("Employee Access API error", err);
-
-    return {
-      status:false,
-      message:"API Error"
-    };
-
-  }
-};
-
+export const saveEmployeeProfiles = (payload) =>
+  eportalRequest({
+    url: EPORTAL_API.EMPLOYEE_ACCESS.SAVE_EMPLOYEE_PROFILES,
+    method: "POST",
+    data: payload,
+    fallback: {
+      status: false,
+      message: "API Error",
+    },
+  });

@@ -1,127 +1,78 @@
-import { eportalAPI } from "../../../services/api";
+import { eportalRequest } from "../../../services/request";
 import { EPORTAL_API } from "../config/eportalApiConfig";
 
 /* ---------------- GET PROFILES ---------------- */
 
-export const getProfiles = async () => {
-  try {
-    const res = await eportalAPI.get(
-      EPORTAL_API.PROFILE_MAINTENANCE.GET_PROFILES,
-      { withCredentials: true }
-    );
-
-    return res.data;
-
-  } catch (error) {
-    console.error("Error fetching profile data:", error);
-    throw error;
-  }
-};
-
+export const getProfiles = () =>
+  eportalRequest({
+    url: EPORTAL_API.PROFILE_MAINTENANCE.GET_PROFILES,
+    method: "GET",
+    fallback: {
+      status: false,
+      data: [],
+    },
+  });
 
 /* ---------------- GET PROFILE ACCESS ---------------- */
 
-export const getProfileAccess = async (profileId) => {
-  try {
-    const res = await eportalAPI.get(
-      `${EPORTAL_API.PROFILE_MAINTENANCE.GET_PROFILE_ACCESS}?profile=${profileId}`,
-      { withCredentials: true }
-    );
-
-    return res.data;
-
-  } catch (error) {
-    console.error("Error fetching profile access:", error);
-    throw error;
-  }
-};
-
+export const getProfileAccess = (profileId) =>
+  eportalRequest({
+    url: EPORTAL_API.PROFILE_MAINTENANCE.GET_PROFILE_ACCESS,
+    method: "GET",
+    params: { profile: profileId },
+    fallback: {
+      status: false,
+      menu: [],
+      task: [],
+      dash: [],
+    },
+  });
 
 /* ---------------- SAVE MENU ---------------- */
 
-export const saveMenu = async (payload) => {
-  try {
-    const res = await eportalAPI.post(
-      EPORTAL_API.PROFILE_MAINTENANCE.SAVE_MENU,
-      payload,
-      { withCredentials: true }
-    );
-
-    return res.data;
-
-  } catch (error) {
-    console.error("Profile save menu error:", error);
-    throw error;
-  }
-};
-
+export const saveMenu = (payload) =>
+  eportalRequest({
+    url: EPORTAL_API.PROFILE_MAINTENANCE.SAVE_MENU,
+    method: "POST",
+    data: payload,
+  });
 
 /* ---------------- SAVE TASK ---------------- */
 
-export const saveTask = async (payload) => {
-  try {
-    const res = await eportalAPI.post(
-      EPORTAL_API.PROFILE_MAINTENANCE.SAVE_TASK,
-      payload,
-      { withCredentials: true }
-    );
-
-    return res.data;
-
-  } catch (error) {
-    console.error("Profile save task error:", error);
-    throw error;
-  }
-};
-
+export const saveTask = (payload) =>
+  eportalRequest({
+    url: EPORTAL_API.PROFILE_MAINTENANCE.SAVE_TASK,
+    method: "POST",
+    data: payload,
+  });
 
 /* ---------------- SAVE DASH ---------------- */
 
-export const saveDash = async (payload) => {
-  try {
-    const res = await eportalAPI.post(
-      EPORTAL_API.PROFILE_MAINTENANCE.SAVE_DASH,
-      payload,
-      { withCredentials: true }
-    );
+export const saveDash = (payload) =>
+  eportalRequest({
+    url: EPORTAL_API.PROFILE_MAINTENANCE.SAVE_DASH,
+    method: "POST",
+    data: payload,
+  });
 
-    return res.data;
+/* ---------------- GET PROFILE USERS ---------------- */
 
-  } catch (error) {
-    console.error("Profile save dashboard error:", error);
-    throw error;
-  }
-};
+export const getProfileUsers = (profileId) =>
+  eportalRequest({
+    url: EPORTAL_API.PROFILE_MAINTENANCE.GET_PROFILE_USERS,
+    method: "GET",
+    params: { profileId },
+    fallback: {
+      status: false,
+      data: [],
+    },
+  });
 
-/* ---------------- PROFILE USERS ---------------- */
+/* ---------------- ADD PROFILE ---------------- */
 
-export const getProfileUsers = async (profileId) => {
-  try {
-    const res = await eportalAPI.get(
-      `${EPORTAL_API.PROFILE_MAINTENANCE.GET_PROFILE_USERS}?profileId=${profileId}`
-    );
-
-    return res.data;
-  } catch (error) {
-    console.error("Get Profile Users API Error:", error);
-    throw error;
-  }
-};
-
-/* ---------------- ADD PROFILE ------------------- */
-
-export const addProfile = async (payload) => {
-  try {
-    const res = await eportalAPI.post(
-      EPORTAL_API.PROFILE_MAINTENANCE.ADD_PROFILE,
-      payload,
-      { withCredentials: true }
-    );
-
-    return res.data;
-
-  } catch (error) {
-    console.error("Add new profile error:", error);
-    throw error;
-  }
-};
+export const addProfile = (payload) =>
+  eportalRequest({
+    url: EPORTAL_API.PROFILE_MAINTENANCE.ADD_PROFILE,
+    method: "POST",
+    data: payload,
+  });

@@ -1,113 +1,120 @@
-import { eportalAPI } from "../../../services/api";
+import { eportalRequest } from "../../../services/request";
 import { EPORTAL_API } from "../config/eportalApiConfig";
+import { downloadFile } from "../../../services/downloadFile";
 
-export const getConferenceRooms = async ({
-  page = 1,
-  limit = 10,
-} = {}) => {
-  try {
-    const res = await eportalAPI.get(
-      EPORTAL_API.CONFERENCE_ROOM.GET_CONFERENCE_ROOM_BOOKINGS,
-      {
-        params: {
-          page,
-          limit,
-        },
-        withCredentials: true,
-      }
-    );
+/* ============================
+   GET CONFERENCE ROOMS
+============================ */
 
-    return res.data;
-  } catch (error) {
-    console.error("Error fetching conference room data:", error);
-    throw error;
-  }
-};
+export const getConferenceRooms = ({ page = 1, limit = 10 } = {}) =>
+  eportalRequest({
+    url: EPORTAL_API.CONFERENCE_ROOM.GET_CONFERENCE_ROOM_BOOKINGS,
+    method: "GET",
+    params: {
+      page,
+      limit,
+    },
+    fallback: {
+      status: false,
+      data: [],
+    },
+  });
 
-export const authCBRData = async (payload = {}) => {
-  const res = await eportalAPI.post(
-    EPORTAL_API.CONFERENCE_ROOM.AUTHCBRData,
-    payload,
-    {
-      withCredentials: true
-    }
-  );
-  
-  return res.data || [];
-};
+/* ============================
+   APPROVE BOOKING
+============================ */
 
-export const rejectCBRData = async (payload = {}) => {
-  const res = await eportalAPI.post(
-    EPORTAL_API.CONFERENCE_ROOM.REJECTCBRData,
-    payload,
-    {
-      withCredentials: true
-    }
-  );
-  
-  return res.data || [];
-};
+export const authCBRData = (payload = {}) =>
+  eportalRequest({
+    url: EPORTAL_API.CONFERENCE_ROOM.AUTHCBRData,
+    method: "POST",
+    data: payload,
+  });
 
-export const getBookingDropdownData = async () => {
-  const res = await eportalAPI.get(
-      EPORTAL_API.CONFERENCE_ROOM.GET_BOOKING_DROPDOWN_DATA,
-      {
-        withCredentials: true // important if using PHP session
-      }
-    );
+/* ============================
+   REJECT BOOKING
+============================ */
 
-  return res.data;
-};
+export const rejectCBRData = (payload = {}) =>
+  eportalRequest({
+    url: EPORTAL_API.CONFERENCE_ROOM.REJECTCBRData,
+    method: "POST",
+    data: payload,
+  });
 
+/* ============================
+   BOOKING DROPDOWNS
+============================ */
 
-export const getConferenceRoomOptions = async () => {
-  const res = await eportalAPI.get(
-      EPORTAL_API.CONFERENCE_ROOM.GET_BOOKING_AUTHDROPDOWN_DATA,
-      {
-        withCredentials: true // important if using PHP session
-      }
-    );
+export const getBookingDropdownData = () =>
+  eportalRequest({
+    url: EPORTAL_API.CONFERENCE_ROOM.GET_BOOKING_DROPDOWN_DATA,
+    method: "GET",
+    fallback: {
+      status: false,
+      data: [],
+    },
+  });
 
-  return res.data;
-};
+/* ============================
+   CONFERENCE ROOM OPTIONS
+============================ */
 
-export const conferenceAction = async (payload) => {
-  try {
-    const res = await eportalAPI.post(
-      EPORTAL_API.CONFERENCE_ROOM.CONFERENCE_ACTION,
-      payload,
-      {
-        withCredentials: true
-      }
-    );
-    return res.data;
+export const getConferenceRoomOptions = () =>
+  eportalRequest({
+    url: EPORTAL_API.CONFERENCE_ROOM.GET_BOOKING_AUTHDROPDOWN_DATA,
+    method: "GET",
+    fallback: {
+      status: false,
+      data: [],
+    },
+  });
 
-  } catch (error) {
-    console.error("Conference action error:", error);
-    throw error;
-  }
-};
+/* ============================
+   CONFERENCE ACTION
+============================ */
 
-export const getConferenceYearlyBookings = async () => {
+export const conferenceAction = (payload) =>
+  eportalRequest({
+    url: EPORTAL_API.CONFERENCE_ROOM.CONFERENCE_ACTION,
+    method: "POST",
+    data: payload,
+  });
 
-  try {
+/* ============================
+   YEARLY BOOKINGS
+============================ */
 
-    const res = await eportalAPI.get(
-      EPORTAL_API.CONFERENCE_ROOM.CONFERENCE_YEARLY,
-      { withCredentials: true }
-    );
+export const getConferenceYearlyBookings = () =>
+  eportalRequest({
+    url: EPORTAL_API.CONFERENCE_ROOM.CONFERENCE_YEARLY,
+    method: "GET",
+    fallback: {
+      status: false,
+      data: [],
+    },
+  });
 
-    return res.data;
-
-  } catch (error) {
-    console.error("Yearly conference fetch error:", error);
-    throw error;
-  };
-};
+/* ============================
+   EXPORT BOOKINGS (BLOB)
+============================ */
 
 export const exportToExcelCBRData = async (ids = []) => {
-  try {    
-    const response = await eportalAPI.post(      
+  const response = await eportalRequest({
+    url: EPORTAL_API.CONFERENCE_ROOM.EXPORT_CONFERENCE_BOOKING_DATA,
+    method: "POST",
+    data: { ids },
+    responseType: "blob",
+  });
+
+  downloadFile(response, "Conference_Bookings.xlsx");
+};
+/* ============================
+   EXPORT BOOKINGS (BLOB)
+============================ 
+export const exportToExcelCBRData = async (ids = []) => {
+  try {
+    const response = await eportalAPI.post(
       EPORTAL_API.CONFERENCE_ROOM.EXPORT_CONFERENCE_BOOKING_DATA,
       { ids },
       {
@@ -115,7 +122,7 @@ export const exportToExcelCBRData = async (ids = []) => {
       }
     );
 
-    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const url = window.URL.createObjectURL(response.data);
 
     const link = document.createElement("a");
     link.href = url;
@@ -126,9 +133,8 @@ export const exportToExcelCBRData = async (ids = []) => {
 
     link.remove();
     window.URL.revokeObjectURL(url);
-
   } catch (err) {
-    console.error(err);
+    console.error("Export conference booking error:", err);
+    throw err;
   }
-};
-
+};*/

@@ -1,23 +1,29 @@
 const MeetingsWidget = ({ data = [] }) => {
-  if (!data.length) return null;
+  if (!Array.isArray(data) || data.length === 0) {
+    return null;
+  }
 
   return (
-    <div className="card shadow-sm border-0">
+    <div className="card shadow-sm border-0 mb-3">
       <div className="card-header fw-semibold">
         Today's Meetings
       </div>
 
       <div className="card-body p-2">
-        {data.map((m, i) => (
+        {data.map((meeting, index) => (
           <div
-            key={i}
-            className="d-flex justify-content-between small mb-2"
+            key={
+              meeting.id ??
+              `${meeting.start_time}-${meeting.end_time}-${meeting.room_label}-${index}`
+            }
+            className="d-flex justify-content-between align-items-center small mb-2"
           >
             <span>
-              {m.start_time} - {m.end_time}
+              {meeting.start_time} - {meeting.end_time}
             </span>
+
             <span className="fw-medium">
-              {m.room_label}
+              {meeting.room_label}
             </span>
           </div>
         ))}

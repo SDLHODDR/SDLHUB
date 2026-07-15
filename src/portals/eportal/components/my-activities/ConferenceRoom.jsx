@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -41,28 +41,28 @@ const ConferenceRoom = () => {
 
   /* ================= FETCH DATA ================= */
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
 
     try {
       const res = await getConferenceRooms();
 
-      if (res.status) {
-        setBookings(res.data || []);
+      if (res?.status) {
+        setBookings(Array.isArray(res.data) ? res.data : []);
       } else {
         setBookings([]);
       }
     } catch (err) {
-      console.error(err);
+      console.error("Conference rooms load failed:", err);
       setBookings([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   /* ================= DATE FORMATTER ================= 
 
@@ -170,17 +170,14 @@ const ConferenceRoom = () => {
   const statusBody = (row) => getStatusBadge(row.STATUS);
 
   const actionBody = (row) => (
-    <a
-      href="#"
-      onClick={(e) => {
-        e.preventDefault();
-        openModal(row);
-      }}
+    <button
+      type="button"
       className="btn btn-icon btn-sm btn-primary"
+      onClick={() => openModal(row)}
       title="View"
     >
       <i className="ti ti-eye"></i>
-    </a>
+    </button>
   );
 
   return (
