@@ -13,7 +13,27 @@ import AuthContext from "../../../auth/AuthContext";
 import Select from "react-select";
 import "../assets/css/conferencebookingmodal.css";
 
+import { CONFERENCE_MESSAGES } from "../constants/conferenceMessages";
+
+const DEFAULT_FORM_DATA = {
+  bookingId: "",
+  date: "",
+  fromTime: "",
+  hours: "0",
+  minutes: "00",
+  bookingBy: "",
+  attendees: 1,
+  division: "",
+  reason: "",
+  tea: false,
+  breakfast: false,
+  lunch: false,
+};
+
 const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
+
+const [initialFormData, setInitialFormData] = useState(DEFAULT_FORM_DATA);
+
   const handleBackdropClick = async () => {
     if (loading) return;
 
@@ -26,8 +46,8 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
     }
 
     const confirmed = await confirmAction(
-      "Discard changes?",
-      "Unsaved changes will be lost.",
+      CONFERENCE_MESSAGES.CONFIRM_DISCARD_TITLE,
+      CONFERENCE_MESSAGES.CONFIRM_DISCARD_MESSAGE,
     );
 
     if (confirmed) {
@@ -69,20 +89,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
   const canCancelBooking = !isAddMode && booking?.STATUS === "T" && isOwner;
 
   /* ================= FORM STATE ================= */
-  const [formData, setFormData] = useState({
-    bookingId: "",
-    date: "",
-    fromTime: "",
-    hours: "0",
-    minutes: "00",
-    bookingBy: "",
-    attendees: 1,
-    division: "",
-    reason: "",
-    tea: false,
-    breakfast: false,
-    lunch: false,
-  });
+  const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
 
   /* ================= FETCH DROPDOWN DATA ================= */
   useEffect(() => {
@@ -108,7 +115,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
 
-      setFormData({
+      const data = {
         bookingId: booking.ID || "",
         date: formatToInputDate(booking.DT),
         fromTime: booking.STARTTIME || "",
@@ -121,12 +128,19 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
         tea: booking.ROOM_FACL1 === "Y" || booking.ROOM_FACL1 == 1,
         breakfast: booking.ROOM_FACL2 === "Y" || booking.ROOM_FACL2 == 1,
         lunch: booking.ROOM_FACL3 === "Y" || booking.ROOM_FACL3 == 1,
-      });
+      };
+
+      setFormData(data);
+      setInitialFormData(data);
+
     } else if (mode === "add") {
-      setFormData((prev) => ({
-        ...prev,
+      const data = {
+        ...DEFAULT_FORM_DATA,
         bookingBy: user?.empcode || "",
-      }));
+      };
+
+      setFormData(data);
+      setInitialFormData(data);
     }
   }, [booking, mode, user]);
 
@@ -248,7 +262,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
 
     const isValid = validateForm();
     if (!isValid) {
-      notifyError("Please fix the form errors before submitting");
+      notifyError(CONFERENCE_MESSAGES.FIX_FORM_ERRORS);
       return;
     }
 
@@ -261,11 +275,12 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       });
 
       if (res.status) {
-        const msg = sendForApproval
-          ? "Booking created and sent for confirmation"
-          : "Conference booking created successfully";
+        await notifySuccess(
+          sendForApproval
+            ? CONFERENCE_MESSAGES.SENT_FOR_APPROVAL
+            : CONFERENCE_MESSAGES.BOOKING_CREATED,
+        );
 
-        await notifySuccess(msg);
         await refreshTable();
         //refreshTable();
         onClose();
@@ -276,7 +291,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       notifyError(
         err?.response?.data?.message ||
           err.message ||
-          "Failed to create booking",
+          CONFERENCE_MESSAGES.CREATE_BOOKING_FAILED,
       );
     } finally {
       setLoading(false);
@@ -289,7 +304,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
     const isValid = validateForm();
 
     if (!isValid) {
-      notifyError("Please fix the form errors before submitting");
+      notifyError(CONFERENCE_MESSAGES.FIX_FORM_ERRORS);
       return;
     }
 
@@ -301,7 +316,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       });
 
       if (res.status) {
-        await notifySuccess("Booking updated successfully");
+        await notifySuccess(CONFERENCE_MESSAGES.BOOKING_UPDATED);
 
         await refreshTable();
         onClose();
@@ -309,7 +324,11 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
         notifyError(res.message);
       }
     } catch (err) {
-      notifyError(err?.response?.data?.message || err.message || "Edit failed");
+      notifyError(
+        err?.response?.data?.message ||
+          err.message ||
+          CONFERENCE_MESSAGES.EDIT_FAILED,
+      );
     } finally {
       setLoading(false);
     }
@@ -317,8 +336,8 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
 
   const handleSendForConfirmation = async () => {
     const confirmed = await confirmAction(
-      "Send for Confirmation?",
-      "This will send the booking for approval.",
+      CONFERENCE_MESSAGES.CONFIRM_SEND_TITLE,
+      CONFERENCE_MESSAGES.CONFIRM_SEND_MESSAGE,
     );
 
     if (!confirmed) return;
@@ -331,7 +350,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       });
 
       if (res.status) {
-        await notifySuccess("Booking sent for confirmation");
+        await notifySuccess(CONFERENCE_MESSAGES.SENT_FOR_APPROVAL);
 
         await refreshTable();
         onClose();
@@ -339,7 +358,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
         notifyError(res.message);
       }
     } catch {
-      notifyError("Action failed");
+      notifyError(CONFERENCE_MESSAGES.ACTION_FAILED);
     } finally {
       setLoading(false);
     }
@@ -347,8 +366,8 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
 
   const handleDeleteBooking = async () => {
     const confirmed = await confirmAction(
-      "Delete Booking?",
-      "This action cannot be undone",
+      CONFERENCE_MESSAGES.CONFIRM_DELETE_TITLE,
+      CONFERENCE_MESSAGES.CONFIRM_DELETE_MESSAGE,
     );
 
     if (!confirmed) return;
@@ -361,7 +380,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       });
 
       if (res.status) {
-        await notifySuccess("Booking deleted successfully");
+        await notifySuccess(CONFERENCE_MESSAGES.BOOKING_DELETED);
 
         await refreshTable();
         onClose();
@@ -369,7 +388,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
         notifyError(res.message);
       }
     } catch {
-      notifyError("Delete failed");
+      notifyError(CONFERENCE_MESSAGES.DELETE_FAILED);
     } finally {
       setLoading(false);
     }
@@ -377,8 +396,8 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
 
   const handleCancelBooking = async () => {
     const confirmed = await confirmAction(
-      "Cancel Booking?",
-      "Do you really want to cancel this booking?",
+      CONFERENCE_MESSAGES.CONFIRM_CANCEL_TITLE,
+      CONFERENCE_MESSAGES.CONFIRM_CANCEL_MESSAGE,
     );
 
     if (!confirmed) return;
@@ -391,7 +410,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       });
 
       if (res.status) {
-        await notifySuccess("Conference room booking cancelled");
+        await notifySuccess(CONFERENCE_MESSAGES.BOOKING_CANCELLED);
 
         await refreshTable();
         onClose();
@@ -399,7 +418,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
         notifyError(res.message);
       }
     } catch {
-      notifyError("Cancel failed");
+      notifyError(CONFERENCE_MESSAGES.CANCEL_FAILED);
     } finally {
       setLoading(false);
     }

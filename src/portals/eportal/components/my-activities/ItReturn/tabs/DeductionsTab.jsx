@@ -15,6 +15,8 @@ import {
   notifyError,
 } from "../../../../../../services/alertService";
 
+import {ITR_MESSAGES} from "../../../../constants/itrMessages";
+
 const DeductionsTab = ({ onDataSaved, editable }) => {
   const [deductions, setDeductions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -156,7 +158,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
 
   const handleFileChange = (itaxId, file) => {
     if (file && file.type !== "application/pdf") {
-      notifyError("Only PDF files are allowed");
+      notifyError(ITR_MESSAGES.ONLY_PDF_ALLOWED);
 
       // Clear DOM input box
       if (fileInputRefs.current[itaxId]) {
@@ -230,12 +232,12 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
       // REFRESH DATA FROM DB
       await fetchDeductions();
 
-      notifySuccess("Deductions saved successfully");
+      notifySuccess(ITR_MESSAGES.DEDUCTIONS_SAVED);
 
       onDataSaved?.();
     } catch (error) {
-      console.error("Save deductions error:", error);
-      notifyError("Failed to save deductions");
+      console.error(ITR_MESSAGES.DEDUCTIONS_SAVED_FAILED, error);
+      notifyError(ITR_MESSAGES.DEDUCTIONS_SAVED_FAILED);
     }
   };
 
@@ -253,7 +255,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
   <> 
     {!editable && (
     <div className="alert alert-warning mb-3">
-        IT Return editing is allowed only on configured dates.
+        {ITR_MESSAGES.ITR_EDIT}
     </div>
   )}
 

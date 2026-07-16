@@ -21,6 +21,8 @@ import {
 
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 
+import {EMPLOYEE_ACCESS_MESSAGES } from "../../constants/employeeAccessConstants";
+
 const EmployeeAccess = () => {
   const [companies, setCompanies] = useState([]);
   const [divisions, setDivisions] = useState([]);
@@ -62,10 +64,11 @@ const EmployeeAccess = () => {
           setDivisions(res.divisions || []);
           setDepartments(res.departments || []);
         } else {
-          notifyError("Failed to load dropdown data");
+          notifyError(EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED
+);
         }
       } catch {
-        notifyError("Error loading dropdown data");
+        notifyError(EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_ERROR);
       }
       setLoadingDropdowns(false);
     };
@@ -101,10 +104,10 @@ const EmployeeAccess = () => {
         setGroups(res.groups || []);
         setDataLoaded(true);
       } else {
-        notifyError("Failed to load employee access data");
+       notifyError(EMPLOYEE_ACCESS_MESSAGES.DATA_LOAD_FAILED);
       }
     } catch {
-      notifyError("Error fetching employee access data");
+      notifyError(EMPLOYEE_ACCESS_MESSAGES.DATA_LOAD_FAILED);
     } finally {
       setLoadingData(false);
     }
@@ -201,7 +204,7 @@ const EmployeeAccess = () => {
           hasSelection = true;
 
           if (!emp.profiles || emp.profiles.length === 0) {
-            notifyWarning(`Please assign profile to ${emp.empName}`);
+            notifyWarning(`${EMPLOYEE_ACCESS_MESSAGES.PROFILE_REQUIRED} ${emp.empName}`);
             return;
           }
 
@@ -214,13 +217,13 @@ const EmployeeAccess = () => {
     }
 
     if (!hasSelection) {
-      notifyWarning("Please select at least one group or employee");
+      notifyWarning(EMPLOYEE_ACCESS_MESSAGES.NO_SELECTION);
       return;
     }
 
     const confirm = await confirmAction(
-      "Save Profile Assignment?",
-      "Selected employee profiles will be updated",
+      EMPLOYEE_ACCESS_MESSAGES.SAVE_CONFIRM_TITLE,
+      EMPLOYEE_ACCESS_MESSAGES.SAVE_CONFIRM_MESSAGE
     );
 
     if (!confirm) return;
@@ -234,10 +237,10 @@ const EmployeeAccess = () => {
         notifySuccess(res.message);
         await handleShowData();
       } else {
-        notifyError(res?.message || "Failed to save profiles");
+        notifyError(res?.message || EMPLOYEE_ACCESS_MESSAGES.SAVE_FAILED);
       }
     } catch {
-      notifyError("Error saving profiles");
+      notifyError(EMPLOYEE_ACCESS_MESSAGES.SAVE_ERROR);
     } finally {
       setSaving(false);
     }

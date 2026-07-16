@@ -28,6 +28,8 @@ import {
 
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 
+import { PROFILE_MAINTENANCE_MESSAGES } from "../../constants/profileMaintenanceConstants";
+
 const ProfileMaintenance = () => {
   const [profiles, setProfiles] = useState([]);
 
@@ -320,7 +322,7 @@ const ProfileMaintenance = () => {
   const handleSaveMenu = async () => {
     try {
       if (!profileId) {
-        notifyWarning("Please select a profile first");
+        notifyWarning(PROFILE_MAINTENANCE_MESSAGES.SELECT_PROFILE);
         return;
       }
 
@@ -333,13 +335,13 @@ const ProfileMaintenance = () => {
       );
 
       if (!hasMenuSelected && !hasSubmenuSelected) {
-        notifyWarning("Please select at least one menu access");
+        notifyWarning(PROFILE_MAINTENANCE_MESSAGES.MENU_REQUIRED);
         return;
       }
 
       const confirmed = await confirmAction(
-        "Save Changes?",
-        "This will update menu access.",
+        PROFILE_MAINTENANCE_MESSAGES.MENU_SAVE_TITLE,
+        PROFILE_MAINTENANCE_MESSAGES.MENU_SAVE_CONFIRM,
       );
 
       if (!confirmed) return;
@@ -351,7 +353,9 @@ const ProfileMaintenance = () => {
       });
 
       if (res.status) {
-        await notifySuccess(res.message || "Menu access saved successfully");
+        await notifySuccess(
+          res.message || PROFILE_MAINTENANCE_MESSAGES.MENU_SAVED,
+        );
 
         // reload page so latest menu access reflects in sidebar/menu
         //window.location.reload();
@@ -362,10 +366,12 @@ const ProfileMaintenance = () => {
         await loadProfileAccess(profileId);
         await loadProfileUsers(profileId);
       } else {
-        notifyError(res.message || "Failed to save menu access");
+        notifyError(
+          res.message || PROFILE_MAINTENANCE_MESSAGES.MENU_SAVE_FAILED,
+        );
       }
     } catch {
-      notifyError("Something went wrong while saving menu access");
+      notifyError(PROFILE_MAINTENANCE_MESSAGES.MENU_SAVE_ERROR);
 
       /*    
       notifyError(
@@ -381,8 +387,8 @@ const ProfileMaintenance = () => {
   const handleSaveTask = async () => {
     try {
       const confirmed = await confirmAction(
-        "Save Changes?",
-        "This will update task access.",
+        PROFILE_MAINTENANCE_MESSAGES.TASK_SAVE_TITLE,
+        PROFILE_MAINTENANCE_MESSAGES.TASK_SAVE_CONFIRM,
       );
 
       if (!confirmed) return;
@@ -394,13 +400,15 @@ const ProfileMaintenance = () => {
 
       if (resTask.status) {
         await notifySuccess(
-          resTask.message || "Task access saved successfully",
+          resTask.message || PROFILE_MAINTENANCE_MESSAGES.TASK_SAVED,
         );
       } else {
-        notifyError(resTask.message || "Failed to save task access");
+        notifyError(
+          resTask.message || PROFILE_MAINTENANCE_MESSAGES.TASK_SAVE_FAILED,
+        );
       }
     } catch {
-      notifyError("Something went wrong while saving task access");
+      notifyError(PROFILE_MAINTENANCE_MESSAGES.TASK_SAVE_ERROR);
     }
   };
 
@@ -409,8 +417,8 @@ const ProfileMaintenance = () => {
   const handleSaveDash = async () => {
     try {
       const confirmed = await confirmAction(
-        "Save Changes?",
-        "This will update dashboard access.",
+        PROFILE_MAINTENANCE_MESSAGES.DASH_SAVE_TITLE,
+        PROFILE_MAINTENANCE_MESSAGES.DASH_SAVE_CONFIRM,
       );
 
       if (!confirmed) return;
@@ -422,13 +430,15 @@ const ProfileMaintenance = () => {
 
       if (resDash.status) {
         await notifySuccess(
-          resDash.message || "Dashboard access saved successfully",
+          resDash.message || PROFILE_MAINTENANCE_MESSAGES.DASH_SAVED,
         );
       } else {
-        notifyError(resDash.message || "Failed to save dashboard access");
+        notifyError(
+          resDash.message || PROFILE_MAINTENANCE_MESSAGES.DASH_SAVE_FAILED,
+        );
       }
     } catch {
-      notifyError("Something went wrong while saving dashboard access");
+      notifyError(PROFILE_MAINTENANCE_MESSAGES.DASH_SAVE_ERROR);
     }
   };
 
@@ -528,7 +538,7 @@ const ProfileMaintenance = () => {
 
   const handleAddProfile = async () => {
     if (!newProfile.profileName.trim()) {
-      notifyWarning("Profile Name is required");
+      notifyWarning(PROFILE_MAINTENANCE_MESSAGES.PROFILE_NAME_REQUIRED);
       return;
     }
 
@@ -541,7 +551,9 @@ const ProfileMaintenance = () => {
       });
 
       if (res.status) {
-        notifySuccess(res.message || "Profile added successfully.");
+        notifySuccess(
+          res.message || PROFILE_MAINTENANCE_MESSAGES.PROFILE_ADDED,
+        );
 
         closeAddProfile();
 
@@ -555,10 +567,12 @@ const ProfileMaintenance = () => {
           })),
         );
       } else {
-        notifyError(res.message || "Unable to add profile.");
+        notifyError(
+          res.message || PROFILE_MAINTENANCE_MESSAGES.PROFILE_ADD_FAILED,
+        );
       }
     } catch {
-      notifyError("Something went wrong while adding profile.");
+      notifyError(PROFILE_MAINTENANCE_MESSAGES.PROFILE_ADD_ERROR);
     } finally {
       setSavingProfile(false);
     }
@@ -745,26 +759,26 @@ const ProfileMaintenance = () => {
                             <div key={menu.ID} className="border rounded mb-2">
                               {/* MENU HEADER */}
                               {/*<div
-                                                                className="p-2 bg-light d-flex justify-content-between align-items-center"
-                                                                style={{ cursor: hasSubmenus ? "pointer" : "default" }}
-                                                                onClick={() => hasSubmenus && toggleExpand(menu.ID)} >
-                                                                <div>
-                                                                <strong>
-                                                                {hasSubmenus && (expandedMenus[menu.ID] ? "▼" : "▶")}{" "}
-                                                                {menu.LABEL}
-                                                                </strong>
-                                                                </div>
-                                                                
-                                                                <div>
-                                                                <input
-                                                                type="checkbox"
-                                                                checked={menuAccess[menu.ID] || false}
-                                                                onChange={(e) =>
-                                                                toggleMenu(menu.ID, e.target.checked)
-                                                                }
-                                                                />
-                                                                </div>
-                                                            </div> */}
+                                  className="p-2 bg-light d-flex justify-content-between align-items-center"
+                                  style={{ cursor: hasSubmenus ? "pointer" : "default" }}
+                                  onClick={() => hasSubmenus && toggleExpand(menu.ID)} >
+                                  <div>
+                                  <strong>
+                                  {hasSubmenus && (expandedMenus[menu.ID] ? "▼" : "▶")}{" "}
+                                  {menu.LABEL}
+                                  </strong>
+                                  </div>
+
+                                  <div>
+                                  <input
+                                  type="checkbox"
+                                  checked={menuAccess[menu.ID] || false}
+                                  onChange={(e) =>
+                                  toggleMenu(menu.ID, e.target.checked)
+                                  }
+                                  />
+                                  </div>
+                              </div> */}
 
                               <div
                                 className="p-2 bg-light d-flex align-items-center menu-header"

@@ -3,6 +3,8 @@ import { getPayslips } from "../../services/payslipService";
 import { getDocuments } from "../../services/documentService";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 
+import {MY_DOCUMENTS_MESSAGES} from "../../constants/policies-documentsConstants";
+
 const MyDocuments = () => {
   const [payslips, setPayslips] = useState([]);
   const [documents, setDocuments] = useState([]);
@@ -152,7 +154,7 @@ const MyDocuments = () => {
 
                     {loadingPayslip && (
                       <div className="text-muted p-2">
-                        Loading payslips...
+                        {MY_DOCUMENTS_MESSAGES.LOADING_PAYSLIPS}
                       </div>
                     )}
 
@@ -164,7 +166,7 @@ const MyDocuments = () => {
 
                     {!loadingPayslip && payslips.length === 0 && (
                       <div className="text-muted p-2">
-                        No Payslips Available
+                        {MY_DOCUMENTS_MESSAGES.NO_PAYSLIPS}
                       </div>
                     )}
 
@@ -223,7 +225,7 @@ const MyDocuments = () => {
                     </>
                   ) : (
                     <div className="text-muted d-flex align-items-center justify-content-center h-100">
-                      Select a payslip to preview
+                      {MY_DOCUMENTS_MESSAGES.SELECT_PAYSLIP}
                     </div>
                   )}
 
@@ -242,13 +244,13 @@ const MyDocuments = () => {
 
                     {loadingDocs && (
                       <div className="text-muted p-2">
-                        Loading documents...
+                        {MY_DOCUMENTS_MESSAGES.LOADING_DOCUMENTS}
                       </div>
                     )}
 
                     {!loadingDocs && documents.length === 0 && (
                       <div className="text-muted p-2">
-                        No Documents Available
+                         {MY_DOCUMENTS_MESSAGES.NO_DOCUMENTS}
                       </div>
                     )}
 
@@ -309,7 +311,7 @@ const MyDocuments = () => {
                     </>
                   ) : (
                     <div className="text-muted d-flex align-items-center justify-content-center h-100">
-                      Select a document to preview
+                      {MY_DOCUMENTS_MESSAGES.SELECT_DOCUMENT}
                     </div>
                   )}
 

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { getActivePolicies } from "../../services/policyService";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 
+import {POLICY_MESSAGES} from "../../constants/policies-documentsConstants";
+
 const Policies = () => {
     const [policies, setPolicies] = useState([]);
     const [selectedPolicy, setSelectedPolicy] = useState(null);
@@ -76,13 +78,14 @@ const Policies = () => {
 
                                 {loading && (
                                     <div className="p-3 text-muted">
-                                        Loading policies...
+                                        {POLICY_MESSAGES.LOADING}
                                     </div>
                                 )}
 
                                 {!loading && policies.length === 0 && (
                                     <div className="p-3 text-muted">
                                         No Policies Available
+                                         {POLICY_MESSAGES.NO_POLICIES}
                                     </div>
                                 )}
 
@@ -170,11 +173,11 @@ const Policies = () => {
                                         ></i>
 
                                         <h6 className="mb-1">
-                                            No Policy Preview Available
+                                             {POLICY_MESSAGES.NO_PREVIEW}
                                         </h6>
 
                                         <small>
-                                            No active policies found for today
+                                             {POLICY_MESSAGES.NO_ACTIVE_POLICY}
                                         </small>
                                     </div>
                                 </div>
