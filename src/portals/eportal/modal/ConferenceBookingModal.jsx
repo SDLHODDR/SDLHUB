@@ -568,13 +568,13 @@ const [initialFormData, setInitialFormData] = useState(DEFAULT_FORM_DATA);
                     placeholder="Search Employee..."
                     options={bookingUsers.map((emp) => ({
                       value: emp.EMP_CODE,
-                      label: `${emp.EMP_CODE} - ${emp.EMP_NAME}`,
+                      label: `${emp.EMP_NAME}`,
                     }))}
                     value={
                       bookingUsers
                         .map((emp) => ({
                           value: emp.EMP_CODE,
-                          label: `${emp.EMP_CODE} - ${emp.EMP_NAME}`,
+                          label: `${emp.EMP_NAME}`,
                         }))
                         .find((opt) => opt.value === formData.bookingBy) || null
                     }

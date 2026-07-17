@@ -85,4 +85,7 @@ export const EPORTAL_API = {
     GET_ACCEPTANCE_DETAILS: "/reports/getPolicyAcceptanceDetails.php",
     EXPORT_ACCEPTANCE_REPORT: "/reports/exportPolicyAcceptanceReport.php", 
   },
+  LOGS:{
+    GET_ERROR_LOGS: "/reports/getErrorLogs.php",
+  }
 }

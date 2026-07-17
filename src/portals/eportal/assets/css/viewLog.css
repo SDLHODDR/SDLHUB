@@ -1,0 +1,275 @@
+/* ==========================================================
+   View Log Page
+========================================================== */
+
+.log-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.log-summary .log-date {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.log-summary .log-count {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ==========================================================
+   Search + Filter
+========================================================== */
+
+.log-filter {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.log-filter .form-label {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.log-filter .btn {
+    min-width: 100px;
+}
+
+/* ==========================================================
+   Data Table
+========================================================== */
+
+.p-datatable td {
+    vertical-align: middle;
+}
+
+.p-datatable .badge {
+    font-size: 12px;
+}
+
+.p-datatable td:nth-child(4) {
+    max-width: 450px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ==========================================================
+   Error Code Badges
+========================================================== */
+
+.badge.bg-danger,
+.badge.bg-warning,
+.badge.bg-primary,
+.badge.bg-info,
+.badge.bg-secondary,
+.badge.bg-dark {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 20px;
+}
+
+/* ==========================================================
+   Modal
+========================================================== */
+
+#logModal .modal-dialog {
+    max-width: 900px;
+}
+
+#logModal .modal-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+#logModal .modal-title {
+    font-weight: 600;
+}
+
+#logModal .modal-body {
+    padding: 24px;
+}
+
+#logModal .modal-footer {
+    background: #fafafa;
+}
+
+/* ==========================================================
+   Detail Box
+========================================================== */
+
+.detail-box {
+
+    background: #ffffff;
+
+    border: 1px solid #dee2e6;
+
+    border-radius: 8px;
+
+    min-height: 46px;
+
+    padding: 10px 14px;
+
+    display: flex;
+
+    align-items: center;
+
+    word-break: break-word;
+
+    overflow-wrap: anywhere;
+
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+
+}
+
+/* ==========================================================
+   Labels
+========================================================== */
+
+#logModal label {
+
+    display: block;
+
+    font-weight: 600;
+
+    margin-bottom: 6px;
+
+    color: #495057;
+
+}
+
+/* ==========================================================
+   Error Message
+========================================================== */
+
+.log-message {
+
+    background: #fff5f5;
+
+    border: 1px solid #f5c2c7;
+
+    border-left: 5px solid #dc3545;
+
+    border-radius: 8px;
+
+    padding: 14px;
+
+}
+
+.log-message pre {
+
+    margin: 0;
+
+    white-space: pre-wrap;
+
+    word-break: break-word;
+
+    overflow-wrap: anywhere;
+
+    font-family: Consolas, Monaco, monospace;
+
+    font-size: 13px;
+
+    color: #842029;
+
+}
+
+/* ==========================================================
+   Oracle Backtrace
+========================================================== */
+
+.oracle-trace {
+
+    background: #f8f9fa;
+
+    border: 1px solid #dee2e6;
+
+    border-radius: 8px;
+
+    padding: 12px;
+
+    font-family: Consolas, Monaco, monospace;
+
+    font-size: 13px;
+
+    color: #495057;
+
+    white-space: pre-wrap;
+
+    word-break: break-word;
+
+}
+
+/* ==========================================================
+   Buttons
+========================================================== */
+
+.btn-view {
+
+    width: 34px;
+
+    height: 34px;
+
+    padding: 0;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+/* ==========================================================
+   Empty Table
+========================================================== */
+
+.no-log {
+
+    text-align: center;
+
+    padding: 40px;
+
+    color: #999;
+
+    font-size: 15px;
+
+}
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media (max-width: 768px) {
+
+    .log-filter {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+    .log-summary {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 8px;
+
+    }
+
+    #logModal .modal-dialog {
+
+        margin: 10px;
+
+    }
+
+}

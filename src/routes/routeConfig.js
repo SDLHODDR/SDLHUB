@@ -23,6 +23,7 @@ import EmployeeAccess from "../portals/eportal/components/maintenance/EmployeeAc
 import DailyAttendanceInfo from "../portals/eportal/components/reports/DailyAttendanceInfo";
 import ItrDownloadReport from '../portals/eportal/components/reports/ItrDownloadReport';
 import PolicyEndorsementReport from "../portals/eportal/components/reports/PolicyEndorsementReport";
+import ViewLogs from "../portals/eportal/components/reports/ViewLog";
 
 import PolicyAcceptance from '../pages/PolicyAcceptance';
 
@@ -61,6 +62,7 @@ export const routeConfig = {
     { path: "policy-acceptance", element: PolicyAcceptance },
     { path: "eportal/itr-report", element: ItrDownloadReport },
     { path: "eportal/policy-endorsement-report", element: PolicyEndorsementReport },    
+    { path: "eportal/view-logs", element: ViewLogs },
 
     //EPP
    // { path: "epp/dashboard", element: EppDashboard },

@@ -84,7 +84,6 @@ const Policies = () => {
 
                                 {!loading && policies.length === 0 && (
                                     <div className="p-3 text-muted">
-                                        No Policies Available
                                          {POLICY_MESSAGES.NO_POLICIES}
                                     </div>
                                 )}

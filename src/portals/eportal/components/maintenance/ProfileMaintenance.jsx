@@ -185,7 +185,6 @@ const ProfileMaintenance = () => {
             console.error(err);
         }
     };*/
-
   /* ---------------- LOAD PROFILE ACCESS ---------------- */
 
   const loadProfileAccess = async (profileId) => {
@@ -576,7 +575,11 @@ const ProfileMaintenance = () => {
     } finally {
       setSavingProfile(false);
     }
-  };
+  }
+
+const resetProfileData = () => {
+    setProfileId(null);
+};
 
   return (
     <>
@@ -621,7 +624,7 @@ const ProfileMaintenance = () => {
                 type="button"
                 className="btn btn-outline-secondary"
                 disabled={!profileId}
-                onClick={() => window.location.reload()}
+                 onClick={resetProfileData}
               >
                 <i className="ti ti-refresh me-1"></i>
                 Reset
