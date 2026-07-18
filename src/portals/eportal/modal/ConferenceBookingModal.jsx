@@ -31,8 +31,7 @@ const DEFAULT_FORM_DATA = {
 };
 
 const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
-
-const [initialFormData, setInitialFormData] = useState(DEFAULT_FORM_DATA);
+  const [initialFormData, setInitialFormData] = useState(DEFAULT_FORM_DATA);
 
   const handleBackdropClick = async () => {
     if (loading) return;
@@ -132,7 +131,6 @@ const [initialFormData, setInitialFormData] = useState(DEFAULT_FORM_DATA);
 
       setFormData(data);
       setInitialFormData(data);
-
     } else if (mode === "add") {
       const data = {
         ...DEFAULT_FORM_DATA,
@@ -149,14 +147,26 @@ const [initialFormData, setInitialFormData] = useState(DEFAULT_FORM_DATA);
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    const newValue = type === "checkbox" ? checked : value;
+    let newValue = type === "checkbox" ? checked : value;
+
+    if (name === "attendees") {
+      // Allow only digits
+      newValue = newValue.replace(/\D/g, "");
+
+      // Restrict to 3 digits
+      newValue = newValue.slice(0, 3);
+
+      // Maximum 100 attendees
+      if (newValue !== "" && Number(newValue) > 100) {
+        newValue = "100";
+      }
+    }
 
     setFormData((prev) => ({
       ...prev,
       [name]: newValue,
     }));
 
-    // remove error for that field
     setErrors((prev) => ({
       ...prev,
       [name]: "",
@@ -595,12 +605,39 @@ const [initialFormData, setInitialFormData] = useState(DEFAULT_FORM_DATA);
                     type="number"
                     className={`form-control ${errors.attendees ? "is-invalid" : ""}`}
                     name="attendees"
-                    min="1"
                     value={formData.attendees}
-                    onChange={handleChange}
-                    disabled={readOnly}
-                    max={500}
+                    min={1}
+                    max={100}
                     step={1}
+                    disabled={readOnly}
+                    onKeyDown={(e) => {
+                      if (["e", "E", "+", "-", "."].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const pasted = e.clipboardData.getData("text");
+
+                      if (!/^\d+$/.test(pasted)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onChange={(e) => {
+                      let value = e.target.value;
+
+                      if (value.length > 3) {
+                        value = value.slice(0, 3);
+                      }
+
+                      if (value !== "" && Number(value) > 100) {
+                        value = "100";
+                      }
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        attendees: value,
+                      }));
+                    }}
                   />
                   {errors.attendees && (
                     <div className="invalid-feedback">{errors.attendees}</div>

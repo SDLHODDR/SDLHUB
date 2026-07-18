@@ -21,7 +21,7 @@ import {
 
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 
-import {EMPLOYEE_ACCESS_MESSAGES } from "../../constants/employeeAccessConstants";
+import { EMPLOYEE_ACCESS_MESSAGES } from "../../constants/employeeAccessConstants";
 
 const EmployeeAccess = () => {
   const [companies, setCompanies] = useState([]);
@@ -64,8 +64,7 @@ const EmployeeAccess = () => {
           setDivisions(res.divisions || []);
           setDepartments(res.departments || []);
         } else {
-          notifyError(EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED
-);
+          notifyError(EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED);
         }
       } catch {
         notifyError(EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_ERROR);
@@ -104,7 +103,7 @@ const EmployeeAccess = () => {
         setGroups(res.groups || []);
         setDataLoaded(true);
       } else {
-       notifyError(EMPLOYEE_ACCESS_MESSAGES.DATA_LOAD_FAILED);
+        notifyError(EMPLOYEE_ACCESS_MESSAGES.DATA_LOAD_FAILED);
       }
     } catch {
       notifyError(EMPLOYEE_ACCESS_MESSAGES.DATA_LOAD_FAILED);
@@ -204,7 +203,9 @@ const EmployeeAccess = () => {
           hasSelection = true;
 
           if (!emp.profiles || emp.profiles.length === 0) {
-            notifyWarning(`${EMPLOYEE_ACCESS_MESSAGES.PROFILE_REQUIRED} ${emp.empName}`);
+            notifyWarning(
+              `${EMPLOYEE_ACCESS_MESSAGES.PROFILE_REQUIRED} ${emp.empName}`,
+            );
             return;
           }
 
@@ -223,7 +224,7 @@ const EmployeeAccess = () => {
 
     const confirm = await confirmAction(
       EMPLOYEE_ACCESS_MESSAGES.SAVE_CONFIRM_TITLE,
-      EMPLOYEE_ACCESS_MESSAGES.SAVE_CONFIRM_MESSAGE
+      EMPLOYEE_ACCESS_MESSAGES.SAVE_CONFIRM_MESSAGE,
     );
 
     if (!confirm) return;
@@ -434,7 +435,12 @@ const EmployeeAccess = () => {
                               checked={selectedEmployees[emp.empCode] || false}
                               onChange={() => toggleEmployee(emp.empCode)}
                             />
-                            <span>{emp.empName}</span>
+                            <span
+                              style={{ cursor: "pointer" }}
+                              onClick={() => toggleEmployee(emp.empCode)}
+                            >
+                              {emp.empName}
+                            </span>
                           </div>
 
                           <div className="col-md-8">
