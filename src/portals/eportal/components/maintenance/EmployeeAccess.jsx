@@ -27,6 +27,7 @@ const EmployeeAccess = () => {
   const [companies, setCompanies] = useState([]);
   const [divisions, setDivisions] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [employees, setEmployees] = useState([]);
 
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedDivision, setSelectedDivision] = useState(null);
@@ -36,8 +37,9 @@ const EmployeeAccess = () => {
   const [groups, setGroups] = useState([]);
 
   const [selectedGroups, setSelectedGroups] = useState({});
-  const [selectedEmployees, setSelectedEmployees] = useState({});
+  const [selectedEmployees, setSelectedEmployees] = useState({}); //Tracks checked employee rows for editing/saving.
   const [collapsedGroups, setCollapsedGroups] = useState({});
+  const [employeeFilter, setEmployeeFilter] = useState(null); //Tracks the employee selected in the filter dropdown before clicking Show Dat
 
   const [loadingDropdowns, setLoadingDropdowns] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
@@ -63,6 +65,7 @@ const EmployeeAccess = () => {
           setCompanies(res.companies || []);
           setDivisions(res.divisions || []);
           setDepartments(res.departments || []);
+          setEmployees(res.employees || []);
         } else {
           notifyError(EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED);
         }
@@ -77,10 +80,10 @@ const EmployeeAccess = () => {
   /* ---------------- SHOW DATA ---------------- */
 
   const handleShowData = async () => {
-    /*if (!selectedCompany || !selectedDivision || !selectedDepartment) {
-            notifyWarning("Please select Company, Division and Department");
-            return;
-        }*/
+    if (!selectedCompany) {
+      notifyWarning("Please select Company");
+      return;
+    }
 
     try {
       setLoadingData(true);
@@ -96,6 +99,7 @@ const EmployeeAccess = () => {
         company: selectedCompany?.value || "",
         division: selectedDivision?.value || "",
         department: selectedDepartment?.value || "",
+        employee: employeeFilter?.value || "",
       });
 
       if (res.status) {
@@ -297,8 +301,8 @@ const EmployeeAccess = () => {
       <div className="card">
         {/* FILTER */}
         <div className="card-body row">
-          <div className="col-lg-4">
-            <label>Company</label>
+          <div className="col-lg-3">
+            <label className="form-label mb-2">Company</label>
             <Select
               options={companies}
               value={selectedCompany}
@@ -309,8 +313,8 @@ const EmployeeAccess = () => {
             />
           </div>
 
-          <div className="col-lg-3">
-            <label>Division</label>
+          <div className="col-lg-2">
+            <label className="form-label mb-2">Division</label>
             <Select
               options={divisions}
               value={selectedDivision}
@@ -320,12 +324,25 @@ const EmployeeAccess = () => {
             />
           </div>
 
-          <div className="col-lg-3">
-            <label>Department</label>
+          <div className="col-lg-2 d-grid align-self-end">
+            <label className="form-label mb-2">Department</label>
             <Select
               options={departments}
               value={selectedDepartment}
               onChange={setSelectedDepartment}
+              menuPortalTarget={document.body}
+              menuPosition="fixed"
+            />
+          </div>
+
+          <div className="col-lg-3">
+            <label className="form-label mb-2">Employee</label>
+            <Select
+              options={employees}
+              value={employeeFilter}
+              onChange={setEmployeeFilter}
+              isClearable
+              placeholder="Select Employee"
               menuPortalTarget={document.body}
               menuPosition="fixed"
             />
@@ -410,6 +427,7 @@ const EmployeeAccess = () => {
                       options={profileOptions}
                       value={groupProfiles}
                       styles={selectStyles}
+                      isDisabled={!selectedGroups[group.groupCode]}
                       onChange={(opts) =>
                         handleGroupProfileChange(group.groupCode, opts)
                       }
@@ -449,6 +467,7 @@ const EmployeeAccess = () => {
                               options={profileOptions}
                               value={selectedProfiles}
                               styles={selectStyles}
+                              isDisabled={!selectedEmployees[emp.empCode]}
                               onChange={(opts) =>
                                 handleEmployeeProfileChange(emp.empCode, opts)
                               }
