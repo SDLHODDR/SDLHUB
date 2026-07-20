@@ -9,6 +9,7 @@ export const getAttendance = (month) =>
   eportalRequest({
     url: EPORTAL_API.ATTENDANCE.GET_ATTENDANCE,
     method: "GET",
+    dedupe: true,
     params: { month },
 
     fallback: {

@@ -8,6 +8,7 @@ export const getErrorLogs = async (logDate = null) => {
     return eportalRequest({
         url: EPORTAL_API.LOGS.GET_ERROR_LOGS,
         method: "POST",
+        dedupe: true,
         data: {
             logDate,
         },
