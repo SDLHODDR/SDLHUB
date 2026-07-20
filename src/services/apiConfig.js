@@ -41,7 +41,8 @@ export const PORTALAPI = {
     SENDAUTHTBData: "/ticketbooking/tb_auth.php",
     AUTHTBData: "/ticketbooking/tb_svauth.php",
     REJECTTBData: "/ticketbooking/tb_svauth.php",
-    CLOSETBData: "/ticketbooking/tb_save.php"
+    CLOSETBData: "/ticketbooking/tb_save.php",
+    RESENDAUTHTBData: "/ticketbooking/tb_auth.php",
   },
 
   AUTHORIZATION: {

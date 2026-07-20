@@ -65,7 +65,7 @@ const TicketBookingAuthorization = () => {
     );
   }, [searchQuery, listData]);
 
-  
+  console.log("______---- listData ------_____", listData);
   /* ================= Form modal constants ================= */
   const [selectedTicketBooking, setSelectedTicketBooking] = useState(null);
   const [showModal, setShowModal] = useState(false);

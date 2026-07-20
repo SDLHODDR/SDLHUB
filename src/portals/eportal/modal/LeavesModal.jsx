@@ -89,6 +89,43 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
     closeModal();
   };
 
+  const validateForm = (formDataVal) => {
+    const newErrors = {};
+
+    if (!formDataVal.LVE_CODE) {
+      newErrors.LVE_CODE = "Leave Code is required";
+    }
+
+    if (!formDataVal.LVE_DATE_FR) {
+      newErrors.LVE_DATE_FR = "From Date is required";
+    }
+
+    if (!formDataVal.LVE_DATE_TO) {
+      newErrors.LVE_DATE_TO = "To Date is required";
+    }
+
+    if (!formDataVal.LEAVE_STARTS) {
+      newErrors.LEAVE_STARTS = "Leave Starts is required";
+    }
+
+    if (!formDataVal.LEAVE_ENDS) {
+      newErrors.LEAVE_ENDS = "Leave Ends is required";
+    }
+
+    if (!formDataVal.NO_DAYS || formDataVal.NO_DAYS <= 0) {
+      newErrors.NO_DAYS = "Invalid number of days";
+    }
+
+    // Optional: Reason validation
+    if (!formDataVal.REASON || formDataVal.REASON.trim() === "") {
+      newErrors.REASON = "Reason is required";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = async (e) => {
       e.preventDefault();
   

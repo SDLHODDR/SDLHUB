@@ -39,7 +39,7 @@ export const renderTicketBookingActions = (
   return (
     <div className="d-flex align-items-center gap-2 flex-wrap">
       {disableEditDelete ? (
-        <span className="text-muted small">No Actions</span>
+        <span className="text-muted small"> - </span>
       ) : (
         <>
           {/* Edit */}
@@ -73,16 +73,7 @@ export const renderTicketBookingActions = (
         </OverlayTrigger>
       )}
 
-      {/* Update Remarks */}
-      {!postRemarks && ["A", "T"].includes(status) && datePass <= 0 && (
-        <OverlayTrigger placement="top" overlay={renderTooltip("Update Remarks")}>
-          <span>
-            <Link to="" onClick={(e) => handleClick(e, () => updateRemarks(rowData))}>
-              <i className="ti ti-message-plus"></i>
-            </Link>
-          </span>
-        </OverlayTrigger>
-      )}
+     
 
       {/* Send Auth */}
       {status === "N" && (
@@ -94,6 +85,22 @@ export const renderTicketBookingActions = (
           </span>
         </OverlayTrigger>
       )}
+
+      {["A", "T", "R"].includes(status) && (
+          <OverlayTrigger placement="top" overlay={renderTooltip("Close Ticket")}>
+            <span>
+              <Link
+                to=""
+                // onClick={(e) => handleClick(e, updateRemarks)}
+                onClick={(e) =>
+                  handleClick(e, () => closeTicketTB(rowData.id), false, status)
+                }
+              >
+                <i className="ti ti-x" />
+              </Link>
+            </span>
+          </OverlayTrigger>
+        )}
 
       {/* Close Ticket */}
       {status === "T" && !postRemarks && datePass > 0 && "-"}
