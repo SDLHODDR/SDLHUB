@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { Dropdown } from "primereact/dropdown";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -31,8 +31,9 @@ import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import { PROFILE_MAINTENANCE_MESSAGES } from "../../constants/profileMaintenanceConstants";
 
 const ProfileMaintenance = () => {
-  const [profiles, setProfiles] = useState([]);
+  const hasFetchedProfiles = useRef(false);
 
+  const [profiles, setProfiles] = useState([]);
   const [profileId, setProfileId] = useState(null);
 
   /*-----------Add Profile----------*/
@@ -208,7 +209,12 @@ const ProfileMaintenance = () => {
     }
   };
 
+
   useEffect(() => {
+  if (hasFetchedProfiles.current) return;
+
+    hasFetchedProfiles.current = true;
+
     const fetchProfiles = async () => {
       try {
         const data = await getProfiles();
@@ -217,13 +223,12 @@ const ProfileMaintenance = () => {
           data.map((p) => ({
             value: p.PROFILE_ID,
             label: p.PROFILE_DESC,
-          })),
+          }))
         );
       } catch (err) {
         console.error(err);
       }
     };
-
     fetchProfiles();
   }, []);
 

@@ -10,6 +10,7 @@ export const getConferenceRooms = ({ page = 1, limit = 10 } = {}) =>
   eportalRequest({
     url: EPORTAL_API.CONFERENCE_ROOM.GET_CONFERENCE_ROOM_BOOKINGS,
     method: "GET",
+    dedupe: true,
     params: {
       page,
       limit,
@@ -28,6 +29,7 @@ export const authCBRData = (payload = {}) =>
   eportalRequest({
     url: EPORTAL_API.CONFERENCE_ROOM.AUTHCBRData,
     method: "POST",
+    dedupe: true,
     data: payload,
   });
 
@@ -39,6 +41,7 @@ export const rejectCBRData = (payload = {}) =>
   eportalRequest({
     url: EPORTAL_API.CONFERENCE_ROOM.REJECTCBRData,
     method: "POST",
+    dedupe: true,
     data: payload,
   });
 
@@ -50,6 +53,7 @@ export const getBookingDropdownData = () =>
   eportalRequest({
     url: EPORTAL_API.CONFERENCE_ROOM.GET_BOOKING_DROPDOWN_DATA,
     method: "GET",
+    dedupe: true,
     fallback: {
       status: false,
       data: [],
@@ -64,6 +68,7 @@ export const getConferenceRoomOptions = () =>
   eportalRequest({
     url: EPORTAL_API.CONFERENCE_ROOM.GET_BOOKING_AUTHDROPDOWN_DATA,
     method: "GET",
+    dedupe: true,
     fallback: {
       status: false,
       data: [],
@@ -78,6 +83,7 @@ export const conferenceAction = (payload) =>
   eportalRequest({
     url: EPORTAL_API.CONFERENCE_ROOM.CONFERENCE_ACTION,
     method: "POST",
+    dedupe: true,
     data: payload,
   });
 
@@ -89,6 +95,7 @@ export const getConferenceYearlyBookings = () =>
   eportalRequest({
     url: EPORTAL_API.CONFERENCE_ROOM.CONFERENCE_YEARLY,
     method: "GET",
+    dedupe: true,
     fallback: {
       status: false,
       data: [],
@@ -103,6 +110,7 @@ export const exportToExcelCBRData = async (ids = []) => {
   const response = await eportalRequest({
     url: EPORTAL_API.CONFERENCE_ROOM.EXPORT_CONFERENCE_BOOKING_DATA,
     method: "POST",
+    dedupe: true,
     data: { ids },
     responseType: "blob",
   });

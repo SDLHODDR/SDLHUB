@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getActivePolicies } from "../../services/policyService";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 
 import { POLICY_MESSAGES } from "../../constants/policies-documentsConstants";
 
 const Policies = () => {
+  const hasFetched = useRef(false);
+
   const [policies, setPolicies] = useState([]);
   const [selectedPolicy, setSelectedPolicy] = useState(null);
 
@@ -23,12 +25,8 @@ const Policies = () => {
         setPolicies(policyList);
 
         if (policyList.length > 0) {
+          setPdfLoading(true);
           setSelectedPolicy(policyList[0]);
-
-          // important
-          setTimeout(() => {
-            setPdfLoading(true);
-          }, 100);
         }
       } else {
         setPolicies([]);
@@ -42,8 +40,21 @@ const Policies = () => {
   };
 
   useEffect(() => {
+    if (hasFetched.current) return;
+
+    hasFetched.current = true;
     fetchPolicies();
   }, []);
+
+  useEffect(() => {
+    if (!pdfLoading) return;
+
+    const timer = setTimeout(() => {
+      setPdfLoading(false);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [pdfLoading]);
 
   return (
     <>
@@ -129,19 +140,23 @@ const Policies = () => {
                   )}
 
                   <iframe
-                    key={selectedPolicy?.previewUrl}
+                    key={selectedPolicy.previewUrl}
                     src={`${selectedPolicy.previewUrl}#toolbar=1&navpanes=0`}
                     title="Policy Preview"
                     width="100%"
-                    onLoad={() => setPdfLoading(false)}
+                    onLoad={() => {
+                      console.log("iframe loaded");
+                      setPdfLoading(false);
+                    }}
                     style={{
                       height: "85vh",
                       border: "1px solid #ddd",
                       borderRadius: "6px",
                       opacity: pdfLoading ? 0 : 1,
-                      transition: "opacity 0.3s ease-in-out",
+                      transition: "opacity .3s",
                     }}
                   />
+
                 </div>
               ) : (
                 <div

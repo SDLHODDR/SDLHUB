@@ -11,6 +11,7 @@ export const getItrDownloadReport = (filters) =>
     url: EPORTAL_API.ITR_DOWNLOAD_REPORT.GET_REPORT,
     method: "POST",
     data: filters,
+    dedupe: true,
     fallback: {
       success: false,
       message: "Failed to fetch report",
@@ -28,6 +29,7 @@ export const exportItrDownloadReport = async (filters) => {
     url: EPORTAL_API.ITR_DOWNLOAD_REPORT.EXPORT_REPORT,
     method: "POST",
     data: filters,
+    dedupe: true,
     responseType: "blob",
   });
 

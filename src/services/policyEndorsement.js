@@ -21,5 +21,6 @@ export const acceptPolicy = (payload) =>
   request({
     url: PORTALAPI.POLICY_ENDORSEMENT.ACCEPT_POLICY,
     method: "POST",
+    dedupe: true,
     data: payload,
   });

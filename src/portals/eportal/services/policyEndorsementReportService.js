@@ -10,6 +10,7 @@ export const getPolicyEndorsementReport = () =>
   eportalRequest({
     url: EPORTAL_API.POLICY_ENDORSEMENT.GET_ENDORSEMENT_REPORT,
     method: "GET",
+    dedupe: true,
     fallback: {
       status: false,
       data: [],
@@ -24,6 +25,7 @@ export const getPolicyAcceptanceDetails = (policyId) =>
   eportalRequest({
     url: EPORTAL_API.POLICY_ENDORSEMENT.GET_ACCEPTANCE_DETAILS,
     method: "POST",
+    dedupe: true,
     data: {
       policy_id: policyId,
     },
@@ -37,6 +39,7 @@ export const exportPolicyAcceptanceReport = async (policyId) => {
   const response = await eportalRequest({
     url: EPORTAL_API.POLICY_ENDORSEMENT.EXPORT_ACCEPTANCE_REPORT,
     method: "GET",
+    dedupe: true,
     params: {
       policy_id: policyId,
     },
