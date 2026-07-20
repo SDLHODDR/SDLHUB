@@ -87,7 +87,7 @@ export const createTicketBookingHandlers = ({ dispatch, handleSuccess, openModal
     });
     if (!result.isConfirmed) return;
 
-    const response = await deleteTBRData({ deleteTBR: true, delteId: id });
+    const response = await deleteTBRData({ deleteTB: true, delteId: id });
     if (response?.status) {
       await Swal.fire({
         icon: "success",

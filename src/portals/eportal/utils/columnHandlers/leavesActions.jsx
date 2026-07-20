@@ -38,35 +38,39 @@ export const renderLeaveActions = (
 
   return (
     <div className="d-flex align-items-center gap-2 flex-wrap">
-      {/* Edit */}
-      <OverlayTrigger placement="top" overlay={renderTooltip("Edit")}>
-        <span className="d-inline-block">
-          <Link
-            to=""
-            className={`p-2 ${disableEditDelete ? "disabled text-muted" : ""}`}
-            style={{ pointerEvents: disableEditDelete ? "none" : "auto" }}
-            onClick={(e) =>
-              handleClick(e, () => editLR(rowData), disableEditDelete)
-            }
-          >
-            <i className="ti ti-edit"></i>
-          </Link>
-        </span>
-      </OverlayTrigger>
+      {disableEditDelete ? (
+  <span className="text-muted small">No Actions</span>
+) : (
+  <>
+    {/* Edit */}
+    <OverlayTrigger placement="top" overlay={renderTooltip("Edit")}>
+      <span className="d-inline-block">
+        <Link
+          to=""
+          className="p-2"
+          onClick={(e) =>
+            handleClick(e, () => editLR(rowData), disableEditDelete)
+          }
+        >
+          <i className="ti ti-edit"></i>
+        </Link>
+      </span>
+    </OverlayTrigger>
 
-      {/* Delete */}
-      <OverlayTrigger placement="top" overlay={renderTooltip("Delete")}>
-        <span className="d-inline-block">
-          <Link
-            to=""
-            className={`p-2 ${disableEditDelete ? "disabled text-muted" : ""}`}
-            style={{ pointerEvents: disableEditDelete ? "none" : "auto" }}
-            onClick={(e) => handleClick(e, () => deleteLR(id), disableEditDelete)}
-          >
-            <i className="ti ti-trash text-danger"></i>
-          </Link>
-        </span>
-      </OverlayTrigger>
+    {/* Delete */}
+    <OverlayTrigger placement="top" overlay={renderTooltip("Delete")}>
+      <span className="d-inline-block">
+        <Link
+          to=""
+          className="p-2"
+          onClick={(e) => handleClick(e, () => deleteLR(id), disableEditDelete)}
+        >
+          <i className="ti ti-trash text-danger"></i>
+        </Link>
+      </span>
+    </OverlayTrigger>
+  </>
+)}
 
       {/* Resend Auth */}
       {/* {status === "R" && (

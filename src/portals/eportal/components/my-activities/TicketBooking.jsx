@@ -62,10 +62,11 @@ const TicketBooking = () => {
 
     return listData.filter(
       (item) =>
-        item.person_name.toLowerCase().includes(query) ||
-        item.trvl_mode.toLowerCase().includes(query) ||
-        item.remarks.toLowerCase().includes(query),
+        item.person_name?.toLowerCase().includes(query) ||
+        item.trvl_mode?.toLowerCase().includes(query) ||
+        item.remarks?.toLowerCase().includes(query),
     );
+    
   }, [searchQuery, listData]);
 
   const [modalState, setModalState] = useState({

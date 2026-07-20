@@ -17,6 +17,8 @@ export const renderOutdoorDutyActions = (
 
   console.log("==============DisableEditDelete======Status============", status, disableEditDelete);
 
+    console.log("==============RowData============", rowData, datePass);
+
   const renderTooltip = (text) => (props) => (
     <Tooltip id={`tooltip-${text}`} {...props}>
       {text}
@@ -29,16 +31,16 @@ export const renderOutdoorDutyActions = (
     e.preventDefault();
     e.stopPropagation();
 
-     const disableHandler = ["A", "R", "T", "X"].includes(status);
-    if (disabled || disableHandler) {
-      Swal.fire({
-        icon: "error",
-        title: "Failed!",
-        text: "Cannot Perform this action"
-      });
+    //  const disableHandler = ["A", "R", "T", "X"].includes(status);
+    // if (disabled || disableHandler) {
+    //   Swal.fire({
+    //     icon: "error",
+    //     title: "Failed!",
+    //     text: "Cannot Perform this action"
+    //   });
 
-      return
-    };
+    //   return
+    // };
     
     action(id);
   };
@@ -46,36 +48,39 @@ export const renderOutdoorDutyActions = (
   return (
     <div className="d-flex align-items-center gap-2 flex-wrap">
 
-      {/* Edit */}
-      <OverlayTrigger placement="top" overlay={renderTooltip("Edit")}>
-        <span className="d-inline-block">
-          <Link
-            to=""
-            className={`p-2 ${disableEditDelete ? "disabled text-muted" : ""}`}
-            style={{ pointerEvents: disableEditDelete ? "none" : "auto" }}
-            // onClick={(e) => handleClick(e, editGP, disableEditDelete)}
-            onClick={(e) =>
-              handleClick(e, () => editGP(rowData), disableEditDelete, status)
-            }
-          >
-            <i className="ti ti-edit"></i>
-          </Link>
-        </span>
-      </OverlayTrigger>
+      {disableEditDelete ? (
+        <span className="text-muted small"> - </span>
+      ) : (
+        <>
+          {/* Edit */}
+          <OverlayTrigger placement="top" overlay={renderTooltip("Edit")}>
+            <span className="d-inline-block">
+              <Link
+                to=""
+                className="p-2"
+                onClick={(e) =>
+                  handleClick(e, () => editGP(rowData), disableEditDelete, status)
+                }
+              >
+                <i className="ti ti-edit"></i>
+              </Link>
+            </span>
+          </OverlayTrigger>
 
-      {/* Delete */}
-      <OverlayTrigger placement="top" overlay={renderTooltip("Delete")}>
-        <span className="d-inline-block">
-          <Link
-            to=""
-            className={`p-2 ${disableEditDelete ? "disabled text-muted" : ""}`}
-            style={{ pointerEvents: disableEditDelete ? "none" : "auto" }}
-            onClick={(e) => handleClick(e, deleteGP, disableEditDelete, status)}
-          >
-            <i className="ti ti-trash text-danger"></i>
-          </Link>
-        </span>
-      </OverlayTrigger>
+          {/* Delete */}
+          <OverlayTrigger placement="top" overlay={renderTooltip("Delete")}>
+            <span className="d-inline-block">
+              <Link
+                to=""
+                className="p-2"
+                onClick={(e) => handleClick(e, deleteGP, disableEditDelete, status)}
+              >
+                <i className="ti ti-trash text-danger"></i>
+              </Link>
+            </span>
+          </OverlayTrigger>
+        </>
+      )}
 
       {/* Resend Auth */}
       {status === "R" && (

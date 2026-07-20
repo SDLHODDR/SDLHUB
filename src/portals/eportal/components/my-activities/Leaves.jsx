@@ -10,6 +10,7 @@ import LeavesModal from "../../modal/LeavesModal";
 import { leavesColumns } from "../../utils/columnHandlers/leavesColumns";
 import Swal from "sweetalert2";
 import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
+import { getLRDataDetails } from "../../services/leavesService";
 
 const Leaves = () => {
   const dispatch = useDispatch();
@@ -19,6 +20,7 @@ const Leaves = () => {
   const loading = useSelector((state) => state.eportalLRData.loading);
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+ 
 
   useEffect(() => {
     dispatch(getLeavesDataResponse());
@@ -74,14 +76,68 @@ const Leaves = () => {
 
   const openModal = (config = {}) => {
     setLoader(true);
+    console.log("-----------CoNFIG---------------", config);
 
-    setModalState({
-      isOpen: true,
-      mode: config.mode || "create",
-      modalDate: config.modalDate || null,
-      id: config.id || null,
-      isPostRemark: config.isPostRemark || null,
-    });
+    const formatLocalDateTime = (date) => {
+      const pad = (n) => String(n).padStart(2, '0');
+
+      const year = date.getFullYear();
+      const month = pad(date.getMonth() + 1);
+      const day = pad(date.getDate());
+      const hours = pad(date.getHours());
+      const minutes = pad(date.getMinutes());
+      const seconds = pad(date.getSeconds());
+
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    };
+
+    const fetchLRData = async () => {
+        try {
+          setLoader(true);
+          const response = await getLRDataDetails({
+            id: config.modalDate || null,
+            //ID: mid || null,
+            ID: config.modalDate || null,
+            getLrdata: false,
+            checkModalDate: true,
+            ro: undefined,
+            //hiddenTaskId: formConfig.taskIdHdn || null
+            modal_date: formatLocalDateTime(config.modalDate || null)
+          });
+    
+          //console.log("================= Response ------", response);
+          if(response.flag === "Yes") {
+            setModalState({
+              isOpen: true,
+              mode: config.mode || "create",
+              modalDate: config.modalDate || null,
+              id: config.id || null,
+              isPostRemark: config.isPostRemark || null,
+            });
+          } else if(response.flag === "No") {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "You have already applied leave!",
+            });
+
+            setModalState({
+              isOpen: false,
+              mode: config.mode || "create",
+              modalDate: config.modalDate || null,
+              id: config.id || null,
+              isPostRemark: config.isPostRemark || null,
+            });
+          }
+          
+        } catch (error) {
+          console.error("Error fetching Leave Request Data:", error);
+        } finally {
+          setLoader(false);
+        }
+      };
+
+    fetchLRData();
 
     setLoader(false);
   };

@@ -14,8 +14,8 @@ import moment from "moment";
 
 const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
   const { modalPage, mode, modeLabel, form_header, form_text } = formSettings;
-
   const [date, setDate] = useState(new Date());
+  const [errorMsg, setErrorMsg] = useState(false);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [loading, setLoading] = useState(true);
@@ -23,7 +23,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
   const [formData, setFormData] = useState({});
   const { isOpen, modalDate } = modalState;
   console.log(
-    "===========Outdoor Duty Submitted=========",
+    "=========== --------- Outdoor Duty Submitted ---------- =========",
     formSettings,
     modalState,
   );
@@ -38,19 +38,31 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
   const [isCLValid, setIsCLValid] = useState(true);
   const [isSTENDLocked, setIsSTENDLocked] = useState(false);
   const isRejectEditMode = mode === "edit-reject";
-
-  const enablePostRemarks =
-    (isEditMode && status === "Not send to auth") || isPostRemarkMode;
-
+  const enablePostRemarks = (isEditMode && status === "Not send to auth") || isPostRemarkMode;
   const [leaveBal, setLeaveBal] = useState({});
-
   const mid = modalState.mid;
+  const [isLeaveAllowed, setIsLeaveAllowed] = useState(true);
+
   useEffect(() => {
-    if (isOpen) {
-      setIsSubmitting(false); // reset every time modal opens
-      //setIsUpdating(false);
+    setLoading(true);
+    console.log("+++++=== isLeaveAllowed ========", isLeaveAllowed);
+    if(isLeaveAllowed){
+      if (isOpen) {
+        setIsSubmitting(false); // reset every time modal opens
+        //setIsUpdating(false);
+      }
+    } else {
+      setLoading(false);
+      closeModal();
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "You have already applied leave!",
+      });
+      return;
     }
-  }, [isOpen]);
+  }, [isOpen, isLeaveAllowed, closeModal]);
 
   const initialFormData = {
     LVE_CODE: "",
@@ -78,123 +90,123 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
   };
 
   const handleSave = async (e) => {
-    e.preventDefault();
-
-    const isValid = validateForm(formData);
-    if (!isValid) return;
-
-    setIsSubmitting(true); // disable immediatel
-
-    try {
-      const isEdit = modalState.mode === "edit";
-      const payload = {
-        ...formData,
-        ...(isEdit ? { editLrData: true } : { saveLrData: true }),
-      };
-      const apiCall = isEdit ? editLRData : saveLRData;
-
-      const response = await apiCall(payload);
-      if (response?.status) {
-        await Swal.fire({
-          icon: "success",
-          title: "Success",
-          text:
-            response?.message ||
-            `Leave Request ${isEdit ? "updated" : "saved"} successfully.`,
-        });
-
-        //onSuccess?.();
-        resetForm();
-        onSuccess?.();
-        closeModal();
-      } else {
-        setIsSubmitting(false); // re-enable
+      e.preventDefault();
+  
+      const isValid = validateForm(formData);
+      if (!isValid) return;
+  
+      setIsSubmitting(true); // disable immediatel
+  
+      try {
+        const isEdit = modalState.mode === "edit";
+        const payload = {
+          ...formData,
+          ...(isEdit ? { editLrData: true } : { saveLrData: true }),
+        };
+        const apiCall = isEdit ? editLRData : saveLRData;
+  
+        const response = await apiCall(payload);
+        if (response?.status) {
+          await Swal.fire({
+            icon: "success",
+            title: "Success",
+            text:
+              response?.message ||
+              `Leave Request ${isEdit ? "updated" : "saved"} successfully.`,
+          });
+  
+          //onSuccess?.();
+          resetForm();
+          onSuccess?.();
+          closeModal();
+        } else {
+          setIsSubmitting(false); // re-enable
+          Swal.fire({
+            icon: "error",
+            title: "Failed",
+            text:
+              response?.message ||
+              `Unable to ${isEdit ? "update" : "save"} Leave Request.`,
+          });
+        }
+        console.log("Submitting:", formData);
+  
+        console.log("-------Submitting:-------Payload---", payload);
+        setLoading(true);
+        console.log("==============Save Response:==========", response);
+      } catch (err) {
+        console.error("Submit Error:", err);
+        setIsSubmitting(false); // re-enable on error
         Swal.fire({
           icon: "error",
-          title: "Failed",
-          text:
-            response?.message ||
-            `Unable to ${isEdit ? "update" : "save"} Leave Request.`,
+          title: "Error",
+          text: "Something went wrong while saving data.",
         });
+      } finally {
+        setIsSubmitting(false); // ALWAYS reset
+        setLoading(false);
       }
-      console.log("Submitting:", formData);
-
-      console.log("-------Submitting:-------Payload---", payload);
-      setLoading(true);
-      console.log("==============Save Response:==========", response);
-    } catch (err) {
-      console.error("Submit Error:", err);
-      setIsSubmitting(false); // re-enable on error
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Something went wrong while saving data.",
-      });
-    } finally {
-      setIsSubmitting(false); // ALWAYS reset
-      setLoading(false);
-    }
-  };
-
-  const handleSaveAuth = async (e) => {
-    e.preventDefault();
-
-    const isValid = validateForm(formData);
-    if (!isValid) return;
-
-    setIsSubmitting(true); // disable immediatel
-
-    try {
-      const isEdit = modalState.mode === "edit";
-      const payload = {
-        ...formData,
-        ...(isEdit ? { editLrData: true } : { saveLrData: true }),
-        withAuth: true,
-      };
-      const apiCall = isEdit ? editLRDataAUTH : saveLRDataAUTH;
-
-      const response = await apiCall(payload);
-      if (response?.status) {
-        await Swal.fire({
-          icon: "success",
-          title: "Success",
-          text:
-            response?.message ||
-            `Leave Request ${isEdit ? "updated" : "saved"} successfully.`,
-        });
-
-        //onSuccess?.();
-        resetForm();
-        onSuccess?.();
-        closeModal();
-      } else {
-        setIsSubmitting(false); // re-enable
+    };
+  
+    const handleSaveAuth = async (e) => {
+      e.preventDefault();
+  
+      const isValid = validateForm(formData);
+      if (!isValid) return;
+  
+      setIsSubmitting(true); // disable immediatel
+  
+      try {
+        const isEdit = modalState.mode === "edit";
+        const payload = {
+          ...formData,
+          ...(isEdit ? { editLrData: true } : { saveLrData: true }),
+          withAuth: true,
+        };
+        const apiCall = isEdit ? editLRDataAUTH : saveLRDataAUTH;
+  
+        const response = await apiCall(payload);
+        if (response?.status) {
+          await Swal.fire({
+            icon: "success",
+            title: "Success",
+            text:
+              response?.message ||
+              `Leave Request ${isEdit ? "updated" : "saved"} successfully.`,
+          });
+  
+          //onSuccess?.();
+          resetForm();
+          onSuccess?.();
+          closeModal();
+        } else {
+          setIsSubmitting(false); // re-enable
+          Swal.fire({
+            icon: "error",
+            title: "Failed",
+            text:
+              response?.message ||
+              `Unable to ${isEdit ? "update" : "save"} Leave Request.`,
+          });
+        }
+        console.log("Submitting:", formData);
+  
+        console.log("-------Submitting:-------Payload---", payload);
+        setLoading(true);
+        console.log("==============Save Response:==========", response);
+      } catch (err) {
+        console.error("Submit Error:", err);
+        setIsSubmitting(false); // re-enable on error
         Swal.fire({
           icon: "error",
-          title: "Failed",
-          text:
-            response?.message ||
-            `Unable to ${isEdit ? "update" : "save"} Leave Request.`,
+          title: "Error",
+          text: "Something went wrong while saving data.",
         });
+      } finally {
+        setIsSubmitting(false); // ALWAYS reset
+        setLoading(false);
       }
-      console.log("Submitting:", formData);
-
-      console.log("-------Submitting:-------Payload---", payload);
-      setLoading(true);
-      console.log("==============Save Response:==========", response);
-    } catch (err) {
-      console.error("Submit Error:", err);
-      setIsSubmitting(false); // re-enable on error
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Something went wrong while saving data.",
-      });
-    } finally {
-      setIsSubmitting(false); // ALWAYS reset
-      setLoading(false);
-    }
-  };
+    };
 
   // ===========================
   // Fetch Data
@@ -205,16 +217,23 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
     }
   }, [isOpen]);
 
-  const formatDateNW = (date) => {
-    if (!date) return "";
+  const formatLocalDateTime = (date) => {
+    const pad = (n) => String(n).padStart(2, '0');
 
-    return new Date(date).toISOString().split("T")[0];
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   };
 
   const fetchLRData = async () => {
+    console.log("======Params========", modalDate);
     try {
       setLoading(true);
-
       const response = await getLRDataDetails({
         id: modalState.id || null,
         //ID: mid || null,
@@ -222,6 +241,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
         getLrdata: true,
         ro: undefined,
         //hiddenTaskId: formConfig.taskIdHdn || null
+        modal_date: formatLocalDateTime(modalDate)
       });
 
       console.log("================= Response ------", response);
@@ -244,83 +264,34 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
 
   const getByteLength = (str) => new TextEncoder().encode(str || "").length;
 
-  const formatModalDate = (date) => {
-    if (!date) return "";
-    const d = new Date(date);
-    const months = [
-      "JAN",
-      "FEB",
-      "MAR",
-      "APR",
-      "MAY",
-      "JUN",
-      "JUL",
-      "AUG",
-      "SEP",
-      "OCT",
-      "NOV",
-      "DEC",
-    ];
-    return `${String(d.getDate()).padStart(2, "0")}-${months[d.getMonth()]}-${d.getFullYear()}`;
-  };
+  
 
-  const formatToInputDate = (dateStr) => {
-    if (!dateStr) return "";
-    const parts = dateStr.split("-");
-    const months = {
-      JAN: "01",
-      FEB: "02",
-      MAR: "03",
-      APR: "04",
-      MAY: "05",
-      JUN: "06",
-      JUL: "07",
-      AUG: "08",
-      SEP: "09",
-      OCT: "10",
-      NOV: "11",
-      DEC: "12",
-    };
-    if (parts.length === 3 && months[parts[1]]) {
-      return `${parts[2]}-${months[parts[1]]}-${parts[0]}`;
-    }
-    return "";
-  };
+  
 
-  const calculateDays = (from, to, start, end) => {
-    if (!from || !to) return "";
 
-    const startDate = new Date(from);
-    const endDate = new Date(to);
 
-    const diff = endDate - startDate;
-    let days = diff / (1000 * 60 * 60 * 24) + 1;
-
-    //Half-day logic (from legacy)
-    if ((start === "M" && end === "E") || (start === "B" && end === "M")) {
-      days = days - 0.5;
-    }
-
-    return days > 0 ? parseFloat(days) : "";
-  };
-
-  const isValidDateRange = (from, to) => {
-    if (!from || !to) return true;
-    if (new Date(to) < new Date(from)) {
-      Swal.fire("Invalid", "To Date must be ≥ From Date", "warning");
-      return false;
-    }
-    return true;
-  };
+  
 
   // ===========================
   // Initialize Form Data
   // ===========================
   useEffect(() => {
+    console.log("-----------+++++ lrData +++++-------------", lrData);
     const types = lrData?.var?.type;
     if (!types) return;
 
-    const initial = {};
+    if(lrData.flag !== "Yes" || lrData.flag === "No") {
+      setIsLeaveAllowed(false);
+      // Swal.fire({
+      //   icon: "error",
+      //   title: "Failed",
+      //   text: `You have already applied leave for this date!`,
+      // });
+      // return;
+    }
+    
+
+    const initial = {}; 
     for (const group of Object.values(types)) {
       for (const field of Object.values(group)) {
         if (field?.name) {
@@ -381,166 +352,115 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
   }, [lrData, modalDate, mid, leaveBal]);
 
   // ================= MAIN VALIDATION =================
-  const validateLeave = async (data) => {
-    console.log("+++++++++++++++++++++11111111", data);
-    const days = calculateDays(
-      data.LVE_DATE_FR,
-      data.LVE_DATE_TO,
-      data.LEAVE_STARTS,
-      data.LEAVE_ENDS,
-    );
+  const validateLeaveStatus = async (dataNw) => {
+    console.log("=========== dataNw++++++ =========", dataNw);
+    if (dataNw.LVE_CODE !== "LWP") {
+      if (parseFloat(dataNw.noDaysNww) > parseFloat(dataNw.NET_BAL) - parseFloat(dataNw.UNAUTH_BAL)
+      ) {
+        //Diable save button - Pending
+        return { status: false, message: "Insufficient leave balance" };
+      } else {
+        //Enable save button - Pending 
+        //---------OL Validation-----------
+        if(dataNw.LVE_CODE == "OL"){
+          const dateStart = dataNw.LVE_DATE_FR;
+          const date1 = new Date();
+          const date2 = new Date(dateStart);
+          const Difference_In_Time = date2.getTime() - date1.getTime();
+          const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+          
+          if (dateStart === '') {
+            return true;
+          } else {
+            try {
+              const responseOL = await checkOL({
+                OlValidate: true,
+                EMP_CODE: dataNw.EMP_CODE,
+                lv_type: dataNw.LVE_CODE,
+                attd_date: dataNw.LVE_DATE_FR,
+              });
 
-    if (data.LVE_CODE !== "LWP") {
-      const available =
-        parseFloat(data.NET_BAL || 0) - parseFloat(data.UNAUTH_BAL || 0);
-
-      setClError("");
-      setIsCLValid(true);
-
-      const numDays =
-        data.NO_DAYS !== undefined && data.NO_DAYS !== null
-          ? data.NO_DAYS
-          : calculateNoDays(data.LVE_DATE_FR, data.LVE_DATE_TO);
-
-      //console.log("+++++++++++++++++++++ NO of days =============", data.PL_COUNT, numDays);
-      // ================= PL =================
-      if (data.LVE_CODE === "PL") {
-        if (data.PL_COUNT >= 3 || numDays <= 2) {
-          setClError("PL can avail only 3/year and should be minimum 3 days!");
-          setIsCLValid(false);
-
-          return {
-            valid: false,
-            message: "PL can avail only 3/year and should be minimum 3 days!",
-          };
-        }
-      }
-      console.log("+++++++++++++++++++++3333333", data.LVE_CODE);
-      // ================= OL =================
-      if (data.LVE_CODE === "OL") {
-        const diff = moment(data.LVE_DATE_FR).diff(moment(), "days");
-        var dateStart = data.LVE_DATE_FR;
-        var date1 = new Date();
-        var date2 = new Date(dateStart);
-        var Difference_In_Time = date2.getTime() - date1.getTime();
-        var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
-
-        try {
-          //setLoading(true);
-
-          const responseOL = await checkOL({
-            OlValidate: true,
-            EMP_CODE: data.EMP_CODE,
-            lv_type: data.LVE_CODE,
-            attd_date: data.LVE_DATE_FR,
-          });
-
-          if (responseOL?.data?.data === 1) {
-            console.log("----------CL RESPONSE---------", responseOL);
-            console.log("diff days :", Difference_In_Days);
-            if (Difference_In_Days <= 5) {
-              setClError(
-                "Optional leave has to be informed atleast 6 days prior!",
-              );
-              setIsCLValid(false);
-
-              return {
-                valid: false,
-                message:
-                  "CL cannot be taken more than 3 times or more than 2 days",
-              };
+              if (responseOL?.data?.data === 1) {
+                console.log("----------CL RESPONSE---------", responseOL);
+                console.log("diff days :", Difference_In_Days);
+                if (Difference_In_Days <= 5) {
+                  //Diable save button - Pending
+                  return { status: false, message: "Note: Optional leave has to be informed atleast 6 days prior!" }; 
+                }
+              } else if (responseOL?.data?.data === 0) {
+                //Diable save button - Pending
+                return { status: false, message: "Optional leave for this date is not applicable!" };   
+              } else {
+                //Enable save button - Pending
+              }
+            } catch (error) {
+              console.error("Error fetching data:", error);
+              return { status: false, message: "Error validating CLe" };
             }
-          } else if (responseOL?.data?.data === 0) {
-            setClError("Optional leave for this date is not applicable!");
-            setIsCLValid(false);
+          }
+        }
 
+        //---------PL Validation-----------
+        if (dataNw.LVE_CODE === "PL") {
+          const numDays = dataNw.NO_DAYS !== undefined && dataNw.NO_DAYS !== null 
+            ? dataNw.NO_DAYS 
+            : calculateNoDays(dataNw.LVE_DATE_FR, dataNw.LVE_DATE_TO);
+
+          if (dataNw.PL_COUNT >= 3 || numDays <= 2) {
             return {
               valid: false,
-              message: "Optional leave for this date is not applicable!",
+              message: "PL can avail only 3/year and should be minimum 3 days!",
             };
           } else {
-            setClError("");
-            setIsCLValid(true);
-            return { valid: true };
+            //Enable save button - Pending
           }
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          setIsCLValid(false);
-          setClError("Error validating CL");
-        } finally {
-          //setLoading(false);
+        } 
+
+        //-----------CL Validation----------
+        if (dataNw.LVE_CODE === "CL") {
+          const lveFrom = dataNw.LVE_DATE_FR;
+          const lveTo = dataNw.LVE_DATE_TO;
+          if (lveFrom !== null && lveTo !== null) {
+            try {
+              const responseCL = await checkCL({
+                ClValidate: true,
+                EMP_CODE: dataNw.EMP_CODE,
+                no_days: dataNw.NO_DAYS,
+                fr_dt: dataNw.LVE_DATE_FR,
+                to_dt: dataNw.LVE_DATE_TO
+              });
+
+              if (responseCL?.data?.data === 0) {
+                //Diable save button - Pending
+                return { status: false, message: "CL can not be taken more than thrice in a month and CL can not be more than 2 days!" };   
+              } else {
+                //Enable save button - Pending
+              }
+            } catch (error) {
+              console.error("Error fetching data:", error);
+              return { status: false, message: "Error validating CL" };
+            }
+          }
         }
-        // API CALL (replace)
-        // const res = await checkOL(data)
-      }
 
-      // ================= CL =================
-      console.log("+++++++++++++++++++++", data.LVE_CODE);
-
-      if (data.LVE_CODE === "CL") {
-        try {
-          //setLoading(true);
-          const responseCL = await checkCL({
-            ClValidate: true,
-            EMP_CODE: data.EMP_CODE,
-            no_days: data.NO_DAYS,
-            fr_dt: data.LVE_DATE_FR,
-            to_dt: data.LVE_DATE_TO,
-          });
-
-          if (!responseCL?.data?.status || responseCL?.data?.data === 0) {
-            console.log("----------CL RESPONSE---------", responseCL);
-            setClError(
-              "CL cannot be taken more than 3 times or more than 2 days",
-            );
-            setIsCLValid(false);
-
+        // ================= PLC =================
+        if (dataNw.LVE_CODE === "PLC") {
+          const eff = moment(dataNw.EFF_DATE);
+          const upto = moment(dataNw.UPTO_DATE);
+  
+          if (
+            !moment(dataNw.LVE_DATE_FR).isBetween(eff, upto, null, "[]") ||
+            !moment(dataNw.LVE_DATE_TO).isBetween(eff, upto, null, "[]")
+          ) {
             return {
               valid: false,
-              message:
-                "CL cannot be taken more than 3 times or more than 2 days",
+              message: "PLC not applicable for selected dates",
             };
-          } else {
-            setClError("");
-            setIsCLValid(true);
-            return { valid: true };
           }
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          setIsCLValid(false);
-          setClError("Error validating CL");
-        } finally {
-          //setLoading(false);
         }
-      }
-
-      // ================= PLC =================
-      if (data.LVE_CODE === "PLC") {
-        const eff = moment(data.EFF_DATE);
-        const upto = moment(data.UPTO_DATE);
-
-        if (
-          !moment(data.LVE_DATE_FR).isBetween(eff, upto, null, "[]") ||
-          !moment(data.LVE_DATE_TO).isBetween(eff, upto, null, "[]")
-        ) {
-          setClError("PLC not applicable for selected dates");
-          setIsCLValid(false);
-
-          return {
-            valid: false,
-            message: "PLC not applicable for selected dates",
-          };
-        }
-      }
-
-      //}
-    } else if (data.LVE_CODE === "LWP") {
-      setClError("");
-      setIsCLValid(true);
-      return { valid: true };
-    }
-
-    return { valid: true, days };
+      } 
+    }  
+    return { status: true, message: "" };
   };
 
   const calculateNoDays = (from, to) => {
@@ -587,116 +507,58 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
       updated.NET_BAL = selected?.[1] ?? 0;
     }
 
-    // PL logic
-    if (updated.LVE_CODE === "PL") {
-      updated.LEAVE_STARTS = "B";
-      updated.LEAVE_ENDS = "E";
-      setIsSTENDLocked(true);
+    console.log("============= 1111233444 Updated 1233456666=============", updated);
+    const lveCodeNw       = updated.LVE_CODE;
+    const lveFromNw       = updated.LVE_DATE_FR;
+    const lveToNw         = updated.LVE_DATE_TO;
+    const startDayNw      = new Date(lveFromNw);
+    const endDayNw        = new Date(lveToNw);
+    const millisBetweenNw = endDayNw.getTime() - startDayNw.getTime();
+    const daysNw          = millisBetweenNw / 1000 / 60 / 60 / 24;
+    const noDaysNw        = millisBetweenNw / 1000 / 60 / 60 / 24 + 1;
+    const leaveStartNw    = updated.LEAVE_STARTS;
+    const leaveEndNw      = updated.LEAVE_ENDS;
+    console.log(
+      "--1--lveCodeNw: ", lveCodeNw, 
+      "--2--lveFromNw: ", lveFromNw, 
+      "--3--lveToNw: ", lveToNw,
+      "--4--startDayNw: ", startDayNw, 
+      "--5--endDayNw: ", endDayNw, 
+      "--6--millisBetweenNw: ", millisBetweenNw, 
+      "--7--daysNw: ", daysNw, 
+      "--8--noDaysNw: ", noDaysNw, 
+      "--9--leaveStartNw: ", leaveStartNw, 
+      "--10--leaveEndNw: ", leaveEndNw);
+      let noDaysNww;
+
+    if ((leaveStartNw === "M" && leaveEndNw === "E") ||  (leaveStartNw === "B" && leaveEndNw === "M")) {
+      // half day
+      noDaysNww = noDaysNw - 0.5;
     } else {
-      setIsSTENDLocked(false);
+      noDaysNww = noDaysNw;
+    }
+    updated.NO_DAYS = noDaysNww; 
+    updated.noDaysNww = noDaysNww;
+    try {
+      const isAllow = await validateLeaveStatus(updated);
+      if (!isAllow.status) {
+        setErrorMsg(isAllow.message);  
+      } else {
+        setErrorMsg(false);
+      }  
+    } catch (err) {
+      setErrorMsg(err);
     }
 
-    // Recalculate days
-    if (updated.LVE_DATE_FR && updated.LVE_DATE_TO) {
-      try {
-        const result = await validateLeave(updated);
-        console.log("VALIDATION RESULT", result);
-        updated.NO_DAYS = Number(result?.days || 1);
-        if (!result.valid) {
-          setErrors({
-            msg: result.message,
-          });
-        } else {
-          setErrors({});
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    }
+    // // PL logic
+    // if (updated.LVE_CODE === "PL") {
+    //   updated.LEAVE_STARTS = "B";
+    //   updated.LEAVE_ENDS = "E";
+    //   setIsSTENDLocked(true);
+    // } else {
+    //   setIsSTENDLocked(false);
+    // }
     setFormData(updated);
-  };
-
-  const validateForm = (formDataVal) => {
-    const newErrors = {};
-
-    if (!formDataVal.LVE_CODE) {
-      newErrors.LVE_CODE = "Leave Code is required";
-    }
-
-    if (!formDataVal.LVE_DATE_FR) {
-      newErrors.LVE_DATE_FR = "From Date is required";
-    }
-
-    if (!formDataVal.LVE_DATE_TO) {
-      newErrors.LVE_DATE_TO = "To Date is required";
-    }
-
-    if (!formDataVal.LEAVE_STARTS) {
-      newErrors.LEAVE_STARTS = "Leave Starts is required";
-    }
-
-    if (!formDataVal.LEAVE_ENDS) {
-      newErrors.LEAVE_ENDS = "Leave Ends is required";
-    }
-
-    if (!formDataVal.NO_DAYS || formDataVal.NO_DAYS <= 0) {
-      newErrors.NO_DAYS = "Invalid number of days";
-    }
-
-    // Optional: Reason validation
-    if (!formDataVal.REASON || formDataVal.REASON.trim() === "") {
-      newErrors.REASON = "Reason is required";
-    }
-
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // ===========================
-  // Format Date
-  // ===========================
-  const formatDate = (dateVal) => {
-    if (!dateVal) return "";
-
-    const date = new Date(dateVal);
-
-    if (isNaN(date)) return "";
-
-    const day = String(date.getDate()).padStart(2, "0");
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-
-    return `${day}-${month}-${year}`;
-  };
-
-  // SIMPLE HELPER (core logic)
-  const renderField = (value, inputElement, isTextarea = false) => {
-    //if (isAuthMode) {
-    return (
-      <span
-        className="form-control-plaintext"
-        style={isTextarea ? { whiteSpace: "pre-wrap" } : {}}
-      >
-        {value ?? "-"}
-      </span>
-    );
-    //}
-    return inputElement;
   };
 
   return (
@@ -719,8 +581,11 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                 style={{ display: "flex", alignItems: "center", gap: "10px" }}
               >
                 <h4 className="modal-title mb-1"> Apply For Leave Request </h4>
-                {clError && (
+                {/* {clError && (
                   <span className="text-danger ms-2 fs-16">- {clError}</span>
+                )} */}
+                {errorMsg && (
+                  <span className="text-danger ms-2 fs-16">- {errorMsg}</span>
                 )}
               </div>
 
@@ -814,7 +679,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                 <div className="row mb-3">
                   <div className="col-md-6">
                     <label>From Date</label>
-                    {/* {renderField(formData.LVE_DATE_FR, */}
+                    
                     <input
                       type="date"
                       className={`form-control ${errors.LVE_DATE_FR ? "is-invalid" : ""}`}
@@ -843,7 +708,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
 
                   <div className="col-md-6">
                     <label>Leave Starts</label>
-                    {/* {renderField(formData.LEAVE_STARTS, */}
+                    
                     <select
                       className={`select2 form-control ${errors.LEAVE_STARTS ? "is-invalid" : ""}`}
                       name="LEAVE_STARTS"
@@ -874,7 +739,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                 <div className="row mb-3">
                   <div className="col-md-6">
                     <label>To Date</label>
-                    {/* {renderField(formData.LVE_DATE_TO, */}
+                    
                     <input
                       type="date"
                       className={`form-control ${errors.LVE_DATE_TO ? "is-invalid" : ""}`}
@@ -901,7 +766,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
 
                   <div className="col-md-6">
                     <label>Leave Ends</label>
-                    {/* {renderField(formData.LEAVE_ENDS, */}
+                   
                     <select
                       className={`select2 form-control ${errors.LEAVE_ENDS ? "is-invalid" : ""}`}
                       name="LEAVE_ENDS"
@@ -931,7 +796,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                 <div className="row mb-3">
                   <div className="col-md-4">
                     <label>No Of Days</label>
-                    {/* {renderField(formData.NO_DAYS, */}
+                    
                     {/* <input className={`form-control ${errors.NO_DAYS ? "is-invalid" : ""}`} value={formData.NO_DAYS || "1"} readOnly /> */}
                     <input
                       className={`form-control ${errors.NO_DAYS ? "is-invalid" : ""}`}
@@ -948,8 +813,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                     <label>Reason</label>
 
                     <div className="position-relative">
-                      {/* {renderField( */}
-
+                     
                       <textarea
                         className={`form-control ${errors.REASON ? "is-invalid" : ""}`}
                         name="REASON"
