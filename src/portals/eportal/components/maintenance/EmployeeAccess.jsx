@@ -21,10 +21,13 @@ import {
 
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 
+import { EMPLOYEE_ACCESS_MESSAGES } from "../../constants/employeeAccessConstants";
+
 const EmployeeAccess = () => {
   const [companies, setCompanies] = useState([]);
   const [divisions, setDivisions] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [employees, setEmployees] = useState([]);
 
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedDivision, setSelectedDivision] = useState(null);
@@ -34,8 +37,9 @@ const EmployeeAccess = () => {
   const [groups, setGroups] = useState([]);
 
   const [selectedGroups, setSelectedGroups] = useState({});
-  const [selectedEmployees, setSelectedEmployees] = useState({});
+  const [selectedEmployees, setSelectedEmployees] = useState({}); //Tracks checked employee rows for editing/saving.
   const [collapsedGroups, setCollapsedGroups] = useState({});
+  const [employeeFilter, setEmployeeFilter] = useState(null); //Tracks the employee selected in the filter dropdown before clicking Show Dat
 
   const [loadingDropdowns, setLoadingDropdowns] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
@@ -61,11 +65,12 @@ const EmployeeAccess = () => {
           setCompanies(res.companies || []);
           setDivisions(res.divisions || []);
           setDepartments(res.departments || []);
+          setEmployees(res.employees || []);
         } else {
-          notifyError("Failed to load dropdown data");
+          notifyError(EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED);
         }
       } catch {
-        notifyError("Error loading dropdown data");
+        notifyError(EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_ERROR);
       }
       setLoadingDropdowns(false);
     };
@@ -75,10 +80,10 @@ const EmployeeAccess = () => {
   /* ---------------- SHOW DATA ---------------- */
 
   const handleShowData = async () => {
-    /*if (!selectedCompany || !selectedDivision || !selectedDepartment) {
-            notifyWarning("Please select Company, Division and Department");
-            return;
-        }*/
+    if (!selectedCompany) {
+      notifyWarning("Please select Company");
+      return;
+    }
 
     try {
       setLoadingData(true);
@@ -94,6 +99,7 @@ const EmployeeAccess = () => {
         company: selectedCompany?.value || "",
         division: selectedDivision?.value || "",
         department: selectedDepartment?.value || "",
+        employee: employeeFilter?.value || "",
       });
 
       if (res.status) {
@@ -101,10 +107,10 @@ const EmployeeAccess = () => {
         setGroups(res.groups || []);
         setDataLoaded(true);
       } else {
-        notifyError("Failed to load employee access data");
+        notifyError(EMPLOYEE_ACCESS_MESSAGES.DATA_LOAD_FAILED);
       }
     } catch {
-      notifyError("Error fetching employee access data");
+      notifyError(EMPLOYEE_ACCESS_MESSAGES.DATA_LOAD_FAILED);
     } finally {
       setLoadingData(false);
     }
@@ -201,7 +207,9 @@ const EmployeeAccess = () => {
           hasSelection = true;
 
           if (!emp.profiles || emp.profiles.length === 0) {
-            notifyWarning(`Please assign profile to ${emp.empName}`);
+            notifyWarning(
+              `${EMPLOYEE_ACCESS_MESSAGES.PROFILE_REQUIRED} ${emp.empName}`,
+            );
             return;
           }
 
@@ -214,13 +222,13 @@ const EmployeeAccess = () => {
     }
 
     if (!hasSelection) {
-      notifyWarning("Please select at least one group or employee");
+      notifyWarning(EMPLOYEE_ACCESS_MESSAGES.NO_SELECTION);
       return;
     }
 
     const confirm = await confirmAction(
-      "Save Profile Assignment?",
-      "Selected employee profiles will be updated",
+      EMPLOYEE_ACCESS_MESSAGES.SAVE_CONFIRM_TITLE,
+      EMPLOYEE_ACCESS_MESSAGES.SAVE_CONFIRM_MESSAGE,
     );
 
     if (!confirm) return;
@@ -234,10 +242,10 @@ const EmployeeAccess = () => {
         notifySuccess(res.message);
         await handleShowData();
       } else {
-        notifyError(res?.message || "Failed to save profiles");
+        notifyError(res?.message || EMPLOYEE_ACCESS_MESSAGES.SAVE_FAILED);
       }
     } catch {
-      notifyError("Error saving profiles");
+      notifyError(EMPLOYEE_ACCESS_MESSAGES.SAVE_ERROR);
     } finally {
       setSaving(false);
     }
@@ -293,8 +301,8 @@ const EmployeeAccess = () => {
       <div className="card">
         {/* FILTER */}
         <div className="card-body row">
-          <div className="col-lg-4">
-            <label>Company</label>
+          <div className="col-lg-3">
+            <label className="form-label mb-2">Company</label>
             <Select
               options={companies}
               value={selectedCompany}
@@ -305,8 +313,8 @@ const EmployeeAccess = () => {
             />
           </div>
 
-          <div className="col-lg-3">
-            <label>Division</label>
+          <div className="col-lg-2">
+            <label className="form-label mb-2">Division</label>
             <Select
               options={divisions}
               value={selectedDivision}
@@ -316,12 +324,25 @@ const EmployeeAccess = () => {
             />
           </div>
 
-          <div className="col-lg-3">
-            <label>Department</label>
+          <div className="col-lg-2 d-grid align-self-end">
+            <label className="form-label mb-2">Department</label>
             <Select
               options={departments}
               value={selectedDepartment}
               onChange={setSelectedDepartment}
+              menuPortalTarget={document.body}
+              menuPosition="fixed"
+            />
+          </div>
+
+          <div className="col-lg-3">
+            <label className="form-label mb-2">Employee</label>
+            <Select
+              options={employees}
+              value={employeeFilter}
+              onChange={setEmployeeFilter}
+              isClearable
+              placeholder="Select Employee"
               menuPortalTarget={document.body}
               menuPosition="fixed"
             />
@@ -406,6 +427,7 @@ const EmployeeAccess = () => {
                       options={profileOptions}
                       value={groupProfiles}
                       styles={selectStyles}
+                      isDisabled={!selectedGroups[group.groupCode]}
                       onChange={(opts) =>
                         handleGroupProfileChange(group.groupCode, opts)
                       }
@@ -431,7 +453,12 @@ const EmployeeAccess = () => {
                               checked={selectedEmployees[emp.empCode] || false}
                               onChange={() => toggleEmployee(emp.empCode)}
                             />
-                            <span>{emp.empName}</span>
+                            <span
+                              style={{ cursor: "pointer" }}
+                              onClick={() => toggleEmployee(emp.empCode)}
+                            >
+                              {emp.empName}
+                            </span>
                           </div>
 
                           <div className="col-md-8">
@@ -440,6 +467,7 @@ const EmployeeAccess = () => {
                               options={profileOptions}
                               value={selectedProfiles}
                               styles={selectStyles}
+                              isDisabled={!selectedEmployees[emp.empCode]}
                               onChange={(opts) =>
                                 handleEmployeeProfileChange(emp.empCode, opts)
                               }

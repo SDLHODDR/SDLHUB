@@ -45,3 +45,11 @@
         padding-left: 15px;
     }
 }
+
+.form-control,
+.form-select,
+.css-13cymwt-control,     /* react-select */
+.css-t3ipsp-control {     /* react-select focused */
+    height: 40px;
+    min-height: 40px;
+}

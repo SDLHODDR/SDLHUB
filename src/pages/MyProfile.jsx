@@ -17,6 +17,8 @@ import {
   confirmAction,
 } from "../services/alertService";
 
+import { PROFILE_MESSAGES, FAMILY_RELATIONS, FAMILY_DEPENDENT } from "../constants/profileMessages";
+
 const MyProfile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -179,7 +181,7 @@ const MyProfile = () => {
   /* ================= FAMILY ACTIONS ================= */
   const handleAddFamily = () => {
     if (!canManageFamily) {
-      notifyWarning("Family details update window is currently closed");
+      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED);
       return;
     }
 
@@ -187,8 +189,8 @@ const MyProfile = () => {
     setFamilyForm({
       id: "",
       name: "",
-      relation: "Wife",
-      dependent: "Dependant",
+      relation: FAMILY_RELATIONS.WIFE,
+      dependent: FAMILY_DEPENDENT.DEPENDANT,
       dob: "",
       occupation: "",
       aadhaar: "",
@@ -198,7 +200,7 @@ const MyProfile = () => {
 
   const handleEditFamily = (row) => {
     if (!canManageFamily) {
-      notifyWarning("Family details update window is currently closed");
+      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED);
       return;
     }
 
@@ -231,13 +233,13 @@ const MyProfile = () => {
 
   const handleDeleteFamily = async (row) => {
     if (!canManageFamily) {
-      notifyWarning("Family details update window is currently closed");
+      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED);
       return;
     }
 
     const result = await confirmAction(
-      "Delete Family Member",
-      `Are you sure you want to delete ${row.name}?`,
+      PROFILE_MESSAGES.DELETE_FAMILY_TITLE,
+      PROFILE_MESSAGES.DELETE_FAMILY_MESSAGE(row.name),
     );
 
     if (!result.isConfirmed) {
@@ -258,11 +260,11 @@ const MyProfile = () => {
 
         /* ================= REMOVE MEMBER ================= */
 
-        if (["Wife", "Husband"].includes(row.relation)) {
+        if ([ FAMILY_RELATIONS.WIFE, FAMILY_RELATIONS.HUSBAND].includes(row.relation)) {
           updatedSpouse = {};
-        } else if (row.relation === "Mother") {
+        } else if (row.relation === FAMILY_RELATIONS.MOTHER) {
           updatedMother = {};
-        } else if (row.relation === "Father") {
+        } else if (row.relation === FAMILY_RELATIONS.FATHER) {
           updatedFather = {};
         } else {
           updatedChildren = children.filter(
@@ -280,13 +282,13 @@ const MyProfile = () => {
           children: updatedChildren,
         }));
 
-        notifySuccess("Family member deleted successfully");
+        notifySuccess(PROFILE_MESSAGES.FAMILY_DELETED);
       } else {
-        notifyError(res?.message || "Delete failed");
+        notifyError( res?.message || PROFILE_MESSAGES.FAMILY_DELETE_FAILED);
       }
     } catch (error) {
       console.error(error);
-      notifyError("Something went wrong while deleting");
+      notifyError(PROFILE_MESSAGES.FAMILY_DELETE_ERROR);
     }
   };
 
@@ -325,12 +327,12 @@ const MyProfile = () => {
 
   const handleSaveFamily = async () => {
     if (!canManageFamily) {
-      notifyWarning("Family details update window is currently closed");
+      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED);
       return;
     }
 
     if (!familyForm.name || !familyForm.relation) {
-      notifyError("Name and Relation are required.");
+      notifyError(PROFILE_MESSAGES.FAMILY_REQUIRED_FIELDS);
       return;
     }
 
@@ -340,19 +342,19 @@ const MyProfile = () => {
     if (aadhaar) {
       // only digits allowed
       if (!/^\d+$/.test(aadhaar)) {
-        notifyError("Aadhaar number must contain only digits");
+        notifyError(PROFILE_MESSAGES.AADHAAR_DIGITS_ONLY);
         return;
       }
 
       // must be 12 digits
       if (aadhaar.length !== 12) {
-        notifyError("Aadhaar number must be 12 digits");
+        notifyError(PROFILE_MESSAGES.AADHAAR_LENGTH);
         return;
       }
 
       // should not start with 0 or 1
       if (/^[01]/.test(aadhaar)) {
-        notifyError("Invalid Aadhaar number");
+        notifyError(PROFILE_MESSAGES.AADHAAR_INVALID);
         return;
       }
     }
@@ -374,7 +376,7 @@ const MyProfile = () => {
     });
 
     if (isDuplicate) {
-      notifyError(`Family member already exists with same Name and Relation`);
+      notifyError(PROFILE_MESSAGES.DUPLICATE_FAMILY);
       return;
     }
 
@@ -483,15 +485,15 @@ const MyProfile = () => {
 
         notifySuccess(
           editingMember
-            ? "Family member updated successfully"
-            : "Family member added successfully",
+            ? PROFILE_MESSAGES.FAMILY_UPDATED
+            : PROFILE_MESSAGES.FAMILY_ADDED
         );
       } else {
-        notifyError(res?.message || "Failed to save family member");
+        notifyError(res?.message || PROFILE_MESSAGES.FAMILY_SAVE_FAILED);
       }
     } catch (error) {
       console.error(error);
-      notifyError("Something went wrong while saving");
+      notifyError(PROFILE_MESSAGES.FAMILY_SAVE_ERROR);
     }
   };
   /* ================= image upload ================= */
@@ -572,14 +574,14 @@ const MyProfile = () => {
 
   /* ================= CONDITIONAL RENDER (AFTER HOOKS) ================= */
 
-  if (loading) return <div>Loading Profile...</div>;
-  if (!profile || !profile.employee) return <div>No profile data</div>;
+  if (loading) return <div>{PROFILE_MESSAGES.LOADING_PROFILE}</div>;
+  if (!profile || !profile.employee) return <div>{PROFILE_MESSAGES.NO_PROFILE_DATA}</div>;
 
   const actionBody = (rowData) => (
     <div className="d-flex align-items-center gap-3">
       <a
         href="#"
-        title="Edit Family Member"
+        title={PROFILE_MESSAGES.EDIT_FAMILY_TITLE}
         className="text-primary"
         style={{ fontSize: "20px" }}
         onClick={(e) => {
@@ -592,7 +594,7 @@ const MyProfile = () => {
 
       <a
         href="#"
-        title="Delete Family Member"
+        title={PROFILE_MESSAGES.DELETE_FAMILY_TOOLTIP}
         className="text-danger"
         style={{ fontSize: "20px" }}
         onClick={(e) => {

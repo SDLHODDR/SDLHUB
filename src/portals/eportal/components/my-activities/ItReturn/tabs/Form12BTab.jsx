@@ -5,6 +5,7 @@ import {
     notifyError,
     notifyWarning
 } from "../../../../../../services/alertService";
+import {ITR_MESSAGES} from "../../../../constants/itrMessages";
 
 export const Form12BTab = ({ editable }) => {
     const [formData, setFormData] = useState({
@@ -66,7 +67,7 @@ export const Form12BTab = ({ editable }) => {
             }
         } catch (error) {
             console.error(error);
-            notifyError("Failed to load Form 12B");
+            notifyError(ITR_MESSAGES.FAILED_LOAD_FORM12B);
         }
     };
 
@@ -185,7 +186,7 @@ export const Form12BTab = ({ editable }) => {
     const handleSave = async () => {
 
         if (!eligible) {
-            notifyWarning("You are not eligible for Form 12B");
+            notifyWarning(ITR_MESSAGES.FORM12B_NOT_ELIGIBLE);
             return;
         }
 
@@ -193,11 +194,11 @@ export const Form12BTab = ({ editable }) => {
 
         try {
             await saveForm12B(formData);
-            notifySuccess("Form 12B saved successfully");
+            notifySuccess(ITR_MESSAGES.FORM12B_SAVED);
             await fetchFormData();
         } catch (error) {
             console.error(error);
-            notifyError("Failed to save Form 12B");
+            notifyError(ITR_MESSAGES.FORM12B_SAVE_FAILED);
         }
     };
 
@@ -221,18 +222,17 @@ export const Form12BTab = ({ editable }) => {
         <> 
             {!editable && (
             <div className="alert alert-warning mb-3">
-                IT Return editing is allowed only on configured dates.
+                {ITR_MESSAGES.ITR_EDIT}
             </div>
         )}
         <div>
             <h5 className="text-danger text-center mb-4">
-                This form is only applicable for those who have joined POST
-                beginning of the CURRENT FINANCIAL YEAR
+               {ITR_MESSAGES.FORM12B_HEADING}
             </h5>
 
             {!eligible && (
                 <div className="alert alert-warning text-center">
-                    You are not eligible to fill Form 12B
+                    {ITR_MESSAGES.FORM12B_NOT_ELIGIBLE}
                 </div>
             )}
 

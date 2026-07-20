@@ -12,6 +12,7 @@ import {
 
 import SDLDataTable from "../../../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../../../components/datatable/SDLSearch";
+import {ITR_MESSAGES} from "../../../../constants/itrMessages";
 
 const ExemptionsTab = ({ onDataSaved, editable }) => {
   const initialFormState = {
@@ -180,9 +181,7 @@ const columns = [
       console.error(error);
       setExemptionList([]);
 
-      notifyError(
-        "Failed to load exemption data"
-      );
+      notifyError(ITR_MESSAGES.FAILED_LOAD_EXEMPTION)
 
     } finally {
       setLoading(false);
@@ -350,7 +349,7 @@ const columns = [
     if (res?.status) {
 
       notifySuccess(
-        res.message || "Exemption saved successfully"
+        res.message || ITR_MESSAGES.EXEMPTIONS_SAVED
       );
 
       resetForm();
@@ -369,56 +368,12 @@ const columns = [
     }
 
   } catch (error) {
-
     console.error(error);
-
-    notifyError(
-      "Server error while saving exemption"
-    );
+    notifyError(ITR_MESSAGES.EXEMPTION_SERVER_ERROR);
   }
 };
 
- /*
-  const handleSave = async (onDataSaved) => {
-    if (!validateForm()) {
-      return;
-    }
-
-    try {
-      const payload = new FormData();
-
-      Object.keys(formData).forEach((key) => {
-        if (formData[key] !== null) {
-          payload.append(key, formData[key]);
-        }
-      });
-
-      const res = await saveExemptions(payload);
-
-      if (res?.status) {
-        notifySuccess(
-          res.message || "Exemption saved successfully"
-        );
-
-        resetForm();
-        fetchExemptionData();
-
-        // REFRESH LIST
-        await fetchExemptionData();
-
-        onDataSaved?.();
-
-      } else {
-        notifyWarning(
-          res?.message || "Please fill all required fields"
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      notifyError("Server error while saving exemption");
-    }
-  }; */
-
+ 
   /* =========================================
      DELETE RECORD
   ========================================= */

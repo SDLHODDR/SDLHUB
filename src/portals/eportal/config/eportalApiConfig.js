@@ -134,4 +134,7 @@ export const EPORTAL_API = {
     TASKDATA: "/getAuthorization.php", // GP Info Data
     TASKTABLEDATA: "/getTable.php",
   },
+  LOGS:{
+    GET_ERROR_LOGS: "/reports/getErrorLogs.php",
+  }
 }

@@ -13,7 +13,26 @@ import AuthContext from "../../../auth/AuthContext";
 import Select from "react-select";
 import "../assets/css/conferencebookingmodal.css";
 
+import { CONFERENCE_MESSAGES } from "../constants/conferenceMessages";
+
+const DEFAULT_FORM_DATA = {
+  bookingId: "",
+  date: "",
+  fromTime: "",
+  hours: "0",
+  minutes: "00",
+  bookingBy: "",
+  attendees: 1,
+  division: "",
+  reason: "",
+  tea: false,
+  breakfast: false,
+  lunch: false,
+};
+
 const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
+  const [initialFormData, setInitialFormData] = useState(DEFAULT_FORM_DATA);
+
   const handleBackdropClick = async () => {
     if (loading) return;
 
@@ -26,8 +45,8 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
     }
 
     const confirmed = await confirmAction(
-      "Discard changes?",
-      "Unsaved changes will be lost.",
+      CONFERENCE_MESSAGES.CONFIRM_DISCARD_TITLE,
+      CONFERENCE_MESSAGES.CONFIRM_DISCARD_MESSAGE,
     );
 
     if (confirmed) {
@@ -69,20 +88,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
   const canCancelBooking = !isAddMode && booking?.STATUS === "T" && isOwner;
 
   /* ================= FORM STATE ================= */
-  const [formData, setFormData] = useState({
-    bookingId: "",
-    date: "",
-    fromTime: "",
-    hours: "0",
-    minutes: "00",
-    bookingBy: "",
-    attendees: 1,
-    division: "",
-    reason: "",
-    tea: false,
-    breakfast: false,
-    lunch: false,
-  });
+  const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
 
   /* ================= FETCH DROPDOWN DATA ================= */
   useEffect(() => {
@@ -108,7 +114,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
 
-      setFormData({
+      const data = {
         bookingId: booking.ID || "",
         date: formatToInputDate(booking.DT),
         fromTime: booking.STARTTIME || "",
@@ -121,12 +127,18 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
         tea: booking.ROOM_FACL1 === "Y" || booking.ROOM_FACL1 == 1,
         breakfast: booking.ROOM_FACL2 === "Y" || booking.ROOM_FACL2 == 1,
         lunch: booking.ROOM_FACL3 === "Y" || booking.ROOM_FACL3 == 1,
-      });
+      };
+
+      setFormData(data);
+      setInitialFormData(data);
     } else if (mode === "add") {
-      setFormData((prev) => ({
-        ...prev,
+      const data = {
+        ...DEFAULT_FORM_DATA,
         bookingBy: user?.empcode || "",
-      }));
+      };
+
+      setFormData(data);
+      setInitialFormData(data);
     }
   }, [booking, mode, user]);
 
@@ -135,14 +147,26 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    const newValue = type === "checkbox" ? checked : value;
+    let newValue = type === "checkbox" ? checked : value;
+
+    if (name === "attendees") {
+      // Allow only digits
+      newValue = newValue.replace(/\D/g, "");
+
+      // Restrict to 3 digits
+      newValue = newValue.slice(0, 3);
+
+      // Maximum 100 attendees
+      if (newValue !== "" && Number(newValue) > 100) {
+        newValue = "100";
+      }
+    }
 
     setFormData((prev) => ({
       ...prev,
       [name]: newValue,
     }));
 
-    // remove error for that field
     setErrors((prev) => ({
       ...prev,
       [name]: "",
@@ -248,7 +272,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
 
     const isValid = validateForm();
     if (!isValid) {
-      notifyError("Please fix the form errors before submitting");
+      notifyError(CONFERENCE_MESSAGES.FIX_FORM_ERRORS);
       return;
     }
 
@@ -261,11 +285,12 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       });
 
       if (res.status) {
-        const msg = sendForApproval
-          ? "Booking created and sent for confirmation"
-          : "Conference booking created successfully";
+        await notifySuccess(
+          sendForApproval
+            ? CONFERENCE_MESSAGES.SENT_FOR_APPROVAL
+            : CONFERENCE_MESSAGES.BOOKING_CREATED,
+        );
 
-        await notifySuccess(msg);
         await refreshTable();
         //refreshTable();
         onClose();
@@ -276,7 +301,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       notifyError(
         err?.response?.data?.message ||
           err.message ||
-          "Failed to create booking",
+          CONFERENCE_MESSAGES.CREATE_BOOKING_FAILED,
       );
     } finally {
       setLoading(false);
@@ -289,7 +314,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
     const isValid = validateForm();
 
     if (!isValid) {
-      notifyError("Please fix the form errors before submitting");
+      notifyError(CONFERENCE_MESSAGES.FIX_FORM_ERRORS);
       return;
     }
 
@@ -301,7 +326,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       });
 
       if (res.status) {
-        await notifySuccess("Booking updated successfully");
+        await notifySuccess(CONFERENCE_MESSAGES.BOOKING_UPDATED);
 
         await refreshTable();
         onClose();
@@ -309,7 +334,11 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
         notifyError(res.message);
       }
     } catch (err) {
-      notifyError(err?.response?.data?.message || err.message || "Edit failed");
+      notifyError(
+        err?.response?.data?.message ||
+          err.message ||
+          CONFERENCE_MESSAGES.EDIT_FAILED,
+      );
     } finally {
       setLoading(false);
     }
@@ -317,8 +346,8 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
 
   const handleSendForConfirmation = async () => {
     const confirmed = await confirmAction(
-      "Send for Confirmation?",
-      "This will send the booking for approval.",
+      CONFERENCE_MESSAGES.CONFIRM_SEND_TITLE,
+      CONFERENCE_MESSAGES.CONFIRM_SEND_MESSAGE,
     );
 
     if (!confirmed) return;
@@ -331,7 +360,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       });
 
       if (res.status) {
-        await notifySuccess("Booking sent for confirmation");
+        await notifySuccess(CONFERENCE_MESSAGES.SENT_FOR_APPROVAL);
 
         await refreshTable();
         onClose();
@@ -339,7 +368,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
         notifyError(res.message);
       }
     } catch {
-      notifyError("Action failed");
+      notifyError(CONFERENCE_MESSAGES.ACTION_FAILED);
     } finally {
       setLoading(false);
     }
@@ -347,8 +376,8 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
 
   const handleDeleteBooking = async () => {
     const confirmed = await confirmAction(
-      "Delete Booking?",
-      "This action cannot be undone",
+      CONFERENCE_MESSAGES.CONFIRM_DELETE_TITLE,
+      CONFERENCE_MESSAGES.CONFIRM_DELETE_MESSAGE,
     );
 
     if (!confirmed) return;
@@ -361,7 +390,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       });
 
       if (res.status) {
-        await notifySuccess("Booking deleted successfully");
+        await notifySuccess(CONFERENCE_MESSAGES.BOOKING_DELETED);
 
         await refreshTable();
         onClose();
@@ -369,7 +398,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
         notifyError(res.message);
       }
     } catch {
-      notifyError("Delete failed");
+      notifyError(CONFERENCE_MESSAGES.DELETE_FAILED);
     } finally {
       setLoading(false);
     }
@@ -377,8 +406,8 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
 
   const handleCancelBooking = async () => {
     const confirmed = await confirmAction(
-      "Cancel Booking?",
-      "Do you really want to cancel this booking?",
+      CONFERENCE_MESSAGES.CONFIRM_CANCEL_TITLE,
+      CONFERENCE_MESSAGES.CONFIRM_CANCEL_MESSAGE,
     );
 
     if (!confirmed) return;
@@ -391,7 +420,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
       });
 
       if (res.status) {
-        await notifySuccess("Conference room booking cancelled");
+        await notifySuccess(CONFERENCE_MESSAGES.BOOKING_CANCELLED);
 
         await refreshTable();
         onClose();
@@ -399,7 +428,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
         notifyError(res.message);
       }
     } catch {
-      notifyError("Cancel failed");
+      notifyError(CONFERENCE_MESSAGES.CANCEL_FAILED);
     } finally {
       setLoading(false);
     }
@@ -549,13 +578,13 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
                     placeholder="Search Employee..."
                     options={bookingUsers.map((emp) => ({
                       value: emp.EMP_CODE,
-                      label: `${emp.EMP_CODE} - ${emp.EMP_NAME}`,
+                      label: `${emp.EMP_NAME}`,
                     }))}
                     value={
                       bookingUsers
                         .map((emp) => ({
                           value: emp.EMP_CODE,
-                          label: `${emp.EMP_CODE} - ${emp.EMP_NAME}`,
+                          label: `${emp.EMP_NAME}`,
                         }))
                         .find((opt) => opt.value === formData.bookingBy) || null
                     }
@@ -576,12 +605,39 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
                     type="number"
                     className={`form-control ${errors.attendees ? "is-invalid" : ""}`}
                     name="attendees"
-                    min="1"
                     value={formData.attendees}
-                    onChange={handleChange}
-                    disabled={readOnly}
-                    max={500}
+                    min={1}
+                    max={100}
                     step={1}
+                    disabled={readOnly}
+                    onKeyDown={(e) => {
+                      if (["e", "E", "+", "-", "."].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const pasted = e.clipboardData.getData("text");
+
+                      if (!/^\d+$/.test(pasted)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onChange={(e) => {
+                      let value = e.target.value;
+
+                      if (value.length > 3) {
+                        value = value.slice(0, 3);
+                      }
+
+                      if (value !== "" && Number(value) > 100) {
+                        value = "100";
+                      }
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        attendees: value,
+                      }));
+                    }}
                   />
                   {errors.attendees && (
                     <div className="invalid-feedback">{errors.attendees}</div>

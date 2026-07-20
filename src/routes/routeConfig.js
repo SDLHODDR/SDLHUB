@@ -23,6 +23,7 @@ import EmployeeAccess from "../portals/eportal/components/maintenance/EmployeeAc
 import DailyAttendanceInfo from "../portals/eportal/components/reports/DailyAttendanceInfo";
 import ItrDownloadReport from '../portals/eportal/components/reports/ItrDownloadReport';
 import PolicyEndorsementReport from "../portals/eportal/components/reports/PolicyEndorsementReport";
+import ViewLogs from "../portals/eportal/components/reports/ViewLog";
 
 import PolicyAcceptance from '../pages/PolicyAcceptance';
 
@@ -72,6 +73,7 @@ export const routeConfig = {
     { path: "eportal/taskauthorization/346", element: TicketBookingAuthorization },
     { path: "eportal/taskauthorization/349", element: OutdoorDutyAuthorization },
     // { path: "eportal/taskauthorization/357", element: ConferenceRoomsAuthorization },
+    { path: "eportal/view-logs", element: ViewLogs },
 
     //EPP
    // { path: "epp/dashboard", element: EppDashboard },
