@@ -4,7 +4,7 @@ import SDLDataTable from "../datatable/SDLDataTable";
 import SDLSearch from "../datatable/SDLSearch";
 import "../../portals/eportal/assets/css/companyPolicies.css";
 
-//import LeavesAuthorizationModal from "../../portals/eportal/modal/LeavesAuthorizationModal";
+import LeavesAuthorizationModal from "../../portals/eportal/modal/LeavesAuthorizationModal";
 //import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { getAuthDataResponse } from "../../store/eportal/ePortalAuthorizationDataSlice";
@@ -51,6 +51,12 @@ const LeavesAuthorization = () => {
       mounted = false;
     };
   }, [authLRdata]);
+
+  const LeaveStartEndArr = {
+    B: "Beginning Of The Day",
+    M: "Middle Of The Day",
+    E: "End Of The Day",
+  };
 
   //useMemo now runs on every render, no matter what
   const filteredData = useMemo(() => {
@@ -111,7 +117,7 @@ const LeavesAuthorization = () => {
       field: "REMARKS",
       header: "REMARKS",
       body: (rowData) => {
-        const text = rowData?.REMARKS || "-";
+        const text = rowData?.DETAILS.REASON || "-";
         const trimmed = text.length > 15 ? `${text.substring(0, 15)}...` : text;
         return (
           <div className="remarks-wrapper">
@@ -125,24 +131,34 @@ const LeavesAuthorization = () => {
     },
     { field: "LVE_DATE_FR", header: "From", sortable: true },
     { field: "LVE_DATE_TO", header: "TO", sortable: true },
-     { field: "LVE_START_ON", header: "LVE_START_ON", sortable: true },
-     { field: "LVE_END_ON", header: "LVE_END_ON", sortable: true },
-     { field: "LVE_CODE", header: "From", sortable: true },
-     { field: "TOTAL_DAYS", header: "Total Days", sortable: true },
-    { field: "CREATED_ON", header: "Created On", sortable: true },
     {
-      field: "STATUS",
-      header: "Status",
-      body: (rowData) => {
-        return (
-          <span
-            className={`badge badge-${rowData.statusColor} d-inline-flex align-items-center badge-xs`}
-          >
-            {rowData.statusText}
-          </span>
-        );
-      },
+      field: "LVE_START_ON",
+      header: "START",
+      sortable: true,
+      body: (rowData) => LeaveStartEndArr[rowData?.LVE_START_ON] || rowData?.LVE_START_ON || "-",
     },
+    {
+      field: "LVE_END_ON",
+      header: "END",
+      sortable: true,
+      body: (rowData) => LeaveStartEndArr[rowData?.LVE_END_ON] || rowData?.LVE_END_ON || "-",
+    },
+     { field: "LVE_CODE", header: "From", sortable: true },
+     { field: "TOTAL_DAYS", header: "Days", sortable: true },
+    { field: "CREATED_ON", header: "Created On", sortable: true },
+    // {
+    //   field: "STATUS",
+    //   header: "Status",
+    //   body: (rowData) => {
+    //     return (
+    //       <span
+    //         className={`badge badge-${rowData.statusColor} d-inline-flex align-items-center badge-xs`}
+    //       >
+    //         {rowData.statusText}
+    //       </span>
+    //     );
+    //   },
+    // },
   ];
 
   // Conditional return happens LAST, after every hook has been called
@@ -190,7 +206,7 @@ const LeavesAuthorization = () => {
         </div>
       </div>
       {/* ================= MODAL ================= */}
-      {/* {showModal && (
+      {showModal && (
         <LeavesAuthorizationModal
           leaves={selectedLeaves}
           isOpen={true}
@@ -201,7 +217,7 @@ const LeavesAuthorization = () => {
             dispatch(getAuthroizationTaskCount()); // refetches the badge/counter
           }}
         />
-      )} */}
+      )}
     </>
   );
 };
