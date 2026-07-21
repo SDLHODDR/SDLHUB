@@ -9,6 +9,7 @@ export const getHolidays = (year) =>
   eportalRequest({
     url: EPORTAL_API.HOLIDAYS.GET_HOLIDAYS,
     method: "GET",
+    dedupe: true,
     params: { year },
 
     fallback: {
@@ -25,8 +26,8 @@ export const getHolidayRules = (year) =>
   eportalRequest({
     url: EPORTAL_API.HOLIDAYS.GET_HOLIDAY_RULES,
     method: "GET",
+    dedupe: true,
     params: { year },
-
     fallback: {
       status: false,
       data: [],

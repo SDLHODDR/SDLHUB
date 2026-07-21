@@ -298,19 +298,13 @@ const ViewLog = () => {
 
           <div className="row mb-3">
             <div className="col-md-6">
-              <div className="text-muted">
+              <div>
                 Showing Logs For :
                 <strong className="ms-2">{logDate || "-"}</strong>
+                  &nbsp;&nbsp;&nbsp;Total Errors : {filteredLogs.length}
               </div>
             </div>
-
-            <div className="col-md-6 text-end">
-              <span className="badge bg-danger fs-6">
-                Total Errors : {filteredLogs.length}
-              </span>
-            </div>
           </div>
-
           {/* ================= TABLE ================= */}
 
           <SDLDataTable
@@ -386,6 +380,35 @@ const ViewLog = () => {
                         {selectedLog.line || "-"}
                       </div>
                     </div>
+
+                    {selectedLog.file && (
+                        <div className="col-md-12 mb-3">
+                            <label className="fw-semibold">Source File</label>
+
+                            <div className="detail-box">
+                                {selectedLog.file}
+                            </div>
+                        </div>
+                    )}
+
+                    {selectedLog.sql && (
+                        <div className="col-md-12 mb-3">
+                            <label className="fw-semibold">SQL Query</label>
+
+                            <div className="alert alert-light border">
+                                <pre
+                                    className="mb-0"
+                                    style={{
+                                        whiteSpace: "pre-wrap",
+                                        fontFamily: "Consolas, monospace",
+                                        fontSize: "13px",
+                                    }}
+                                >
+                                    {selectedLog.sql}
+                                </pre>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="col-md-12">
                       <label className="fw-semibold">Error Message</label>

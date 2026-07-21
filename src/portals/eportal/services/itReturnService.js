@@ -9,6 +9,7 @@ export const getIncomeData = () =>
   eportalRequest({
     url: EPORTAL_API.IT_RETURN.GET_INCOME_DATA,
     method: "GET",
+    dedupe: true,
     fallback: {
       status: false,
       data: {},
@@ -23,6 +24,7 @@ export const getDeductionData = () =>
   eportalRequest({
     url: EPORTAL_API.IT_RETURN.GET_DEDUCTION_DATA,
     method: "GET",
+    dedupe: true,
     fallback: {
       status: false,
       data: {},
@@ -37,6 +39,7 @@ export const getExemptionData = () =>
   eportalRequest({
     url: EPORTAL_API.IT_RETURN.GET_EXEMPTION_DATA,
     method: "GET",
+    dedupe: true,
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -54,6 +57,7 @@ export const deleteExemptionData = (id) =>
   eportalRequest({
     url: EPORTAL_API.IT_RETURN.DELETE_EXEMPTION,
     method: "POST",
+    dedupe: true,
     data: {
       exemption_id: id,
     },
@@ -68,6 +72,7 @@ export const saveRegime = (payload) =>
     url: EPORTAL_API.IT_RETURN.SAVE_REGIME,
     method: "POST",
     data: payload,
+    dedupe: true,
   });
 
 /* ============================
@@ -78,6 +83,7 @@ export const saveOtherIncome = (payload) =>
   eportalRequest({
     url: EPORTAL_API.IT_RETURN.SAVE_OTHER_INCOME,
     method: "POST",
+    dedupe: true,
     data: payload,
     headers: {
       "Content-Type": "multipart/form-data",
@@ -92,6 +98,7 @@ export const saveDeductions = (payload) =>
   eportalRequest({
     url: EPORTAL_API.IT_RETURN.SAVE_DEDUCTIONS,
     method: "POST",
+    dedupe: true,
     data: payload,
     headers: {
       "Content-Type": "multipart/form-data",
@@ -106,6 +113,7 @@ export const saveExemptions = (payload) =>
   eportalRequest({
     url: EPORTAL_API.IT_RETURN.SAVE_EXEMPTIONS,
     method: "POST",
+    dedupe: true,
     data: payload,
     headers: {
       "Content-Type": "multipart/form-data",
@@ -120,6 +128,7 @@ export const saveForm12B = (payload) =>
   eportalRequest({
     url: EPORTAL_API.IT_RETURN.SAVE_FORM_12B,
     method: "POST",
+    dedupe: true,
     data: payload,
   });
 
@@ -131,6 +140,7 @@ export const getPreviewData = () =>
   eportalRequest({
     url: EPORTAL_API.IT_RETURN.GET_PREVIEW_DATA,
     method: "GET",
+    dedupe: true,
     fallback: {
       status: false,
       data: {},
@@ -145,6 +155,7 @@ export const getForm12B = () =>
   eportalRequest({
     url: EPORTAL_API.IT_RETURN.GET_FORM12B_DATA,
     method: "GET",
+    dedupe: true,
     fallback: {
       status: false,
       data: {},
@@ -159,6 +170,7 @@ export const getEmployeeSummary = () =>
   eportalRequest({
     url: EPORTAL_API.IT_RETURN.GET_EMPLOYEE_SUMMARY,
     method: "GET",
+    dedupe: true,
     fallback: {
       status: false,
       data: {},
@@ -173,6 +185,7 @@ export const getItReturnConfig = () =>
   eportalRequest({
     url: EPORTAL_API.IT_RETURN.GET_CONFIG,
     method: "GET",
+    dedupe: true,
     fallback: {
       status: false,
       data: {},

@@ -25,6 +25,7 @@ export const getEmployeeAccessData = (payload) =>
   eportalRequest({
     url: EPORTAL_API.EMPLOYEE_ACCESS.GET_EMPLOYEE_ACCESS_DATA,
     method: "POST",
+    dedupe: true,
     data: payload,
   });
 
@@ -36,6 +37,7 @@ export const saveEmployeeProfiles = (payload) =>
   eportalRequest({
     url: EPORTAL_API.EMPLOYEE_ACCESS.SAVE_EMPLOYEE_PROFILES,
     method: "POST",
+    dedupe: true,
     data: payload,
     fallback: {
       status: false,

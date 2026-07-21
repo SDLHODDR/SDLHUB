@@ -19,10 +19,10 @@ const HorizontalMenu = () => {
 			try {
 			const res = await getMenu();
 
-			console.log("API Response:", res);
+			//console.log("API Response:", res);
 
 			if (res?.status) {
-				console.log("Setting menus...");
+				//console.log("Setting menus...");
 				setMenus(res.menu || []);
 			}
 			} catch (err) {
