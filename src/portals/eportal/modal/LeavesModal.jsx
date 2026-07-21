@@ -391,12 +391,17 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
   // ================= MAIN VALIDATION =================
   const validateLeaveStatus = async (dataNw) => {
     console.log("=========== dataNw++++++ =========", dataNw);
+    console.log("ParseFloat noDaysNww =========", parseFloat(dataNw.noDaysNww));
+    console.log("ParseFloat NET_BAL =========", parseFloat(dataNw.NET_BAL));
+    console.log("ParseFloat UNAUTH_BAL =========", parseFloat(dataNw.UNAUTH_BAL));
+    console.log("ParseFloat SUB =========", parseFloat(dataNw.NET_BAL) - parseFloat(dataNw.UNAUTH_BAL));
+    console.log("ParseFloat COm =========", parseFloat(dataNw.noDaysNww) > parseFloat(dataNw.NET_BAL) - parseFloat(dataNw.UNAUTH_BAL));
     if (dataNw.LVE_CODE !== "LWP") {
-      if (parseFloat(dataNw.noDaysNww) > parseFloat(dataNw.NET_BAL) - parseFloat(dataNw.UNAUTH_BAL)
-      ) {
-        //Diable save button - Pending
-        return { status: false, message: "Insufficient leave balance" };
-      } else {
+      // if (parseFloat(dataNw.noDaysNww) > parseFloat(dataNw.NET_BAL) - parseFloat(dataNw.UNAUTH_BAL)
+      // ) {
+      //   //Diable save button - Pending
+      //   return { status: false, message: "Insufficient leave balance" };
+      // } else {
         //Enable save button - Pending 
         //---------OL Validation-----------
         if(dataNw.LVE_CODE == "OL"){
@@ -407,7 +412,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
           const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
           
           if (dateStart === '') {
-            return true;
+            return { status: true, message: "" }
           } else {
             try {
               const responseOL = await checkOL({
@@ -445,7 +450,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
 
           if (dataNw.PL_COUNT >= 3 || numDays <= 2) {
             return {
-              valid: false,
+              status: false,
               message: "PL can avail only 3/year and should be minimum 3 days!",
             };
           } else {
@@ -490,12 +495,19 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
             !moment(dataNw.LVE_DATE_TO).isBetween(eff, upto, null, "[]")
           ) {
             return {
-              valid: false,
+              status: false,
               message: "PLC not applicable for selected dates",
             };
           }
         }
-      } 
+
+        if (parseFloat(dataNw.noDaysNww) > parseFloat(dataNw.NET_BAL) - parseFloat(dataNw.UNAUTH_BAL)
+        ) {
+          //Diable save button - Pending
+          return { status: false, message: "Insufficient leave balance" };
+        }
+
+      //} 
     }  
     return { status: true, message: "" };
   };
