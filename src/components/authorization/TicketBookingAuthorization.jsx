@@ -106,7 +106,6 @@ const TicketBookingAuthorization = () => {
       },
     },
     { field: "CREATED_BY", header: "Task From", sortable: true },
-  
     {
       field: "REMARKS",
       header: "REMARKS",
@@ -116,35 +115,197 @@ const TicketBookingAuthorization = () => {
         return (
           <div className="remarks-wrapper">
             <div className="remarks-main" title={text}>
-              {trimmed}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  openModal(rowData);
+                }}
+                title="Remarks"
+              >
+                {trimmed}
+              </a>
             </div>
           </div>
         );
       },
       // style: { minWidth: "450px" },
     },
-    { field: "REQ_DATE", header: "Request DATE", sortable: true },
-     { field: "TRVL_CLASS", header: "Travel Class", sortable: true },
-     { field: "TRVL_MODE", header: "Travel Mode", sortable: true },
-     { field: "TRVL_DATE", header: "Travel Date", sortable: true },
-     { field: "TRVL_FROM_LOC", header: "From", sortable: true },
-     { field: "TRVL_TO_LOC", header: "To", sortable: true },
-     { field: "TRVL_FT_NAME", header: "Train/Flight", sortable: true },
-     { field: "TRVL_FT_NO", header: "Number", sortable: true },
-    { field: "CREATED_ON", header: "Created On", sortable: true },
     {
-      field: "STATUS",
-      header: "Status",
+      field: "REQ_DATE",
+      header: "Request DATE",
+      sortable: true,
       body: (rowData) => {
+        const reqDate = rowData?.REQ_DATE || "-";
         return (
-          <span
-            className={`badge badge-${rowData.statusColor} d-inline-flex align-items-center badge-xs`}
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="Request DATE"
           >
-            {rowData.statusText}
-          </span>
+            {reqDate}
+          </a>
         );
       },
     },
+    {
+      field: "TRVL_CLASS",
+      header: "Class",
+      sortable: true,
+      body: (rowData) => {
+        const trvlClass = rowData?.TRVL_CLASS || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="Travel Class"
+          >
+            {trvlClass}
+          </a>
+        );
+      },
+    },
+    {
+      field: "TRVL_MODE",
+      header: "Mode",
+      sortable: true,
+      body: (rowData) => {
+        const trvlMode = rowData?.TRVL_MODE || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="Travel Mode"
+          >
+            {trvlMode}
+          </a>
+        );
+      },
+    },
+    {
+      field: "TRVL_DATE",
+      header: "Travel Date",
+      sortable: true,
+      body: (rowData) => {
+        const trvlDate = rowData?.TRVL_DATE || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="Travel Date"
+          >
+            {trvlDate}
+          </a>
+        );
+      },
+    },
+    {
+      field: "TRVL_FROM_LOC",
+      header: "From",
+      sortable: true,
+      body: (rowData) => {
+        const fromLoc = rowData?.TRVL_FROM_LOC || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="From"
+          >
+            {fromLoc}
+          </a>
+        );
+      },
+    },
+    {
+      field: "TRVL_TO_LOC",
+      header: "To",
+      sortable: true,
+      body: (rowData) => {
+        const toLoc = rowData?.TRVL_TO_LOC || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="To"
+          >
+            {toLoc}
+          </a>
+        );
+      },
+    },
+    {
+      field: "TRVL_FT_NAME",
+      header: "Train/Flight",
+      sortable: true,
+      body: (rowData) => {
+        const ftName = rowData?.TRVL_FT_NAME || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="Train/Flight"
+          >
+            {ftName}
+          </a>
+        );
+      },
+    },
+    {
+      field: "TRVL_FT_NO",
+      header: "Number",
+      sortable: true,
+      body: (rowData) => {
+        const ftNo = rowData?.TRVL_FT_NO || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="Number"
+          >
+            {ftNo}
+          </a>
+        );
+      },
+    },
+
+    { field: "CREATED_ON", header: "Created On", sortable: true },
+    // {
+    //   field: "STATUS",
+    //   header: "Status",
+    //   body: (rowData) => {
+    //     return (
+    //       <span
+    //         className={`badge badge-${rowData.statusColor} d-inline-flex align-items-center badge-xs`}
+    //       >
+    //         {rowData.statusText}
+    //       </span>
+    //     );
+    //   },
+    // },
   ];
 
   // Conditional return happens LAST, after every hook has been called
