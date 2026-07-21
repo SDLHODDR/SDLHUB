@@ -36,6 +36,9 @@ const OutdoorDuty = () => {
           remarks: item.remarks || "-",
           statusColor: item.statusColor || "-",
           status: item.status || "-",
+          dateTimePass: item.dateTimePass || "_",
+          postremarks: item.postremarks,
+          authremarks: item.authremarks || "_"
         };
       });
       if (mounted) {
@@ -100,6 +103,7 @@ const OutdoorDuty = () => {
       }
     }
 
+    console.log("========== config postRemarks ================", config);
     setModalState({
       isOpen: true,
       mode: config.mode || "create",

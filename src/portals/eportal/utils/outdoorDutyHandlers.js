@@ -97,7 +97,7 @@ export const createOutdoorDutyHandlers = ({ dispatch, handleSuccess, openModal }
         console.log("============", rowData);
   
         openModal({
-          mode: "edit",
+          mode: "postremark",
           id: rowData.id,
           data: rowData,
           isPostRemark:true
@@ -106,11 +106,41 @@ export const createOutdoorDutyHandlers = ({ dispatch, handleSuccess, openModal }
   
       const closeTicketGP = async (id) => {
         try {
-          await closeGPTicket({ ID: id, closeTicket: true });
+          const result = await Swal.fire({
+            title: "Close OutDoor Duty Request?",
+            icon: "question",
+            showCancelButton: true
+          });
+
+          if (!result.isConfirmed) return;
+
+          const response = await closeGPTicket({
+            ID: id,
+            closeTicket: true
+          });
+
+          if (response?.status) {
+            await Swal.fire({
+              icon: "success",
+              title: "Closed!",
+              text:
+                response?.message ||
+                "Outdoor Request Closed successfully."
+            });
+
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Failed!",
+              text:
+                response?.message ||
+                "Unable to close request."
+            });
+          }
     
           //cacheRef.current = {};
-          dispatch(getOutdoorDutyDataResponse());
-    
+          //dispatch(getOutdoorDutyDataResponse());
+          handleSuccess?.();
         } catch (err) {
           console.error(err);
         }

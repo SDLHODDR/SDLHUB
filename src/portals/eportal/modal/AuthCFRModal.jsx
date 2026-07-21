@@ -5,8 +5,8 @@ import {
   authCBRData,
   rejectCBRData,
   getConferenceRoomOptions
-} from "../../../../portals/eportal/services/conferenceService";
-import "../modal.css";
+} from "../services/conferenceService";
+//import "../modal.css";
 import Swal from "sweetalert2";
 
 const AuthCFRModal = ({

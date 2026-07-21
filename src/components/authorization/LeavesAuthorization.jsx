@@ -4,7 +4,7 @@ import SDLDataTable from "../datatable/SDLDataTable";
 import SDLSearch from "../datatable/SDLSearch";
 import "../../portals/eportal/assets/css/companyPolicies.css";
 
-//import LeavesAuthorizationModal from "../../portals/eportal/modal/LeavesAuthorizationModal";
+import LeavesAuthorizationModal from "../../portals/eportal/modal/LeavesAuthorizationModal";
 //import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { getAuthDataResponse } from "../../store/eportal/ePortalAuthorizationDataSlice";
@@ -51,6 +51,12 @@ const LeavesAuthorization = () => {
       mounted = false;
     };
   }, [authLRdata]);
+
+  const LeaveStartEndArr = {
+    B: "Beginning Of The Day",
+    M: "Middle Of The Day",
+    E: "End Of The Day",
+  };
 
   //useMemo now runs on every render, no matter what
   const filteredData = useMemo(() => {
@@ -105,44 +111,211 @@ const LeavesAuthorization = () => {
         );
       },
     },
-    { field: "CREATED_BY", header: "Task From", sortable: true },
+    // { field: "CREATED_BY", header: "Task From", sortable: true },
+    {
+      header: "Task From",
+      body: (rowData) => {
+        const createdBy = rowData?.CREATED_BY || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="Task From"
+          >
+            {createdBy}
+          </a>
+        );
+      },
+    },
   
     {
       field: "REMARKS",
       header: "REMARKS",
       body: (rowData) => {
-        const text = rowData?.REMARKS || "-";
+        const text = rowData?.DETAILS.REASON || "-";
         const trimmed = text.length > 15 ? `${text.substring(0, 15)}...` : text;
         return (
           <div className="remarks-wrapper">
             <div className="remarks-main" title={text}>
-              {trimmed}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  openModal(rowData);
+                }}
+                title="Remarks"
+              >
+                {trimmed}
+              </a>
             </div>
           </div>
         );
       },
       // style: { minWidth: "450px" },
     },
-    { field: "LVE_DATE_FR", header: "From", sortable: true },
-    { field: "LVE_DATE_TO", header: "TO", sortable: true },
-     { field: "LVE_START_ON", header: "LVE_START_ON", sortable: true },
-     { field: "LVE_END_ON", header: "LVE_END_ON", sortable: true },
-     { field: "LVE_CODE", header: "From", sortable: true },
-     { field: "TOTAL_DAYS", header: "Total Days", sortable: true },
-    { field: "CREATED_ON", header: "Created On", sortable: true },
+    
     {
-      field: "STATUS",
-      header: "Status",
+      field: "LVE_DATE_FR",
+      header: "From",
+      sortable: true,
       body: (rowData) => {
+        const dateFrom = rowData?.LVE_DATE_FR || "-";
         return (
-          <span
-            className={`badge badge-${rowData.statusColor} d-inline-flex align-items-center badge-xs`}
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="From"
           >
-            {rowData.statusText}
-          </span>
+            {dateFrom}
+          </a>
         );
       },
     },
+
+    {
+      field: "LVE_DATE_FR",
+      header: "From",
+      sortable: true,
+      body: (rowData) => {
+        const dateFrom = rowData?.LVE_DATE_FR || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="From"
+          >
+            {dateFrom}
+          </a>
+        );
+      },
+    },
+
+    {
+      field: "LVE_DATE_TO",
+      header: "TO",
+      sortable: true,
+      body: (rowData) => {
+        const dateTo = rowData?.LVE_DATE_TO || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="TO"
+          >
+            {dateTo}
+          </a>
+        );
+      },
+    },
+
+    {
+      field: "LVE_START_ON",
+      header: "START",
+      sortable: true,
+      body: (rowData) => {
+        const startOn = LeaveStartEndArr[rowData?.LVE_START_ON] || rowData?.LVE_START_ON || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="START"
+            style={{ whiteSpace: "nowrap" }}
+          >
+            <span style={{ fontSize: "0.8rem" }}>{startOn}</span>
+          </a>
+        );
+      },
+    },
+    {
+      field: "LVE_END_ON",
+      header: "END",
+      sortable: true,
+      body: (rowData) => {
+        const endOn = LeaveStartEndArr[rowData?.LVE_END_ON] || rowData?.LVE_END_ON || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="END"
+            style={{ whiteSpace: "nowrap" }}
+          >
+            <span style={{ fontSize: "0.8rem" }}>{endOn}</span>
+          </a>
+        );
+      },
+    },
+    {
+      field: "LVE_CODE",
+      header: "From",
+      sortable: true,
+      body: (rowData) => {
+        const leaveCode = rowData?.LVE_CODE || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="From"
+          >
+            {leaveCode}
+          </a>
+        );
+      },
+    },
+    {
+      field: "TOTAL_DAYS",
+      header: "Days",
+      sortable: true,
+      body: (rowData) => {
+        const totalDays = rowData?.TOTAL_DAYS || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="Days"
+          >
+            {totalDays}
+          </a>
+        );
+      },
+    },
+    { field: "CREATED_ON", header: "Created On", sortable: true },
+    // {
+    //   field: "STATUS",
+    //   header: "Status",
+    //   body: (rowData) => {
+    //     return (
+    //       <span
+    //         className={`badge badge-${rowData.statusColor} d-inline-flex align-items-center badge-xs`}
+    //       >
+    //         {rowData.statusText}
+    //       </span>
+    //     );
+    //   },
+    // },
   ];
 
   // Conditional return happens LAST, after every hook has been called
@@ -190,7 +363,7 @@ const LeavesAuthorization = () => {
         </div>
       </div>
       {/* ================= MODAL ================= */}
-      {/* {showModal && (
+      {showModal && (
         <LeavesAuthorizationModal
           leaves={selectedLeaves}
           isOpen={true}
@@ -201,7 +374,7 @@ const LeavesAuthorization = () => {
             dispatch(getAuthroizationTaskCount()); // refetches the badge/counter
           }}
         />
-      )} */}
+      )}
     </>
   );
 };

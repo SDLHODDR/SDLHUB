@@ -35,6 +35,7 @@ const OutdoorDutyModal = ({
     const isRejectEditMode = mode === "edit-reject";
     const isPostRemarkMode = mode === "postremark";
     const isCreateMode = mode === "create";
+    const isPostRemarkNwMode = modalState.isPostRemark;
 
     // ===========================
     // Field Controls
@@ -88,12 +89,13 @@ const OutdoorDutyModal = ({
         setIsSubmitting(true); // disable immediately
 
         try {
-            const isEdit = modalState.mode === "edit";
+            let isEditPM = modalState.mode === "edit";
+            isEditPM = isPostRemarkNwMode ? isPostRemarkNwMode : isEditPM;
             const payload = {
                 ...formData,
-                ...(isEdit ? { editGpData: true } : { saveGpData: true }),
+                ...(isEditPM ? { editGpData: true } : { saveGpData: true }),
             };
-            const apiCall = isEdit ? editGPData : saveGPData;
+            const apiCall = isEditPM ? editGPData : saveGPData;
             const response = await apiCall(payload);
             if (response?.status) {
                 await Swal.fire({
@@ -101,7 +103,7 @@ const OutdoorDutyModal = ({
                     title: "Success",
                     text:
                         response?.message ||
-                        `Outdoor Duty ${isEdit ? "updated" : "saved"} successfully.`,
+                        `Outdoor Duty ${isEditPM ? "updated" : "saved"} successfully.`,
                 });
 
                 resetForm();
@@ -430,6 +432,7 @@ const OutdoorDutyModal = ({
                         id="OUT_TYPE"
                         value={formData.OUT_TYPE || ""}
                         onChange={handleChange}
+                        disabled={isPostRemarkNwMode}
                       >
                          <option value="">Select</option>
                        {Object.entries(outTypeField?.options || {}).map(([key, val]) => (
@@ -460,16 +463,44 @@ const OutdoorDutyModal = ({
                         id="REMARKS"
                         value={formData.REMARKS || ""}
                         onChange={handleChange}
-                        disabled={formData.REMARKS?.is_readonly}
+                        // disabled={formData.REMARKS?.is_readonly}
+                        disabled={isPostRemarkNwMode}
                         placeholder="Enter outdoor duty purpose"
                       />
-                      <div className="char-counter">{getByteLength(formData.REMARKS || "")} / 200 bytes</div>
+                      <div className="char-counter">{getByteLength(formData.REMARKS || "")} / 200</div>
                       {errors.REMARKS && (
                         <div className="invalid-feedback">{errors.REMARKS}</div>
                       )}
                     </div>
                   </div>
                 </div>
+
+
+
+                {isPostRemarkNwMode && (
+                    <div className="row">
+                  <div className="col-12">
+                    <div className="mb-3">
+                      <label className="form-label">
+                        POST Remarks
+                      </label>
+
+                      <textarea
+                        className={`form-control ${errors.POST_REMARKS ? "is-invalid" : ""}`}
+                        name="POST_REMARKS"
+                        id="POST_REMARKS"
+                        value={formData.POST_REMARKS || ""}
+                        onChange={handleChange}
+                        placeholder="Enter outdoor duty purpose"
+                      />
+                      <div className="char-counter">{getByteLength(formData.POST_REMARKS || "")} / 200</div>
+                      {errors.POST_REMARKS && (
+                        <div className="invalid-feedback">{errors.POST_REMARKS}</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                )}
               </div>
               <input
                   type="hidden"
@@ -503,14 +534,14 @@ const OutdoorDutyModal = ({
                       )}
                   </button>
                   )}
-                  {/* {!isEditMode && ( */}
+                  {!isPostRemarkNwMode && (
                     <button type="submit" className="btn btn-primary" data-bs-dismiss="modal" 
                       onClick={handleSaveAuth} 
                       disabled={isSubmitting}
                     >
                       Save and Send for Auth 
                     </button>
-                  {/* )} */}
+                )}
                   
                   <button type="button" className="btn btn-secondary me-2" onClick={handleCloseModal}>
                     Cancel

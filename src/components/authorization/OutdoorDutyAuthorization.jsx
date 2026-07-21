@@ -104,14 +104,43 @@ const OutdoorDutyAuthorization = () => {
         );
       },
     },
-    { field: "CREATED_BY", header: "Task From", sortable: true },
+    {
+      header: "Task From",
+      body: (rowData) => {
+        const taskfor = rowData?.CREATED_BY || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="Task From"
+          >
+            {taskfor}
+          </a>
+        );
+      },
+    },
     {
       field: "OUT_TYPE",
       header: "OUT TYPE",
       sortable: true,
       body: (rowData) => {
         const code = rowData?.OUT_TYPE;
-        return OUT_TYPE_LABELS[code] || code || "-";
+      
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="OUT TYPE"
+          >
+            {OUT_TYPE_LABELS[code] || code || "-"}
+          </a>
+        );
       },
     },
     {
@@ -123,7 +152,16 @@ const OutdoorDutyAuthorization = () => {
         return (
           <div className="remarks-wrapper">
             <div className="remarks-main" title={text}>
-              {trimmed}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  openModal(rowData);
+                }}
+                title="Remarks"
+              >
+                {trimmed}
+              </a>
             </div>
           </div>
         );

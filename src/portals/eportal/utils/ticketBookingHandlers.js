@@ -64,8 +64,38 @@ export const createTicketBookingHandlers = ({ dispatch, handleSuccess, openModal
 
   const closeTicketTB = async (id) => {
     try {
-      await closeTBTicket({ ID: id, closeTicket: true });
-      dispatch(getTicketBookingDataResponse());
+      const result = await Swal.fire({
+        title: "Close Ticket Booking?",
+        icon: "question",
+        showCancelButton: true
+      });
+      
+      if (!result.isConfirmed) return;
+
+      const response = await closeTBTicket({
+        ID: id,
+        closeTicket: true
+      });
+      if (response?.status) {
+        await Swal.fire({
+          icon: "success",
+          title: "Closed!",
+          text:
+            response?.message ||
+            "Ticket Booking Closed successfully."
+        });
+
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed!",
+          text:
+            response?.message ||
+            "Unable to close request."
+        });
+      }
+      handleSuccess?.();
+      //dispatch(getTicketBookingDataResponse());
     } catch (err) {
       console.error(err);
     }

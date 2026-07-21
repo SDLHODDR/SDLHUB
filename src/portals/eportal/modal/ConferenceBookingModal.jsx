@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from "react";
+import { useDispatch } from "react-redux";
 import {
   getBookingDropdownData,
   conferenceAction,
@@ -14,6 +15,8 @@ import Select from "react-select";
 import "../assets/css/conferencebookingmodal.css";
 
 import { CONFERENCE_MESSAGES } from "../constants/conferenceMessages";
+
+import { getAuthroizationTaskCount } from "../../../store/eportal/ePortalAuthorizationCountSlice";
 
 const DEFAULT_FORM_DATA = {
   bookingId: "",
@@ -32,6 +35,7 @@ const DEFAULT_FORM_DATA = {
 
 const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
   const [initialFormData, setInitialFormData] = useState(DEFAULT_FORM_DATA);
+  const dispatch = useDispatch();
 
   const handleBackdropClick = async () => {
     if (loading) return;
@@ -291,6 +295,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
             : CONFERENCE_MESSAGES.BOOKING_CREATED,
         );
 
+       
         await refreshTable();
         //refreshTable();
         onClose();
@@ -361,7 +366,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
 
       if (res.status) {
         await notifySuccess(CONFERENCE_MESSAGES.SENT_FOR_APPROVAL);
-
+        dispatch(getAuthroizationTaskCount());
         await refreshTable();
         onClose();
       } else {

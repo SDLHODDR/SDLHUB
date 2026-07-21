@@ -404,13 +404,13 @@ const TicketBookingModal = ({
       isValidTime(data.TTNT_DEPR_TIME) &&
       isValidTime(data.TTNT_ARVL_TIME)
     ) {
-      const dep = toMinutes(data.TTNT_DEPR_TIME);
-      const arr = toMinutes(data.TTNT_ARVL_TIME);
+      //const dep = toMinutes(data.TTNT_DEPR_TIME);
+      //const arr = toMinutes(data.TTNT_ARVL_TIME);
 
-      if (arr <= dep) {
-        newErrors.TTNT_ARVL_TIME =
-          "Arrival time must be greater than Departure time";
-      }
+      // if (arr <= dep) {
+      //   newErrors.TTNT_ARVL_TIME =
+      //     "Arrival time must be greater than Departure time";
+      // }
     }
 
     if (!data.TRVL_EMP?.trim()) {
@@ -736,7 +736,7 @@ const TicketBookingModal = ({
                             : "#666",
                       }}
                     >
-                      {getByteLength(formData.REMARKS || "")} / 200 bytes
+                      {getByteLength(formData.REMARKS || "")} / 200
                     </div>
                     {errors.REMARKS && (
                       <div className="invalid-feedback"> {errors.REMARKS} </div>

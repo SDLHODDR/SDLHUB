@@ -17,7 +17,7 @@ export const renderOutdoorDutyActions = (
 
   console.log("==============DisableEditDelete======Status============", status, disableEditDelete);
 
-    console.log("==============RowData============", rowData, datePass);
+  console.log("==============RowData============", postRemarks, ["A", "T"].includes(status), outType, datePass <= 0);
 
   const renderTooltip = (text) => (props) => (
     <Tooltip id={`tooltip-${text}`} {...props}>
@@ -129,6 +129,23 @@ export const renderOutdoorDutyActions = (
           </span>
         </OverlayTrigger>
       )}
+
+      {["A", "T", "R"].includes(status) &&
+       datePass >= 0 && (
+          <OverlayTrigger placement="top" overlay={renderTooltip("Close Ticket")}>
+            <span>
+              <Link
+                to=""
+                // onClick={(e) => handleClick(e, updateRemarks)}
+                onClick={(e) =>
+                  handleClick(e, () => closeTicketGP(rowData.id), false, status)
+                }
+              >
+                <i className="ti ti-x" />
+              </Link>
+            </span>
+          </OverlayTrigger>
+        )}
 
       {/* Close Ticket */}
       {status === "T" && !postRemarks && datePass > 0 && "-"}

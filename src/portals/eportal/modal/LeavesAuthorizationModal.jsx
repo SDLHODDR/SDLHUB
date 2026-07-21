@@ -1,38 +1,32 @@
 // import { useState, useEffect, useRef } from "react";
 import { useState } from "react";
 import Swal from "sweetalert2";
-import { authGPData, rejectGPData } from "../services/outdoorDutyService";
+import { authLRData, rejectLRData } from "../services/leavesService";
 
-const OutdoorDutyAuthorizationModal = ({
-  outddorduty,
+const LeavesAuthorizationModal = ({
+  leaves,
   isOpen,
   onClose,
   onSuccess,
 }) => {
-  const OUT_TYPE_LABELS = {
-    OI: "In/Out same day",
-    OD: "Out for full day",
-    FO: "First Half Out",
-    SO: "Second Half Out",
-    FW: "Field Work",
-    TO: "Tour",
-    "": "-",
-  };
-
-  //const [formData, setFormData] = useState({});
-
   const getByteLength = (str) => new TextEncoder().encode(str || "").length;
-
   const [formData, setFormData] = useState(() => ({
-    ID: outddorduty.TRAN_CODE,
-    TASK_ID: outddorduty.ID,
-    TRAN_CODE: outddorduty.TRAN_CODE,
-    OUT_TYPE: outddorduty.OUT_TYPE,
-    empName: outddorduty.REQUEST_FOR,
-    empCode: outddorduty.DETAILS.EMP_CODE,
-    TabId: outddorduty.TASK_ID,
-    REMARKS: outddorduty.REMARKS,
-    GPASS_DATE: outddorduty.GPASS_DATE,
+      ID: leaves.TRAN_CODE,
+      TASK_ID: leaves.ID,
+      TRAN_CODE: leaves.TRAN_CODE,
+      CREATED_BY: leaves.CREATED_BY,
+      CREATED_ON: leaves.CREATED_ON,
+      REQUEST_FOR: leaves.REQUEST_FOR,
+      TabId: leaves.TASK_ID,
+      EMP_CODE: leaves.DETAILS.EMP_CODE,
+      LVE_DATE_FR: leaves.DETAILS.LVE_DATE_FR,
+      LVE_DATE_TO: leaves.DETAILS.LVE_DATE_TO,
+      LVE_START_ON: leaves.DETAILS.LVE_START_ON,
+      LVE_END_ON: leaves.DETAILS.LVE_END_ON,
+      LVE_CODE: leaves.DETAILS.LVE_CODE,
+      TOTAL_DAYS: leaves.DETAILS.TOTAL_DAYS,
+      REASON: leaves.DETAILS.REASON,
+      STATUS: leaves.DETAILS.STATUS
   }));
 
   const handleChange = (e) => {
@@ -59,7 +53,7 @@ const OutdoorDutyAuthorizationModal = ({
       const latestData = formData;
 
       console.log("---------Reject request -------", latestData);
-      const response = await rejectGPData({
+      const response = await rejectLRData({
         ...latestData,
         authForm: true,
         flag: "R",
@@ -82,7 +76,7 @@ const OutdoorDutyAuthorizationModal = ({
     try {
       const latestData = formData;
       console.log("---------Authorize request -------", latestData);
-      const response = await authGPData({
+      const response = await authLRData({
         ...latestData,
         authForm: true,
         flag: "A",
@@ -105,6 +99,14 @@ const OutdoorDutyAuthorizationModal = ({
     }
   };
 
+  const LeaveStartEndArr = {
+    B: "Beginning Of The Day",
+    M: "Middle Of The Day",
+    E: "End Of The Day",
+  };
+
+  console.log("---------****** FormData *********-------------", formData);
+
   return (
     <>
       <div
@@ -125,15 +127,15 @@ const OutdoorDutyAuthorizationModal = ({
               >
                 <h4 className="modal-title">
                   <div>
-                    OutDoor Duty Request for &nbsp;
+                    Leave Request for &nbsp;
                     <span className="fw-semibold">
-                      {formData.empName ?? ""}
+                      {formData.REQUEST_FOR ?? ""}
                     </span>
                     <span
                       className="text-muted ms-2"
                       style={{ fontSize: "14px" }}
                     >
-                      ({formData.GPASS_DATE || ""})
+                      ({formData.LVE_DATE_FR || ""} - {formData.LVE_DATE_TO || ""})
                     </span>
                   </div>
                 </h4>
@@ -155,22 +157,84 @@ const OutdoorDutyAuthorizationModal = ({
                 <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
-                      <label className="fw-semibold">Out Type :</label>
+                      <label className="fw-semibold">CREATED BY :</label>
                       <span className="ms-2">
-                        {OUT_TYPE_LABELS[formData.OUT_TYPE || ""]}
+                        { formData.CREATED_BY || "" }
+                      </span>
+                    </div>
+                     <div className="mb-3">
+                      <label className="fw-semibold">CREATED ON :</label>
+                      <span className="ms-2">
+                        { formData.CREATED_ON || "" }
                       </span>
                     </div>
                   </div>
                 </div>
 
                 <div className="row">
-                  <div className="col-12">
+                  <div className="col-md-6">
                     <div className="mb-3">
-                      <label className="form-label">Remarks :</label>
-                      <span className="ms-2">{formData.REMARKS || ""}</span>
+                      <label className="fw-semibold">Leave Type :</label>
+                      <span className="ms-2">
+                        { formData.LVE_CODE || "" }
+                      </span>
+                    </div>
+                     <div className="mb-3">
+                      <label className="fw-semibold">Leave From Date :</label>
+                      <span className="ms-2">
+                        { formData.LVE_DATE_FR || "" }
+                      </span>
                     </div>
                   </div>
                 </div>
+
+                <div className="row">
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="fw-semibold">Leave To Date :</label>
+                      <span className="ms-2">
+                        { formData.LVE_DATE_TO || "" }
+                      </span>
+                    </div>
+                     <div className="mb-3">
+                      <label className="fw-semibold">Leave Starts On :</label>
+                      <span className="ms-2">
+                        { LeaveStartEndArr[formData.LVE_START_ON] || "-" }
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="row">
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="fw-semibold">Leave Ends On :</label>
+                      <span className="ms-2">
+                        { LeaveStartEndArr[formData.LVE_END_ON] || "-" }
+                      </span>
+                    </div>
+                     
+                  </div>
+                </div>
+
+                 <div className="row">
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="fw-semibold">Reason :</label>
+                      <span className="ms-2">
+                        { formData.REASON || "" }
+                      </span>
+                    </div>
+                     <div className="mb-3">
+                      <label className="fw-semibold">TOTAL DAYS :</label>
+                      <span className="ms-2">
+                        { formData.TOTAL_DAYS || "" }
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                
 
                 <div className="row">
                   <div className="form-group">
@@ -217,4 +281,4 @@ const OutdoorDutyAuthorizationModal = ({
   );
 };
 
-export default OutdoorDutyAuthorizationModal;
+export default LeavesAuthorizationModal;
