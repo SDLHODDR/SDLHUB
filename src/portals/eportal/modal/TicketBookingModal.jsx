@@ -736,7 +736,7 @@ const TicketBookingModal = ({
                             : "#666",
                       }}
                     >
-                      {getByteLength(formData.REMARKS || "")} / 200 bytes
+                      {getByteLength(formData.REMARKS || "")} / 200
                     </div>
                     {errors.REMARKS && (
                       <div className="invalid-feedback"> {errors.REMARKS} </div>

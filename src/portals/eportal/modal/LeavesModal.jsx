@@ -891,7 +891,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                         padding: "0 4px",
                       }}
                     >
-                      {getByteLength(formData.REASON || "")} / 200 bytes
+                      {getByteLength(formData.REASON || "")} / 200
                     </div>
                   </div>
                 </div>

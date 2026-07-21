@@ -467,7 +467,7 @@ const OutdoorDutyModal = ({
                         disabled={isPostRemarkNwMode}
                         placeholder="Enter outdoor duty purpose"
                       />
-                      <div className="char-counter">{getByteLength(formData.REMARKS || "")} / 200 bytes</div>
+                      <div className="char-counter">{getByteLength(formData.REMARKS || "")} / 200</div>
                       {errors.REMARKS && (
                         <div className="invalid-feedback">{errors.REMARKS}</div>
                       )}
@@ -493,7 +493,7 @@ const OutdoorDutyModal = ({
                         onChange={handleChange}
                         placeholder="Enter outdoor duty purpose"
                       />
-                      <div className="char-counter">{getByteLength(formData.POST_REMARKS || "")} / 200 bytes</div>
+                      <div className="char-counter">{getByteLength(formData.POST_REMARKS || "")} / 200</div>
                       {errors.POST_REMARKS && (
                         <div className="invalid-feedback">{errors.POST_REMARKS}</div>
                       )}

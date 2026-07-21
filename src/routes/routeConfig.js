@@ -33,6 +33,7 @@ import TicketBookingAuthorization from "../components/authorization/TicketBookin
 import TicketBooking from "../portals/eportal/components/my-activities/TicketBooking";
 import Leave from "../portals/eportal/components/my-activities/Leaves";
 import LeavesAuthorization from "../components/authorization/LeavesAuthorization";
+import ConferenceRoomAuthorization from "../components/authorization/ConferenceRooAuthorization";
 
 // Sitewise Protected components
 //-------------------ePortal------------------------------------------------
@@ -72,7 +73,7 @@ export const routeConfig = {
     { path: "eportal/taskauthorization/109", element: LeavesAuthorization },
     { path: "eportal/taskauthorization/346", element: TicketBookingAuthorization },
     { path: "eportal/taskauthorization/349", element: OutdoorDutyAuthorization },
-    // { path: "eportal/taskauthorization/357", element: ConferenceRoomsAuthorization },
+    { path: "eportal/taskauthorization/357", element: ConferenceRoomAuthorization },
     { path: "eportal/view-logs", element: ViewLogs },
 
     //EPP

@@ -182,7 +182,7 @@ const OutdoorDutyAuthorizationModal = ({
                       onChange={handleChange}
                     />
                     <div className="char-counter">
-                      {getByteLength(formData.AUTH_REMARKS || "")} / 200 bytes
+                      {getByteLength(formData.AUTH_REMARKS || "")} / 200
                     </div>
                   </div>
                 </div>
