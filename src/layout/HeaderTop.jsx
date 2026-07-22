@@ -230,17 +230,17 @@ const HeaderTop = () => {
           }  
           
 
-          <li className="nav-item nav-item-box">
+          {/* <li className="nav-item nav-item-box">
             <Link
               to="#"
               id="btnFullscreen"
               onClick={() => toggleFullscreen()}
               className={isFullscreen ? "Exit Fullscreen" : "Go Fullscreen"}
-            >
+            > */}
               {/* <i data-feather="maximize" /> */}
-              <i className="ti ti-maximize"></i>
-            </Link>
-          </li>
+              {/* <i className="ti ti-maximize"></i> */}
+            {/* </Link>
+          </li> */}
 
           {/* Profile Dropdown */}
           <li className="nav-item dropdown has-arrow main-drop profile-nav">
