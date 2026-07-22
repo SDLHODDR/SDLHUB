@@ -64,7 +64,7 @@ const Leaves = () => {
     return listData.filter(
       (item) =>
         item.LVE_CODE.toLowerCase().includes(query) ||
-        item.REMARKS.toLowerCase().includes(query),
+        item.REMARKS.toLowerCase().includes(query), 
     );
   }, [searchQuery, listData]);
 
