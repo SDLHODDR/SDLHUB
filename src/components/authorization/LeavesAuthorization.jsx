@@ -5,7 +5,6 @@ import SDLSearch from "../datatable/SDLSearch";
 import "../../portals/eportal/assets/css/companyPolicies.css";
 
 import LeavesAuthorizationModal from "../../portals/eportal/modal/LeavesAuthorizationModal";
-//import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { getAuthDataResponse } from "../../store/eportal/ePortalAuthorizationDataSlice";
 import { getAuthroizationTaskCount } from "../../store/eportal/ePortalAuthorizationCountSlice";
@@ -31,12 +30,12 @@ const LeavesAuthorization = () => {
           ...item,
           LVE_DATE_FR: details.LVE_DATE_FR || "",
           LVE_DATE_TO: details.LVE_DATE_TO || "",
-           LVE_START_ON: details.LVE_START_ON || "",
-            LVE_END_ON: details.LVE_END_ON || "",
+          LVE_START_ON: details.LVE_START_ON || "",
+          LVE_END_ON: details.LVE_END_ON || "",
           REMARKS: details.REMARKS || "",
           LVE_CODE: details.LVE_CODE || "",
           TOTAL_DAYS: details.TOTAL_DAYS || "",
-           REASON: details.REASON || "",
+          REASON: details.REASON || "",
           status: details.status || "",
           STATUS: details.STATUS || "",
           statusColor: details.statusColor || "",
@@ -77,7 +76,6 @@ const LeavesAuthorization = () => {
   const [showModal, setShowModal] = useState(false);
 
   const openModal = (row = null) => {
-    //console.log("================ROW===================", row);
     if (row) {
       setSelectedLeaves(row); // null = add new booking
     } else {
@@ -92,7 +90,6 @@ const LeavesAuthorization = () => {
   };
 
   const columns = [
-    // { field: "REQUEST_FOR", header: "Task For", sortable: true },
     {
       header: "Task For",
       body: (rowData) => {
@@ -111,7 +108,6 @@ const LeavesAuthorization = () => {
         );
       },
     },
-    // { field: "CREATED_BY", header: "Task From", sortable: true },
     {
       header: "Task From",
       body: (rowData) => {
@@ -303,26 +299,11 @@ const LeavesAuthorization = () => {
       },
     },
     { field: "CREATED_ON", header: "Created On", sortable: true },
-    // {
-    //   field: "STATUS",
-    //   header: "Status",
-    //   body: (rowData) => {
-    //     return (
-    //       <span
-    //         className={`badge badge-${rowData.statusColor} d-inline-flex align-items-center badge-xs`}
-    //       >
-    //         {rowData.statusText}
-    //       </span>
-    //     );
-    //   },
-    // },
   ];
 
   // Conditional return happens LAST, after every hook has been called
   if (loading) return <div>Loading...</div>;
-
-  console.log("===========TB Data Authorization=========", authLRdata);
-
+  
   return (
     <>
       <div className="page-header">
@@ -369,7 +350,6 @@ const LeavesAuthorization = () => {
           isOpen={true}
           onClose={closeModal}
           onSuccess={() => {
-            console.log("Refreshing this table...");
             setRefreshKey(prev => prev + 1);
             dispatch(getAuthroizationTaskCount()); // refetches the badge/counter
           }}
