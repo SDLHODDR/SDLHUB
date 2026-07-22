@@ -55,16 +55,16 @@ const Leaves = () => {
     };
   }, [leavesData]);
 
+  console.log("=======LIstData=====", listData);
   /* ================= SEARCH FILTER ================= */
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) return listData;
 
     const query = searchQuery.trim().toLowerCase();
-
     return listData.filter(
       (item) =>
         item.LVE_CODE.toLowerCase().includes(query) ||
-        item.remarks.toLowerCase().includes(query),
+        item.REMARKS.toLowerCase().includes(query),
     );
   }, [searchQuery, listData]);
 
