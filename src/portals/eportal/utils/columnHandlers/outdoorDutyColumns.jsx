@@ -15,6 +15,12 @@ export const outdoorDutyColumns = (handlers) => [
         style: { width: "150px", whiteSpace: "nowrap" },
     },
     {
+        field: "createdOn",
+        header: "Created On",
+        sortable: true,
+        style: { width: "150px", whiteSpace: "nowrap" },
+    },
+    {
         field: "remarks",
         header: "Remarks",
         body: (rowData) => {
@@ -43,9 +49,9 @@ export const outdoorDutyColumns = (handlers) => [
                 </div>
             );
         },
-        style: {
-            minWidth: "450px",
-        },
+        // style: {
+        //     minWidth: "150px",
+        // },
     },
     {
         field: "statusText",

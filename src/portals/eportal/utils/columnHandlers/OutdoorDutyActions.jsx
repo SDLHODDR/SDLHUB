@@ -49,7 +49,7 @@ export const renderOutdoorDutyActions = (
     <div className="d-flex align-items-center gap-2 flex-wrap">
 
       {disableEditDelete ? (
-        <span className="text-muted small"> - </span>
+        <span className="text-muted small">**</span>
       ) : (
         <>
           {/* Edit */}
@@ -148,7 +148,7 @@ export const renderOutdoorDutyActions = (
         )}
 
       {/* Close Ticket */}
-      {status === "T" && !postRemarks && datePass > 0 && "-"}
+      {status === "T" && !postRemarks && datePass > 0 && "@@"}
     </div>
   );
 };

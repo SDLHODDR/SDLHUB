@@ -32,6 +32,7 @@ const OutdoorDuty = () => {
           id: item.id || index,
           asonDate: item.asondate || "-",
           outType: item.outtype || "-",
+          createdOn: item.created_on || "-",
           statusText: item.approval || "-",
           remarks: item.remarks || "-",
           statusColor: item.statusColor || "-",
