@@ -392,7 +392,7 @@ const TicketBookingModal = ({
       newErrors.TRVL_TO_LOC = "Travel To Location is required";
     }
 
-    if (!data.TRVL_FT_NAME?.trim()) {
+    if (!data.TRVL_FT_NAME?.trim() ) {
       newErrors.TRVL_FT_NAME = "Flight/Train Name is required";
     }
 

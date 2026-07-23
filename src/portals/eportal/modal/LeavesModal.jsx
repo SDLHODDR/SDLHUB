@@ -30,6 +30,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
   const [errors, setErrors] = useState({});
   const isReadOnly = ["view", "readonly"].includes(mode);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isBtnDisable, setIsBtnDisable] = useState(false);
   const isEditMode = modalState.mode === "edit";
   const isPostRemarkMode = mode === "postremark";
   const isCreateMode = mode === "create";
@@ -501,9 +502,17 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
           }
         }
 
-        if (parseFloat(dataNw.noDaysNww) > parseFloat(dataNw.NET_BAL) - parseFloat(dataNw.UNAUTH_BAL)
-        ) {
-          //Diable save button - Pending
+        // if (parseFloat(dataNw.noDaysNww) > parseFloat(dataNw.NET_BAL) - parseFloat(dataNw.UNAUTH_BAL)
+        // ) {
+        //   //Diable save button - Pending
+        //   return { status: false, message: "Insufficient leave balance" };
+        // } else if(parseFloat(dataNw.noDaysNww) <= 0) {
+        //   //console.log("======dataNw.noDaysNww=========", dataNw.noDaysNww);
+        //   return { status: false, message: "Cannot proceed further No. of days are zero or negative" };
+        // }
+        if (parseFloat(dataNw.noDaysNww) <= 0) {
+          return { status: false, message: "Cannot proceed further No. of days are zero or negative" };
+        } else if (parseFloat(dataNw.noDaysNww) > parseFloat(dataNw.NET_BAL) - parseFloat(dataNw.UNAUTH_BAL)) {
           return { status: false, message: "Insufficient leave balance" };
         }
 
@@ -588,15 +597,20 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
     }
     updated.NO_DAYS = noDaysNww; 
     updated.noDaysNww = noDaysNww;
+    
     try {
+      //setIsBtnDisable(true);
       const isAllow = await validateLeaveStatus(updated);
       if (!isAllow.status) {
-        setErrorMsg(isAllow.message);  
+        setErrorMsg(isAllow.message);
+        setIsBtnDisable(true);  
       } else {
         setErrorMsg(false);
+        setIsBtnDisable(false);
       }  
     } catch (err) {
       setErrorMsg(err);
+      setIsBtnDisable(true);
     }
 
     // // PL logic
@@ -634,7 +648,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                   <span className="text-danger ms-2 fs-16">- {clError}</span>
                 )} */}
                 {errorMsg && (
-                  <span className="text-danger ms-2 fs-16">- {errorMsg}</span>
+                  <span className="text-danger ms-2 fs-16"> {errorMsg}</span>
                 )}
               </div>
 
@@ -914,7 +928,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                       className="btn btn-primary"
                       data-bs-dismiss="modal"
                       onClick={handleSave}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isBtnDisable}
                     >
                       {isSubmitting ? (
                         <>
@@ -922,6 +936,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                           Processing...
                         </>
                       ) : (
+                        // `"Save" ${isBtnDisable} - ${isSubmitting}`
                         "Save"
                       )}
                     </button>
