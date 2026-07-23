@@ -85,14 +85,18 @@ const TicketBooking = () => {
       currentDate.setHours(0, 0, 0, 0);
       modalDate.setHours(0, 0, 0, 0);
 
-      const diffTime = Math.abs(currentDate - modalDate);
+      // No Math.abs() — we want to know direction, not just distance
+      const diffTime = modalDate - currentDate;
       const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
-      if (diffDays > 25) {
+      console.log("==========diffDays========", diffDays);
+
+      if (diffDays < 0) {
+        // modalDate is before today → block it
         Swal.fire({
           icon: "warning",
           title: "Not Permitted",
-          text: "It is not permitted to raise an Ticket Booking request",
+          text: "It is not permitted to raise a Ticket Booking request for past dates",
         });
 
         return;

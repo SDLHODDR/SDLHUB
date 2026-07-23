@@ -93,6 +93,7 @@ const OutdoorDuty = () => {
       const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
       if (diffDays > 25) {
+         setLoading(false);
         Swal.fire({
           icon: "warning",
           title: "Not Permitted",

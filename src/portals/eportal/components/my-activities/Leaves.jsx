@@ -77,6 +77,53 @@ const Leaves = () => {
   const openModal = (config = {}) => {
     setLoader(true);
     console.log("-----------CoNFIG---------------", config);
+    if (config.modalDate) {
+      const currentDate = new Date();
+      const modalDate = new Date(config.modalDate);
+
+      // Remove time portion for accurate day comparison
+      currentDate.setHours(0, 0, 0, 0);
+      modalDate.setHours(0, 0, 0, 0);
+
+      // 1st day of current month
+      const firstDayCurrentMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        1
+      );
+
+      // Last day of NEXT month
+      const lastDayNextMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 2,
+        0
+      );
+
+      // Format dates as "1 July 2026"
+      const formatDate = (date) => {
+        return date.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      };
+
+      const formattedFirstDay = formatDate(firstDayCurrentMonth);
+      const formattedLastDay = formatDate(lastDayNextMonth);
+
+      console.log("==========firstDayCurrentMonth========", formattedFirstDay);
+      console.log("==========lastDayNextMonth========", formattedLastDay);
+
+      if (modalDate < firstDayCurrentMonth || modalDate > lastDayNextMonth) {
+        Swal.fire({
+          icon: "warning",
+          title: "Not Permitted",
+          text: `Leave can only be requested between ${formattedFirstDay} and ${formattedLastDay}`,
+        });
+
+        return;
+      }
+    }
 
     const formatLocalDateTime = (date) => {
       const pad = (n) => String(n).padStart(2, '0');
