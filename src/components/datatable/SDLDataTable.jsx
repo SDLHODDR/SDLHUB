@@ -16,7 +16,7 @@ const SDLDataTable = ({
 }) => {
     return (
         <DataTable
-            value={data}
+            value={Array.isArray(data) ? data : []}
             loading={loading}
             paginator={paginator}
             rows={rows}

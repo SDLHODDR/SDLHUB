@@ -55,9 +55,8 @@ const PolicyEndorsementReport = () => {
       const response = await getPolicyAcceptanceDetails(policyId);
 
       if (response?.status) {
-        setSummary(response.summary);
-
-        setEmployees(response.data || []);
+        setSummary(response.data.summary);
+        setEmployees(response.data.employees || []);
 
         setEmployeeSearch("");
 
@@ -78,28 +77,11 @@ const PolicyEndorsementReport = () => {
         return;
       }
 
-      const blob = await exportPolicyAcceptanceReport(summary.policy_id);
-
-      const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-
-      link.href = url;
-
-      link.download = `${summary.policy_name}_Acceptance_Report.xlsx`;
-
-      document.body.appendChild(link);
-
-      link.click();
-
-      document.body.removeChild(link);
-
-      window.URL.revokeObjectURL(url);
+      await exportPolicyAcceptanceReport(summary.policy_id);
 
       notifySuccess("Excel exported successfully");
     } catch (error) {
       console.error(error);
-
       notifyError("Failed to export report");
     }
   };
