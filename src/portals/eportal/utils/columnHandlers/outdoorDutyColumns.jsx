@@ -86,4 +86,31 @@ export const outdoorDutyColumns = (handlers) => [
             width: "180px",
         },
     },
+    // {
+    //     field: "status",
+    //     header: "Cancel",
+    //     body: (rowData) => {
+    //         const status = rowData.status?.trim()?.toUpperCase();
+    //         const postRemarks = rowData.postremarks;
+    //          const dateDiff =;
+    //         // const hasAuthRemark =
+    //         //     rowData?.status === "R" && rowData?.authremarks;
+
+    //         // return hasAuthRemark ? (
+    //         //     <IconWithTooltip text={rowData.authremarks}>
+    //         //         <span
+    //         //             className={`badge badge-${rowData.statusColor} d-inline-flex align-items-center badge-xs`}
+    //         //         >
+    //         //             {rowData.statusText}
+    //         //         </span>
+    //         //     </IconWithTooltip>
+    //         // ) : (
+    //         //     <span
+    //         //         className={`badge badge-${rowData.statusColor} d-inline-flex align-items-center badge-xs`}
+    //         //     >
+    //         //         {rowData.statusText}
+    //         //     </span>
+    //         // );
+    //     },
+    // },
 ];

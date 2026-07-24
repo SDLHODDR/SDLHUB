@@ -153,26 +153,7 @@ const LeavesAuthorization = () => {
       // style: { minWidth: "450px" },
     },
     
-    {
-      field: "LVE_DATE_FR",
-      header: "From",
-      sortable: true,
-      body: (rowData) => {
-        const dateFrom = rowData?.LVE_DATE_FR || "-";
-        return (
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openModal(rowData);
-            }}
-            title="From"
-          >
-            {dateFrom}
-          </a>
-        );
-      },
-    },
+   
 
     {
       field: "LVE_DATE_FR",

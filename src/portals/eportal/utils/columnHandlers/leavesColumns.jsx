@@ -1,4 +1,4 @@
-import { renderLeaveActions } from "./leavesActions";
+//import { renderLeaveActions } from "./leavesActions";
 import { IconWithTooltip } from "../tooltipHelper";
 
 export const leavesColumns = (handlers) => [
@@ -64,13 +64,13 @@ export const leavesColumns = (handlers) => [
       );
     },
   },
-  {
-    field: "col_actions",
-    header: "Actions",
-    sortable: false,
-    body: (rowData) => renderLeaveActions(rowData, handlers),
-    style: {
-      width: "180px",
-    },
-  },
+  // {
+  //   field: "col_actions",
+  //   header: "Actions",
+  //   sortable: false,
+  //   body: (rowData) => renderLeaveActions(rowData, handlers),
+  //   style: {
+  //     width: "180px",
+  //   },
+  // },
 ];

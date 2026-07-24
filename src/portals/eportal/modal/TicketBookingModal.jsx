@@ -376,8 +376,13 @@ const TicketBookingModal = ({
   const validateForm = (data) => {
     const newErrors = {};
 
+    // if (data.TRVL_EMP === "O" && !data.PERSON_NAME?.trim()) {
+    //   newErrors.PERSON_NAME = "Person Name is required";
+    // }
     if (data.TRVL_EMP === "O" && !data.PERSON_NAME?.trim()) {
       newErrors.PERSON_NAME = "Person Name is required";
+    } else if (data.TRVL_EMP === "O" && data.PERSON_NAME && data.PERSON_NAME.trim().length > 100) {
+      newErrors.PERSON_NAME = "Person Name must not exceed 100 characters";
     }
 
     if (!data.TRVL_MODE?.trim()) {

@@ -809,15 +809,15 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                       name="LVE_DATE_TO"
                       value={formData.LVE_DATE_TO || ""}
                       onChange={handleChange}
-                      min={moment().startOf("month").format("YYYY-MM-DD")}
-                      max={
-                        moment().month() === 11
-                          ? moment().endOf("month").format("YYYY-MM-DD")
-                          : moment()
-                              .add(1, "month")
-                              .endOf("month")
-                              .format("YYYY-MM-DD")
-                      }
+                      // min={moment().startOf("month").format("YYYY-MM-DD")}
+                      // max={
+                      //   moment().month() === 11
+                      //     ? moment().endOf("month").format("YYYY-MM-DD")
+                      //     : moment()
+                      //         .add(1, "month")
+                      //         .endOf("month")
+                      //         .format("YYYY-MM-DD")
+                      // }
                     />
                     {/* )} */}
                     {errors.LVE_DATE_TO && (

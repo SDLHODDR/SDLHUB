@@ -114,15 +114,15 @@ const Leaves = () => {
       console.log("==========firstDayCurrentMonth========", formattedFirstDay);
       console.log("==========lastDayNextMonth========", formattedLastDay);
 
-      if (modalDate < firstDayCurrentMonth || modalDate > lastDayNextMonth) {
-        Swal.fire({
-          icon: "warning",
-          title: "Not Permitted",
-          text: `Leave can only be requested between ${formattedFirstDay} and ${formattedLastDay}`,
-        });
+      // if (modalDate < firstDayCurrentMonth || modalDate > lastDayNextMonth) {
+      //   Swal.fire({
+      //     icon: "warning",
+      //     title: "Not Permitted",
+      //     text: `Leave can only be requested between ${formattedFirstDay} and ${formattedLastDay}`,
+      //   });
 
-        return;
-      }
+      //   return;
+      // }
     }
 
     const formatLocalDateTime = (date) => {

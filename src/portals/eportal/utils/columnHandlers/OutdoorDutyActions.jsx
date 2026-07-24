@@ -48,11 +48,12 @@ export const renderOutdoorDutyActions = (
   return (
     <div className="d-flex align-items-center gap-2 flex-wrap">
 
-      {disableEditDelete ? (
+      {/* {disableEditDelete ? (
         <span className="text-muted small">**</span>
       ) : (
-        <>
+        <> */}
           {/* Edit */}
+          {!disableEditDelete && (
           <OverlayTrigger placement="top" overlay={renderTooltip("Edit")}>
             <span className="d-inline-block">
               <Link
@@ -66,8 +67,9 @@ export const renderOutdoorDutyActions = (
               </Link>
             </span>
           </OverlayTrigger>
-
+          )}
           {/* Delete */}
+          {!disableEditDelete && (
           <OverlayTrigger placement="top" overlay={renderTooltip("Delete")}>
             <span className="d-inline-block">
               <Link
@@ -79,8 +81,9 @@ export const renderOutdoorDutyActions = (
               </Link>
             </span>
           </OverlayTrigger>
-        </>
-      )}
+         )}  
+        {/* </>
+      )} */}
 
       {/* Resend Auth */}
       {status === "R" && (
