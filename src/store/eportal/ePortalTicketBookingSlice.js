@@ -63,7 +63,7 @@ export const myActivitiesTBRSlice = createSlice({
         state.error = false;
       })
       .addCase(getTicketBookingDataResponse.fulfilled, (state, action) => {
-        console.log(action);
+        //console.log(action);
         state.loading = false;
         state.data = action.payload || [];
         state.page = action.payload.page;

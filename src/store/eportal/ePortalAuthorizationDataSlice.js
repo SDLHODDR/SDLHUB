@@ -65,7 +65,7 @@ export const myActivitiesAuthSlice = createSlice({
         state.error = false;
       })
       .addCase(getAuthDataResponse.fulfilled, (state, action) => {
-        console.log(action);
+        //console.log(action);
         // state.data = action.payload.data;
         // state.success = action.payload.data.success;
         // state.page = action.payload.data.page;

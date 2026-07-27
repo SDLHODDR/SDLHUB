@@ -11,6 +11,7 @@ const initialState = {
   successMessage: "",
   data: [],
   totalRecords: 0,
+  subtotal: 0,
 };
 
 export const getAuthroizationTaskCount = createAsyncThunk(
@@ -23,7 +24,7 @@ export const getAuthroizationTaskCount = createAsyncThunk(
       .then((response) => {
         switch (response.status) {
           case 200:
-            console.log(response)
+            //console.log(response)
             return response;
           default:
             return {
@@ -35,7 +36,7 @@ export const getAuthroizationTaskCount = createAsyncThunk(
         }
       })
       .catch((error) => {
-        console.log("error", error)
+        //console.log("error", error)
         return {
           response: "error",
           error: true,
@@ -67,8 +68,9 @@ export const authorizationCountSlice = createSlice({
         state.loading = true;
       })
       .addCase(getAuthroizationTaskCount.fulfilled, (state, action) => {
-        console.log(action);
+        //console.log(action);
         state.data = action.payload.taskscnt;
+        state.subtotal = action.payload.SUBTOTAL;
         state.success = action.payload.success;        
         state.totalRecords = action.payload.totalRecords;
         state.successMessage = "Data fetched successfully";

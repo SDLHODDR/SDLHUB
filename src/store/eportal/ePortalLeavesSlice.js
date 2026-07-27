@@ -63,7 +63,7 @@ export const myActivitiesLRSlice = createSlice({
         state.error = false;
       })
       .addCase(getLeavesDataResponse.fulfilled, (state, action) => {
-        console.log(action);
+       // console.log(action);
         state.loading = false;
         state.data = action.payload || [];
         state.page = action.payload.page;

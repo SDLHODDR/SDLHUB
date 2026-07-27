@@ -19,11 +19,12 @@ export const getOutdoorDutyDataResponse = createAsyncThunk(
   async (payload, { rejectWithValue }) => {
     try {
       const response = await eportalAPI.post(
-      EPORTAL_API.GATEPASS.GET_GP_LIST, 
-      payload, 
-      {
-        withCredentials: true,
-      });
+        EPORTAL_API.GATEPASS.GET_GP_LIST, 
+        payload, 
+        {
+          withCredentials: true,
+        }
+      );
 
       if (response.status !== 200) {
         return rejectWithValue({
@@ -63,7 +64,7 @@ export const myActivitiesODSlice = createSlice({
         state.error = false;
       })
       .addCase(getOutdoorDutyDataResponse.fulfilled, (state, action) => {
-        console.log(action);
+        //console.log(action);
         state.loading = false;
         state.data = action.payload || [];
         state.page = action.payload.page;
