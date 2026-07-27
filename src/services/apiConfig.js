@@ -17,6 +17,7 @@ export const PORTALAPI = {
 
   GATEPASS: {
     GPData: "/gatepass/gp_info_sv.php", // GP Info Data
+    GPSVData: "/gatepass/gp_sv.php", // GP Info Data
     SAVEGPData: "/gatepass/gp_save.php", // GP Info Data
     SAVEGPDataAuth: "/gatepass/gp_save.php", // GP Info Data
     EDITGPData: "/gatepass/gp_save.php", // GP Info Data
