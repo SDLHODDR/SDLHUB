@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import {
     getGPDataDetails,
+    //getGPSVDataDetails,
     saveGPData,
     saveGPDataAUTH,
     editGPData,
@@ -221,6 +222,23 @@ const OutdoorDutyModal = ({
         // }
     };
 
+    // const checkGPData = async (newValue) => {
+    //     try {
+    //         setLoading(true);
+    //         const response = await getGPSVDataDetails({
+    //             val: newValue,
+    //             id: gpData.ID || null,
+    //             emp: gpData.EMP_CODE,
+    //             gd: formData.GPASS_DATE,
+    //             getValues: true,
+    //         });
+    //         // Expecting FORM API response (not list)
+    //         return response || {};
+    //     } catch (error) {
+    //         console.error("Error fetching data:", error);
+    //     }
+    // };
+
     console.log("****************** GPData *******************", gpData);
     // Initialize Form
     // ===========================
@@ -280,7 +298,9 @@ const OutdoorDutyModal = ({
             if (bytes.length > 200) {
                 newValue = newValue.slice(0, 200); // simple cut
             }
-        }
+        } // else if (name  === "OUT_TYPE") {
+        //     checkGPData(newValue);
+        // }
 
         setFormData((prev) => ({
             ...prev,

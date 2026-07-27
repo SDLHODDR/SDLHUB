@@ -42,6 +42,20 @@ export const getGPDataDetails = async (payload = {}) => {
   return res.data.pass || [];
 };
 
+export const getGPSVDataDetails = async (payload = {}) => {
+  const res = await eportalAPI.post(
+    PORTALAPI.GATEPASS.GPSVData,
+    payload,
+    {
+      // headers: {
+      //   "X-CSRF-Token": csrfToken
+      // },
+      withCredentials: true
+    }
+  );
+  return res.data.pass || [];
+};
+
 export const saveGPData = async (payload = {}) => {
   const res = await eportalAPI.post(
     PORTALAPI.GATEPASS.SAVEGPData,

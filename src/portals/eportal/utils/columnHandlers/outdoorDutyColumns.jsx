@@ -57,8 +57,7 @@ export const outdoorDutyColumns = (handlers) => [
         field: "statusText",
         header: "Status",
         body: (rowData) => {
-            const hasAuthRemark =
-                rowData?.status === "R" && rowData?.authremarks;
+            const hasAuthRemark = rowData?.status === "R" && rowData?.authremarks;
 
             return hasAuthRemark ? (
                 <IconWithTooltip text={rowData.authremarks}>

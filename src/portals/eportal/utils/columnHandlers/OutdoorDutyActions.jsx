@@ -53,7 +53,7 @@ export const renderOutdoorDutyActions = (
       ) : (
         <> */}
           {/* Edit */}
-          {!disableEditDelete && (
+          {/* {!disableEditDelete && (
           <OverlayTrigger placement="top" overlay={renderTooltip("Edit")}>
             <span className="d-inline-block">
               <Link
@@ -67,9 +67,9 @@ export const renderOutdoorDutyActions = (
               </Link>
             </span>
           </OverlayTrigger>
-          )}
+          )} */}
           {/* Delete */}
-          {!disableEditDelete && (
+          {/* {!disableEditDelete && (
           <OverlayTrigger placement="top" overlay={renderTooltip("Delete")}>
             <span className="d-inline-block">
               <Link
@@ -81,7 +81,7 @@ export const renderOutdoorDutyActions = (
               </Link>
             </span>
           </OverlayTrigger>
-         )}  
+         )}   */}
         {/* </>
       )} */}
 
@@ -151,7 +151,7 @@ export const renderOutdoorDutyActions = (
         )}
 
       {/* Close Ticket */}
-      {status === "T" && !postRemarks && datePass > 0 && "@@"}
+      {status === "T" && !postRemarks && datePass > 0 && ""}
     </div>
   );
 };
