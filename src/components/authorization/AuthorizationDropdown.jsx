@@ -3,9 +3,9 @@ import { useSelector } from "react-redux";
 
 const TASK_CONFIG = {
   109: { icon: "ti-inbox", badgeClass: "badge-danger", active: true },
-  346: { icon: "ti-star", badgeClass: "", active: false },
-  349: { icon: "ti-rocket", badgeClass: "", active: false },
-  357: { icon: "ti-file", badgeClass: "", active: false },
+  346: { icon: "ti-star", badgeClass: "badge-danger", active: false },
+  349: { icon: "ti-rocket", badgeClass: "badge-danger", active: false },
+  357: { icon: "ti-file", badgeClass: "badge-danger", active: false },
 };
 
 const DEFAULT_TASK_CONFIG = {
@@ -60,9 +60,12 @@ const ActivityItem = ({ item }) => {
 const AuthorizationDropdown = () => {
   const [bellOpen, setBellOpen] = useState(false);
   const [activitiesOpen, setActivitiesOpen] = useState(true);
+  const [authBellCount, setAuthBellCount] = useState(0);
   const wrapperRef = useRef(null);
 
   const authState = useSelector((state) => state.eportalAuthCounts.data);
+   const successCnt = useSelector((state) => state.eportalAuthCounts.success);
+  const countTotalData = useSelector((state) => state.eportalAuthCounts.subtotal);
   const activities = useMemo(() => normalizeActivities(authState), [authState]);
 
   const toggleBell = useCallback(() => setBellOpen((prev) => !prev), []);
@@ -73,6 +76,10 @@ const AuthorizationDropdown = () => {
       return undefined;
     }
 
+    if (successCnt && countTotalData) {
+      setAuthBellCount(countTotalData || 0);
+    }
+
     const handleClickOutside = (event) => {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
         setBellOpen(false);
@@ -81,12 +88,20 @@ const AuthorizationDropdown = () => {
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [bellOpen]);
+  }, [bellOpen, successCnt, countTotalData]);
+
+  // console.log("==========successCnt inside dropdown===========", successCnt);
+  // console.log("==========authBellCount inside dropdown===========", authBellCount);
+  // console.log("==========countTotalData inside dropdown===========", countTotalData);
+
 
   return (
     <li className="nav-item main-drop profile-nav" ref={wrapperRef} style={{ position: "relative" }}>
       <button type="button" className="nav-link btn btn-link p-0" onClick={toggleBell}>
         <i className="ti ti-bell"></i>
+        {successCnt && (
+          <span className="badge rounded-pill badge-danger">{countTotalData}</span>
+        )}
       </button>
 
       {bellOpen && (

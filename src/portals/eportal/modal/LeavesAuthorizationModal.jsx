@@ -52,7 +52,7 @@ const LeavesAuthorizationModal = ({
     try {
       const latestData = formData;
 
-      console.log("---------Reject request -------", latestData);
+      //console.log("---------Reject request -------", latestData);
       const response = await rejectLRData({
         ...latestData,
         authForm: true,
@@ -75,7 +75,7 @@ const LeavesAuthorizationModal = ({
   const handleAuthorize = async () => {
     try {
       const latestData = formData;
-      console.log("---------Authorize request -------", latestData);
+      //console.log("---------Authorize request -------", latestData);
       const response = await authLRData({
         ...latestData,
         authForm: true,
@@ -105,7 +105,7 @@ const LeavesAuthorizationModal = ({
     E: "End Of The Day",
   };
 
-  console.log("---------****** FormData *********-------------", formData);
+  //console.log("---------****** FormData *********-------------", formData);
 
   return (
     <>

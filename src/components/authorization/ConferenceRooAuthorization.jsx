@@ -231,8 +231,8 @@ const handleSearch = (value) => {
 // ROW CLICK → MODAL
 // =========================
   const handleRowClick = (row) => {
-    console.log("=========mdalMap=======", TASK_MODAL_MAP[tabId]);
-    console.log("----------ROWDATA-----------", row );
+    //console.log("=========mdalMap=======", TASK_MODAL_MAP[tabId]);
+    //console.log("----------ROWDATA-----------", row );
     const taskEmployeeConfig = {
         bookByName: row.BOOK_BY_NAME,
         room: row.original?.DETAILS?.ROOM_LABEL || "-",
@@ -255,13 +255,13 @@ const handleSearch = (value) => {
                 book_by_name: row.original?.DETAILS?.BOOK_BY_NAME || "",
     };
 
-    console.log("----------taskEmployeeConfig-----------", taskEmployeeConfig );
+    //console.log("----------taskEmployeeConfig-----------", taskEmployeeConfig );
 
     const modalMap = TASK_MODAL_MAP[357];
     if (!modalMap) return;
 
     //const status = row.original?.STATUS;
-    console.log("=========mdalMap=======", modalMap);
+    //console.log("=========mdalMap=======", modalMap);
     setModalConfig({
         isOpen: true,
         mode: "auth",
@@ -388,7 +388,7 @@ const handleSearch = (value) => {
           <ConferenceRoomAuthorizationModal
               formSettings={modalConfig}
               onSuccess={() => {
-                  console.log("Refreshing this table...");
+                  //console.log("Refreshing this table...");
                   setRefreshKey(prev => prev + 1);
               }}
               onClose={closeModal}

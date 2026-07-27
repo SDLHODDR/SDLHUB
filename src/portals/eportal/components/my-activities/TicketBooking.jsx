@@ -89,7 +89,7 @@ const TicketBooking = () => {
       const diffTime = modalDate - currentDate;
       const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
-      console.log("==========diffDays========", diffDays);
+      //console.log("==========diffDays========", diffDays);
 
       if (diffDays < 0) {
         // modalDate is before today → block it

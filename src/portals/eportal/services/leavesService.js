@@ -114,7 +114,7 @@ export const rejectLRData = async (payload = {}) => {
 };
 
 export const deleteLRData = async (payload = {}) => {
-  console.log("---------------deleteTBRData---------------", payload);
+  //console.log("---------------deleteTBRData---------------", payload);
   const res = await eportalAPI.post(
     PORTALAPI.LEAVEREQUEST.SAVELRData,
     payload,
@@ -122,7 +122,7 @@ export const deleteLRData = async (payload = {}) => {
       withCredentials: true
     }
   );
-  console.log("---------------deresponse leteTBRData---------------", res);
+  //console.log("---------------deresponse leteTBRData---------------", res);
   return res.data || [];
 };
 

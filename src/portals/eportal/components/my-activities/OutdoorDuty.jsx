@@ -57,7 +57,7 @@ const OutdoorDuty = () => {
       mounted = false;
     };
   }, [outdoorDutydata]);
-  console.log("=====", outdoorDutydata);
+  //console.log("=====", outdoorDutydata);
  
 
   /* ================= SEARCH FILTER ================= */
@@ -81,7 +81,7 @@ const OutdoorDuty = () => {
 
   const openModal = (config = {}) => {
     setLoading(true);
-    console.log("=======config========", config);
+    //console.log("=======config========", config);
     if (config.modalDate) {
       const currentDate = new Date();
       const modalDate = new Date(config.modalDate);
@@ -105,7 +105,7 @@ const OutdoorDuty = () => {
       }
     }
 
-    console.log("========== config postRemarks ================", config);
+    //console.log("========== config postRemarks ================", config);
     setModalState({
       isOpen: true,
       mode: config.mode || "create",
@@ -140,9 +140,9 @@ const OutdoorDuty = () => {
   };
 
   const handleSuccess = () => {
-    console.log(
-      "----------------OutdoorDuty.jsx: handleSuccess called----------------",
-    );
+    // console.log(
+    //   "----------------OutdoorDuty.jsx: handleSuccess called----------------",
+    // );
     dispatch(getOutdoorDutyDataResponse());
     // refresh GenericDataTable (Add/Edit/Delete flow)
     setRefreshKey((prev) => prev + 1);
@@ -158,8 +158,8 @@ const OutdoorDuty = () => {
   });
   const columns = outdoorDutyColumns(handlers);
 
-  console.log("==============ListData===========", listData);
-  console.log("==============Data===========", filteredData);
+  //console.log("==============ListData===========", listData);
+  //console.log("==============Data===========", filteredData);
 
   return (
     <>

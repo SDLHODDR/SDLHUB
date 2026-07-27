@@ -25,7 +25,7 @@ const Leaves = () => {
   useEffect(() => {
     dispatch(getLeavesDataResponse());
   }, [dispatch, refreshKey]);
-  console.log("=====", leavesData);
+  //console.log("=====", leavesData);
 
   useEffect(() => {
     let mounted = true;
@@ -55,7 +55,7 @@ const Leaves = () => {
     };
   }, [leavesData]);
 
-  console.log("=======LIstData=====", listData);
+  //console.log("=======LIstData=====", listData);
   /* ================= SEARCH FILTER ================= */
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) return listData;
@@ -76,7 +76,7 @@ const Leaves = () => {
 
   const openModal = (config = {}) => {
     setLoader(true);
-    console.log("-----------CoNFIG---------------", config);
+    //console.log("-----------CoNFIG---------------", config);
     if (config.modalDate) {
       const currentDate = new Date();
       const modalDate = new Date(config.modalDate);
@@ -111,8 +111,8 @@ const Leaves = () => {
       const formattedFirstDay = formatDate(firstDayCurrentMonth);
       const formattedLastDay = formatDate(lastDayNextMonth);
 
-      console.log("==========firstDayCurrentMonth========", formattedFirstDay);
-      console.log("==========lastDayNextMonth========", formattedLastDay);
+      //console.log("==========firstDayCurrentMonth========", formattedFirstDay);
+      //console.log("==========lastDayNextMonth========", formattedLastDay);
 
       // if (modalDate < firstDayCurrentMonth || modalDate > lastDayNextMonth) {
       //   Swal.fire({

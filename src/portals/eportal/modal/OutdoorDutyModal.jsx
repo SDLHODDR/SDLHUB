@@ -24,11 +24,11 @@ const OutdoorDutyModal = ({
     const [gpData, setGPData] = useState({});
     const [formData, setFormData] = useState({});
     const { isOpen, modalDate } = modalState;
-    console.log(
-        "===========Outdoor Duty Submitted 123=========",
-        formSettings,
-        modalState,
-    );
+    // console.log(
+    //     "===========Outdoor Duty Submitted 123=========",
+    //     formSettings,
+    //     modalState,
+    // );
     const [errors, setErrors] = useState({});
     const isReadOnly = ["view", "readonly"].includes(mode);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,12 +41,12 @@ const OutdoorDutyModal = ({
     // ===========================
     // Field Controls
     // ===========================
-    console.log(
-        "===========EnableRemarks=========",
-        isCreateMode,
-        isEditMode,
-        status,
-    );
+    // console.log(
+    //     "===========EnableRemarks=========",
+    //     isCreateMode,
+    //     isEditMode,
+    //     status,
+    // );
 
     const enableOutType = isCreateMode || isEditMode || isRejectEditMode;
     const enablePostRemarks =
@@ -120,11 +120,11 @@ const OutdoorDutyModal = ({
                         `Unable to ${isEdit ? "update" : "save"} Outdoor Duty.`,
                 });
             }
-            console.log("Submitting:", formData);
+            //console.log("Submitting:", formData);
 
-            console.log("-------Submitting:-------Payload---", payload);
+            //console.log("-------Submitting:-------Payload---", payload);
             setLoading(true);
-            console.log("==============Save Response:==========", response);
+            //console.log("==============Save Response:==========", response);
         } catch (err) {
             console.error("Submit Error:", err);
             setIsSubmitting(false); // re-enable on error
@@ -177,11 +177,11 @@ const OutdoorDutyModal = ({
                         `Unable to ${isEdit ? "update" : "save"} Outdoor Duty.`,
                 });
             }
-            console.log("Submitting:", formData);
+            //console.log("Submitting:", formData);
 
-            console.log("-------Submitting:-------Payload---", payload);
+            //console.log("-------Submitting:-------Payload---", payload);
             setLoading(true);
-            console.log("==============Save Response:==========", response);
+            //console.log("==============Save Response:==========", response);
         } catch (err) {
             console.error("Submit Error:", err);
             setIsSubmitting(false); // re-enable on error
@@ -239,7 +239,7 @@ const OutdoorDutyModal = ({
     //     }
     // };
 
-    console.log("****************** GPData *******************", gpData);
+    //console.log("****************** GPData *******************", gpData);
     // Initialize Form
     // ===========================
     useEffect(() => {
@@ -250,8 +250,8 @@ const OutdoorDutyModal = ({
         if (!gpFormData) return;
         const initial = {};
 
-        console.log("=========== gpFormData =========", gpFormData);
-        console.log("=========== gpFormData-Hidden =========", gpFormDataHdn);
+        //console.log("=========== gpFormData =========", gpFormData);
+        //console.log("=========== gpFormData-Hidden =========", gpFormDataHdn);
 
         // Main form fields
         Object.values(gpFormData).forEach((field) => {
@@ -275,13 +275,13 @@ const OutdoorDutyModal = ({
         }
 
         initial["employee_name"] = gpFormData["employee_name"];
-        console.log("=========== Initial FormData =========", initial);
+        //console.log("=========== Initial FormData =========", initial);
 
         setFormData(initial);
     }, [gpData, modalDate]);
 
-    console.log("=========== Gp Data =========", gpData);
-    console.log("=========== formData =========", formData);
+    //console.log("=========== Gp Data =========", gpData);
+    //console.log("=========== formData =========", formData);
     // ===========================
     // Handle Change
     // ===========================

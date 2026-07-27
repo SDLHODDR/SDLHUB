@@ -7,7 +7,7 @@ export const renderTicketBookingActions = (
   { sendAuth, resendAuth, updateRemarks, closeTicketTB, viewTB, editTB, deleteTB }
 ) => {
   const status = rowData.status?.trim()?.toUpperCase();
-  const postRemarks = rowData.postremarks;
+  //const postRemarks = rowData.postremarks;
   const datePass = rowData.dateTimePass;
   const id = rowData.id;
 
@@ -38,30 +38,6 @@ export const renderTicketBookingActions = (
 
   return (
     <div className="d-flex align-items-center gap-2 flex-wrap">
-      {disableEditDelete ? (
-        <span className="text-muted small"> - </span>
-      ) : (
-        <>
-          {/* Edit */}
-          <OverlayTrigger placement="top" overlay={renderTooltip("Edit")}>
-            <span className="d-inline-block">
-              <Link to="" className="p-2" onClick={(e) => handleClick(e, () => editTB(rowData))}>
-                <i className="ti ti-edit"></i>
-              </Link>
-            </span>
-          </OverlayTrigger>
-
-          {/* Delete */}
-          <OverlayTrigger placement="top" overlay={renderTooltip("Delete")}>
-            <span className="d-inline-block">
-              <Link to="" className="p-2" onClick={(e) => handleClick(e, () => deleteTB(id))}>
-                <i className="ti ti-trash text-danger"></i>
-              </Link>
-            </span>
-          </OverlayTrigger>
-        </>
-      )}
-
       {/* Resend Auth */}
       {status === "R" && (
         <OverlayTrigger placement="top" overlay={renderTooltip("Resend Auth")}>
@@ -72,8 +48,6 @@ export const renderTicketBookingActions = (
           </span>
         </OverlayTrigger>
       )}
-
-     
 
       {/* Send Auth */}
       {status === "N" && (
@@ -86,12 +60,12 @@ export const renderTicketBookingActions = (
         </OverlayTrigger>
       )}
 
-      {["A", "T", "R"].includes(status) && (
+      {/* {["A", "T", "R"].includes(status) && ( */}
+      {status !== 'X' && status !== 'N' && status !== 'T' && (
           <OverlayTrigger placement="top" overlay={renderTooltip("Close Ticket")}>
             <span>
               <Link
                 to=""
-                // onClick={(e) => handleClick(e, updateRemarks)}
                 onClick={(e) =>
                   handleClick(e, () => closeTicketTB(rowData.id), false, status)
                 }
@@ -102,8 +76,9 @@ export const renderTicketBookingActions = (
           </OverlayTrigger>
         )}
 
-      {/* Close Ticket */}
-      {status === "T" && !postRemarks && datePass > 0 && "-"}
+      {["X", "T"].includes(status) && (
+          <span> - </span>
+      )}
     </div>
   );
 };

@@ -134,7 +134,7 @@ export const rejectTBRData = async (payload = {}) => {
 };
 
 export const deleteTBRData = async (payload = {}) => {
-  console.log("---------------deleteTBRData---------------", payload);
+  //console.log("---------------deleteTBRData---------------", payload);
   const res = await eportalAPI.post(
     PORTALAPI.TICKETBOOKING.DELETETBData,
     payload,
@@ -145,7 +145,7 @@ export const deleteTBRData = async (payload = {}) => {
       withCredentials: true
     }
   );
-  console.log("---------------deresponse leteTBRData---------------", res);
+  //console.log("---------------deresponse leteTBRData---------------", res);
   return res.data || [];
 };
 

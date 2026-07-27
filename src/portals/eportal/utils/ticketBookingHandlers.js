@@ -13,6 +13,7 @@ export const createTicketBookingHandlers = ({ dispatch, handleSuccess, openModal
       title: "Send for Authorization?",
       icon: "question",
       showCancelButton: true,
+      confirmButtonText: "Yes",
     });
     if (!result.isConfirmed) return;
 

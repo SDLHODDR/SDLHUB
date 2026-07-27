@@ -54,7 +54,7 @@ const TicketBookingAuthorizationModal = ({
     try {
       const latestData = formData;
 
-      console.log("---------Reject request -------", latestData);
+      //console.log("---------Reject request -------", latestData);
       const response = await rejectTBRData({
         ...latestData,
         authForm: true,
@@ -77,7 +77,7 @@ const TicketBookingAuthorizationModal = ({
   const handleAuthorize = async () => {
     try {
       const latestData = formData;
-      console.log("---------Authorize request -------", latestData);
+      //console.log("---------Authorize request -------", latestData);
       const response = await authTBRData({
         ...latestData,
         authForm: true,

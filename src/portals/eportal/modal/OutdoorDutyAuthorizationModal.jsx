@@ -58,7 +58,7 @@ const OutdoorDutyAuthorizationModal = ({
     try {
       const latestData = formData;
 
-      console.log("---------Reject request -------", latestData);
+      //console.log("---------Reject request -------", latestData);
       const response = await rejectGPData({
         ...latestData,
         authForm: true,
@@ -81,7 +81,7 @@ const OutdoorDutyAuthorizationModal = ({
   const handleAuthorize = async () => {
     try {
       const latestData = formData;
-      console.log("---------Authorize request -------", latestData);
+      //console.log("---------Authorize request -------", latestData);
       const response = await authGPData({
         ...latestData,
         authForm: true,

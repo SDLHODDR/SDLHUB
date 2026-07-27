@@ -16,22 +16,31 @@ const HeaderTop = () => {
   const {user, logout } = useContext(AuthContext);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [headerImage, setHeaderImage] = useState("");
+  const [authBellCount, setAuthBellCount] = useState(0);
 
   const successCnt = useSelector((state) => state.eportalAuthCounts.success);
-  // const countData = useSelector((state) => state.eportalAuthCounts.data);
+  //const countData = useSelector((state) => state.eportalAuthCounts.data);
+  //const countTotalData = useSelector((state) => state.eportalAuthCounts.subtotal);
   const dispatch = useDispatch();
-  console.log("==========SuccessCNT============", successCnt);  
+
+  //console.log("==========SuccessCNT============", successCnt);  
+  //console.log("==========countTotalData============", countTotalData);
+  
   useEffect(() => {
     dispatch(getAuthroizationTaskCount());
   }, [dispatch]);
-
-  
 
   useEffect(() => {
     if (user?.profile_image) {
       setHeaderImage(`${user.profile_image}?v=${new Date().getTime()}`);
     }
   }, [user?.profile_image]);
+
+  // useEffect(() => {
+  //   if (successCnt && countTotalData) {
+  //     setAuthBellCount(countTotalData || 0);
+  //   }
+  // }, [successCnt, countTotalData]);
 
   const handleLogout = async () => {
     await logout();
@@ -112,7 +121,7 @@ const HeaderTop = () => {
     }
   };
 
-  
+  //console.log("========AuthBellCount========", authBellCount);
 
   return (
     <div className={`header ${isPolicyPage ? "policy-header" : ""}`}>

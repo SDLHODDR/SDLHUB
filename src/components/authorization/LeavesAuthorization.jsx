@@ -306,7 +306,7 @@ const LeavesAuthorization = () => {
               <SDLSearch
                 value={searchQuery}
                 onChange={setSearchQuery}
-                placeholder="Search Policies..."
+                placeholder="Search Leaves..."
                 style={{ width: "120px" }}
               />
             </div>

@@ -14,7 +14,7 @@ const AuthCFRModal = ({
     isOpen,
     onClose
 }) => {
-    console.log("===========formSettings AuthLRModal========", formSettings);
+    //console.log("===========formSettings AuthLRModal========", formSettings);
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({});
     const [hideReject, setHideReject] = useState(false);
@@ -41,7 +41,7 @@ const AuthCFRModal = ({
 
         const res = await getConferenceRoomOptions();
 
-        console.log("ROOM API RESPONSE ====", res);
+        //console.log("ROOM API RESPONSE ====", res);
 
         const options = {};
 
@@ -49,7 +49,7 @@ const AuthCFRModal = ({
           options[item.ID] = item.ROOM_LABEL;
         });
 
-        console.log("OPTIONS ====", options);
+        //console.log("OPTIONS ====", options);
 
         setRoomOptions(options);
 
@@ -145,7 +145,7 @@ const AuthCFRModal = ({
     const handleReject = async () => {
         try {
             const latestData = formData;
-            console.log("---------Reject request -------", latestData);
+            //console.log("---------Reject request -------", latestData);
             const response = await rejectCBRData({
                 ...latestData,
                 authForm: true,
@@ -176,7 +176,7 @@ const AuthCFRModal = ({
     const handleAuthorize = async () => {
         try {
             const latestData = formData;
-            console.log("---------Authorize request -------", latestData);
+            //console.log("---------Authorize request -------", latestData);
             const response = await authCBRData({
                 ...latestData,
                 authForm: true,

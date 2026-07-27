@@ -15,9 +15,9 @@ export const renderOutdoorDutyActions = (
 
   const disableEditDelete = ["A", "R", "T", "X"].includes(status);
 
-  console.log("==============DisableEditDelete======Status============", status, disableEditDelete);
+  //console.log("==============DisableEditDelete======Status============", status, disableEditDelete);
 
-  console.log("==============RowData============", postRemarks, ["A", "T"].includes(status), outType, datePass <= 0);
+  //console.log("==============RowData============", postRemarks, ["A", "T"].includes(status), outType, datePass <= 0);
 
   const renderTooltip = (text) => (props) => (
     <Tooltip id={`tooltip-${text}`} {...props}>
@@ -27,7 +27,7 @@ export const renderOutdoorDutyActions = (
 
   // safe click handler
   const handleClick = (e, action, disabled = false, status = "") => {
-    console.log("********Action Disabled*******", action, status);
+    //console.log("********Action Disabled*******", action, status);
     e.preventDefault();
     e.stopPropagation();
 
@@ -48,43 +48,6 @@ export const renderOutdoorDutyActions = (
   return (
     <div className="d-flex align-items-center gap-2 flex-wrap">
 
-      {/* {disableEditDelete ? (
-        <span className="text-muted small">**</span>
-      ) : (
-        <> */}
-          {/* Edit */}
-          {/* {!disableEditDelete && (
-          <OverlayTrigger placement="top" overlay={renderTooltip("Edit")}>
-            <span className="d-inline-block">
-              <Link
-                to=""
-                className="p-2"
-                onClick={(e) =>
-                  handleClick(e, () => editGP(rowData), disableEditDelete, status)
-                }
-              >
-                <i className="ti ti-edit"></i>
-              </Link>
-            </span>
-          </OverlayTrigger>
-          )} */}
-          {/* Delete */}
-          {/* {!disableEditDelete && (
-          <OverlayTrigger placement="top" overlay={renderTooltip("Delete")}>
-            <span className="d-inline-block">
-              <Link
-                to=""
-                className="p-2"
-                onClick={(e) => handleClick(e, deleteGP, disableEditDelete, status)}
-              >
-                <i className="ti ti-trash text-danger"></i>
-              </Link>
-            </span>
-          </OverlayTrigger>
-         )}   */}
-        {/* </>
-      )} */}
-
       {/* Resend Auth */}
       {status === "R" && (
         <OverlayTrigger placement="top" overlay={renderTooltip("Resend Auth")}>
@@ -101,7 +64,8 @@ export const renderOutdoorDutyActions = (
 
       {/* Update Remarks */}
       {!postRemarks &&
-        ["A", "T"].includes(status) &&
+        // ["A", "T"].includes(status) &&
+        ["A"].includes(status) &&
         outType &&
         datePass <= 0 && (
           <OverlayTrigger placement="top" overlay={renderTooltip("Update Remarks")}>
@@ -133,7 +97,8 @@ export const renderOutdoorDutyActions = (
         </OverlayTrigger>
       )}
 
-      {["A", "T", "R"].includes(status) &&
+      {/* {["A", "T", "R"].includes(status) && */}
+      {["A", "R"].includes(status) &&
        datePass >= 0 && (
           <OverlayTrigger placement="top" overlay={renderTooltip("Close Ticket")}>
             <span>
@@ -151,7 +116,8 @@ export const renderOutdoorDutyActions = (
         )}
 
       {/* Close Ticket */}
-      {status === "T" && !postRemarks && datePass > 0 && ""}
+      {/* {status === "T" && !postRemarks && datePass > 0 && "-"} */}
+      {status === "T" && !postRemarks && "-"}
     </div>
   );
 };

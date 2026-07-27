@@ -39,7 +39,7 @@ const ConferenceRoomAuthTable = ({ tabId }) => {
     // FETCH DATA
     // =========================
     useEffect(() => {
-        console.log("----------TabId-----------", tabId);
+        //console.log("----------TabId-----------", tabId);
         if (tabId) {
             fetchAuthRequests();
         }
@@ -58,11 +58,11 @@ const ConferenceRoomAuthTable = ({ tabId }) => {
             setAuthData([]);
             setFilteredData([]);
     
-            console.log("---------API Payload---------", {
-                task_id: tabId,
-                page: currentPage,
-                limit: rows,
-            });
+            //console.log("---------API Payload---------", {
+            //     task_id: tabId,
+            //     page: currentPage,
+            //     limit: rows,
+            // });
     
             const response = await getTaskTableData({
                 task_id: tabId,
@@ -70,12 +70,12 @@ const ConferenceRoomAuthTable = ({ tabId }) => {
                 limit: rows,
             });
     
-            console.log("---------Response API:-----------", response);
+            //console.log("---------Response API:-----------", response);
 
             // adjust according to API structure
             const result = response || [];
             const total = response.length || 0;
-            console.log("---------Result data-----------", result);
+            //console.log("---------Result data-----------", result);
             const formatted = result.map((item, index) => {    
                 const details = item.DETAILS || {};
     
@@ -121,7 +121,7 @@ const ConferenceRoomAuthTable = ({ tabId }) => {
         });
     };
 
-    console.log("=====authData=========", authData);
+    //console.log("=====authData=========", authData);
 
     // =========================
     // SYNC FILTERED DATA
@@ -155,8 +155,8 @@ const ConferenceRoomAuthTable = ({ tabId }) => {
     // ROW CLICK → MODAL
     // =========================
     const handleRowClick = (row) => {
-        console.log("=========mdalMap=======", TASK_MODAL_MAP[tabId]);
-        console.log("----------ROWDATA-----------", row );
+        //console.log("=========mdalMap=======", TASK_MODAL_MAP[tabId]);
+        //console.log("----------ROWDATA-----------", row );
         const taskEmployeeConfig = {
             bookByName: row.BOOK_BY_NAME,
             room: row.original?.DETAILS?.ROOM_LABEL || "-",
@@ -179,13 +179,13 @@ const ConferenceRoomAuthTable = ({ tabId }) => {
                     book_by_name: row.original?.DETAILS?.BOOK_BY_NAME || "",
         };
 
-        console.log("----------taskEmployeeConfig-----------", taskEmployeeConfig );
+        //console.log("----------taskEmployeeConfig-----------", taskEmployeeConfig );
 
         const modalMap = TASK_MODAL_MAP[tabId];
         if (!modalMap) return;
 
         //const status = row.original?.STATUS;
-        console.log("=========mdalMap=======", modalMap);
+        //console.log("=========mdalMap=======", modalMap);
         setModalConfig({
             isOpen: true,
             mode: "auth",
@@ -287,7 +287,7 @@ const ConferenceRoomAuthTable = ({ tabId }) => {
     return `${hours} hr ${minutes} min`;
   };
 
-    console.log("----------------Filtered------------------", filteredData);
+    //console.log("----------------Filtered------------------", filteredData);
     return (
         <>
             <div className="card table-list-card">
@@ -326,7 +326,7 @@ const ConferenceRoomAuthTable = ({ tabId }) => {
                 <AuthConferenceRoomForm
                     formSettings={modalConfig}
                     onSuccess={() => {
-                        console.log("Refreshing this table...");
+                        //console.log("Refreshing this table...");
                         setRefreshKey(prev => prev + 1);
                     }}
                     onClose={closeModal}

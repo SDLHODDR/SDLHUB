@@ -13,7 +13,8 @@ export const createOutdoorDutyHandlers = ({ dispatch, handleSuccess, openModal }
         const result = await Swal.fire({
           title: "Send for Authorization?",
           icon: "question",
-          showCancelButton: true
+          showCancelButton: true,
+          confirmButtonText: "Yes",
         });
     
         if (!result.isConfirmed) return;
@@ -94,7 +95,7 @@ export const createOutdoorDutyHandlers = ({ dispatch, handleSuccess, openModal }
       };
   
       const updateRemarks = (rowData) => {
-        console.log("============", rowData);
+        //console.log("============", rowData);
   
         openModal({
           mode: "postremark",
@@ -148,7 +149,7 @@ export const createOutdoorDutyHandlers = ({ dispatch, handleSuccess, openModal }
   
       const viewGP = (id) => openModal(null, "view", id);
       const editGP = (rowData) => {
-        console.log("============", rowData);
+        //console.log("============", rowData);
   
         openModal({
           mode: "edit",
@@ -167,7 +168,7 @@ export const createOutdoorDutyHandlers = ({ dispatch, handleSuccess, openModal }
         });
     
         if (!result.isConfirmed) return;
-        console.log("========Dleete payload=====", { deleteOD: true, delteId: id });
+        //console.log("========Dleete payload=====", { deleteOD: true, delteId: id });
         //try {
           //await deleteGPData({ deleteOD: true, delteId: id });
           const response = await deleteGPData({

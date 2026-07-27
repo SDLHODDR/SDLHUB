@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 
 const ConferenceRoomAuthorizationModal = ({ formSettings = {}, onSuccess, onClose }) => {
     const { isOpen } = formSettings;
-    console.log("==========AuthConferenceRoomForm===========", formSettings);
+    //console.log("==========AuthConferenceRoomForm===========", formSettings);
     const [open, setOpen] = useState(true);
     const [refreshKey, setRefreshKey] = useState(0);
     const [loading, setLoading] = useState(false);

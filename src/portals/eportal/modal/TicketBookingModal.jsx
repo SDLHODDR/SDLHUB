@@ -89,8 +89,8 @@ const TicketBookingModal = ({
 
     setIsSubmitting(true); // disable immediately
 
-    console.log("============ formData=======", formData);
-    console.log("============ modalState id =======", modalState);
+    //console.log("============ formData=======", formData);
+    //console.log("============ modalState id =======", modalState);
 
     try {
       const isEdit = modalState.mode === "edit";
@@ -212,7 +212,7 @@ const TicketBookingModal = ({
       // The API returns { status, pass: { var: { type: {...} } } }.
       // Unwrap "pass" here so the rest of the component can treat
       // tbData as the object that actually holds "var".
-       console.log("=============== RESPONSE ===================",response);
+       //console.log("=============== RESPONSE ===================",response);
       setTBData(response || {});
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -220,7 +220,7 @@ const TicketBookingModal = ({
   };
 
 
-    console.log("===============",tbData);
+   // console.log("===============",tbData);
   // ===========================
   // Initialize Form
   // ===========================
@@ -381,7 +381,7 @@ const TicketBookingModal = ({
     // }
     if (data.TRVL_EMP === "O" && !data.PERSON_NAME?.trim()) {
       newErrors.PERSON_NAME = "Person Name is required";
-    } else if (data.TRVL_EMP === "O" && data.PERSON_NAME && data.PERSON_NAME.trim().length > 100) {
+    } else if (data.TRVL_EMP === "O" && data.PERSON_NAME && data.PERSON_NAME.trim().length > 50) {
       newErrors.PERSON_NAME = "Person Name must not exceed 100 characters";
     }
 
@@ -539,6 +539,7 @@ const TicketBookingModal = ({
                         className={`form-control ${errors.PERSON_NAME ? "is-invalid" : ""}`}
                         name="PERSON_NAME"
                         id="PERSON_NAME"
+                        maxLength={50}
                         value={formData.PERSON_NAME || ""}
                         onChange={handleChange}
                       />

@@ -188,7 +188,7 @@ const OutdoorDutyAuthorization = () => {
   // Conditional return happens LAST, after every hook has been called
   if (loading) return <div>Loading...</div>;
 
-  console.log("===========OD Data Authorization=========", authODdata);
+  //console.log("===========OD Data Authorization=========", authODdata);
 
   return (
     <>
@@ -211,7 +211,7 @@ const OutdoorDutyAuthorization = () => {
               <SDLSearch
                 value={searchQuery}
                 onChange={setSearchQuery}
-                placeholder="Search Policies..."
+                placeholder="Search Outduties..."
                 style={{ width: "120px" }}
               />
             </div>
@@ -236,7 +236,7 @@ const OutdoorDutyAuthorization = () => {
           isOpen={true}
           onClose={closeModal}
           onSuccess={() => {
-            console.log("Refreshing this table...");
+            //console.log("Refreshing this table...");
             setRefreshKey((prev) => prev + 1);
             dispatch(getAuthroizationTaskCount()); // refetches the badge/counter
           }}

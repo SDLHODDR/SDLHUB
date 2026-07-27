@@ -22,11 +22,11 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
   const [lrData, setLRData] = useState({});
   const [formData, setFormData] = useState({});
   const { isOpen, modalDate } = modalState;
-  console.log(
-    "=========== --------- Outdoor Duty Submitted ---------- =========",
-    formSettings,
-    modalState,
-  );
+  // console.log(
+  //   "=========== --------- Outdoor Duty Submitted ---------- =========",
+  //   formSettings,
+  //   modalState,
+  // );
   const [errors, setErrors] = useState({});
   const isReadOnly = ["view", "readonly"].includes(mode);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,7 +46,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
 
   useEffect(() => {
     setLoading(true);
-    console.log("+++++=== isLeaveAllowed ========", isLeaveAllowed);
+    //console.log("+++++=== isLeaveAllowed ========", isLeaveAllowed);
     if(isLeaveAllowed){
       if (isOpen) {
         setIsSubmitting(false); // reset every time modal opens
@@ -167,11 +167,11 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
               `Unable to ${isEdit ? "update" : "save"} Leave Request.`,
           });
         }
-        console.log("Submitting:", formData);
+        //console.log("Submitting:", formData);
   
-        console.log("-------Submitting:-------Payload---", payload);
+        //console.log("-------Submitting:-------Payload---", payload);
         setLoading(true);
-        console.log("==============Save Response:==========", response);
+        //console.log("==============Save Response:==========", response);
       } catch (err) {
         console.error("Submit Error:", err);
         setIsSubmitting(false); // re-enable on error
@@ -227,11 +227,11 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
               `Unable to ${isEdit ? "update" : "save"} Leave Request.`,
           });
         }
-        console.log("Submitting:", formData);
+        //console.log("Submitting:", formData);
   
-        console.log("-------Submitting:-------Payload---", payload);
+        //console.log("-------Submitting:-------Payload---", payload);
         setLoading(true);
-        console.log("==============Save Response:==========", response);
+        //console.log("==============Save Response:==========", response);
       } catch (err) {
         console.error("Submit Error:", err);
         setIsSubmitting(false); // re-enable on error
@@ -269,7 +269,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
   };
 
   const fetchLRData = async () => {
-    console.log("======Params========", modalDate);
+    //console.log("======Params========", modalDate);
     try {
       setLoading(true);
       const response = await getLRDataDetails({
@@ -282,7 +282,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
         modal_date: formatLocalDateTime(modalDate)
       });
 
-      console.log("================= Response ------", response);
+      //console.log("================= Response ------", response);
       setLRData(response || {});
       setLeaveBal(response.LEAVEBALARR || {});
     } catch (error) {
@@ -292,13 +292,13 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
     }
   };
 
-  console.log("================= lrData ------", lrData);
+  //console.log("================= lrData ------", lrData);
 
   // ===========================
   // Prepare Config
   // ===========================
   const config = lrData?.var || { type: {} };
-  console.log("========= COnfig ===========", config);
+  //console.log("========= COnfig ===========", config);
 
   const getByteLength = (str) => new TextEncoder().encode(str || "").length;
 
@@ -314,7 +314,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
   // Initialize Form Data
   // ===========================
   useEffect(() => {
-    console.log("-----------+++++ lrData +++++-------------", lrData);
+    //console.log("-----------+++++ lrData +++++-------------", lrData);
     const types = lrData?.var?.type;
     if (!types) return;
 
@@ -337,7 +337,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
         }
       }
     }
-    console.log("===============initial==============", initial);
+    //console.log("===============initial==============", initial);
     // Priority: API date → modalDate
     // Dates
     //const rawFrom = initial["LVE_DATE_FR"] || modalDate;
@@ -385,18 +385,18 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
     }
     if (initial.NO_DAYS === "") initial.NO_DAYS = 1;
 
-    console.log("=========== Date ============", initial);
+    //console.log("=========== Date ============", initial);
     setFormData(initial);
   }, [lrData, modalDate, mid, leaveBal]);
 
   // ================= MAIN VALIDATION =================
   const validateLeaveStatus = async (dataNw) => {
-    console.log("=========== dataNw++++++ =========", dataNw);
-    console.log("ParseFloat noDaysNww =========", parseFloat(dataNw.noDaysNww));
-    console.log("ParseFloat NET_BAL =========", parseFloat(dataNw.NET_BAL));
-    console.log("ParseFloat UNAUTH_BAL =========", parseFloat(dataNw.UNAUTH_BAL));
-    console.log("ParseFloat SUB =========", parseFloat(dataNw.NET_BAL) - parseFloat(dataNw.UNAUTH_BAL));
-    console.log("ParseFloat COm =========", parseFloat(dataNw.noDaysNww) > parseFloat(dataNw.NET_BAL) - parseFloat(dataNw.UNAUTH_BAL));
+    // console.log("=========== dataNw++++++ =========", dataNw);
+    // console.log("ParseFloat noDaysNww =========", parseFloat(dataNw.noDaysNww));
+    // console.log("ParseFloat NET_BAL =========", parseFloat(dataNw.NET_BAL));
+    // console.log("ParseFloat UNAUTH_BAL =========", parseFloat(dataNw.UNAUTH_BAL));
+    // console.log("ParseFloat SUB =========", parseFloat(dataNw.NET_BAL) - parseFloat(dataNw.UNAUTH_BAL));
+    // console.log("ParseFloat COm =========", parseFloat(dataNw.noDaysNww) > parseFloat(dataNw.NET_BAL) - parseFloat(dataNw.UNAUTH_BAL));
     if (dataNw.LVE_CODE !== "LWP") {
       // if (parseFloat(dataNw.noDaysNww) > parseFloat(dataNw.NET_BAL) - parseFloat(dataNw.UNAUTH_BAL)
       // ) {
@@ -424,8 +424,8 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
               });
 
               if (responseOL?.data?.data === 1) {
-                console.log("----------CL RESPONSE---------", responseOL);
-                console.log("diff days :", Difference_In_Days);
+                //console.log("----------CL RESPONSE---------", responseOL);
+                //console.log("diff days :", Difference_In_Days);
                 if (Difference_In_Days <= 5) {
                   //Diable save button - Pending
                   return { status: false, message: "Note: Optional leave has to be informed atleast 6 days prior!" }; 
@@ -565,7 +565,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
       updated.NET_BAL = selected?.[1] ?? 0;
     }
 
-    console.log("============= 1111233444 Updated 1233456666=============", updated);
+    //console.log("============= 1111233444 Updated 1233456666=============", updated);
     const lveCodeNw       = updated.LVE_CODE;
     const lveFromNw       = updated.LVE_DATE_FR;
     const lveToNw         = updated.LVE_DATE_TO;
@@ -576,17 +576,17 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
     const noDaysNw        = millisBetweenNw / 1000 / 60 / 60 / 24 + 1;
     const leaveStartNw    = updated.LEAVE_STARTS;
     const leaveEndNw      = updated.LEAVE_ENDS;
-    console.log(
-      "--1--lveCodeNw: ", lveCodeNw, 
-      "--2--lveFromNw: ", lveFromNw, 
-      "--3--lveToNw: ", lveToNw,
-      "--4--startDayNw: ", startDayNw, 
-      "--5--endDayNw: ", endDayNw, 
-      "--6--millisBetweenNw: ", millisBetweenNw, 
-      "--7--daysNw: ", daysNw, 
-      "--8--noDaysNw: ", noDaysNw, 
-      "--9--leaveStartNw: ", leaveStartNw, 
-      "--10--leaveEndNw: ", leaveEndNw);
+    // console.log(
+    //   "--1--lveCodeNw: ", lveCodeNw, 
+    //   "--2--lveFromNw: ", lveFromNw, 
+    //   "--3--lveToNw: ", lveToNw,
+    //   "--4--startDayNw: ", startDayNw, 
+    //   "--5--endDayNw: ", endDayNw, 
+    //   "--6--millisBetweenNw: ", millisBetweenNw, 
+    //   "--7--daysNw: ", daysNw, 
+    //   "--8--noDaysNw: ", noDaysNw, 
+    //   "--9--leaveStartNw: ", leaveStartNw, 
+    //   "--10--leaveEndNw: ", leaveEndNw);
       let noDaysNww;
 
     if ((leaveStartNw === "M" && leaveEndNw === "E") ||  (leaveStartNw === "B" && leaveEndNw === "M")) {
