@@ -192,43 +192,46 @@ const ProfileMaintenance = () => {
     try {
       setLoading(true);
 
-      const data = await getProfileAccess(profileId);
+      const res = await getProfileAccess(profileId);
+      const access = res.data;
 
-      setMenus(data.menus || []);
-      setTasks(data.tasks || []);
-      setDashboards(data.dashboards || []);
+      setMenus(access.menus || []);
+      setTasks(access.tasks || []);
+      setDashboards(access.dashboards || []);
 
-      setMenuAccess(data.menuAccess || {});
-      setSubmenuAccess(data.submenuAccess || {});
-      setTaskAccess(data.taskAccess || []);
-      setDashAccess(data.dashAccess || []);
-    } catch (err) {
-      console.error(err);
+      setMenuAccess(access.menuAccess || {});
+      setSubmenuAccess(access.submenuAccess || {});
+      setTaskAccess((access.taskAccess || []).map(Number));
+      setDashAccess((access.dashAccess || []).map(Number));
     } finally {
       setLoading(false);
     }
   };
 
-
   useEffect(() => {
-  if (hasFetchedProfiles.current) return;
+    if (hasFetchedProfiles.current) return;
 
     hasFetchedProfiles.current = true;
 
     const fetchProfiles = async () => {
       try {
-        const data = await getProfiles();
+        const response = await getProfiles();
 
-        setProfiles(
-          data.map((p) => ({
-            value: p.PROFILE_ID,
-            label: p.PROFILE_DESC,
-          }))
-        );
+        if (response?.status) {
+          setProfiles(
+            (response.data || []).map((p) => ({
+              value: p.PROFILE_ID,
+              label: p.PROFILE_DESC,
+            })),
+          );
+        } else {
+          console.error(response?.message);
+        }
       } catch (err) {
         console.error(err);
       }
     };
+
     fetchProfiles();
   }, []);
 
@@ -304,21 +307,25 @@ const ProfileMaintenance = () => {
   /* ---------------- TASK CHECKBOX ---------------- */
 
   const toggleTask = (taskId) => {
-    if (taskAccess.includes(taskId)) {
-      setTaskAccess(taskAccess.filter((t) => t !== taskId));
-    } else {
-      setTaskAccess([...taskAccess, taskId]);
-    }
+    taskId = Number(taskId);
+
+    setTaskAccess((prev) =>
+      prev.includes(taskId)
+        ? prev.filter((id) => id !== taskId)
+        : [...prev, taskId],
+    );
   };
 
   /* ---------------- DASH CHECKBOX ---------------- */
 
   const toggleDash = (dashId) => {
-    if (dashAccess.includes(dashId)) {
-      setDashAccess(dashAccess.filter((d) => d !== dashId));
-    } else {
-      setDashAccess([...dashAccess, dashId]);
-    }
+    dashId = Number(dashId);
+
+    setDashAccess((prev) =>
+      prev.includes(dashId)
+        ? prev.filter((id) => id !== dashId)
+        : [...prev, dashId],
+    );
   };
 
   /* ---------------- SAVE MENU ---------------- */
@@ -562,14 +569,16 @@ const ProfileMaintenance = () => {
         closeAddProfile();
 
         //reload dropdown
-        const data = await getProfiles();
+        const response = await getProfiles();
 
-        setProfiles(
-          data.map((p) => ({
-            value: p.PROFILE_ID,
-            label: p.PROFILE_DESC,
-          })),
-        );
+        if (response?.status) {
+          setProfiles(
+            (response.data || []).map((p) => ({
+              value: p.PROFILE_ID,
+              label: p.PROFILE_DESC,
+            })),
+          );
+        }
       } else {
         notifyError(
           res.message || PROFILE_MAINTENANCE_MESSAGES.PROFILE_ADD_FAILED,
@@ -580,11 +589,11 @@ const ProfileMaintenance = () => {
     } finally {
       setSavingProfile(false);
     }
-  }
+  };
 
-const resetProfileData = () => {
+  const resetProfileData = () => {
     setProfileId(null);
-};
+  };
 
   return (
     <>
@@ -629,7 +638,7 @@ const resetProfileData = () => {
                 type="button"
                 className="btn btn-outline-secondary"
                 disabled={!profileId}
-                 onClick={resetProfileData}
+                onClick={resetProfileData}
               >
                 <i className="ti ti-refresh me-1"></i>
                 Reset
@@ -924,7 +933,7 @@ const resetProfileData = () => {
                               id={`task-${task.ID}`}
                               className="form-check-input"
                               type="checkbox"
-                              checked={taskAccess.includes(task.ID)}
+                              checked={taskAccess.includes(Number(task.ID))}
                               onChange={() => toggleTask(task.ID)}
                             />
 
@@ -994,7 +1003,8 @@ const resetProfileData = () => {
                               id={`dash-${dash.ID}`}
                               className="form-check-input"
                               type="checkbox"
-                              checked={dashAccess.includes(dash.ID)}
+                              //checked={dashAccess.includes(dash.ID)}
+                              checked={dashAccess.includes(Number(dash.ID))}
                               onChange={() => toggleDash(dash.ID)}
                             />
 

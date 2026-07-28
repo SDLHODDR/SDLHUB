@@ -37,7 +37,11 @@ export const checkSession = () => {
   })
     .catch((err) => {
       // Ignore cancelled requests
-      if (err?.code === "ERR_CANCELED") {
+      if (err?.status === 401) {
+        return null;
+      }
+
+      if (err?.cancelled) {
         return null;
       }
 

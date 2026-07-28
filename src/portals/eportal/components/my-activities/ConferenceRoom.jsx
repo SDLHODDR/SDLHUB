@@ -48,12 +48,15 @@ const ConferenceRoom = () => {
       const res = await getConferenceRooms();
 
       if (res?.status) {
-        setBookings(Array.isArray(res.data) ? res.data : []);
+        const bookings = res?.data?.data || [];
+
+        setBookings(Array.isArray(bookings) ? bookings : []);
       } else {
         setBookings([]);
       }
     } catch (err) {
       console.error("Conference rooms load failed:", err);
+
       setBookings([]);
     } finally {
       setLoading(false);

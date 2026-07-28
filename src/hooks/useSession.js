@@ -1,7 +1,6 @@
-// src/hooks/useSession.js
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { checkSession } from "../services/authService";
 
 export function useSession() {
   const navigate = useNavigate();
@@ -10,23 +9,23 @@ export function useSession() {
   const [checkingSession, setCheckingSession] = useState(true);
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/session_check.php`, {
-        withCredentials: true,
-      })
-      .then((res) => {
-        if (res.data?.logged_in) {
+    const verifySession = async () => {
+      try {
+        const res = await checkSession();
+
+        if (res?.status && res?.data?.logged_in) {
           setUser(res.data);
         } else {
           navigate("/login", { replace: true });
         }
-      })
-      .catch(() => {
+      } catch (err) {
         navigate("/login", { replace: true });
-      })
-      .finally(() => {
+      } finally {
         setCheckingSession(false);
-      });
+      }
+    };
+
+    verifySession();
   }, [navigate]);
 
   return { user, checkingSession };

@@ -37,38 +37,84 @@ export const Form12BTab = ({ editable }) => {
        FETCH DATA if exists
     ========================================= */
     const fetchFormData = async () => {
-        try {
-            const res = await getForm12B();
+    try {
+        const res = await getForm12B();
 
-            if (res.status) {
-                setEligible(res.eligible);
+        if (res?.status) {
+        const {
+            eligible = true,
+            form12B = {},
+        } = res.data || {};
 
-                if (res.data?.ID) {
-                    setFormData({
-                        id: res.data.ID || "",
+       // setEligible(eligible);
+        setEligible(true);
 
-                        previousEmployerName: res.data.NAME_PREVEMP || "",
-                        previousEmployerAddress: res.data.ADDRESS_PREVEMP || "",
-                        tanNumber: res.data.TAN_PREVEMP || "",
-                        panNumber: res.data.PAN_PREVEMP || "",
+        if (form12B?.ID) {
+            setFormData({
+            id: form12B.ID || "",
 
-                        fromDate: res.data.FROM_PREVEMP || "",
-                        toDate: res.data.TO_PREVEMP || "",
+            previousEmployerName:
+                form12B.NAME_PREVEMP || "",
 
-                        totalSalary: res.data.TOTAL_SALARY || "",
-                        hra: res.data.HRA_CA_OTH_ALLOWANCE || "",
-                        perquisites: res.data.PERQUISITE_AND_PF || "",
-                        total: res.data.TOTAL_5_6_7 || "",
-                        insurance: res.data.AMOUNT_DEDUCTED_LI_PF || "",
-                        tds: res.data.TOTAL_TAX_DEDUCTED || "",
-                        remarks: res.data.REMARKS || "",
-                    });
-                }
-            }
-        } catch (error) {
-            console.error(error);
-            notifyError(ITR_MESSAGES.FAILED_LOAD_FORM12B);
+            previousEmployerAddress:
+                form12B.ADDRESS_PREVEMP || "",
+
+            tanNumber:
+                form12B.TAN_PREVEMP || "",
+
+            panNumber:
+                form12B.PAN_PREVEMP || "",
+
+            fromDate:
+                form12B.FROM_PREVEMP || "",
+
+            toDate:
+                form12B.TO_PREVEMP || "",
+
+            totalSalary:
+                form12B.TOTAL_SALARY || "",
+
+            hra:
+                form12B.HRA_CA_OTH_ALLOWANCE || "",
+
+            perquisites:
+                form12B.PERQUISITE_AND_PF || "",
+
+            total:
+                form12B.TOTAL_5_6_7 || "",
+
+            insurance:
+                form12B.AMOUNT_DEDUCTED_LI_PF || "",
+
+            tds:
+                form12B.TOTAL_TAX_DEDUCTED || "",
+
+            remarks:
+                form12B.REMARKS || "",
+            });
+        } else {
+            setFormData({
+            id: "",
+            previousEmployerName: "",
+            previousEmployerAddress: "",
+            tanNumber: "",
+            panNumber: "",
+            fromDate: "",
+            toDate: "",
+            totalSalary: "",
+            hra: "",
+            perquisites: "",
+            total: "",
+            insurance: "",
+            tds: "",
+            remarks: "",
+            });
         }
+        }
+    } catch (error) {
+        console.error(error);
+        notifyError(ITR_MESSAGES.FAILED_LOAD_FORM12B);
+    }
     };
 
     useEffect(() => {
@@ -184,22 +230,33 @@ export const Form12BTab = ({ editable }) => {
     ========================================= */
 
     const handleSave = async () => {
+    if (!eligible) {
+        notifyWarning(ITR_MESSAGES.FORM12B_NOT_ELIGIBLE);
+        return;
+    }
 
-        if (!eligible) {
-            notifyWarning(ITR_MESSAGES.FORM12B_NOT_ELIGIBLE);
-            return;
+    if (!validateForm()) {
+        return;
+    }
+
+    try {
+        const res = await saveForm12B(formData);
+
+        if (res?.status) {
+        notifySuccess(
+            res?.message || ITR_MESSAGES.FORM12B_SAVED
+        );
+
+        await fetchFormData();
+        } else {
+        notifyError(
+            res?.message || ITR_MESSAGES.FORM12B_SAVE_FAILED
+        );
         }
-
-        if (!validateForm()) return;
-
-        try {
-            await saveForm12B(formData);
-            notifySuccess(ITR_MESSAGES.FORM12B_SAVED);
-            await fetchFormData();
-        } catch (error) {
-            console.error(error);
-            notifyError(ITR_MESSAGES.FORM12B_SAVE_FAILED);
-        }
+    } catch (error) {
+        console.error(error);
+        notifyError(ITR_MESSAGES.FORM12B_SAVE_FAILED);
+    }
     };
 
     const fields = [

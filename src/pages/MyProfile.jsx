@@ -50,10 +50,11 @@ const MyProfile = () => {
         const res = await getProfile();
 
         if (res?.status) {
-          const emp = res.employee || {};
+          const data = res.data || {};
+          const emp = data.employee || {};
 
           setProfile({
-            ...res,
+            ...data,
             employee: {
               ...emp,
               profile_image:
@@ -62,9 +63,12 @@ const MyProfile = () => {
                   : emp.PROFILE_IMAGE?.image || null,
             },
           });
+        } else {
+          notifyError(res?.message || "Unable to load profile.");
         }
       } catch (err) {
-        console.log(err);
+        console.error(err);
+        notifyError("Unable to load profile.");
       } finally {
         setLoading(false);
       }
@@ -540,7 +544,7 @@ const MyProfile = () => {
     const res = await uploadProfileImage(formData);
 
     if (res?.status) {
-      const updatedImage = res.image;
+      const updatedImage = res?.data?.image || "";
 
       // PROFILE PAGE
       setProfile((prev) => ({

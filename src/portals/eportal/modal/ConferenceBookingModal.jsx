@@ -95,12 +95,21 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
     const fetchDropdownData = async () => {
       try {
         const res = await getBookingDropdownData();
-        if (res.status) {
-          setBookingUsers(res.employees || []);
-          setDivisions(res.divisions || []);
+
+        if (res?.status) {
+          const { employees = [], divisions = [] } = res.data || {};
+
+          setBookingUsers(Array.isArray(employees) ? employees : []);
+          setDivisions(Array.isArray(divisions) ? divisions : []);
+        } else {
+          setBookingUsers([]);
+          setDivisions([]);
         }
       } catch (err) {
         console.error("Dropdown fetch error:", err);
+
+        setBookingUsers([]);
+        setDivisions([]);
       }
     };
 

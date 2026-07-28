@@ -1,21 +1,16 @@
-import React, {
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
-} from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 
 import {
   saveDeductions,
   getDeductionData,
-}  from "../../../../services/itReturnService";
+} from "../../../../services/itReturnService";
 
 import {
   notifySuccess,
   notifyError,
 } from "../../../../../../services/alertService";
 
-import {ITR_MESSAGES} from "../../../../constants/itrMessages";
+import { ITR_MESSAGES } from "../../../../constants/itrMessages";
 
 const DeductionsTab = ({ onDataSaved, editable }) => {
   const [deductions, setDeductions] = useState([]);
@@ -31,7 +26,6 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
   // PREVENT DUPLICATE API CALLS
   const hasFetched = useRef(false);
 
-
   /* =========================================
      FETCH DEDUCTIONS
   ========================================= */
@@ -42,27 +36,47 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
 
       const res = await getDeductionData();
 
-      if (res?.status && Array.isArray(res.data)) {
+      if (res?.status) {
+        const {
+          financial_year = "",
+          emp_code = "",
+          deductions = [],
+        } = res.data || {};
+
+        setFinancialYear(financial_year);
+        setEmpCode(emp_code);
+
         const formattedData = [];
 
-        setFinancialYear(res.financial_year || "");
-        setEmpCode(res.emp_code || "");
-
-        res.data.forEach((section) => {
-          section.records.forEach((item) => {
+        deductions.forEach((section) => {
+          (section.records || []).forEach((item) => {
             formattedData.push({
               ...item,
+
+              // section information
               sub_section: section.section_name,
+
+              // normalize field names for the UI
+              id: item.ITAX_ID,
+              description: item.ITAX_DESC,
+              limit: item.LIMIT,
+              amount: item.AMOUNT,
+              attachments: item.ATTACHMENTS,
             });
           });
         });
 
         setDeductions(formattedData);
       } else {
+        setFinancialYear("");
+        setEmpCode("");
         setDeductions([]);
       }
     } catch (error) {
       console.error("Error fetching deductions:", error);
+
+      setFinancialYear("");
+      setEmpCode("");
       setDeductions([]);
     } finally {
       setLoading(false);
@@ -90,7 +104,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
     if (!fileName) return "#";
 
     return `/assets/img/incometax/${financialYear}/${empCode}/${encodeURIComponent(
-      fileName
+      fileName,
     )}?t=${Date.now()}`;
   };
 
@@ -137,7 +151,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
     setDeductions(finalUpdated);
   };
 
-/*
+  /*
 | Pair       | Meaning                                               |
 | ---------- | ----------------------------------------------------- |
 | `[21, 93]` | If 21 is filled, clear 93. If 93 is filled, clear 21. |
@@ -169,9 +183,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
     }
 
     const updated = deductions.map((item) =>
-      item.ITAX_ID === itaxId
-        ? { ...item, file }
-        : item
+      item.ITAX_ID === itaxId ? { ...item, file } : item,
     );
 
     setDeductions(updated);
@@ -214,16 +226,10 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
       const formData = new FormData();
 
       deductions.forEach((item) => {
-        formData.append(
-          `DEDN[${item.ITAX_ID}]`,
-          item.AMOUNT || ""
-        );
+        formData.append(`DEDN[${item.ITAX_ID}]`, item.AMOUNT || "");
 
         if (item.file) {
-          formData.append(
-            `DEDN_DOC[${item.ITAX_ID}]`,
-            item.file
-          );
+          formData.append(`DEDN_DOC[${item.ITAX_ID}]`, item.file);
         }
       });
 
@@ -241,27 +247,20 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
     }
   };
 
-  const groupedData = useMemo(
-    () => groupBySection(),
-    [deductions]
-  );
+  const groupedData = useMemo(() => groupBySection(), [deductions]);
 
   if (loading) {
     return <div>Loading deductions...</div>;
   }
 
   return (
+    <>
+      {!editable && (
+        <div className="alert alert-warning mb-3">{ITR_MESSAGES.ITR_EDIT}</div>
+      )}
 
-  <> 
-    {!editable && (
-    <div className="alert alert-warning mb-3">
-        {ITR_MESSAGES.ITR_EDIT}
-    </div>
-  )}
-
-    <div>
-      {Object.keys(groupedData).map(
-        (section, sectionIndex) => (
+      <div>
+        {Object.keys(groupedData).map((section, sectionIndex) => (
           <div
             className="card mb-4 border-0 shadow-sm"
             key={sectionIndex}
@@ -316,10 +315,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
                             fontWeight: 500,
                           }}
                         >
-                          ₹{" "}
-                          {Number(
-                            item.LIMIT
-                          ).toLocaleString()}
+                          ₹ {Number(item.LIMIT).toLocaleString()}
                         </small>
                       ) : null}
                     </label>
@@ -333,16 +329,11 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
                         className="form-control"
                         placeholder="Amount"
                         value={
-                          deductions.find(
-                            (d) =>
-                              d.ITAX_ID === item.ITAX_ID
-                          )?.AMOUNT || ""
+                          deductions.find((d) => d.ITAX_ID === item.ITAX_ID)
+                            ?.AMOUNT || ""
                         }
                         onChange={(e) =>
-                          handleAmountChange(
-                            item.ITAX_ID,
-                            e.target.value
-                          )
+                          handleAmountChange(item.ITAX_ID, e.target.value)
                         }
                         style={{
                           border: "1px solid #d7dee8",
@@ -355,15 +346,11 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
                         type="file"
                         className="form-control"
                         accept="application/pdf"
-                        ref={(el) =>
-                          (fileInputRefs.current[
-                            item.ITAX_ID
-                          ] = el)
-                        }
+                        ref={(el) => (fileInputRefs.current[item.ITAX_ID] = el)}
                         onChange={(e) =>
                           handleFileChange(
                             item.ITAX_ID,
-                            e.target.files?.[0] || null
+                            e.target.files?.[0] || null,
                           )
                         }
                         style={{
@@ -379,9 +366,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
                   <div className="col-md-1 text-center">
                     {item.ATTACHMENTS ? (
                       <a
-                        href={getAttachmentUrl(
-                          item.ATTACHMENTS
-                        )}
+                        href={getAttachmentUrl(item.ATTACHMENTS)}
                         target="_blank"
                         rel="noopener noreferrer"
                         title="View Attachment"
@@ -398,44 +383,43 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
               ))}
             </div>
           </div>
-        )
-      )}
+        ))}
 
-      {/* Buttons */}
-       {isEditable && (
-      <div className="text-center mt-4">
-        <button
-          className="btn me-2"
-          onClick={handleSave}
-          style={{
-            background: "#FE9F43",
-            color: "#fff",
-            fontWeight: "600",
-            padding: "10px 30px",
-            borderRadius: "6px",
-            border: "none",
-          }}
-        >
-          Save
-        </button>
+        {/* Buttons */}
+        {isEditable && (
+          <div className="text-center mt-4">
+            <button
+              className="btn me-2"
+              onClick={handleSave}
+              style={{
+                background: "#FE9F43",
+                color: "#fff",
+                fontWeight: "600",
+                padding: "10px 30px",
+                borderRadius: "6px",
+                border: "none",
+              }}
+            >
+              Save
+            </button>
 
-        <button
-          className="btn"
-          onClick={fetchDeductions}
-          style={{
-            background: "#092c4c",
-            color: "#fff",
-            fontWeight: "600",
-            padding: "10px 30px",
-            borderRadius: "6px",
-            border: "none",
-          }}
-        >
-          Cancel
-        </button>
+            <button
+              className="btn"
+              onClick={fetchDeductions}
+              style={{
+                background: "#092c4c",
+                color: "#fff",
+                fontWeight: "600",
+                padding: "10px 30px",
+                borderRadius: "6px",
+                border: "none",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
-      )}
-    </div>
     </>
   );
 };

@@ -23,5 +23,9 @@ export const ITR_MESSAGES = {
   NO_OTHER_INCOME: "No other income data found.",
 
   LOADING_PREVIEW: "Loading investment declaration...",
-  PREVIEW_FETCH_FAILED: "Failed to load investment declaration."
+  PREVIEW_FETCH_FAILED: "Failed to load investment declaration.",
+
+  FORM12B_NOT_ELIGIBLE: "You are not eligible to fill Form 12B",
+  FORM12B_HEADING:"This form is only applicable for those who have joined POST beginning of the CURRENT FINANCIAL YEAR",
+
 };
