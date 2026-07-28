@@ -11,10 +11,12 @@ import {
 } from "../services/leavesService";
 import Swal from "sweetalert2";
 import moment from "moment";
+import SDLDatePicker from "../../../components/calendar/SDLDatePicker";
 
 const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
   const { modalPage, mode, modeLabel, form_header, form_text } = formSettings;
   const [date, setDate] = useState(new Date());
+  const [dateSDLPicker, setDateSDLPicker] = useState(new Date());
   const [errorMsg, setErrorMsg] = useState(false);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -808,18 +810,18 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                       className={`form-control ${errors.LVE_DATE_TO ? "is-invalid" : ""}`}
                       name="LVE_DATE_TO"
                       value={formData.LVE_DATE_TO || ""}
-                      onChange={handleChange}
-                      // min={moment().startOf("month").format("YYYY-MM-DD")}
-                      // max={
-                      //   moment().month() === 11
-                      //     ? moment().endOf("month").format("YYYY-MM-DD")
-                      //     : moment()
-                      //         .add(1, "month")
-                      //         .endOf("month")
-                      //         .format("YYYY-MM-DD")
-                      // }
+                      onChange={handleChange} 
+                      min={moment().startOf("month").format("YYYY-MM-DD")}
+                      max={
+                        moment().month() === 11
+                          ? moment().endOf("month").format("YYYY-MM-DD")
+                          : moment()
+                              .add(1, "month")
+                              .endOf("month")
+                              .format("YYYY-MM-DD")
+                      } 
                     />
-                    {/* )} */}
+                    
                     {errors.LVE_DATE_TO && (
                       <div className="invalid-feedback">
                         {errors.LVE_DATE_TO}

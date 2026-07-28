@@ -151,26 +151,26 @@ const TicketBookingAuthorization = () => {
         );
       },
     },
-    {
-      field: "TRVL_CLASS",
-      header: "Class",
-      sortable: true,
-      body: (rowData) => {
-        const trvlClass = rowData?.TRVL_CLASS || "-";
-        return (
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openModal(rowData);
-            }}
-            title="Travel Class"
-          >
-            {trvlClass}
-          </a>
-        );
-      },
-    },
+    // {
+    //   field: "TRVL_CLASS",
+    //   header: "Class",
+    //   sortable: true,
+    //   body: (rowData) => {
+    //     const trvlClass = rowData?.TRVL_CLASS || "-";
+    //     return (
+    //       <a
+    //         href="#"
+    //         onClick={(e) => {
+    //           e.preventDefault();
+    //           openModal(rowData);
+    //         }}
+    //         title="Travel Class"
+    //       >
+    //         {trvlClass}
+    //       </a>
+    //     );
+    //   },
+    // },
     {
       field: "TRVL_MODE",
       header: "Mode",

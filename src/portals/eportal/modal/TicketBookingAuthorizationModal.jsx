@@ -134,7 +134,6 @@ const TicketBookingAuthorizationModal = ({
                   </div>
                 </h4>
               </div>
-
               <button
                 type="button"
                 className="btn-close custom-btn-close p-0"
@@ -144,7 +143,6 @@ const TicketBookingAuthorizationModal = ({
                 <i className="ti ti-x" />
               </button>
             </div>
-
             <form>
               {/* Body */}
               <div className="modal-body">
@@ -152,124 +150,117 @@ const TicketBookingAuthorizationModal = ({
                   <div className="col-md-6">
                     <div className="mb-3">
                       <label className="fw-semibold">CREATED BY :</label>
-                      <span className="ms-2">
-                        { formData.CREATED_BY || "" }
-                      </span>
+                      <span className="ms-2">{formData.CREATED_BY || ""}</span>
                     </div>
-                     <div className="mb-3">
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
                       <label className="fw-semibold">CREATED ON :</label>
-                      <span className="ms-2">
-                        { formData.CREATED_ON || "" }
-                      </span>
+                      <span className="ms-2">{formData.CREATED_ON || ""}</span>
                     </div>
                   </div>
                 </div>
-
                 <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
-                      <label className="fw-semibold">Travel Class :</label>
-                      <span className="ms-2">
-                        { formData.TRVL_CLASS || "" }
-                      </span>
-                    </div>
-                     <div className="mb-3">
                       <label className="fw-semibold">Travel Date :</label>
-                      <span className="ms-2">
-                        { formData.TRVL_DATE || "" }
-                      </span>
+                      <span className="ms-2">{formData.TRVL_DATE || ""}</span>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="fw-semibold">Remarks :</label>
+                      <span className="ms-2">{formData.REMARKS || ""}</span>
                     </div>
                   </div>
                 </div>
-
+                <div className="row">
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="fw-semibold">Travel Mode :</label>
+                      <span className="ms-2">{formData.TRVL_MODE || ""}</span>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="fw-semibold">Travel Class :</label>
+                      <span className="ms-2">{formData.TRVL_CLASS || ""}</span>
+                    </div>
+                  </div>
+                </div>
                 <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
                       <label className="fw-semibold">Travel From :</label>
                       <span className="ms-2">
-                        { formData.TRVL_FROM_LOC || "" }
+                        {formData.TRVL_FROM_LOC || ""}
                       </span>
                     </div>
-                     <div className="mb-3">
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
                       <label className="fw-semibold">Travel To :</label>
-                      <span className="ms-2">
-                        { formData.TRVL_TO_LOC || "" }
-                      </span>
+                      <span className="ms-2">{formData.TRVL_TO_LOC || ""}</span>
                     </div>
                   </div>
                 </div>
-
                 <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
-                      <label className="fw-semibold">Travel MODE :</label>
+                      <label className="fw-semibold">Flight/Train Name :</label>
                       <span className="ms-2">
-                        { formData.TRVL_MODE || "" }
+                        {formData.TRVL_FT_NAME || ""}
                       </span>
                     </div>
-                     
                   </div>
-                </div>
-
-                 <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
-                      <label className="fw-semibold">Flight / Train Name :</label>
-                      <span className="ms-2">
-                        { formData.TRVL_FT_NAME || "" }
-                      </span>
-                    </div>
-                     <div className="mb-3">
-                      <label className="fw-semibold">Flight / Train Number :</label>
-                      <span className="ms-2">
-                        { formData.TRVL_FT_NO || "" }
-                      </span>
+                      <label className="fw-semibold">
+                        Flight/Train Number :
+                      </label>
+                      <span className="ms-2">{formData.TRVL_FT_NO || ""}</span>
                     </div>
                   </div>
                 </div>
-
                 <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
-                      <label className="fw-semibold">Suitable Departure Onwards :</label>
+                      <label className="fw-semibold">
+                        Suitable Departure Onwards :
+                      </label>
                       <span className="ms-2">
-                        { formData.TTNT_ARVL_TIME || "" }
+                        {formData.TTNT_ARVL_TIME || ""}
                       </span>
                     </div>
-                     <div className="mb-3">
-                      <label className="fw-semibold">Suitable Arrival Onwards :</label>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="fw-semibold">
+                        Suitable Arrival Onwards :
+                      </label>
                       <span className="ms-2">
-                        { formData.TTNT_DEPR_TIME || "" }
+                        {formData.TTNT_DEPR_TIME || ""}
                       </span>
                     </div>
                   </div>
                 </div>
-
                 <div className="row">
                   <div className="col-12">
-                    <div className="mb-3">
-                      <label className="form-label">Remarks :</label>
-                      <span className="ms-2">{formData.REMARKS || ""}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="row">
-                  <div className="form-group">
-                    <label className="form-label">Auth Remarks:</label>
-                    <textarea
-                      className="form-control"
-                      name="AUTH_REMARKS"
-                      value={formData.AUTH_REMARKS || ""}
-                      onChange={handleChange}
-                    />
-                    <div className="char-counter">
-                      {getByteLength(formData.AUTH_REMARKS || "")} / 200
+                    <div className="form-group mb-3">
+                      <label className="form-label">Auth Remarks:</label>
+                      <textarea
+                        className="form-control"
+                        name="AUTH_REMARKS"
+                        value={formData.AUTH_REMARKS || ""}
+                        onChange={handleChange}
+                      />
+                      <div className="char-counter">
+                        {getByteLength(formData.AUTH_REMARKS || "")} / 200
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-
               {/* Footer */}
               <div className="modal-footer">
                 <div className="d-flex gap-2">

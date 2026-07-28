@@ -170,19 +170,19 @@ const OutdoorDutyAuthorization = () => {
     },
     { field: "GPASS_DATE", header: "GPASS DATE", sortable: true },
     { field: "CREATED_ON", header: "Created On", sortable: true },
-    {
-      field: "STATUS",
-      header: "Status",
-      body: (rowData) => {
-        return (
-          <span
-            className={`badge badge-${rowData.statusColor} d-inline-flex align-items-center badge-xs`}
-          >
-            {rowData.statusText}
-          </span>
-        );
-      },
-    },
+    // {
+    //   field: "STATUS",
+    //   header: "Status",
+    //   body: (rowData) => {
+    //     return (
+    //       <span
+    //         className={`badge badge-${rowData.statusColor} d-inline-flex align-items-center badge-xs`}
+    //       >
+    //         {rowData.statusText}
+    //       </span>
+    //     );
+    //   },
+    // },
   ];
 
   // Conditional return happens LAST, after every hook has been called

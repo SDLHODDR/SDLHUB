@@ -138,7 +138,6 @@ const OutdoorDutyAuthorizationModal = ({
                   </div>
                 </h4>
               </div>
-
               <button
                 type="button"
                 className="btn-close custom-btn-close p-0"
@@ -157,32 +156,33 @@ const OutdoorDutyAuthorizationModal = ({
                     <div className="mb-3">
                       <label className="fw-semibold">Out Type :</label>
                       <span className="ms-2">
-                        {OUT_TYPE_LABELS[formData.OUT_TYPE || ""]}
+                        {" "}
+                        {OUT_TYPE_LABELS[formData.OUT_TYPE || ""]}{" "}
                       </span>
                     </div>
                   </div>
-                </div>
-
-                <div className="row">
-                  <div className="col-12">
+                  <div className="col-md-6">
                     <div className="mb-3">
-                      <label className="form-label">Remarks :</label>
+                      <label className="form-label fw-semibold">
+                        Remarks :
+                      </label>
                       <span className="ms-2">{formData.REMARKS || ""}</span>
                     </div>
                   </div>
                 </div>
-
                 <div className="row">
-                  <div className="form-group">
-                    <label className="form-label">Auth Remarks:</label>
-                    <textarea
-                      className="form-control"
-                      name="AUTH_REMARKS"
-                      value={formData.AUTH_REMARKS || ""}
-                      onChange={handleChange}
-                    />
-                    <div className="char-counter">
-                      {getByteLength(formData.AUTH_REMARKS || "")} / 200
+                  <div className="col-12">
+                    <div className="form-group mb-3">
+                      <label className="form-label">Auth Remarks:</label>
+                      <textarea
+                        className="form-control"
+                        name="AUTH_REMARKS"
+                        value={formData.AUTH_REMARKS || ""}
+                        onChange={handleChange}
+                      />
+                      <div className="char-counter">
+                        {getByteLength(formData.AUTH_REMARKS || "")} / 200
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -140,7 +140,6 @@ const LeavesAuthorizationModal = ({
                   </div>
                 </h4>
               </div>
-
               <button
                 type="button"
                 className="btn-close custom-btn-close p-0"
@@ -150,27 +149,27 @@ const LeavesAuthorizationModal = ({
                 <i className="ti ti-x" />
               </button>
             </div>
-
             <form>
               {/* Body */}
               <div className="modal-body">
                 <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
-                      <label className="fw-semibold">CREATED BY :</label>
-                      <span className="ms-2">
+                       <label className="fw-semibold">CREATED BY :</label>
+                        <span className="ms-2">
                         { formData.CREATED_BY || "" }
                       </span>
                     </div>
-                     <div className="mb-3">
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
                       <label className="fw-semibold">CREATED ON :</label>
-                      <span className="ms-2">
+                       <span className="ms-2">
                         { formData.CREATED_ON || "" }
                       </span>
                     </div>
                   </div>
                 </div>
-
                 <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
@@ -179,53 +178,9 @@ const LeavesAuthorizationModal = ({
                         { formData.LVE_CODE || "" }
                       </span>
                     </div>
-                     <div className="mb-3">
-                      <label className="fw-semibold">Leave From Date :</label>
-                      <span className="ms-2">
-                        { formData.LVE_DATE_FR || "" }
-                      </span>
-                    </div>
                   </div>
-                </div>
-
-                <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
-                      <label className="fw-semibold">Leave To Date :</label>
-                      <span className="ms-2">
-                        { formData.LVE_DATE_TO || "" }
-                      </span>
-                    </div>
-                     <div className="mb-3">
-                      <label className="fw-semibold">Leave Starts On :</label>
-                      <span className="ms-2">
-                        { LeaveStartEndArr[formData.LVE_START_ON] || "-" }
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">Leave Ends On :</label>
-                      <span className="ms-2">
-                        { LeaveStartEndArr[formData.LVE_END_ON] || "-" }
-                      </span>
-                    </div>
-                     
-                  </div>
-                </div>
-
-                 <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">Reason :</label>
-                      <span className="ms-2">
-                        { formData.REASON || "" }
-                      </span>
-                    </div>
-                     <div className="mb-3">
                       <label className="fw-semibold">TOTAL DAYS :</label>
                       <span className="ms-2">
                         { formData.TOTAL_DAYS || "" }
@@ -233,25 +188,49 @@ const LeavesAuthorizationModal = ({
                     </div>
                   </div>
                 </div>
-
-                
-
                 <div className="row">
-                  <div className="form-group">
-                    <label className="form-label">Auth Remarks:</label>
-                    <textarea
-                      className="form-control"
-                      name="AUTH_REMARKS"
-                      value={formData.AUTH_REMARKS || ""}
-                      onChange={handleChange}
-                    />
-                    <div className="char-counter">
-                      {getByteLength(formData.AUTH_REMARKS || "")} / 200
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="fw-semibold">Leave Starts On :</label>
+                      <span className="ms-2">
+                        { LeaveStartEndArr[formData.LVE_START_ON] || "-" }
+                      </span>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="fw-semibold">Leave Ends On :</label>
+                       <span className="ms-2">
+                        { LeaveStartEndArr[formData.LVE_END_ON] || "-" }
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="row">
+                   <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="fw-semibold">Reason :</label>
+                       <span className="ms-2">
+                        { formData.REASON || "" }
+                      </span>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="form-label">Auth Remarks:</label>
+                      <textarea
+                        className="form-control"
+                        name="AUTH_REMARKS"
+                        value={formData.AUTH_REMARKS || ""}
+                        onChange={handleChange}
+                      />
+                      <div className="char-counter">
+                        {getByteLength(formData.AUTH_REMARKS || "")} / 200
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-
               {/* Footer */}
               <div className="modal-footer">
                 <div className="d-flex gap-2">
