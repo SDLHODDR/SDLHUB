@@ -61,7 +61,7 @@ export const renderTicketBookingActions = (
       )}
 
       {/* {["A", "T", "R"].includes(status) && ( */}
-      {status !== 'X' && status !== 'N' && status !== 'T' && (
+      {status !== 'X' && status !== 'N' && status !== "R" && (
           <OverlayTrigger placement="top" overlay={renderTooltip("Close Ticket")}>
             <span>
               <Link
@@ -76,7 +76,7 @@ export const renderTicketBookingActions = (
           </OverlayTrigger>
         )}
 
-      {["X", "T"].includes(status) && (
+      {["X"].includes(status) && (
           <span> - </span>
       )}
     </div>
