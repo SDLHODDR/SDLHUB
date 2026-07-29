@@ -38,13 +38,15 @@ const Login = () => {
         return;
       }
 
+      //const { user, csrf_token } = response.data || {}; //redirect
+
       const { user, csrf_token } = response.data || {}; //redirect
 
       if (csrf_token) {
         sessionStorage.setItem("csrf_token", csrf_token);
       }
 
-      const user = normalizeUser(response.data.user);
+      const normalizedUser = normalizeUser(user);
 
       // Store auth data
       localStorage.setItem("user", JSON.stringify(normalizedUser));
