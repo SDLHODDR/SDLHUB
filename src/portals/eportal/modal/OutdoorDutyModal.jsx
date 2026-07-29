@@ -4,8 +4,8 @@ import {
     //getGPSVDataDetails,
     saveGPData,
     saveGPDataAUTH,
-    editGPData,
-    editGPDataAUTH,
+    //editGPData,
+    //editGPDataAUTH,
 } from "../services/outdoorDutyService";
 import Swal from "sweetalert2";
 
@@ -213,13 +213,20 @@ const OutdoorDutyModal = ({
                 getGpdata: true,
                 //hiddenTaskId: formConfig.taskIdHdn || null
             });
-            // Expecting FORM API response (not list)
-            setGPData(response || {});
+            if (response.status) {
+                // Expecting FORM API response (not list)
+                setGPData(response.data || {});
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Failed",
+                    text:
+                        response?.message || `Unable to fetch Outdoor Duty.`,
+                });
+            }
         } catch (error) {
             console.error("Error fetching data:", error);
-        } //finally {
-        //setLoading(false);
-        // }
+        }
     };
 
     // const checkGPData = async (newValue) => {

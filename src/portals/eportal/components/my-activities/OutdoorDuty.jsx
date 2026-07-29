@@ -17,17 +17,19 @@ const OutdoorDuty = () => {
   const [loading, setLoading] = useState(true);
   const outdoorDutydata = useSelector((state) => state.eportalODData.data);
   const [searchQuery, setSearchQuery] = useState("");
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);``
 
   useEffect(() => {
     setLoading(true);
     dispatch(getOutdoorDutyDataResponse());
   }, [dispatch, refreshKey]);
 
+  //console.log("=====================OD Data SLice================", outdoorDutydata);
+
   useEffect(() => {
     let mounted = true;
     try {
-      const flattened = (outdoorDutydata.data || []).map((item, index) => {
+      const flattened = (outdoorDutydata || []).map((item, index) => {
         return {
           id: item.id || index,
           asonDate: item.asondate || "-",

@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { eportalAPI } from "../../services/api";
-import { EPORTAL_API } from "../../portals/eportal/config/eportalApiConfig";
+// import { eportalAPI } from "../../services/api";
+// import { EPORTAL_API } from "../../portals/eportal/config/eportalApiConfig";
+import { fetchAuthorizationData } from "../../services/authorizationService";
 
 const initialState = {
   status: false,
@@ -17,34 +18,27 @@ const initialState = {
 export const getAuthroizationTaskCount = createAsyncThunk(
   "fetch/authorizationCount",
   async (payload) => {
-    const response = await eportalAPI
-      .post(EPORTAL_API.AUTHORIZATION.TASKDATA, payload, {
-        withCredentials: true,
-      })
-      .then((response) => {
-        switch (response.status) {
-          case 200:
-            //console.log(response)
-            return response;
-          default:
-            return {
-              response: "error",
-              error: true,
-              errorCode: response.status,
-              errorMessage: response.statusText,
-            };
-        }
-      })
-      .catch((error) => {
-        //console.log("error", error)
+    try {
+      const response = await fetchAuthorizationData(payload);
+      console.log("========authorizationDataSLice Response========", response);
+      if(!response.status) {
         return {
           response: "error",
           error: true,
           errorCode: -1,
-          errorMessage: response.statusText,
+          errorMessage: response.message,
         };
-      });
-    return response.data;
+      }
+
+      return response.data;
+    } catch (error) {
+      return {
+          response: "error",
+          error: true,
+          errorCode: -1,
+          errorMessage: error,
+        };
+    }
   }, 
 ); 
 
@@ -72,7 +66,7 @@ export const authorizationCountSlice = createSlice({
         state.data = action.payload.taskscnt;
         state.subtotal = action.payload.SUBTOTAL;
         state.success = action.payload.success;        
-        state.totalRecords = action.payload.totalRecords;
+        //state.totalRecords = action.payload.totalRecords;
         state.successMessage = "Data fetched successfully";
         state.status = "idle";
       });

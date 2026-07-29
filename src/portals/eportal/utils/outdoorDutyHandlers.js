@@ -2,7 +2,7 @@ import Swal from "sweetalert2";
 import {
   sendauthGPDataDetails,
   resendauthGPDataDetails,
-  deleteGPData,
+  //deleteGPData,
   closeGPTicket,
 } from "../services/outdoorDutyService";
 
@@ -171,10 +171,10 @@ export const createOutdoorDutyHandlers = ({ dispatch, handleSuccess, openModal }
         //console.log("========Dleete payload=====", { deleteOD: true, delteId: id });
         //try {
           //await deleteGPData({ deleteOD: true, delteId: id });
-          const response = await deleteGPData({
-            deleteOD: true,
-            delteId: id
-          });
+          // const response = await deleteGPData({
+          //   deleteOD: true,
+          //   delteId: id
+          // });
     
           if (response?.status) {
             await Swal.fire({
