@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { getMenu } from "../../services/menuService";
 import { LOGOS } from "../../../../assets/assets";
+import { notifyError } from "../../../../services/alertService";
 
 const HorizontalMenu = () => {
 	const location = useLocation();
@@ -19,17 +20,15 @@ const HorizontalMenu = () => {
 			try {
 			const res = await getMenu();
 
-			//console.log("API Response:", res);
-
 			if (res?.status) {
-				//console.log("Setting menus...");
-				setMenus(res.menu || []);
+				setMenus(res.data || []);
+			} else {
+				notifyError(res?.message || "Unable to load menus.");
 			}
 			} catch (err) {
-			console.error(err);
+			notifyError(err.message || "Unable to load menus.");
 			}
 		};
-
 		loadMenus();
 	}, []);
 

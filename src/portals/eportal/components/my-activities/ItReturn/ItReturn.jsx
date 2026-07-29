@@ -20,6 +20,13 @@ const ItReturn = () => {
     setRefreshPreview((prev) => prev + 1);
   };
 
+  const [allowedDates, setAllowedDates] = useState({
+    from_date: "",
+    to_date: "",
+  });
+
+  const [today, setToday] = useState("");
+
   /* =========================================
      LOAD CONFIG (RUN ONCE)
   ========================================= */
@@ -30,15 +37,38 @@ const ItReturn = () => {
   const loadConfig = async () => {
     try {
       const res = await getItReturnConfig();
+
       if (res?.status) {
-        setCanEdit(Boolean(res.can_edit));
+        const {
+          can_edit = false,
+          allowed_dates = {},
+          today = "",
+        } = res.data || {};
+
+        setCanEdit(Boolean(can_edit));
+        setAllowedDates(allowed_dates);
+        setToday(today);
+      } else {
+        setCanEdit(false);
+        setAllowedDates({
+          from_date: "",
+          to_date: "",
+        });
+        setToday("");
       }
     } catch (error) {
       console.error("Config load error:", error);
+
+      setCanEdit(false);
+      setAllowedDates({
+        from_date: "",
+        to_date: "",
+      });
+      setToday("");
     } finally {
       setLoadingConfig(false);
     }
-  }; 
+  };
 
   /* =========================================
      TAB CONFIG (IMPORTANT FIX)
