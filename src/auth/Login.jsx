@@ -44,7 +44,7 @@ const Login = () => {
         sessionStorage.setItem("csrf_token", csrf_token);
       }
 
-      const normalizedUser = normalizeUser(user);
+      const user = normalizeUser(response.data.user);
 
       // Store auth data
       localStorage.setItem("user", JSON.stringify(normalizedUser));
