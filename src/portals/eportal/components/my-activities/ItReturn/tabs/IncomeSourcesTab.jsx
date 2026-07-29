@@ -36,13 +36,34 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
       console.log(res);
 
       if (res?.status) {
-        setGrossSalary(res.data?.gross_salary || []);
-        setOtherIncome(res.data?.other_income || []);
-        setRegime(res.data?.regime || "N");
+        const {
+          gross_salary = [],
+          other_income = [],
+          regime = "N",
+        } = res.data || {};
+
+        setGrossSalary(Array.isArray(gross_salary) ? gross_salary : []);
+        setOtherIncome(Array.isArray(other_income) ? other_income : []);
+        setRegime(regime || "N");
+      } else {
+        setGrossSalary([]);
+        setOtherIncome([]);
+        setRegime("N");
+
+        notifyError(res?.message || ITR_MESSAGES.FAILED_LOAD_INCOME);
       }
     } catch (error) {
       console.error("Fetch income data error:", error);
-      notifyError(ITR_MESSAGES.FAILED_LOAD_INCOME);
+
+      setGrossSalary([]);
+      setOtherIncome([]);
+      setRegime("N");
+
+      notifyError(
+        error?.response?.data?.message ||
+        error?.message ||
+        ITR_MESSAGES.FAILED_LOAD_INCOME
+      );
     }
   };
 
@@ -74,26 +95,29 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
      SAVE REGIME
   ========================================= */
 
-  const handleSaveRegime = async () => {
-    try {
-      const res = await saveRegime({ regime });
+ const handleSaveRegime = async () => {
+  try {
+    const res = await saveRegime({ regime });
 
-      if (res?.success) {
-        notifySuccess(res?.message || ITR_MESSAGES.REGIME_SAVED);
-        onDataSaved?.();
-      } else {
-        notifyError(res?.message || ITR_MESSAGES.FAILED_SAVE_REGIME);
-      }
-    } catch (error) {
-      console.error("Save regime error:", error);
+    if (res?.status) {
+      notifySuccess(res?.message || ITR_MESSAGES.REGIME_SAVED);
 
-      notifyError(
-        error?.response?.data?.message ||
-          error?.message ||
-          ITR_MESSAGES.FAILED_SAVE_REGIME,
-      );
+      await fetchData();
+
+      onDataSaved?.();
+    } else {
+      notifyError(res?.message || ITR_MESSAGES.FAILED_SAVE_REGIME);
     }
-  };
+  } catch (error) {
+    console.error("Save regime error:", error);
+
+    notifyError(
+      error?.response?.data?.message ||
+      error?.message ||
+      ITR_MESSAGES.FAILED_SAVE_REGIME
+    );
+  }
+};
 
   /* =========================================
      OTHER INCOME CHANGE

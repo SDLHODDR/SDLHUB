@@ -49,17 +49,19 @@ const ItrDownloadReport = () => {
 
       const res = await getItrDownloadReport(filters);
 
-      if (res.success) {
-        setRows(res.data || []);
+      if (res.status) {
+        setRows(res.data?.data || []);
 
         setSummary(
-          res.summary || {
+          res.data?.summary || {
             total_downloads: 0,
             unique_users: 0,
             success_count: 0,
             failed_count: 0,
-          },
+          }
         );
+      } else {
+        notifyError(res.message || "Failed to load report");
       }
     } catch (err) {
       console.error(err);
@@ -120,16 +122,19 @@ const ItrDownloadReport = () => {
 
       const res = await getItrDownloadReport(resetFilters);
 
-      if (res.success) {
-        setRows(res.data || []);
+      if (res.status) {
+        setRows(res.data?.data || []);
+
         setSummary(
-          res.summary || {
+          res.data?.summary || {
             total_downloads: 0,
             unique_users: 0,
             success_count: 0,
             failed_count: 0,
-          },
+          }
         );
+      } else {
+        notifyError(res.message || "Failed to load report");
       }
     } finally {
       setLoading(false);
@@ -143,7 +148,7 @@ const ItrDownloadReport = () => {
 
     const result = await exportItrDownloadReport(filters);
 
-    if (!result.success) {
+    if (!result.status) {
       notifyError(result.message || "Failed to export report");
     }
   };

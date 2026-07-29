@@ -21,24 +21,36 @@ const PreviewPrintTab = ({ refreshPreview }) => {
   ===================================================== */
 
   useEffect(() => {
-    let mounted = true;
+  let mounted = true;
 
-    (async () => {
-      try {
-        const res = await getEmployeeSummary();
+  const fetchEmployeeSummary = async () => {
+    try {
+      const res = await getEmployeeSummary();
 
-        if (mounted && res.success) {
-          setSummary(res.data);
+      if (!mounted) return;
+
+      if (res?.status) {
+        const { success = false, data = {} } = res.data || {};
+
+        if (success) {
+          setSummary(data);
+        } else {
+          console.error("Employee summary not available.");
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        console.error(res?.message || "Unable to fetch employee summary.");
       }
-    })();
+    } catch (error) {
+      console.error("Employee summary fetch failed:", error);
+    }
+  };
 
-    return () => {
-      mounted = false;
-    };
-  }, [refreshPreview]);
+  fetchEmployeeSummary();
+
+  return () => {
+    mounted = false;
+  };
+}, [refreshPreview]);
 
   if (!summary) {
     return (

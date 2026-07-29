@@ -59,21 +59,31 @@ const EmployeeAccess = () => {
 
     const loadDropdowns = async () => {
       setLoadingDropdowns(true);
+
       try {
         const res = await getEmployeeAccessDropdowns();
-        if (res.status) {
-          setCompanies(res.companies || []);
-          setDivisions(res.divisions || []);
-          setDepartments(res.departments || []);
-          setEmployees(res.employees || []);
+
+        if (res?.status) {
+          const data = res.data || {};
+
+          setCompanies(data.companies || []);
+          setDivisions(data.divisions || []);
+          setDepartments(data.departments || []);
+          setEmployees(data.employees || []);
         } else {
-          notifyError(EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED);
+          notifyError(
+            res?.message || EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED,
+          );
         }
-      } catch {
-        notifyError(EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_ERROR);
+      } catch (error) {
+        notifyError(
+          error?.message || EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_ERROR,
+        );
+      } finally {
+        setLoadingDropdowns(false);
       }
-      setLoadingDropdowns(false);
     };
+
     loadDropdowns();
   }, []);
 
@@ -102,15 +112,17 @@ const EmployeeAccess = () => {
         employee: employeeFilter?.value || "",
       });
 
-      if (res.status) {
-        setProfiles(res.profiles || []);
-        setGroups(res.groups || []);
+      if (res?.status) {
+        const data = res.data || {};
+
+        setProfiles(data.profiles || []);
+        setGroups(data.groups || []);
         setDataLoaded(true);
       } else {
-        notifyError(EMPLOYEE_ACCESS_MESSAGES.DATA_LOAD_FAILED);
+        notifyError(res?.message || EMPLOYEE_ACCESS_MESSAGES.DATA_LOAD_FAILED);
       }
-    } catch {
-      notifyError(EMPLOYEE_ACCESS_MESSAGES.DATA_LOAD_FAILED);
+    } catch (error) {
+      notifyError(error?.message || EMPLOYEE_ACCESS_MESSAGES.DATA_LOAD_FAILED);
     } finally {
       setLoadingData(false);
     }

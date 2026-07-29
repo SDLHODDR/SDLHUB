@@ -38,17 +38,22 @@ const Login = () => {
         return;
       }
 
-      if (response?.csrf_token) {
-        sessionStorage.setItem("csrf_token", response.csrf_token);
+      const { user, csrf_token } = response.data || {}; //redirect
+
+      if (csrf_token) {
+        sessionStorage.setItem("csrf_token", csrf_token);
       }
 
       const user = normalizeUser(response.data.user);
 
       // Store auth data
-      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify(normalizedUser));
 
-      //IMPORTANT: Set user in context
-      setUser(user);
+      // Set user in context
+      setUser(normalizedUser);
+
+      // Optional: redirect
+      // navigate(redirect || "/eportal/dashboard");
 
       /*
       ====================================
@@ -59,23 +64,36 @@ const Login = () => {
       try {
         const policyRes = await getPendingPolicies();
 
-        const hasPendingPolicies =
-          policyRes?.status &&
-          Array.isArray(policyRes?.policies) &&
-          policyRes.policies.length > 0;
+        if (!policyRes?.status) {
+          setError(policyRes?.message || "Unable to verify policy acceptance.");
+          return;
+        }
 
-        if (hasPendingPolicies) {
+        const { count = 0, policies = [] } = policyRes.data || {};
+
+        if (count > 0 && policies.length > 0) {
           sessionStorage.setItem("HAS_PENDING_POLICY", "true");
-          navigate("/policy-acceptance", { replace: true });
+
+          navigate("/policy-acceptance", {
+            replace: true,
+          });
+
           return;
         }
 
         sessionStorage.removeItem("HAS_PENDING_POLICY");
-        navigate("/eportal/dashboard", { replace: true });
+
+        navigate("/eportal/dashboard", {
+          replace: true,
+        });
       } catch (err) {
         console.error("Policy verification failed", err);
 
-        setError("Unable to verify policy acceptance. Please try again.");
+        setError(
+          err?.response?.data?.message ||
+          err?.message ||
+          "Unable to verify policy acceptance. Please try again."
+        );
 
         return;
       }
