@@ -52,41 +52,283 @@ const EmployeeAccess = () => {
 
   /* ---------------- LOAD DROPDOWNS ---------------- */
 
-  useEffect(() => {
-    if (hasFetchedDropdowns.current) return;
+useEffect(() => {
+  if (hasFetchedDropdowns.current) return;
 
-    hasFetchedDropdowns.current = true;
+  hasFetchedDropdowns.current = true;
 
-    const loadDropdowns = async () => {
-      setLoadingDropdowns(true);
+  const loadDropdowns = async () => {
+    setLoadingDropdowns(true);
 
-      try {
-        const res = await getEmployeeAccessDropdowns();
+    try {
+      // Initial call only loads common dropdowns.
+      // Employee list will be loaded after company selection.
+      const res = await getEmployeeAccessDropdowns();
 
-        if (res?.status) {
-          const data = res.data || {};
+      if (res?.status) {
+        const data = res.data || {};
 
-          setCompanies(data.companies || []);
-          setDivisions(data.divisions || []);
-          setDepartments(data.departments || []);
-          setEmployees(data.employees || []);
-        } else {
-          notifyError(
-            res?.message || EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED,
-          );
-        }
-      } catch (error) {
+        setCompanies(data.companies || []);
+        setDivisions(data.divisions || []);
+        setDepartments(data.departments || []);
+
+        // Don't load all employees initially
+        setEmployees([]);
+      } else {
         notifyError(
-          error?.message || EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_ERROR,
+          res?.message || EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED,
         );
-      } finally {
-        setLoadingDropdowns(false);
       }
-    };
+    } catch (error) {
+      console.error("Dropdown load error:", error);
 
-    loadDropdowns();
-  }, []);
+      notifyError(
+        error?.message || EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_ERROR,
+      );
+    } finally {
+      setLoadingDropdowns(false);
+    }
+  };
 
+  loadDropdowns();
+}, []);
+
+
+/* ---------------- COMPANY CHANGE ---------------- */
+
+const handleCompanyChange = async (selected) => {
+  setSelectedCompany(selected);
+
+  // Reset dependent dropdowns
+  setSelectedDivision(null);
+  setSelectedDepartment(null);
+  setEmployeeFilter(null);
+
+  // Reset employees
+  setEmployees([]);
+
+  // Reset displayed data
+  setGroups([]);
+  setProfiles([]);
+  setSelectedGroups({});
+  setSelectedEmployees({});
+  setCollapsedGroups({});
+  setDataLoaded(false);
+
+  // No company selected
+  if (!selected?.value) {
+    return;
+  }
+
+  try {
+    setLoadingDropdowns(true);
+
+    const res = await getEmployeeAccessDropdowns({
+      companyId: selected.value,
+      divisionId: "",
+      departmentId: "",
+    });
+
+    if (res?.status) {
+      const data = res.data || {};
+
+      // Employees filtered by company
+      setEmployees(data.employees || []);
+    } else {
+      setEmployees([]);
+
+      notifyError(
+        res?.message ||
+          EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED,
+      );
+    }
+  } catch (error) {
+    console.error("Employee dropdown load error:", error);
+
+    setEmployees([]);
+
+    notifyError(
+      error?.message ||
+        EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED,
+    );
+  } finally {
+    setLoadingDropdowns(false);
+  }
+};
+
+/* ---------------- DIVISION CHANGE ---------------- */
+
+const handleDivisionChange = async (selected) => {
+  setSelectedDivision(selected);
+
+  // Reset dependent dropdowns
+  setSelectedDepartment(null);
+  setEmployeeFilter(null);
+
+  // Reset employees
+  setEmployees([]);
+
+  // Reset displayed data
+  setGroups([]);
+  setProfiles([]);
+  setSelectedGroups({});
+  setSelectedEmployees({});
+  setCollapsedGroups({});
+  setDataLoaded(false);
+
+  if (!selectedCompany?.value) {
+    return;
+  }
+
+  try {
+    setLoadingDropdowns(true);
+
+    const res = await getEmployeeAccessDropdowns({
+      companyId: selectedCompany.value,
+      divisionId: selected?.value || "",
+      departmentId: "",
+    });
+
+    if (res?.status) {
+      const data = res.data || {};
+
+      setEmployees(data.employees || []);
+    } else {
+      setEmployees([]);
+
+      notifyError(
+        res?.message ||
+          EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED,
+      );
+    }
+  } catch (error) {
+    console.error("Employee dropdown load error:", error);
+
+    setEmployees([]);
+
+    notifyError(
+      error?.message ||
+        EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED,
+    );
+  } finally {
+    setLoadingDropdowns(false);
+  }
+};
+
+
+/* ---------------- DEPARTMENT CHANGE ---------------- */
+
+const handleDepartmentChange = async (selected) => {
+  setSelectedDepartment(selected);
+
+  // Reset employee
+  setEmployeeFilter(null);
+
+  // Reset displayed data
+  setGroups([]);
+  setProfiles([]);
+  setSelectedGroups({});
+  setSelectedEmployees({});
+  setCollapsedGroups({});
+  setDataLoaded(false);
+
+  if (!selectedCompany?.value) {
+    return;
+  }
+
+  try {
+    setLoadingDropdowns(true);
+
+    const res = await getEmployeeAccessDropdowns({
+      companyId: selectedCompany.value,
+      divisionId: selectedDivision?.value || "",
+      departmentId: selected?.value || "",
+    });
+
+    if (res?.status) {
+      const data = res.data || {};
+
+      setEmployees(data.employees || []);
+    } else {
+      setEmployees([]);
+
+      notifyError(
+        res?.message ||
+          EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED,
+      );
+    }
+  } catch (error) {
+    console.error("Employee dropdown load error:", error);
+
+    setEmployees([]);
+
+    notifyError(
+      error?.message ||
+        EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED,
+    );
+  } finally {
+    setLoadingDropdowns(false);
+  }
+};
+
+/* ---------------- COMPANY CHANGE ---------------- 
+
+const handleCompanyChange = async (selected) => {
+  setSelectedCompany(selected);
+
+  // Reset employee selection whenever company changes
+  setEmployeeFilter(null);
+  setEmployees([]);
+
+  // Reset currently displayed data
+  setGroups([]);
+  setProfiles([]);
+  setSelectedGroups({});
+  setSelectedEmployees({});
+  setCollapsedGroups({});
+  setDataLoaded(false);
+
+  // No company selected
+  if (!selected?.value) {
+    return;
+  }
+
+  try {
+    setLoadingDropdowns(true);
+
+    //const res = await getEmployeeAccessDropdowns(selected.value);
+
+    const res = awaitgetEmployeeAccessDropdowns({
+                companyId,
+                divisionId,
+                departmentId,
+              });
+
+    if (res?.status) {
+      const data = res.data || {};
+
+      // Only employees belonging to selected company
+      setEmployees(data.employees || []);
+    } else {
+      setEmployees([]);
+
+      notifyError(
+        res?.message || EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED,
+      );
+    }
+  } catch (error) {
+    console.error("Employee dropdown load error:", error);
+
+    setEmployees([]);
+
+    notifyError(
+      error?.message || EMPLOYEE_ACCESS_MESSAGES.DROPDOWN_LOAD_FAILED,
+    );
+  } finally {
+    setLoadingDropdowns(false);
+  }
+};
+*/
   /* ---------------- SHOW DATA ---------------- */
 
   const handleShowData = async () => {
@@ -318,8 +560,10 @@ const EmployeeAccess = () => {
             <Select
               options={companies}
               value={selectedCompany}
-              onChange={setSelectedCompany}
+              onChange={handleCompanyChange}
               isLoading={loadingDropdowns}
+              isClearable
+              placeholder="Select Company"
               menuPortalTarget={document.body}
               menuPosition="fixed"
             />
@@ -330,7 +574,10 @@ const EmployeeAccess = () => {
             <Select
               options={divisions}
               value={selectedDivision}
-              onChange={setSelectedDivision}
+              onChange={handleDivisionChange}
+              isDisabled={!selectedCompany}
+              isClearable
+              placeholder="Select Division"
               menuPortalTarget={document.body}
               menuPosition="fixed"
             />
@@ -339,26 +586,41 @@ const EmployeeAccess = () => {
           <div className="col-lg-2 d-grid align-self-end">
             <label className="form-label mb-2">Department</label>
             <Select
-              options={departments}
-              value={selectedDepartment}
-              onChange={setSelectedDepartment}
-              menuPortalTarget={document.body}
-              menuPosition="fixed"
-            />
+                options={departments}
+                value={selectedDepartment}
+                onChange={handleDepartmentChange}
+                isDisabled={!selectedCompany}
+                isClearable
+                placeholder="Select Department"
+                menuPortalTarget={document.body}
+                menuPosition="fixed"
+              />
           </div>
 
-          <div className="col-lg-3">
-            <label className="form-label mb-2">Employee</label>
-            <Select
-              options={employees}
-              value={employeeFilter}
-              onChange={setEmployeeFilter}
-              isClearable
-              placeholder="Select Employee"
-              menuPortalTarget={document.body}
-              menuPosition="fixed"
-            />
-          </div>
+         <div className="col-lg-3">
+  <label className="form-label mb-2">Employee</label>
+
+  <Select
+    options={employees}
+    value={employeeFilter}
+    onChange={setEmployeeFilter}
+    isClearable
+    isDisabled={!selectedCompany || loadingDropdowns}
+    isLoading={loadingDropdowns}
+    placeholder={
+      selectedCompany
+        ? "Select Employee"
+        : "Select Company First"
+    }
+    noOptionsMessage={() =>
+      selectedCompany
+        ? "No employees found"
+        : "Select Company First"
+    }
+    menuPortalTarget={document.body}
+    menuPosition="fixed"
+  />
+</div>
 
           <div className="col-lg-2 d-flex align-items-end">
             <button
