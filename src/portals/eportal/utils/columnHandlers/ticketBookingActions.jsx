@@ -4,14 +4,10 @@ import Swal from "sweetalert2";
 
 export const renderTicketBookingActions = (
   rowData,
-  { sendAuth, resendAuth, updateRemarks, closeTicketTB, viewTB, editTB, deleteTB }
+  { sendAuth, resendAuth, closeTicketTB }
 ) => {
   const status = rowData.status?.trim()?.toUpperCase();
-  //const postRemarks = rowData.postremarks;
-  const datePass = rowData.dateTimePass;
   const id = rowData.id;
-
-  const disableEditDelete = ["A", "R", "T", "X"].includes(status);
 
   const renderTooltip = (text) => (props) => (
     <Tooltip id={`tooltip-${text}`} {...props}>

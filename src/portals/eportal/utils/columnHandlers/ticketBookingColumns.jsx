@@ -52,21 +52,12 @@ export const ticketBookingColumns = (handlers) => [
       const text = rowData?.remarks || "-";
       const trimmed = text.length > 15 ? `${text.substring(0, 15)}...` : text;
 
-      const hasAuthRemark = rowData?.status === "R" && rowData?.authremarks;
-
       return (
         <div className="remarks-wrapper">
           {/* Main Remarks */}
           <div className="remarks-main" title={text}>
             {trimmed}
           </div>
-
-          {/* Show small indicator with tooltip instead of full block */}
-          {hasAuthRemark && (
-            <IconWithTooltip text={rowData.authremarks}>
-              <span className="text-danger small ms-1">(Auth)</span>
-            </IconWithTooltip>
-          )}
         </div>
       );
     },
@@ -74,6 +65,32 @@ export const ticketBookingColumns = (handlers) => [
     //     minWidth: "450px",
     // },
   },
+  {
+        field: "authremarks",
+        header: "Auth Remarks",
+        body: (rowData) => {
+            
+            const text = rowData?.status === "R" && rowData?.authremarks
+                          ? rowData.authremarks
+                          : "-";
+            const trimmed =
+                text.length > 15 ? `${text.substring(0, 15)}...` : text;
+            
+            return (
+                <div className="remarks-wrapper">
+                    <IconWithTooltip text={rowData.authremarks}>
+                        <span className="text-danger small ms-1">
+                            {trimmed}
+                        </span>
+                    </IconWithTooltip>
+                    
+                </div>
+            );
+        },
+        // style: {
+        //     minWidth: "150px",
+        // },
+    },
   {
     field: "statusText",
     header: "Status",

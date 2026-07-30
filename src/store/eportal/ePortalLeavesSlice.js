@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { eportalAPI } from "../../services/api";
-import { EPORTAL_API } from "../../portals/eportal/config/eportalApiConfig";
+import { leaveRequestFetchData } from "../../portals/eportal/services/leavesService";
 
 const initialState = {
   data: [],           // this will hold the `tasks` array
@@ -18,17 +17,11 @@ export const getLeavesDataResponse = createAsyncThunk(
   "fetch/lrdatatable",
   async (payload, { rejectWithValue }) => {
     try {
-      const response = await eportalAPI.post(
-      EPORTAL_API.LEAVEREQUEST.GET_LR_LIST, 
-      payload, 
-      {
-        withCredentials: true,
-      });
-
-      if (response.status !== 200) {
+      const response = await leaveRequestFetchData(payload);
+      if (!response.status) {
         return rejectWithValue({
           errorCode: response.status,
-          errorMessage: response.statusText,
+          errorMessage: response.message,
         });
       }
       
@@ -66,9 +59,6 @@ export const myActivitiesLRSlice = createSlice({
        // console.log(action);
         state.loading = false;
         state.data = action.payload || [];
-        state.page = action.payload.page;
-        state.limit = action.payload.limit;
-        state.totalRecords = action.payload.totalRecords;
         state.success = !!action.payload.status;
         state.successMessage = "Data fetched successfully";
         state.status = "idle";

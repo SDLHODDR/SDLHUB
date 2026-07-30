@@ -27,7 +27,7 @@ const TicketBooking = () => {
   useEffect(() => {
     let mounted = true;
     try {
-      const flattened = (ticketBookingData.data || []).map((item, index) => {
+      const flattened = (ticketBookingData || []).map((item, index) => {
         return {
           id: item.id || index,
           person_name: item.person_name || "-",
@@ -143,7 +143,7 @@ const TicketBooking = () => {
   };
 
   // Build handlers (sendAuth, resendAuth, updateRemarks, closeTicketTB, viewTB, editTB, deleteTB)
-  const handlers = createTicketBookingHandlers({ dispatch, handleSuccess, openModal });
+  const handlers = createTicketBookingHandlers({ handleSuccess });
   const columns = ticketBookingColumns(handlers);
 
   return (

@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { eportalAPI } from "../../services/api";
-import { EPORTAL_API } from "../../portals/eportal/config/eportalApiConfig";
+import { ticketBookingFetchData } from "../../portals/eportal/services/ticketbookingService";
 
 const initialState = {
   data: [],           // this will hold the `tasks` array
@@ -18,17 +17,12 @@ export const getTicketBookingDataResponse = createAsyncThunk(
   "fetch/tbrdatatable",
   async (payload, { rejectWithValue }) => {
     try {
-      const response = await eportalAPI.post(
-      EPORTAL_API.TICKETBOOKING.GET_TB_LIST, 
-      payload, 
-      {
-        withCredentials: true,
-      });
+      const response = await ticketBookingFetchData(payload);
 
-      if (response.status !== 200) {
+      if (!response.status) {
         return rejectWithValue({
           errorCode: response.status,
-          errorMessage: response.statusText,
+          errorMessage: response.message,
         });
       }
       
@@ -66,9 +60,9 @@ export const myActivitiesTBRSlice = createSlice({
         //console.log(action);
         state.loading = false;
         state.data = action.payload || [];
-        state.page = action.payload.page;
-        state.limit = action.payload.limit;
-        state.totalRecords = action.payload.totalRecords;
+        //state.page = action.payload.page;
+        //state.limit = action.payload.limit;
+        //state.totalRecords = action.payload.totalRecords;
         state.success = !!action.payload.status;
         state.successMessage = "Data fetched successfully";
         state.status = "idle";

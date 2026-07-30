@@ -213,7 +213,7 @@ const TicketBookingModal = ({
       // Unwrap "pass" here so the rest of the component can treat
       // tbData as the object that actually holds "var".
        //console.log("=============== RESPONSE ===================",response);
-      setTBData(response || {});
+      setTBData(response.data.pass || {});
     } catch (error) {
       console.error("Error fetching data:", error);
     }

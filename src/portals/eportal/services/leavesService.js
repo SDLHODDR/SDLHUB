@@ -1,8 +1,9 @@
-import { request } from "../../../services/request"; // central handler
+import { eportalRequest, request } from "../../../services/request"; // central handler
 import { EPORTAL_API } from "../config/eportalApiConfig";
-import { eportalAPI } from "../../../services/api";
+//import { eportalAPI } from "../../../services/api";
 import { PORTALAPI } from "../../../services/apiConfig";
 import moment from "moment";
+import Swal from "sweetalert2";
 
 /* ---------------------------
    OUTDOOR DUTIES API
@@ -29,114 +30,69 @@ export const getLeaves = () =>
     }
   });
 
-export const getLRDataDetails = async (payload = {}) => {
-  const res = await eportalAPI.post(
-    PORTALAPI.LEAVEREQUEST.LRData,
-    payload,
-    {
-      withCredentials: true
-    }
-  );
-  
-  return res.data.pass || [];
-};
+export const leaveRequestFetchData = () => 
+  eportalRequest({
+    url: EPORTAL_API.LEAVEREQUEST.GET_LR_LIST,
+    method: "GET",
+    dedupe: true,
+    fallback: {
+      status: false,
+      data: [],
+    },
+  });
 
-export const saveLRData = async (payload = {}) => {
-  const res = await eportalAPI.post(
-    PORTALAPI.LEAVEREQUEST.SAVELRData,
-    payload,
-    {
-      withCredentials: true
-    }
-  );
-  
-  return res.data || [];
-};
+export const getLRDataDetails = (payload = {}) =>
+  eportalRequest({
+    url: PORTALAPI.LEAVEREQUEST.LRData,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });
 
-export const saveLRDataAUTH = async (payload = {}) => {
-  const res = await eportalAPI.post(
-    PORTALAPI.LEAVEREQUEST.SAVELRDataAuth,
-    payload,
-    {
-      withCredentials: true
-    }
-  );
-  
-  return res.data || [];
-};
+export const saveLRData = (payload = {}) =>
+  eportalRequest({
+    url: PORTALAPI.LEAVEREQUEST.SAVELRData,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });
 
-export const editLRData = async (payload = {}) => {
-  const res = await eportalAPI.post(
-    PORTALAPI.LEAVEREQUEST.SAVELRData,
-    payload,
-    {
-      withCredentials: true
-    }
-  );
-  
-  return res.data || [];
-};
+export const saveLRDataAUTH = (payload = {}) => 
+  eportalRequest({
+    url: PORTALAPI.LEAVEREQUEST.SAVELRDataAuth,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });
 
-export const editLRDataAUTH = async (payload = {}) => {
-  const res = await eportalAPI.post(
-    PORTALAPI.LEAVEREQUEST.SAVELRDataAuth,
-    payload,
-    {
-      withCredentials: true
-    }
-  );
-  
-  return res.data || [];
-};
+export const editLRData = () => {};
+export const editLRDataAUTH = () => {};
 
-export const authLRData = async (payload = {}) => {
-  const res = await eportalAPI.post(
-    PORTALAPI.LEAVEREQUEST.AUTHLRData,
-    payload,
-    {
-      withCredentials: true
-    }
-  );
-  
-  return res.data || [];
-};
+export const authLRData = async (payload = {}) =>
+  eportalRequest({
+    url:  PORTALAPI.LEAVEREQUEST.AUTHLRData,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });
 
-export const rejectLRData = async (payload = {}) => {
-  const res = await eportalAPI.post(
-    PORTALAPI.LEAVEREQUEST.REJECTLEAVEData,
-    payload,
-    {
-      withCredentials: true
-    }
-  );
-  
-  return res.data || [];
-};
+export const rejectLRData = async (payload = {}) =>
+  eportalRequest({
+    url:  PORTALAPI.LEAVEREQUEST.REJECTLEAVEData,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });
 
-export const deleteLRData = async (payload = {}) => {
-  //console.log("---------------deleteTBRData---------------", payload);
-  const res = await eportalAPI.post(
-    PORTALAPI.LEAVEREQUEST.SAVELRData,
-    payload,
-    {
-      withCredentials: true
-    }
-  );
-  //console.log("---------------deresponse leteTBRData---------------", res);
-  return res.data || [];
-};
+export const deleteLRData = () => {};
 
-export const getTBRList = async (payload = {}) => {
-  const res = await eportalAPI.post(
-    PORTALAPI.LEAVEREQUEST.LR_LIST,
-    payload,
-    {
-      withCredentials: true
-    }
-  );
-
-  return res.data || { data: [], total: 0 };
-};
+export const getTBRList = async (payload = {}) =>
+  eportalRequest({
+    url:  PORTALAPI.LEAVEREQUEST.LR_LIST,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });
 
 export const isDateAllowed = (date) => {
   const clickedDate = moment(date).startOf("day");
@@ -166,26 +122,18 @@ export const isDateAllowed = (date) => {
   return true;
 };
 
-export const checkCL = async (payload = {}) => {
-  const res = await eportalAPI.post(
-    PORTALAPI.LEAVEREQUEST.CHECKCLDATA,
-    payload,
-    {
-      withCredentials: true
-    }
-  );
-  
-  return res || [];
-};
+export const checkCL = (payload = {}) =>
+  eportalRequest({
+    url:  PORTALAPI.LEAVEREQUEST.CHECKCLDATA,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });
 
-export const checkOL = async (payload = {}) => {
-  const res = await eportalAPI.post(
-    PORTALAPI.LEAVEREQUEST.CHECKOLDATA,
-    payload,
-    {
-      withCredentials: true
-    }
-  );
-  
-  return res || [];
-};
+export const checkOL = async (payload = {}) =>
+  eportalRequest({
+    url:  PORTALAPI.LEAVEREQUEST.CHECKOLDATA,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });
