@@ -153,7 +153,7 @@ const Leaves = () => {
           });
     
           //console.log("================= Response ------", response);
-          if(response.flag === "Yes") {
+          if(response?.data?.pass.flag === "Yes") {
             setModalState({
               isOpen: true,
               mode: config.mode || "create",
@@ -161,7 +161,7 @@ const Leaves = () => {
               id: config.id || null,
               isPostRemark: config.isPostRemark || null,
             });
-          } else if(response.flag === "No") {
+          } else if(response?.data?.pass.flag === "No") {
             Swal.fire({
               icon: "error",
               title: "Error",

@@ -284,9 +284,9 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
         modal_date: formatLocalDateTime(modalDate)
       });
 
-      //console.log("================= Response ------", response);
-      setLRData(response || {});
-      setLeaveBal(response.LEAVEBALARR || {});
+      console.log("================= Response ------", response);
+      setLRData(response?.data?.pass || {});
+      setLeaveBal(response?.data?.pass?.LEAVEBALARR || {});
     } catch (error) {
       console.error("Error fetching Leave Request Data:", error);
     } finally {
