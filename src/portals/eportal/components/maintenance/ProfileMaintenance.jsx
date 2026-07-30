@@ -370,7 +370,6 @@ const ProfileMaintenance = () => {
 
         // reload page so latest menu access reflects in sidebar/menu
         //window.location.reload();
-        await loadProfileAccess();
 
         setProfileId(profileId);
 
