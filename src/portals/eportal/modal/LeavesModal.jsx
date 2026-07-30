@@ -11,7 +11,7 @@ import {
 } from "../services/leavesService";
 import Swal from "sweetalert2";
 import moment from "moment";
-import SDLDatePicker from "../../../components/calendar/SDLDatePicker";
+//import SDLDatePicker from "../../../components/calendar/SDLDatePicker";
 
 const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
   const { modalPage, mode, modeLabel, form_header, form_text } = formSettings;
