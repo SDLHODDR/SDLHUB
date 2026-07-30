@@ -137,47 +137,26 @@ export const authGPDataDetails = async (payload = {}) => {
   return res || [];
 };
 
-export const sendauthGPDataDetails = async (payload = {}) => {
-  const res = await eportalAPI.post(
-    PORTALAPI.GATEPASS.SENDAUTHGPData,
-    payload,
-    {
-      // headers: {
-      //   "X-CSRF-Token": csrfToken
-      // },
-      withCredentials: true
-    }
-  );
+export const sendauthGPDataDetails = (payload = {}) =>
+  eportalRequest({
+    url: PORTALAPI.GATEPASS.SENDAUTHGPData,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });
   
-  return res.data || {};
-};
+export const closeGPTicket = (payload = {}) => 
+  eportalRequest({
+    url: PORTALAPI.GATEPASS.CLOSEGPData,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });
 
-export const closeGPTicket = async (payload = {}) => {
-  const res = await eportalAPI.post(
-    PORTALAPI.GATEPASS.CLOSEGPData,
-    payload,
-    {
-      // headers: {
-      //   "X-CSRF-Token": csrfToken
-      // },
-      withCredentials: true
-    }
-  );
-  
-  return res || [];
-};
-
-export const resendauthGPDataDetails = async (payload = {}) => {
-  const res = await eportalAPI.post(
-    PORTALAPI.GATEPASS.RESENDAUTHGPData,
-    payload,
-    {
-      // headers: {
-      //   "X-CSRF-Token": csrfToken
-      // },
-      withCredentials: true
-    }
-  );
-  
-  return res || [];
-};
+export const resendauthGPDataDetails = (payload = {}) =>
+  eportalRequest({
+    url: PORTALAPI.GATEPASS.RESENDAUTHGPData,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });

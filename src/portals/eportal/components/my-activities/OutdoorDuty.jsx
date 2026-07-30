@@ -152,9 +152,7 @@ const OutdoorDuty = () => {
     dispatch(getAuthroizationTaskCount());
   };
 
-  // Build handlers (sendAuth, resendAuth, updateRemarks, closeTicketTB, viewTB, editTB, deleteTB)
   const handlers = createOutdoorDutyHandlers({
-    dispatch,
     handleSuccess,
     openModal,
   });

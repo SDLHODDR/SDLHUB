@@ -38,16 +38,6 @@ const OutdoorDutyModal = ({
     const isCreateMode = mode === "create";
     const isPostRemarkNwMode = modalState.isPostRemark;
 
-    // ===========================
-    // Field Controls
-    // ===========================
-    // console.log(
-    //     "===========EnableRemarks=========",
-    //     isCreateMode,
-    //     isEditMode,
-    //     status,
-    // );
-
     const enableOutType = isCreateMode || isEditMode || isRejectEditMode;
     const enablePostRemarks =
         (isEditMode && status === "Not send to auth") || isPostRemarkMode;
