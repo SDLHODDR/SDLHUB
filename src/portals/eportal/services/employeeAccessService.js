@@ -5,18 +5,50 @@ import { EPORTAL_API } from "../config/eportalApiConfig";
    GET EMPLOYEE ACCESS DROPDOWNS
 ============================ */
 
-export const getEmployeeAccessDropdowns = () =>
+/*export const getEmployeeAccessDropdowns = (companyId = "") =>
   eportalRequest({
     url: EPORTAL_API.EMPLOYEE_ACCESS.GET_EMPLOYEE_ACCESS_DROPDOWNS,
     method: "GET",
+    params: companyId
+      ? {
+          company_id: companyId,
+        }
+      : {},
     fallback: {
       status: false,
-      companies: [],
-      divisions: [],
-      departments: [],
+      data: {
+        companies: [],
+        divisions: [],
+        departments: [],
+        employees: [],
+      },
+    },
+  });*/
+
+ export const getEmployeeAccessDropdowns = ({
+  companyId = "",
+  divisionId = "",
+  departmentId = "",
+} = {}) =>
+  eportalRequest({
+    url: EPORTAL_API.EMPLOYEE_ACCESS.GET_EMPLOYEE_ACCESS_DROPDOWNS,
+    method: "POST",
+    data: {
+      company_id: companyId,
+      division_id: divisionId,
+      department_id: departmentId,
+    },
+    fallback: {
+      status: false,
+      data: {
+        companies: [],
+        divisions: [],
+        departments: [],
+        employees: [],
+      },
     },
   });
-
+  
 /* ============================
    GET EMPLOYEE ACCESS DATA
 ============================ */
