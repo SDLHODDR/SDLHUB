@@ -38,8 +38,6 @@ const Login = () => {
         return;
       }
 
-      //const { user, csrf_token } = response.data || {}; //redirect
-
       const { user, csrf_token } = response.data || {}; //redirect
 
       if (csrf_token) {

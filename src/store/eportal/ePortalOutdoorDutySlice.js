@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { eportalAPI } from "../../services/api";
-import { EPORTAL_API } from "../../portals/eportal/config/eportalApiConfig";
+//import { eportalAPI } from "../../services/api";
+//import { EPORTAL_API } from "../../portals/eportal/config/eportalApiConfig";
+import { outDoorDutyFetchData } from "../../portals/eportal/services/outdoorDutyService";
 
 const initialState = {
   data: [],           // this will hold the `tasks` array
@@ -18,22 +19,16 @@ export const getOutdoorDutyDataResponse = createAsyncThunk(
   "fetch/oddatatable",
   async (payload, { rejectWithValue }) => {
     try {
-      const response = await eportalAPI.post(
-        EPORTAL_API.GATEPASS.GET_GP_LIST, 
-        payload, 
-        {
-          withCredentials: true,
-        }
-      );
-
-      if (response.status !== 200) {
+      const response = await outDoorDutyFetchData(payload);
+      console.log("========eportalOutDoorDutySLice Response========", response);
+      if(!response.status) {
         return rejectWithValue({
           errorCode: response.status,
-          errorMessage: response.statusText,
+          errorMessage: response.message,
         });
       }
       
-    return response.data; // { status: true, tasks: [...] }
+      return response.data; // { status: true, tasks: [...] }
     } catch (error) {
       return rejectWithValue({
         errorCode: error?.response?.status || -1,
@@ -67,9 +62,6 @@ export const myActivitiesODSlice = createSlice({
         //console.log(action);
         state.loading = false;
         state.data = action.payload || [];
-        state.page = action.payload.page;
-        state.limit = action.payload.limit;
-        state.totalRecords = action.payload.totalRecords;
         state.success = !!action.payload.status;
         state.successMessage = "Data fetched successfully";
         state.status = "idle";

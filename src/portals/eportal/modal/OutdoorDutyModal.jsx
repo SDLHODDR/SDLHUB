@@ -4,8 +4,8 @@ import {
     //getGPSVDataDetails,
     saveGPData,
     saveGPDataAUTH,
-    editGPData,
-    editGPDataAUTH,
+    //editGPData,
+    //editGPDataAUTH,
 } from "../services/outdoorDutyService";
 import Swal from "sweetalert2";
 
@@ -37,16 +37,6 @@ const OutdoorDutyModal = ({
     const isPostRemarkMode = mode === "postremark";
     const isCreateMode = mode === "create";
     const isPostRemarkNwMode = modalState.isPostRemark;
-
-    // ===========================
-    // Field Controls
-    // ===========================
-    // console.log(
-    //     "===========EnableRemarks=========",
-    //     isCreateMode,
-    //     isEditMode,
-    //     status,
-    // );
 
     const enableOutType = isCreateMode || isEditMode || isRejectEditMode;
     const enablePostRemarks =
@@ -213,13 +203,20 @@ const OutdoorDutyModal = ({
                 getGpdata: true,
                 //hiddenTaskId: formConfig.taskIdHdn || null
             });
-            // Expecting FORM API response (not list)
-            setGPData(response || {});
+            if (response.status) {
+                // Expecting FORM API response (not list)
+                setGPData(response.data || {});
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Failed",
+                    text:
+                        response?.message || `Unable to fetch Outdoor Duty.`,
+                });
+            }
         } catch (error) {
             console.error("Error fetching data:", error);
-        } //finally {
-        //setLoading(false);
-        // }
+        }
     };
 
     // const checkGPData = async (newValue) => {

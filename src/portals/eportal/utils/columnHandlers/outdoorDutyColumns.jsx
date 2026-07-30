@@ -27,25 +27,39 @@ export const outdoorDutyColumns = (handlers) => [
             const text = rowData?.remarks || "-";
             const trimmed =
                 text.length > 15 ? `${text.substring(0, 15)}...` : text;
-
-            const hasAuthRemark =
-                rowData?.status === "R" && rowData?.authremarks;
-
+            
             return (
                 <div className="remarks-wrapper">
                     {/* Main Remarks */}
                     <div className="remarks-main" title={text}>
                         {trimmed}
                     </div>
-
-                    {/* Show small indicator with tooltip instead of full block */}
-                    {hasAuthRemark && (
-                        <IconWithTooltip text={rowData.authremarks}>
-                            <span className="text-danger small ms-1">
-                                (Auth)
-                            </span>
-                        </IconWithTooltip>
-                    )}
+                </div>
+            );
+        },
+        // style: {
+        //     minWidth: "150px",
+        // },
+    },
+    {
+        field: "authremarks",
+        header: "Auth Remarks",
+        body: (rowData) => {
+            
+            const text = rowData?.status === "R" && rowData?.authremarks
+                          ? rowData.authremarks
+                          : "-";
+            const trimmed =
+                text.length > 15 ? `${text.substring(0, 15)}...` : text;
+            
+            return (
+                <div className="remarks-wrapper">
+                    <IconWithTooltip text={rowData.authremarks}>
+                        <span className="text-danger small ms-1">
+                            {trimmed}
+                        </span>
+                    </IconWithTooltip>
+                    
                 </div>
             );
         },
@@ -85,31 +99,5 @@ export const outdoorDutyColumns = (handlers) => [
             width: "180px",
         },
     },
-    // {
-    //     field: "status",
-    //     header: "Cancel",
-    //     body: (rowData) => {
-    //         const status = rowData.status?.trim()?.toUpperCase();
-    //         const postRemarks = rowData.postremarks;
-    //          const dateDiff =;
-    //         // const hasAuthRemark =
-    //         //     rowData?.status === "R" && rowData?.authremarks;
-
-    //         // return hasAuthRemark ? (
-    //         //     <IconWithTooltip text={rowData.authremarks}>
-    //         //         <span
-    //         //             className={`badge badge-${rowData.statusColor} d-inline-flex align-items-center badge-xs`}
-    //         //         >
-    //         //             {rowData.statusText}
-    //         //         </span>
-    //         //     </IconWithTooltip>
-    //         // ) : (
-    //         //     <span
-    //         //         className={`badge badge-${rowData.statusColor} d-inline-flex align-items-center badge-xs`}
-    //         //     >
-    //         //         {rowData.statusText}
-    //         //     </span>
-    //         // );
-    //     },
-    // },
+    
 ];

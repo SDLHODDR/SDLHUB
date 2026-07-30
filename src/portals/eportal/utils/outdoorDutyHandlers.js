@@ -2,13 +2,11 @@ import Swal from "sweetalert2";
 import {
   sendauthGPDataDetails,
   resendauthGPDataDetails,
-  deleteGPData,
+  //deleteGPData,
   closeGPTicket,
 } from "../services/outdoorDutyService";
 
-import { getOutdoorDutyDataResponse } from "../../../store/eportal/ePortalOutdoorDutySlice";
-
-export const createOutdoorDutyHandlers = ({ dispatch, handleSuccess, openModal }) => {
+export const createOutdoorDutyHandlers = ({ handleSuccess, openModal }) => {
   const sendAuth = async (id) => {
         const result = await Swal.fire({
           title: "Send for Authorization?",
@@ -20,7 +18,6 @@ export const createOutdoorDutyHandlers = ({ dispatch, handleSuccess, openModal }
         if (!result.isConfirmed) return;
     
         //try {
-          //await sendauthGPDataDetails({ ID: id, sendAuth: true });
           const response = await sendauthGPDataDetails({
             ID: id,
             sendAuth: true
@@ -34,9 +31,6 @@ export const createOutdoorDutyHandlers = ({ dispatch, handleSuccess, openModal }
                 response?.message ||
                 "Authorization request sent successfully."
             });
-  
-            //cacheRef.current = {};
-            //dispatch(getOutdoorDutyDataResponse());
             handleSuccess?.();
           } else {
             Swal.fire({
@@ -47,10 +41,6 @@ export const createOutdoorDutyHandlers = ({ dispatch, handleSuccess, openModal }
                 "Unable to send authorization request."
             });
           }
-        //} 
-        // catch {
-        //   Swal.fire("Error!", "", "error");
-        // }
     };
   
     const resendAuth = async (id) => {
@@ -61,8 +51,6 @@ export const createOutdoorDutyHandlers = ({ dispatch, handleSuccess, openModal }
         });
     
         if (!result.isConfirmed) return;
-    
-        //try {
           const response = await resendauthGPDataDetails({
             ID: id,
             resendAuth: true
@@ -76,9 +64,6 @@ export const createOutdoorDutyHandlers = ({ dispatch, handleSuccess, openModal }
                 response?.message ||
                 "Authorization request resent successfully."
             });
-  
-            //cacheRef.current = {};
-            //fetchData();
             handleSuccess?.();
           } else {
             Swal.fire({
@@ -89,14 +74,9 @@ export const createOutdoorDutyHandlers = ({ dispatch, handleSuccess, openModal }
                 "Unable to resend authorization request."
             });
           }
-        // } catch {
-        //   Swal.fire("Error!", "", "error");
-        // }
       };
   
       const updateRemarks = (rowData) => {
-        //console.log("============", rowData);
-  
         openModal({
           mode: "postremark",
           id: rowData.id,
@@ -139,69 +119,15 @@ export const createOutdoorDutyHandlers = ({ dispatch, handleSuccess, openModal }
             });
           }
     
-          //cacheRef.current = {};
-          //dispatch(getOutdoorDutyDataResponse());
           handleSuccess?.();
         } catch (err) {
           console.error(err);
         }
       };
   
-      const viewGP = (id) => openModal(null, "view", id);
-      const editGP = (rowData) => {
-        //console.log("============", rowData);
-  
-        openModal({
-          mode: "edit",
-          id: rowData.id,
-          data: rowData,
-        });
-      };
-  
-      const deleteGP = async (id) => {
-        const result = await Swal.fire({
-          title: "Are you sure?",
-          text: "Delete this Outdoor Duty request?",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Yes, Delete!"
-        });
-    
-        if (!result.isConfirmed) return;
-        //console.log("========Dleete payload=====", { deleteOD: true, delteId: id });
-        //try {
-          //await deleteGPData({ deleteOD: true, delteId: id });
-          const response = await deleteGPData({
-            deleteOD: true,
-            delteId: id
-          });
-    
-          if (response?.status) {
-            await Swal.fire({
-              icon: "success",
-              title: "Deleted!",
-              text:
-                response?.message ||
-                "Gatepass deleted successfully"
-            });
-  
-            //cacheRef.current = {};
-            //fetchData();
-            handleSuccess?.();
-          } else {
-            Swal.fire({
-              icon: "error",
-              title: "Failed!",
-              text:
-                response?.message ||
-                "Delete failed"
-            });
-          }
-        //} 
-        //catch {
-        //   Swal.fire("Error!", "Delete failed", "error");
-        // }
-      };
+      const viewGP = null; 
+      const editGP = null;
+      const deleteGP = null;
 
   return { sendAuth, resendAuth, updateRemarks, closeTicketGP, viewGP, editGP, deleteGP };
 };

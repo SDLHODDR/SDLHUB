@@ -14,9 +14,9 @@ const SDLCalendar = ({ openModal }) => {
     const loadCalendar = async () => {
       try {
         const response = await getCalendarData();
-        //console.log("Calendar Data:", response); // debug
+        console.log("Calendar Data:", response); // debug
 
-        const normalized = response.map((item) => ({
+        const normalized = response?.data.map((item) => ({
           date: new Date(item.date),
           dateStr: item.date, // already YYYY-MM-DD
           type: item.HOL_TYPE, // H, W, O
