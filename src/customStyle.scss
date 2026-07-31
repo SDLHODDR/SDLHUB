@@ -2083,3 +2083,20 @@ div.p-datepicker table td.p-datepicker-today>span.p-highlight {
     box-shadow: 0 0.0625rem 0.125rem 0 rgba(0, 0, 0, 0.05);
   }
 }
+.welcome-text {
+  color: #FE9F43;
+  font-size: 13px;
+}
+
+.welcome-user {
+  color: #0d2b4d;
+  font-size: 14px;
+  font-weight: 600;
+  margin-left: 4px;
+  margin-right: 10px;
+}
+
+.sidebar-horizontal.sidebar .sidebar-menu ul ul { 
+  border: 1px solid #d5cdcd;
+  border-top:0;
+}

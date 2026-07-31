@@ -195,7 +195,7 @@ const toggleFullscreen = (elem) => {
             </li>
             {/* /Select Store */}
 
-           
+           {/*
       			<li className="nav-item nav-item-box">
               <Link
                 to="#"
@@ -203,10 +203,11 @@ const toggleFullscreen = (elem) => {
                 onClick={() => toggleFullscreen()}
                 className={isFullscreen ? "Exit Fullscreen" : "Go Fullscreen"}>
                 
-                {/* <i data-feather="maximize" /> */}
+                {/* <i data-feather="maximize" /> *}
                 <i className="ti ti-maximize"></i>
               </Link>
             </li>
+            */}
 
           {/* Profile Dropdown */}
           <li className="nav-item dropdown has-arrow main-drop profile-nav">
@@ -216,6 +217,12 @@ const toggleFullscreen = (elem) => {
               data-bs-toggle="dropdown"
             >
               <span className="user-info p-0">
+                 <span className="welcome-text">
+                  Welcome,
+                </span>
+                <span className="welcome-user">
+                  {user?.name || "Guest User"}
+                </span>
                 <span className="user-letter">       
                     <img
                         src={headerImage || STOREIMAGES.PROFILE.AVATAR_1}

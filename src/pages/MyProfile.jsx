@@ -247,7 +247,6 @@ const MyProfile = () => {
     );
 
     if (!result.isConfirmed) {
-      console.log("Cancelled");
       return;
     }
 
