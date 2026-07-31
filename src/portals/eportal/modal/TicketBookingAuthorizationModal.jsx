@@ -149,22 +149,8 @@ const TicketBookingAuthorizationModal = ({
                 <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
-                      <label className="fw-semibold">CREATED BY :</label>
-                      <span className="ms-2">{formData.CREATED_BY || ""}</span>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">CREATED ON :</label>
-                      <span className="ms-2">{formData.CREATED_ON || ""}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">Travel Date :</label>
-                      <span className="ms-2">{formData.TRVL_DATE || ""}</span>
+                      <label className="fw-semibold">Mode :</label>
+                      <span className="ms-2">{formData.TRVL_MODE || ""}</span>
                     </div>
                   </div>
                   <div className="col-md-6">
@@ -177,30 +163,36 @@ const TicketBookingAuthorizationModal = ({
                 <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
-                      <label className="fw-semibold">Travel Mode :</label>
-                      <span className="ms-2">{formData.TRVL_MODE || ""}</span>
+                      <label className="fw-semibold">From :</label>
+                      <span className="ms-2">{formData.TRVL_FROM_LOC || ""}</span>
                     </div>
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
-                      <label className="fw-semibold">Travel Class :</label>
-                      <span className="ms-2">{formData.TRVL_CLASS || ""}</span>
+                      <label className="fw-semibold">To :</label>
+                      <span className="ms-2">{formData.TRVL_TO_LOC || ""}</span>
                     </div>
                   </div>
                 </div>
-                <div className="row">
+                 <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
-                      <label className="fw-semibold">Travel From :</label>
+                      <label className="fw-semibold">
+                        Departure Time :
+                      </label>
                       <span className="ms-2">
-                        {formData.TRVL_FROM_LOC || ""}
+                        {formData.TTNT_ARVL_TIME || ""}
                       </span>
                     </div>
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
-                      <label className="fw-semibold">Travel To :</label>
-                      <span className="ms-2">{formData.TRVL_TO_LOC || ""}</span>
+                      <label className="fw-semibold">
+                        Arrival Time :
+                      </label>
+                      <span className="ms-2">
+                        {formData.TTNT_DEPR_TIME || ""}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -209,7 +201,7 @@ const TicketBookingAuthorizationModal = ({
                     <div className="mb-3">
                       <label className="fw-semibold">Flight/Train Name :</label>
                       <span className="ms-2">
-                        {formData.TRVL_FT_NAME || ""}
+                        {formData.TRVL_FT_NAME || ""} - <b>({formData.TRVL_CLASS || ""})</b>
                       </span>
                     </div>
                   </div>
@@ -222,28 +214,7 @@ const TicketBookingAuthorizationModal = ({
                     </div>
                   </div>
                 </div>
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">
-                        Suitable Departure Onwards :
-                      </label>
-                      <span className="ms-2">
-                        {formData.TTNT_ARVL_TIME || ""}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">
-                        Suitable Arrival Onwards :
-                      </label>
-                      <span className="ms-2">
-                        {formData.TTNT_DEPR_TIME || ""}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+               
                 <div className="row">
                   <div className="col-12">
                     <div className="form-group mb-3">

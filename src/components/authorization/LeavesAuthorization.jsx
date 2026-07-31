@@ -91,7 +91,7 @@ const LeavesAuthorization = () => {
 
   const columns = [
     {
-      header: "Task For",
+      header: "Raised by Employee",
       body: (rowData) => {
         const taskfor = rowData?.REQUEST_FOR || "-";
         return (
@@ -108,10 +108,13 @@ const LeavesAuthorization = () => {
         );
       },
     },
+    { field: "CREATED_ON", header: "Added On", sortable: true },
     {
-      header: "Task From",
+      header: "Task",
       body: (rowData) => {
-        const createdBy = rowData?.CREATED_BY || "-";
+        const taskfor = rowData?.REQUEST_FOR || "-";
+         const dateFrom = rowData?.LVE_DATE_FR || "-";
+         const dateTo = rowData?.LVE_DATE_TO || "-";
         return (
           <a
             href="#"
@@ -121,82 +124,12 @@ const LeavesAuthorization = () => {
             }}
             title="Task From"
           >
-            {createdBy}
+            {taskfor} ({dateFrom} To {dateTo})
           </a>
         );
       },
-    },
-  
-    {
-      field: "REMARKS",
-      header: "REMARKS",
-      body: (rowData) => {
-        const text = rowData?.DETAILS.REASON || "-";
-        const trimmed = text.length > 15 ? `${text.substring(0, 15)}...` : text;
-        return (
-          <div className="remarks-wrapper">
-            <div className="remarks-main" title={text}>
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  openModal(rowData);
-                }}
-                title="Remarks"
-              >
-                {trimmed}
-              </a>
-            </div>
-          </div>
-        );
-      },
-      // style: { minWidth: "450px" },
     },
     
-   
-
-    {
-      field: "LVE_DATE_FR",
-      header: "From",
-      sortable: true,
-      body: (rowData) => {
-        const dateFrom = rowData?.LVE_DATE_FR || "-";
-        return (
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openModal(rowData);
-            }}
-            title="From"
-          >
-            {dateFrom}
-          </a>
-        );
-      },
-    },
-
-    {
-      field: "LVE_DATE_TO",
-      header: "TO",
-      sortable: true,
-      body: (rowData) => {
-        const dateTo = rowData?.LVE_DATE_TO || "-";
-        return (
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openModal(rowData);
-            }}
-            title="TO"
-          >
-            {dateTo}
-          </a>
-        );
-      },
-    },
-
     {
       field: "LVE_START_ON",
       header: "START",
@@ -241,7 +174,7 @@ const LeavesAuthorization = () => {
     },
     {
       field: "LVE_CODE",
-      header: "From",
+      header: "Leave Type",
       sortable: true,
       body: (rowData) => {
         const leaveCode = rowData?.LVE_CODE || "-";
@@ -279,7 +212,31 @@ const LeavesAuthorization = () => {
         );
       },
     },
-    { field: "CREATED_ON", header: "Created On", sortable: true },
+    {
+      field: "REMARKS",
+      header: "REMARKS",
+      body: (rowData) => {
+        const text = rowData?.DETAILS.REASON || "-";
+        const trimmed = text.length > 15 ? `${text.substring(0, 15)}...` : text;
+        return (
+          <div className="remarks-wrapper">
+            <div className="remarks-main" title={text}>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  openModal(rowData);
+                }}
+                title="Remarks"
+              >
+                {trimmed}
+              </a>
+            </div>
+          </div>
+        );
+      },
+      // style: { minWidth: "450px" },
+    },
   ];
 
   // Conditional return happens LAST, after every hook has been called

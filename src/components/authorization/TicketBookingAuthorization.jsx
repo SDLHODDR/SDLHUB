@@ -88,9 +88,10 @@ const TicketBookingAuthorization = () => {
   const columns = [
     // { field: "REQUEST_FOR", header: "Task For", sortable: true },
     {
-      header: "Task For",
+      header: "Raised by Employee",
       body: (rowData) => {
-        const taskfor = rowData?.REQUEST_FOR || "-";
+        //const taskFor = rowData?.REQUEST_FOR || "-";
+        const taskFor = rowData?.CREATED_BY || "-";
         return (
           <a
             href="#"
@@ -100,12 +101,57 @@ const TicketBookingAuthorization = () => {
             }}
             title="Task For"
           >
-            {taskfor}
+            {taskFor}
           </a>
         );
       },
     },
-    { field: "CREATED_BY", header: "Task From", sortable: true },
+    { field: "CREATED_ON", header: "Added On", sortable: true },
+    {
+      field: "TRVL_DATE",
+      header: "Task",
+      sortable: true,
+      body: (rowData) => {
+        const trvlDate = rowData?.TRVL_DATE || "-";
+        const fromLoc = rowData?.TRVL_FROM_LOC || "-";
+        const toLoc = rowData?.TRVL_TO_LOC || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="Request DATE"
+          >
+            Ticket Request From {fromLoc} To {toLoc} Dated {trvlDate}
+          </a>
+        );
+      },
+    },
+    // { field: "CREATED_BY", header: "Task From", sortable: true },
+    
+    
+    {
+      field: "REQ_DATE",
+      header: "Request DATE",
+      sortable: true,
+      body: (rowData) => {
+        const reqDate = rowData?.REQ_DATE || "-";
+        return (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="Request DATE"
+          >
+            {reqDate}
+          </a>
+        );
+      },
+    },
     {
       field: "REMARKS",
       header: "REMARKS",
@@ -131,26 +177,6 @@ const TicketBookingAuthorization = () => {
       },
       // style: { minWidth: "450px" },
     },
-    {
-      field: "REQ_DATE",
-      header: "Request DATE",
-      sortable: true,
-      body: (rowData) => {
-        const reqDate = rowData?.REQ_DATE || "-";
-        return (
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openModal(rowData);
-            }}
-            title="Request DATE"
-          >
-            {reqDate}
-          </a>
-        );
-      },
-    },
     // {
     //   field: "TRVL_CLASS",
     //   header: "Class",
@@ -171,128 +197,128 @@ const TicketBookingAuthorization = () => {
     //     );
     //   },
     // },
-    {
-      field: "TRVL_MODE",
-      header: "Mode",
-      sortable: true,
-      body: (rowData) => {
-        const trvlMode = rowData?.TRVL_MODE || "-";
-        return (
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openModal(rowData);
-            }}
-            title="Travel Mode"
-          >
-            {trvlMode}
-          </a>
-        );
-      },
-    },
-    {
-      field: "TRVL_DATE",
-      header: "Travel Date",
-      sortable: true,
-      body: (rowData) => {
-        const trvlDate = rowData?.TRVL_DATE || "-";
-        return (
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openModal(rowData);
-            }}
-            title="Travel Date"
-          >
-            {trvlDate}
-          </a>
-        );
-      },
-    },
-    {
-      field: "TRVL_FROM_LOC",
-      header: "From",
-      sortable: true,
-      body: (rowData) => {
-        const fromLoc = rowData?.TRVL_FROM_LOC || "-";
-        return (
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openModal(rowData);
-            }}
-            title="From"
-          >
-            {fromLoc}
-          </a>
-        );
-      },
-    },
-    {
-      field: "TRVL_TO_LOC",
-      header: "To",
-      sortable: true,
-      body: (rowData) => {
-        const toLoc = rowData?.TRVL_TO_LOC || "-";
-        return (
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openModal(rowData);
-            }}
-            title="To"
-          >
-            {toLoc}
-          </a>
-        );
-      },
-    },
-    {
-      field: "TRVL_FT_NAME",
-      header: "Train/Flight",
-      sortable: true,
-      body: (rowData) => {
-        const ftName = rowData?.TRVL_FT_NAME || "-";
-        return (
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openModal(rowData);
-            }}
-            title="Train/Flight"
-          >
-            {ftName}
-          </a>
-        );
-      },
-    },
-    {
-      field: "TRVL_FT_NO",
-      header: "Number",
-      sortable: true,
-      body: (rowData) => {
-        const ftNo = rowData?.TRVL_FT_NO || "-";
-        return (
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openModal(rowData);
-            }}
-            title="Number"
-          >
-            {ftNo}
-          </a>
-        );
-      },
-    },
+    // {
+    //   field: "TRVL_MODE",
+    //   header: "Mode",
+    //   sortable: true,
+    //   body: (rowData) => {
+    //     const trvlMode = rowData?.TRVL_MODE || "-";
+    //     return (
+    //       <a
+    //         href="#"
+    //         onClick={(e) => {
+    //           e.preventDefault();
+    //           openModal(rowData);
+    //         }}
+    //         title="Travel Mode"
+    //       >
+    //         {trvlMode}
+    //       </a>
+    //     );
+    //   },
+    // },
+    // {
+    //   field: "TRVL_DATE",
+    //   header: "Travel Date",
+    //   sortable: true,
+    //   body: (rowData) => {
+    //     const trvlDate = rowData?.TRVL_DATE || "-";
+    //     return (
+    //       <a
+    //         href="#"
+    //         onClick={(e) => {
+    //           e.preventDefault();
+    //           openModal(rowData);
+    //         }}
+    //         title="Travel Date"
+    //       >
+    //         {trvlDate}
+    //       </a>
+    //     );
+    //   },
+    // },
+    // {
+    //   field: "TRVL_FROM_LOC",
+    //   header: "From",
+    //   sortable: true,
+    //   body: (rowData) => {
+    //     const fromLoc = rowData?.TRVL_FROM_LOC || "-";
+    //     return (
+    //       <a
+    //         href="#"
+    //         onClick={(e) => {
+    //           e.preventDefault();
+    //           openModal(rowData);
+    //         }}
+    //         title="From"
+    //       >
+    //         {fromLoc}
+    //       </a>
+    //     );
+    //   },
+    // },
+    // {
+    //   field: "TRVL_TO_LOC",
+    //   header: "To",
+    //   sortable: true,
+    //   body: (rowData) => {
+    //     const toLoc = rowData?.TRVL_TO_LOC || "-";
+    //     return (
+    //       <a
+    //         href="#"
+    //         onClick={(e) => {
+    //           e.preventDefault();
+    //           openModal(rowData);
+    //         }}
+    //         title="To"
+    //       >
+    //         {toLoc}
+    //       </a>
+    //     );
+    //   },
+    // },
+    // {
+    //   field: "TRVL_FT_NAME",
+    //   header: "Train/Flight",
+    //   sortable: true,
+    //   body: (rowData) => {
+    //     const ftName = rowData?.TRVL_FT_NAME || "-";
+    //     return (
+    //       <a
+    //         href="#"
+    //         onClick={(e) => {
+    //           e.preventDefault();
+    //           openModal(rowData);
+    //         }}
+    //         title="Train/Flight"
+    //       >
+    //         {ftName}
+    //       </a>
+    //     );
+    //   },
+    // },
+    // {
+    //   field: "TRVL_FT_NO",
+    //   header: "Number",
+    //   sortable: true,
+    //   body: (rowData) => {
+    //     const ftNo = rowData?.TRVL_FT_NO || "-";
+    //     return (
+    //       <a
+    //         href="#"
+    //         onClick={(e) => {
+    //           e.preventDefault();
+    //           openModal(rowData);
+    //         }}
+    //         title="Number"
+    //       >
+    //         {ftNo}
+    //       </a>
+    //     );
+    //   },
+    // },
 
-    { field: "CREATED_ON", header: "Created On", sortable: true },
+    //{ field: "CREATED_ON", header: "Created On", sortable: true },
     // {
     //   field: "STATUS",
     //   header: "Status",

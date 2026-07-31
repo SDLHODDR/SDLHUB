@@ -152,7 +152,7 @@ const LeavesAuthorizationModal = ({
             <form>
               {/* Body */}
               <div className="modal-body">
-                <div className="row">
+                {/* <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
                        <label className="fw-semibold">CREATED BY :</label>
@@ -169,7 +169,7 @@ const LeavesAuthorizationModal = ({
                       </span>
                     </div>
                   </div>
-                </div>
+                </div> */}
                 <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
