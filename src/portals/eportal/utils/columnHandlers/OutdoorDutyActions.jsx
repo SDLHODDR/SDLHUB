@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import Swal from "sweetalert2";
+//import Swal from "sweetalert2";
 
 export const renderOutdoorDutyActions = (
   rowData,
@@ -13,7 +13,7 @@ export const renderOutdoorDutyActions = (
   const datePass = rowData.dateTimePass;
   const id = rowData.id;
 
-  const disableEditDelete = ["A", "R", "T", "X"].includes(status);
+  // const disableEditDelete = ["A", "R", "T", "X"].includes(status);
 
   //console.log("==============DisableEditDelete======Status============", status, disableEditDelete);
 
@@ -26,7 +26,7 @@ export const renderOutdoorDutyActions = (
   );
 
   // safe click handler
-  const handleClick = (e, action, disabled = false, status = "") => {
+  const handleClick = (e, action) => {
     //console.log("********Action Disabled*******", action, status);
     e.preventDefault();
     e.stopPropagation();
@@ -54,7 +54,7 @@ export const renderOutdoorDutyActions = (
           <span>
             <Link
               to=""
-              onClick={(e) => handleClick(e, resendAuth, false, status)}
+              onClick={(e) => handleClick(e, resendAuth)}
             >
               <i className="ti ti-refresh"></i>
             </Link>
@@ -74,7 +74,7 @@ export const renderOutdoorDutyActions = (
                 to=""
                 // onClick={(e) => handleClick(e, updateRemarks)}
                 onClick={(e) =>
-                  handleClick(e, () => updateRemarks(rowData), false, status)
+                  handleClick(e, () => updateRemarks(rowData))
                 }
               >
                 <i className="ti ti-message-plus"></i>
@@ -89,7 +89,7 @@ export const renderOutdoorDutyActions = (
           <span>
             <Link
               to=""
-              onClick={(e) => handleClick(e, sendAuth, false, status)}
+              onClick={(e) => handleClick(e, sendAuth)}
             >
               <i className="ti ti-send"></i>
             </Link>
@@ -106,7 +106,7 @@ export const renderOutdoorDutyActions = (
                 to=""
                 // onClick={(e) => handleClick(e, updateRemarks)}
                 onClick={(e) =>
-                  handleClick(e, () => closeTicketGP(rowData.id), false, status)
+                  handleClick(e, () => closeTicketGP(rowData.id))
                 }
               >
                 <i className="ti ti-x" />

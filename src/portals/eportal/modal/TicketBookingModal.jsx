@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   getTBRDataDetails,
   saveTBRData,
@@ -6,7 +6,7 @@ import {
   editTBRData,
   editTBRDataAUTH,
 } from "../services/ticketbookingService";
-import Swal from "sweetalert2";
+import { notifyError, notifySuccess } from "../../../services/alertService";
 
 const TicketBookingModal = ({
   formSettings,
@@ -14,23 +14,23 @@ const TicketBookingModal = ({
   closeModal,
   onSuccess,
 }) => {
-  const { modalPage, mode, modeLabel, form_header, form_text } = formSettings;
+  const { mode } = formSettings;
 
-  const [date, setDate] = useState(new Date());
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  //const [date, setDate] = useState(new Date());
+  //const [startTime, setStartTime] = useState("");
+  //const [endTime, setEndTime] = useState("");
   const [loading, setLoading] = useState(true);
   const [tbData, setTBData] = useState({});
   const [formData, setFormData] = useState({});
   const { isOpen, modalDate } = modalState;
 
   const [errors, setErrors] = useState({});
-  const isReadOnly = ["view", "readonly"].includes(mode);
+  //const isReadOnly = ["view", "readonly"].includes(mode);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const isEditMode = modalState.mode === "edit";
-  const isRejectEditMode = mode === "edit-reject";
-  const isPostRemarkMode = mode === "postremark";
-  const isCreateMode = mode === "create";
+  // const isEditMode = modalState.mode === "edit";
+  // const isRejectEditMode = mode === "edit-reject";
+  // const isPostRemarkMode = mode === "postremark";
+  // const isCreateMode = mode === "create";
 
   // ===========================
   // Field Controls
@@ -39,17 +39,24 @@ const TicketBookingModal = ({
   // formSettings/modalState/state). Pull it from wherever your API/modal
   // actually stores it. Using tbData?.status as a placeholder here —
   // adjust to match your real data shape.
-  const status = tbData?.status;
+  //const status = tbData?.status;
 
-  const enableOutType = isCreateMode || isEditMode || isRejectEditMode;
-  const enablePostRemarks =
-    (isEditMode && status === "Not send to auth") || isPostRemarkMode;
+  //const enableOutType = isCreateMode || isEditMode || isRejectEditMode;
+  //const enablePostRemarks = (isEditMode && status === "Not send to auth") || isPostRemarkMode;
 
-  useEffect(() => {
-    if (isOpen) {
-      setIsSubmitting(false); // reset every time modal opens
-    }
-  }, [isOpen]);
+  // useEffect(() => {
+  //   if (isOpen) {
+  //     setIsSubmitting(false); // reset every time modal opens
+  //   }
+  // }, [isOpen]);
+
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen !== prevIsOpen) {
+      setPrevIsOpen(isOpen);
+      if (isOpen) {
+          setIsSubmitting(false);
+      }
+  }
 
   const initialFormData = {
     TRVL_EMP: "",
@@ -103,35 +110,18 @@ const TicketBookingModal = ({
       const apiCall = isEdit ? editTBRData : saveTBRData;
       const response = await apiCall(payload);
       if (response?.status) {
-        await Swal.fire({
-          icon: "success",
-          title: "Success",
-          text:
-            response?.message ||
-            `Ticket Booking Request ${isEdit ? "updated" : "saved"} successfully.`,
-        });
-
+        notifySuccess(response?.message || "Ticket Booking Request saved successfully.");
         resetForm();
         onSuccess?.();
         closeModal();
       } else {
         setIsSubmitting(false); // re-enable
-        Swal.fire({
-          icon: "error",
-          title: "Failed",
-          text:
-            response?.message ||
-            `Unable to ${isEdit ? "update" : "save"} Ticket Booking Request.`,
-        });
+        notifyError(response?.message || "Unable to save Ticket Booking Request ");
       }
     } catch (err) {
       console.error("Submit Error:", err);
       setIsSubmitting(false); // re-enable on error
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Something went wrong while saving data.",
-      });
+      notifyError("Something went wrong while saving data");
     } finally {
       setIsSubmitting(false); // ALWAYS reset
       setLoading(false);
@@ -157,34 +147,18 @@ const TicketBookingModal = ({
       const apiCall = isEdit ? editTBRDataAUTH : saveTBRDataAUTH;
       const response = await apiCall(payload);
       if (response?.status) {
-        await Swal.fire({
-          icon: "success",
-          title: "Success",
-          text:
-            response?.message ||
-            `Ticket Booking ${isEdit ? "updated" : "saved"} successfully.`,
-        });
+        notifySuccess(response?.message || "Ticket Booking saved successfully");
         resetForm();
         onSuccess?.();
         closeModal();
       } else {
         setIsSubmitting(false); // re-enable
-        Swal.fire({
-          icon: "error",
-          title: "Failed",
-          text:
-            response?.message ||
-            `Unable to ${isEdit ? "update" : "save"} Ticket Booking.`,
-        });
+        notifyError(response?.message || "Unable to saved Ticket Booking");
       }
     } catch (err) {
       console.error("Submit Error:", err);
       setIsSubmitting(false); // re-enable on error
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Something went wrong while saving data.",
-      });
+      notifyError("Something went wrong while saving data");
     } finally {
       setIsSubmitting(false); // ALWAYS reset
       setLoading(false);
@@ -194,86 +168,136 @@ const TicketBookingModal = ({
   // ===========================
   // Fetch Data
   // ===========================
+  // useEffect(() => {
+  //   if (isOpen) {
+  //     fetchTBData();
+  //   }
+  // }, [isOpen]);
+
+  
+  const fetchTBData = useCallback(async () => {
+    //const fetchTBData = async () => {
+      try {
+        setLoading(true);
+        const response = await getTBRDataDetails({
+          id: modalState.id || null,
+          ID: modalState.id || null,
+          getTbrdata: true,
+        });
+
+        // The API returns { status, pass: { var: { type: {...} } } }.
+        // Unwrap "pass" here so the rest of the component can treat
+        // tbData as the object that actually holds "var".
+        //console.log("=============== RESPONSE ===================",response);
+        setTBData(response.data.pass || {});
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+  }, [modalState.id]);
+
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- legitimate fetch-on-open; setLoading(true) fires before the await
       fetchTBData();
     }
-  }, [isOpen]);
-
-  const fetchTBData = async () => {
-    try {
-      setLoading(true);
-      const response = await getTBRDataDetails({
-        id: modalState.id || null,
-        ID: modalState.id || null,
-        getTbrdata: true,
-      });
-
-      // The API returns { status, pass: { var: { type: {...} } } }.
-      // Unwrap "pass" here so the rest of the component can treat
-      // tbData as the object that actually holds "var".
-       //console.log("=============== RESPONSE ===================",response);
-      setTBData(response.data.pass || {});
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
+  }, [isOpen, fetchTBData]);
 
    // console.log("===============",tbData);
   // ===========================
   // Initialize Form
   // ===========================
-  useEffect(() => {
+
+  // ===========================
+  // Format Date
+  // ===========================
+  const formatDate = (dateVal) => {
+    if (!dateVal) return "";
+
+    const date = new Date(dateVal);
+    if (isNaN(date)) return "";
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    return `${day}-${months[date.getMonth()]}-${date.getFullYear()}`;
+  };
+  const [prevTBData, setPrevTBData] = useState(tbData);
+  if (tbData !== prevTBData) {
+    setPrevTBData(tbData);
+
+    const tbFormData = tbData?.form_data;
+    const tbFormDataHdn = tbData?.hidden;
+
     const types = tbData?.var?.type;
     if (!types) return;
 
-    const initial = {};
+    if (tbFormData) {
+      const initial = {};
 
-    // Fields are grouped by input type (TEXT, TEXTAREA, SELECT, HIDDEN).
-    // Flatten every group into a single { name: value } map.
-    Object.values(types).forEach((group) => {
-      Object.values(group).forEach((field) => {
-        if (field?.name) {
-          initial[field.name] = field.value ?? "";
-        }
-      });
-    });
-
-    // SELECT fields sometimes arrive with the human-readable label as
-    // "value" (e.g. "Train") instead of the option key (e.g. "T").
-    // Reverse-map label -> key so <select value={...}> actually matches
-    // one of the <option value={key}> elements.
-    const selectGroup = types.SELECT || {};
-    Object.values(selectGroup).forEach((field) => {
-        if (!field?.name) return;
-
-        const options = field.options;
-        // Only handle the {key: label} shape (TRVL_MODE-style), not the
-        // array-of-objects shape (TRVL_CLASS/EMP_CODE-style).
-        if (!options || Array.isArray(options)) return;
-
-        const currentVal = initial[field.name];
-        if (currentVal && !(currentVal in options)) {
-            const matchedKey = Object.entries(options).find(
-                ([, label]) => label === currentVal,
-            )?.[0];
-
-            if (matchedKey) {
-                initial[field.name] = matchedKey;
+        // Fields are grouped by input type (TEXT, TEXTAREA, SELECT, HIDDEN).
+        // Flatten every group into a single { name: value } map.
+        Object.values(types).forEach((group) => {
+          Object.values(group).forEach((field) => {
+            if (field?.name) {
+              initial[field.name] = field.value ?? "";
             }
+          });
+        });
+
+        (tbFormDataHdn || []).forEach((field) => {
+                if (field?.name) {
+                    initial[field.name] = field.value ?? "";
+                }
+            });
+
+        // SELECT fields sometimes arrive with the human-readable label as
+        // "value" (e.g. "Train") instead of the option key (e.g. "T").
+        // Reverse-map label -> key so <select value={...}> actually matches
+        // one of the <option value={key}> elements.
+        const selectGroup = types.SELECT || {};
+        Object.values(selectGroup).forEach((field) => {
+            if (!field?.name) return;
+
+            const options = field.options;
+            // Only handle the {key: label} shape (TRVL_MODE-style), not the
+            // array-of-objects shape (TRVL_CLASS/EMP_CODE-style).
+            if (!options || Array.isArray(options)) return;
+
+            const currentVal = initial[field.name];
+            if (currentVal && !(currentVal in options)) {
+                const matchedKey = Object.entries(options).find(
+                    ([, label]) => label === currentVal,
+                )?.[0];
+
+                if (matchedKey) {
+                    initial[field.name] = matchedKey;
+                }
+            }
+        });
+
+        // Format Date
+        const rawDate = initial["TRVL_DATE"] || modalDate;
+        if (rawDate) {
+          initial["TRVL_DATE"] = formatDate(rawDate);
         }
-    });
 
-    // Format Date
-    const rawDate = initial["TRVL_DATE"] || modalDate;
-    if (rawDate) {
-      initial["TRVL_DATE"] = formatDate(rawDate);
+        setFormData(initial);
     }
-
-    setFormData(initial);
-  }, [tbData, modalDate]);
-
+  }
+  
   // ===========================
   // Handle Change
   // ===========================
@@ -318,10 +342,10 @@ const TicketBookingModal = ({
     return regex.test(time);
   };
 
-  const toMinutes = (time) => {
-    const [h, m] = time.split(":").map(Number);
-    return h * 60 + m;
-  };
+  // const toMinutes = (time) => {
+  //   const [h, m] = time.split(":").map(Number);
+  //   return h * 60 + m;
+  // };
 
   const showEmp = (e) => {
     const { name, value } = e.target;
@@ -342,33 +366,7 @@ const TicketBookingModal = ({
     }));
   };
 
-  // ===========================
-  // Format Date
-  // ===========================
-  const formatDate = (dateVal) => {
-    if (!dateVal) return "";
-
-    const date = new Date(dateVal);
-    if (isNaN(date)) return "";
-
-    const day = String(date.getDate()).padStart(2, "0");
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-
-    return `${day}-${months[date.getMonth()]}-${date.getFullYear()}`;
-  };
+  
 
   // ===========================
   // Validation
@@ -438,6 +436,11 @@ const TicketBookingModal = ({
   if (!isOpen) return null;
   return (
     <>
+    {loading && (
+        <div className="p-4 text-center">
+          <div className="spinner-border text-warning"></div>
+        </div>
+      )}
       {/* Add Outdoor Duty */}
       <div
         className={`modal fade ${isOpen ? "show d-block" : ""}`}

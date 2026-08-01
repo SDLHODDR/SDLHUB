@@ -1,4 +1,3 @@
-import Swal from "sweetalert2";
 import {
   sendauthGPDataDetails,
   resendauthGPDataDetails,
@@ -6,14 +5,14 @@ import {
   closeGPTicket,
 } from "../services/outdoorDutyService";
 
+import { notifySuccess, confirmAction, notifyError } from "../../../services/alertService";
+
 export const createOutdoorDutyHandlers = ({ handleSuccess, openModal }) => {
   const sendAuth = async (id) => {
-        const result = await Swal.fire({
-          title: "Send for Authorization?",
-          icon: "question",
-          showCancelButton: true,
-          confirmButtonText: "Yes",
-        });
+    const result = await confirmAction(
+      "Send for Authorization?"
+    );
+       
     
         if (!result.isConfirmed) return;
     
@@ -24,32 +23,18 @@ export const createOutdoorDutyHandlers = ({ handleSuccess, openModal }) => {
           });
   
           if (response?.status) {
-            await Swal.fire({
-              icon: "success",
-              title: "Sent!",
-              text:
-                response?.message ||
-                "Authorization request sent successfully."
-            });
+            notifySuccess( response?.message || "Authorization request sent successfully.");
             handleSuccess?.();
           } else {
-            Swal.fire({
-              icon: "error",
-              title: "Failed!",
-              text:
-                response?.message ||
-                "Unable to send authorization request."
-            });
+            notifyError(response?.message || "Unable to send authorization request.");
           }
     };
   
     const resendAuth = async (id) => {
-        const result = await Swal.fire({
-          title: "Resend Authorization?",
-          icon: "warning",
-          showCancelButton: true
-        });
-    
+      const result = await confirmAction(
+        "Resend Authorization?"
+      );
+       
         if (!result.isConfirmed) return;
           const response = await resendauthGPDataDetails({
             ID: id,
@@ -57,22 +42,10 @@ export const createOutdoorDutyHandlers = ({ handleSuccess, openModal }) => {
           });
           
           if (response?.status) {
-            await Swal.fire({
-              icon: "success",
-              title: "Resent!",
-              text:
-                response?.message ||
-                "Authorization request resent successfully."
-            });
+            notifySuccess( response?.message || "Authorization request resent successfully." );
             handleSuccess?.();
           } else {
-            Swal.fire({
-              icon: "error",
-              title: "Failed!",
-              text:
-                response?.message ||
-                "Unable to resend authorization request."
-            });
+            notifyError(response?.message || "Unable to resend authorization request.");
           }
       };
   
@@ -87,12 +60,10 @@ export const createOutdoorDutyHandlers = ({ handleSuccess, openModal }) => {
   
       const closeTicketGP = async (id) => {
         try {
-          const result = await Swal.fire({
-            title: "Close OutDoor Duty Request?",
-            icon: "question",
-            showCancelButton: true
-          });
-
+          const result = await confirmAction(
+            "Close OutDoor Duty Request?"
+          );
+          
           if (!result.isConfirmed) return;
 
           const response = await closeGPTicket({
@@ -101,22 +72,9 @@ export const createOutdoorDutyHandlers = ({ handleSuccess, openModal }) => {
           });
 
           if (response?.status) {
-            await Swal.fire({
-              icon: "success",
-              title: "Closed!",
-              text:
-                response?.message ||
-                "Outdoor Request Closed successfully."
-            });
-
+            notifySuccess( response?.message || "Outdoor Request Closed successfully." );
           } else {
-            Swal.fire({
-              icon: "error",
-              title: "Failed!",
-              text:
-                response?.message ||
-                "Unable to close request."
-            });
+            notifyError(response?.message || "Unable to close request.");
           }
     
           handleSuccess?.();

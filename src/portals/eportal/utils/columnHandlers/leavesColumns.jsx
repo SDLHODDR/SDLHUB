@@ -4,23 +4,27 @@ import { IconWithTooltip } from "../tooltipHelper";
 export const leavesColumns = (handlers) => [
   {
     field: "LVE_CODE",
-    header: "Leave Type",
+    header: "Type",
     sortable: true,
+    
   },
   {
     field: "LVE_DATE_FR",
     header: "From Dt.",
     sortable: true,
+    
   },
   {
     field: "LVE_DATE_TO",
     header: "To Dt.",
     sortable: true,
+   
   },
   {
     field: "NO_DAYS",
-    header: "No. Days",
+    header: "Days",
     sortable: true,
+   
   },
   {
     field: "REMARKS",
@@ -38,7 +42,8 @@ export const leavesColumns = (handlers) => [
           {trimmed}
         </span>
       );
-    }
+    },
+    
   },
   
   {
@@ -63,14 +68,7 @@ export const leavesColumns = (handlers) => [
         </span>
       );
     },
+   
   },
-  // {
-  //   field: "col_actions",
-  //   header: "Actions",
-  //   sortable: false,
-  //   body: (rowData) => renderLeaveActions(rowData, handlers),
-  //   style: {
-  //     width: "180px",
-  //   },
-  // },
+  
 ];

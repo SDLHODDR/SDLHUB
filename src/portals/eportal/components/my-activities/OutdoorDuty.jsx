@@ -8,56 +8,43 @@ import SDLSearch from "../../../../components/datatable/SDLSearch";
 import SDLCalendar from "../../../../components/calendar/SDLCalendar";
 import OutdoorDutyModal from "../../modal/OutdoorDutyModal";
 import { outdoorDutyColumns } from "../../utils/columnHandlers/outdoorDutyColumns";
-import Swal from "sweetalert2";
+import { notifyWarning } from "../../../../services/alertService";
 import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
 
 const OutdoorDuty = () => {
   const dispatch = useDispatch();
-  const [listData, setListData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  //const [listData, setListData] = useState([]);
+  const [modalLoading, setModalLoading] = useState(false);
   const outdoorDutydata = useSelector((state) => state.eportalODData.data);
+  const odLoading = useSelector((state) => state.eportalODData.loading); // if your slice tracks this
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);``
 
   useEffect(() => {
-    setLoading(true);
     dispatch(getOutdoorDutyDataResponse());
   }, [dispatch, refreshKey]);
 
-  //console.log("=====================OD Data SLice================", outdoorDutydata);
+  //console.log("=====================OD Data SLice odLoading================", odLoading);
 
-  useEffect(() => {
-    let mounted = true;
+  const listData = useMemo(() => {
     try {
-      const flattened = (outdoorDutydata || []).map((item, index) => {
-        return {
-          id: item.id || index,
-          asonDate: item.asondate || "-",
-          outType: item.outtype || "-",
-          createdOn: item.created_on || "-",
-          statusText: item.approval || "-",
-          remarks: item.remarks || "-",
-          statusColor: item.statusColor || "-",
-          status: item.status || "-",
-          dateTimePass: item.dateTimePass || "_",
-          postremarks: item.postremarks,
-          authremarks: item.authremarks || "_"
-        };
-      });
-      if (mounted) {
-        setListData(flattened);
-        setLoading(false); // data processed — stop showing spinner
-      }
+      return (outdoorDutydata || []).map((item, index) => ({
+        id: item.id || index,
+        asonDate: item.asondate || "-",
+        outType: item.outtype || "-",
+        createdOn: item.created_on || "-",
+        statusText: item.approval || "-",
+        remarks: item.remarks || "-",
+        statusColor: item.statusColor || "-",
+        status: item.status || "-",
+        dateTimePass: item.dateTimePass || "_",
+        postremarks: item.postremarks,
+        authremarks: item.authremarks || "_"
+      }));
     } catch (error) {
       console.error(error);
-      if (mounted) {
-        setListData([]);
-        setLoading(false); // still stop the spinner even on error, so we can show "No bookings found" instead of spinning forever
-      }
+      return [];
     }
-    return () => {
-      mounted = false;
-    };
   }, [outdoorDutydata]);
   //console.log("=====", outdoorDutydata);
  
@@ -82,7 +69,7 @@ const OutdoorDuty = () => {
   });
 
   const openModal = (config = {}) => {
-    setLoading(true);
+    setModalLoading(true);
     //console.log("=======config========", config);
     if (config.modalDate) {
       const currentDate = new Date();
@@ -96,13 +83,8 @@ const OutdoorDuty = () => {
       const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
       if (diffDays > 25) {
-         setLoading(false);
-        Swal.fire({
-          icon: "warning",
-          title: "Not Permitted",
-          text: "It is not permitted to raise an Outdoor Duty request",
-        });
-
+        setModalLoading(false);
+        notifyWarning("It is not permitted to raise an Outdoor Duty request", "Not Permitted");
         return;
       }
     }
@@ -118,7 +100,7 @@ const OutdoorDuty = () => {
     });
 
     //console.log("=======modalState========", modalState);
-    setLoading(false);
+    setModalLoading(false);
   };
 
   const formSettings = {
@@ -138,7 +120,7 @@ const OutdoorDuty = () => {
       ...prev,
       isOpen: false,
     }));
-    setLoading(false);
+    setModalLoading(false);
   };
 
   const handleSuccess = () => {
@@ -181,6 +163,11 @@ const OutdoorDuty = () => {
       </div>
 
       {/* ================= MAIN CARD ================= */}
+      {odLoading || modalLoading && (
+        <div className="p-4 text-center">
+          <div className="spinner-border text-warning"></div>
+        </div>
+      )}
       <div className="card">
         <div className="card-body">
           <div className="row">
@@ -216,7 +203,7 @@ const OutdoorDuty = () => {
                   <SDLDataTable
                     data={filteredData}
                     columns={columns}
-                    loading={loading}
+                    loading={odLoading}
                     emptyMessage="No outdoor duties found"
                     removableSort
                   />
