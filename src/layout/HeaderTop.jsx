@@ -13,7 +13,7 @@ const HeaderTop = () => {
 
   const isPolicyPage = location.pathname === "/policy-acceptance";
 
-  const {user, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [headerImage, setHeaderImage] = useState("");
   const [authBellCount, setAuthBellCount] = useState(0);
@@ -23,9 +23,9 @@ const HeaderTop = () => {
   //const countTotalData = useSelector((state) => state.eportalAuthCounts.subtotal);
   const dispatch = useDispatch();
 
-  //console.log("==========SuccessCNT============", successCnt);  
+  //console.log("==========SuccessCNT============", successCnt);
   //console.log("==========countTotalData============", countTotalData);
-  
+
   useEffect(() => {
     dispatch(getAuthroizationTaskCount());
   }, [dispatch]);
@@ -125,13 +125,15 @@ const HeaderTop = () => {
 
   return (
     <div className={`header ${isPolicyPage ? "policy-header" : ""}`}>
-      <div className={`main-header ${isPolicyPage ? "policy-main-header" : ""}`}>
-
+      <div
+        className={`main-header ${isPolicyPage ? "policy-main-header" : ""}`}
+      >
         {/* Logo Section */}
-        <div className={`header-left active ${
-                  isPolicyPage ? "policy-header-left" : ""
-              }`}
-          >
+        <div
+          className={`header-left active ${
+            isPolicyPage ? "policy-header-left" : ""
+          }`}
+        >
           <Link to="/eportal/dashboard" className="logo logo-normal">
             <img src={LOGOS.MAIN} alt="Img" style={{ width: 90 }} />
           </Link>
@@ -145,20 +147,20 @@ const HeaderTop = () => {
           </Link>
         </div>
 
-		{!isPolicyPage && (
-      <Link
-          id="mobile_btn"
-          className="mobile_btn"
-          to="#"
-          onClick={sidebarOverlay}
-      >
-          <span className="bar-icon">
+        {!isPolicyPage && (
+          <Link
+            id="mobile_btn"
+            className="mobile_btn"
+            to="#"
+            onClick={sidebarOverlay}
+          >
+            <span className="bar-icon">
               <span />
               <span />
               <span />
-          </span>
-      </Link>
-      )}
+            </span>
+          </Link>
+        )}
 
         <ul className="nav user-menu">
           {/* Search */}
@@ -190,39 +192,57 @@ const HeaderTop = () => {
                     className="img-fluid"
                   />
                 </span>
-                </span>
-              </Link> 
-              {/* <AuthorizationSettings /> */}
+              </span>
+            </Link>
 
-              { 
-                successCnt && <AuthorizationDropdown />
-              } 
-              <div className="dropdown-menu dropdown-menu-right">
-                <Link to="#" className="dropdown-item">
-                  <img src={STOREIMAGES.STORE.STORE_01} alt="Store Logo" className="img-fluid" />
-                  Freshmart
-                </Link>
-                <Link to="#" className="dropdown-item">
-                  <img src={STOREIMAGES.STORE.STORE_02}  alt="Store Logo" className="img-fluid" />
-                  Grocery Apex
-                </Link>
-                <Link to="#" className="dropdown-item">
-                  <img src={STOREIMAGES.STORE.STORE_03}  alt="Store Logo" className="img-fluid" />
-                  Grocery Bevy
-                </Link>
-                <Link to="#" className="dropdown-item">
-                  <img src={STOREIMAGES.STORE.STORE_04}  alt="Store Logo" className="img-fluid" />
-                  Grocery Eden
-                </Link>
-              </div>
-            </li>
-            {/* /Select Store */}
-{/* <AuthorizationSettings /> */}
+            {successCnt && <AuthorizationDropdown />}
 
-          { 
-            successCnt && <AuthorizationDropdown />
-          }  
-           {/*
+            <div className="dropdown-menu dropdown-menu-right">
+              <Link to="#" className="dropdown-item">
+                <img
+                  src={STOREIMAGES.STORE.STORE_01}
+                  alt="Store Logo"
+                  className="img-fluid"
+                />
+                Freshmart
+              </Link>
+
+              <Link to="#" className="dropdown-item">
+                <img
+                  src={STOREIMAGES.STORE.STORE_02}
+                  alt="Store Logo"
+                  className="img-fluid"
+                />
+                Grocery Apex
+              </Link>
+
+              <Link to="#" className="dropdown-item">
+                <img
+                  src={STOREIMAGES.STORE.STORE_03}
+                  alt="Store Logo"
+                  className="img-fluid"
+                />
+                Grocery Bevy
+              </Link>
+
+              <Link to="#" className="dropdown-item">
+                <img
+                  src={STOREIMAGES.STORE.STORE_04}
+                  alt="Store Logo"
+                  className="img-fluid"
+                />
+                Grocery Eden
+              </Link>
+            </div>
+          </li>
+          {/* /Select Store */}
+          {/* <AuthorizationSettings /> */}
+
+          <span className="welcome-text">Welcome,</span>
+          <span className="welcome-user">{user?.name || "Guest User"}</span>
+
+          {successCnt && <AuthorizationDropdown />}
+          {/*
       			<li className="nav-item nav-item-box">
               <Link
                 to="#"
@@ -240,18 +260,12 @@ const HeaderTop = () => {
           <li className="nav-item dropdown has-arrow main-drop profile-nav">
             <a href="#!" className="nav-link userset" data-bs-toggle="dropdown">
               <span className="user-info p-0">
-                 <span className="welcome-text">
-                  Welcome,
-                </span>
-                <span className="welcome-user">
-                  {user?.name || "Guest User"}
-                </span>
-                <span className="user-letter">       
-                    <img
-                        src={headerImage || STOREIMAGES.PROFILE.AVATAR_1}
-                        alt="Profile"
-                        className="img-fluid"
-                    />
+                <span className="user-letter">
+                  <img
+                    src={headerImage || STOREIMAGES.PROFILE.AVATAR_1}
+                    alt="Profile"
+                    className="img-fluid"
+                  />
                 </span>
               </span>
             </a>

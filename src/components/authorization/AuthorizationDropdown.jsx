@@ -61,15 +61,33 @@ const AuthorizationDropdown = () => {
   const [bellOpen, setBellOpen] = useState(false);
   const [activitiesOpen, setActivitiesOpen] = useState(true);
   const [authBellCount, setAuthBellCount] = useState(0);
+
   const wrapperRef = useRef(null);
 
-  const authState = useSelector((state) => state.eportalAuthCounts.data);
-   const successCnt = useSelector((state) => state.eportalAuthCounts.success);
-  const countTotalData = useSelector((state) => state.eportalAuthCounts.subtotal);
-  const activities = useMemo(() => normalizeActivities(authState), [authState]);
+  const authState = useSelector(
+    (state) => state.eportalAuthCounts.data
+  );
 
-  const toggleBell = useCallback(() => setBellOpen((prev) => !prev), []);
-  const toggleActivities = useCallback(() => setActivitiesOpen((prev) => !prev), []);
+  const successCnt = useSelector(
+    (state) => state.eportalAuthCounts.success
+  );
+
+  const countTotalData = useSelector(
+    (state) => state.eportalAuthCounts.subtotal
+  );
+
+  const activities = useMemo(
+    () => normalizeActivities(authState),
+    [authState]
+  );
+
+  const toggleBell = useCallback(() => {
+    setBellOpen((prev) => !prev);
+  }, []);
+
+  const toggleActivities = useCallback(() => {
+    setActivitiesOpen((prev) => !prev);
+  }, []);
 
   useEffect(() => {
     if (!bellOpen) {
@@ -81,29 +99,45 @@ const AuthorizationDropdown = () => {
     }
 
     const handleClickOutside = (event) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target)
+      ) {
         setBellOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, [bellOpen, successCnt, countTotalData]);
 
-  // console.log("==========successCnt inside dropdown===========", successCnt);
-  // console.log("==========authBellCount inside dropdown===========", authBellCount);
-  // console.log("==========countTotalData inside dropdown===========", countTotalData);
-
-
   return (
-    <li className="nav-item main-drop profile-nav" ref={wrapperRef} style={{ position: "relative" }}>
-      <button type="button" className="nav-link btn btn-link p-0" onClick={toggleBell}>
+    <div
+      ref={wrapperRef}
+      className="authorization-dropdown"
+      style={{
+        position: "relative",
+      }}
+    >
+      {/* Bell Button */}
+      <button
+        type="button"
+        className="nav-link btn btn-link p-0"
+        onClick={toggleBell}
+      >
         <i className="ti ti-bell"></i>
+
         {successCnt && (
-          <span className="badge rounded-pill badge-danger">{countTotalData}</span>
+          <span className="badge rounded-pill badge-danger">
+            {countTotalData}
+          </span>
         )}
       </button>
 
+      {/* Dropdown */}
       {bellOpen && (
         <div
           style={{
@@ -118,20 +152,30 @@ const AuthorizationDropdown = () => {
             padding: "16px",
           }}
         >
-          <ActivityHeader open={activitiesOpen} onToggle={toggleActivities} />
+          <ActivityHeader
+            open={activitiesOpen}
+            onToggle={toggleActivities}
+          />
 
           {activitiesOpen && (
             <ul className="list-unstyled mb-0">
               {activities.length === 0 ? (
-                <li className="p-2 text-gray">No activities</li>
+                <li className="p-2 text-gray">
+                  No activities
+                </li>
               ) : (
-                activities.map((item) => <ActivityItem key={item.href} item={item} />)
+                activities.map((item) => (
+                  <ActivityItem
+                    key={item.href}
+                    item={item}
+                  />
+                ))
               )}
             </ul>
           )}
         </div>
       )}
-    </li>
+    </div>
   );
 };
 

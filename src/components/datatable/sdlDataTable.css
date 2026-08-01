@@ -89,3 +89,20 @@
     top:0;
     z-index:2;
 }
+
+.p-paginator .p-paginator-pages .p-paginator-page {
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #1b2850;
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page:hover {
+    border-radius: 50% !important;
+    background: #f1f1f1 !important;
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+    border-radius: 50% !important;
+    background: #ff9f43 !important;
+    color: #fff !important;
+}
