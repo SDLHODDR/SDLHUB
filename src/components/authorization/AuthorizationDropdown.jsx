@@ -41,7 +41,9 @@ const ActivityHeader = ({ open, onToggle }) => (
 );
 
 const ActivityItem = ({ item }) => {
-  const badgeClass = item.badgeClass ? `${item.badgeClass} badge-xs` : "text-gray";
+  const badgeClass = item.badgeClass
+    ? `${item.badgeClass} badge-xs`
+    : "text-gray";
   const itemClass = `d-flex align-items-center justify-content-between p-2 rounded ${item.active ? "active" : ""}`;
 
   return (
@@ -51,7 +53,9 @@ const ActivityItem = ({ item }) => {
           <i className={`ti ${item.icon} text-gray me-2`}></i>
           {item.label}
         </span>
-        <span className={`badge shadow-none rounded-pill ${badgeClass}`}>{item.count}</span>
+        <span className={`badge shadow-none rounded-pill ${badgeClass}`}>
+          {item.count}
+        </span>
       </a>
     </li>
   );
@@ -64,22 +68,15 @@ const AuthorizationDropdown = () => {
 
   const wrapperRef = useRef(null);
 
-  const authState = useSelector(
-    (state) => state.eportalAuthCounts.data
-  );
+  const authState = useSelector((state) => state.eportalAuthCounts.data);
 
-  const successCnt = useSelector(
-    (state) => state.eportalAuthCounts.success
-  );
+  const successCnt = useSelector((state) => state.eportalAuthCounts.success);
 
   const countTotalData = useSelector(
-    (state) => state.eportalAuthCounts.subtotal
+    (state) => state.eportalAuthCounts.subtotal,
   );
 
-  const activities = useMemo(
-    () => normalizeActivities(authState),
-    [authState]
-  );
+  const activities = useMemo(() => normalizeActivities(authState), [authState]);
 
   const toggleBell = useCallback(() => {
     setBellOpen((prev) => !prev);
@@ -99,10 +96,7 @@ const AuthorizationDropdown = () => {
     }
 
     const handleClickOutside = (event) => {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target)
-      ) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
         setBellOpen(false);
       }
     };
@@ -152,23 +146,15 @@ const AuthorizationDropdown = () => {
             padding: "16px",
           }}
         >
-          <ActivityHeader
-            open={activitiesOpen}
-            onToggle={toggleActivities}
-          />
+          <ActivityHeader open={activitiesOpen} onToggle={toggleActivities} />
 
           {activitiesOpen && (
             <ul className="list-unstyled mb-0">
               {activities.length === 0 ? (
-                <li className="p-2 text-gray">
-                  No activities
-                </li>
+                <li className="p-2 text-gray">No activities</li>
               ) : (
                 activities.map((item) => (
-                  <ActivityItem
-                    key={item.href}
-                    item={item}
-                  />
+                  <ActivityItem key={item.href} item={item} />
                 ))
               )}
             </ul>
