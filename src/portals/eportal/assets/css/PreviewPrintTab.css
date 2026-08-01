@@ -5,18 +5,26 @@
 .print-container {
     background: #fff;
     padding: 15px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .print-table {
     width: 100%;
+    max-width: 100%;
     border-collapse: collapse !important;
+    table-layout: fixed;
+    box-sizing: border-box;
 }
 
 .print-table td,
 .print-table th {
     border: 1px solid #000 !important;
-    padding: 8px !important;
+    padding: 5px !important;
     vertical-align: middle;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
 }
 
 /* Employee Details */
@@ -38,6 +46,12 @@
     font-weight: 700 !important;
     text-decoration: underline;
     text-align: left;
+}
+
+.print-table .printHeader {
+    background: #d9d9d9 !important;
+    font-weight: 700;
+    text-align: center;
 }
 
 /* Table Header */
@@ -103,6 +117,8 @@
     break-inside: avoid;
 }
 
+
+
 /*==================================================
     PRINT
 ==================================================*/
@@ -111,7 +127,7 @@
 
     @page {
         size: A4 portrait;
-        margin: 10mm;
+        margin: 7mm;
     }
 
     html,
@@ -145,13 +161,19 @@
     }
 
     .print-container {
+        width: 100% !important;
+        max-width: 100% !important;
         padding: 0 !important;
         margin: 0 !important;
+        box-sizing: border-box;
     }
 
     .print-table {
-        width: 100%;
+        width: 100% !important;
+        max-width: 100% !important;
         border-collapse: collapse !important;
+        table-layout: fixed !important;
+        box-sizing: border-box;
     }
 
     .print-table thead {
@@ -174,8 +196,10 @@
     .print-table td,
     .print-table th {
         border: 1px solid #000 !important;
-        padding: 8px !important;
+        padding: 5px !important;
         vertical-align: middle;
+        box-sizing: border-box;
+        overflow-wrap: break-word;
     }
 
     .print-table .sectionHeader {
