@@ -332,9 +332,10 @@ const ViewLog = () => {
 
               <button
                 type="button"
-                className="btn-close"
+                aria-label="Close"
+                className="close"
                 data-bs-dismiss="modal"
-              ></button>
+              ><span aria-hidden="true">×</span></button>
             </div>
 
             <div className="modal-body">
