@@ -102,20 +102,20 @@ const PreviewPrintTab = ({ refreshPreview }) => {
       {/* PRINT AREA */}
       <div className="card-body">
         <div ref={tableRef} className="print-container">
-          <table className="table table-bordered print-table">
+          <table className="print-table">
             <tbody>
               {/* =====================================================
                 HEADER
             ===================================================== */}
 
               <tr>
-                <th colSpan="4" className="text-center">
+                <th colSpan="4" className="text-center printHeader">
                   {summary.employee_company || "-"}
                 </th>
               </tr>
 
               <tr>
-                <th colSpan="4" className="text-center">
+                <th colSpan="4" className="text-center printHeader">
                   INVESTMENT DECLARATION FORM FOR THE FINANCIAL YEAR{" "}
                   {financialYear}
                 </th>
