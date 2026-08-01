@@ -87,7 +87,7 @@ const OutdoorDutyAuthorization = () => {
   const columns = [
     // { field: "REQUEST_FOR", header: "Task For", sortable: true },
     {
-      header: "Task For",
+      header: "Raised by Employee",
       body: (rowData) => {
         const taskfor = rowData?.REQUEST_FOR || "-";
         return (
@@ -104,10 +104,9 @@ const OutdoorDutyAuthorization = () => {
         );
       },
     },
-    {
-      header: "Task From",
+    { field: "CREATED_ON", header: "Added On", sortable: true },
+    { header: "Task", 
       body: (rowData) => {
-        const taskfor = rowData?.CREATED_BY || "-";
         return (
           <a
             href="#"
@@ -115,13 +114,31 @@ const OutdoorDutyAuthorization = () => {
               e.preventDefault();
               openModal(rowData);
             }}
-            title="Task From"
+            title="Task Desc"
           >
-            {taskfor}
+            Outdoor Dated on {rowData.GPASS_DATE}
           </a>
-        );
+        )
       },
     },
+    // {
+    //   header: "Task From",
+    //   body: (rowData) => {
+    //     const taskfor = rowData?.CREATED_BY || "-";
+    //     return (
+    //       <a
+    //         href="#"
+    //         onClick={(e) => {
+    //           e.preventDefault();
+    //           openModal(rowData);
+    //         }}
+    //         title="Task From"
+    //       >
+    //         {taskfor}
+    //       </a>
+    //     );
+    //   },
+    // },
     {
       field: "OUT_TYPE",
       header: "OUT TYPE",
@@ -168,8 +185,6 @@ const OutdoorDutyAuthorization = () => {
       },
       style: { minWidth: "450px" },
     },
-    { field: "GPASS_DATE", header: "GPASS DATE", sortable: true },
-    { field: "CREATED_ON", header: "Created On", sortable: true },
     // {
     //   field: "STATUS",
     //   header: "Status",

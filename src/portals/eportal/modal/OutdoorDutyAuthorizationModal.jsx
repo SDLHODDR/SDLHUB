@@ -1,7 +1,6 @@
-// import { useState, useEffect, useRef } from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { authGPData, rejectGPData } from "../services/outdoorDutyService";
+import { getGpAttdData, authGPData, rejectGPData } from "../services/outdoorDutyService";
 
 const OutdoorDutyAuthorizationModal = ({
   outddorduty,
@@ -20,8 +19,12 @@ const OutdoorDutyAuthorizationModal = ({
   };
 
   //const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [gpAttdData, setGPAttdData] = useState({});
 
   const getByteLength = (str) => new TextEncoder().encode(str || "").length;
+  
+  console.log("===========outdoorDuty=============", outddorduty);
 
   const [formData, setFormData] = useState(() => ({
     ID: outddorduty.TRAN_CODE,
@@ -34,6 +37,41 @@ const OutdoorDutyAuthorizationModal = ({
     REMARKS: outddorduty.REMARKS,
     GPASS_DATE: outddorduty.GPASS_DATE,
   }));
+
+  const fetchGPAttdData = async (frmDt) => {
+    console.log("++++++++++++=======FormData=======++++++++", frmDt);
+    try {
+        setLoading(true);
+        const response = await getGpAttdData({
+            emp_code: frmDt?.DETAILS?.EMP_CODE || null,
+            gpass_date: frmDt.GPASS_DATE || null,
+            out_type: frmDt.OUT_TYPE || null,
+            getGpAttddata: true,
+        });
+        if (response.status) {
+            // Expecting FORM API response (not list)
+
+            setGPAttdData(response.data || {});
+        } else {
+            Swal.fire({
+              icon: "error",
+              title: "Failed",
+              text:
+                  response?.message || `Unable to fetch Emp Attendance.`,
+            });
+        }
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+  };
+
+  // ===========================
+  // Fetch Attendance Data
+  // ===========================
+  useEffect(() => {
+    console.log("++++++++++++=======outddorduty useeffect=======++++++++", outddorduty);
+      fetchGPAttdData(outddorduty);
+  }, [outddorduty]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -105,6 +143,7 @@ const OutdoorDutyAuthorizationModal = ({
     }
   };
 
+  console.log("==============gpAttdData=============", gpAttdData);
   return (
     <>
       <div
@@ -186,6 +225,18 @@ const OutdoorDutyAuthorizationModal = ({
                     </div>
                   </div>
                 </div>
+                
+                {
+                  gpAttdData && (
+                    <div className="row">
+                      <div className="col-12">
+                        <div className="form-group mb-3">
+                          <label className="form-label">{gpAttdData.keyRt}:</label>
+                          <span className="ms-2">{gpAttdData.valRt || ""}</span>
+                        </div>
+                      </div>
+                    </div>
+                )}
               </div>
 
               {/* Footer */}

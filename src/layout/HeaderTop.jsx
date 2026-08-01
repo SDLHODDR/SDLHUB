@@ -190,7 +190,7 @@ const HeaderTop = () => {
                     className="img-fluid"
                   />
                 </span>
-               </span>
+                </span>
               </Link> 
               {/* <AuthorizationSettings /> */}
 
@@ -217,7 +217,11 @@ const HeaderTop = () => {
               </div>
             </li>
             {/* /Select Store */}
+{/* <AuthorizationSettings /> */}
 
+          { 
+            successCnt && <AuthorizationDropdown />
+          }  
            {/*
       			<li className="nav-item nav-item-box">
               <Link

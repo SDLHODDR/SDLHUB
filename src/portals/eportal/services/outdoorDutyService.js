@@ -36,6 +36,14 @@ export const getGPDataDetails = (payload = {}) =>
     data: payload,
   });
 
+export const getGpAttdData = (payload = {}) => 
+  eportalRequest({
+    url: PORTALAPI.GATEPASS.GPData,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });
+
 export const outDoorDutyFetchData = () => 
   eportalRequest({
     url: EPORTAL_API.GATEPASS.GET_GP_LIST,
