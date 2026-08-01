@@ -20,7 +20,7 @@ export const renderOutdoorDutyActions = (
   const datePass = rowData.dateTimePass
   const id = rowData.id
 
-  const disableEditDelete = ['A', 'R', 'T', 'X'].includes(status)
+  // const disableEditDelete = ['A', 'R', 'T', 'X'].includes(status)
 
   //console.log("==============DisableEditDelete======Status============", status, disableEditDelete);
 
@@ -107,7 +107,7 @@ export const renderOutdoorDutyActions = (
           overlay={renderTooltip('Send for Auth')}
         >
           <span>
-            <Link to='' onClick={e => handleClick(e, sendAuth, false, status)}>
+            <Link to='' onClick={e => handleClick(e, sendAuth)}>
               <button type='button' className='btn btn-icon btn-sm btn-primary'>
                 <i className='ti ti-send'></i>
               </button>
