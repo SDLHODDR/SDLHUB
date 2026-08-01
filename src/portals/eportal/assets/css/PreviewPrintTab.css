@@ -121,6 +121,10 @@
         padding: 0;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+
+        width: 100%;
+    height: auto !important;
+    overflow: visible !important;
     }
 
     /* Hide UI */
@@ -142,11 +146,25 @@
         box-shadow: none !important;
         padding: 0 !important;
         margin: 0 !important;
+
+        overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
     }
+
+    .tab-content,
+.tab-pane {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+}
 
     .print-container {
         padding: 0 !important;
         margin: 0 !important;
+
+        overflow: visible !important;
+    height: auto !important;
     }
 
     .print-table {
@@ -167,8 +185,11 @@
     }
 
     .print-table tr {
-        page-break-inside: avoid;
-        break-inside: avoid;
+        /* page-break-inside: avoid;
+        break-inside: avoid; */
+
+        page-break-inside: auto;
+    break-inside: auto;
     }
 
     .print-table td,
