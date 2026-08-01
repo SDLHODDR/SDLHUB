@@ -192,6 +192,11 @@ const HeaderTop = () => {
                 </span>
                 </span>
               </Link> 
+              {/* <AuthorizationSettings /> */}
+
+              { 
+                successCnt && <AuthorizationDropdown />
+              } 
               <div className="dropdown-menu dropdown-menu-right">
                 <Link to="#" className="dropdown-item">
                   <img src={STOREIMAGES.STORE.STORE_01} alt="Store Logo" className="img-fluid" />
