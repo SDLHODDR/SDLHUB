@@ -190,77 +190,63 @@ const HeaderTop = () => {
                     className="img-fluid"
                   />
                 </span>
-                <span className="user-detail">
-                  <span className="user-name">Freshmart</span>
                 </span>
-              </span>
-            </Link>
-            <div className="dropdown-menu dropdown-menu-right">
-              <Link to="#" className="dropdown-item">
-                <img
-                  src={STOREIMAGES.STORE.STORE_01}
-                  alt="Store Logo"
-                  className="img-fluid"
-                />
-                Freshmart
-              </Link>
-              <Link to="#" className="dropdown-item">
-                <img
-                  src={STOREIMAGES.STORE.STORE_02}
-                  alt="Store Logo"
-                  className="img-fluid"
-                />
-                Grocery Apex
-              </Link>
-              <Link to="#" className="dropdown-item">
-                <img
-                  src={STOREIMAGES.STORE.STORE_03}
-                  alt="Store Logo"
-                  className="img-fluid"
-                />
-                Grocery Bevy
-              </Link>
-              <Link to="#" className="dropdown-item">
-                <img
-                  src={STOREIMAGES.STORE.STORE_04}
-                  alt="Store Logo"
-                  className="img-fluid"
-                />
-                Grocery Eden
-              </Link>
-            </div>
-          </li>
-          {/* /Select Store */}
-
-          {/* <AuthorizationSettings /> */}
+              </Link> 
+              <div className="dropdown-menu dropdown-menu-right">
+                <Link to="#" className="dropdown-item">
+                  <img src={STOREIMAGES.STORE.STORE_01} alt="Store Logo" className="img-fluid" />
+                  Freshmart
+                </Link>
+                <Link to="#" className="dropdown-item">
+                  <img src={STOREIMAGES.STORE.STORE_02}  alt="Store Logo" className="img-fluid" />
+                  Grocery Apex
+                </Link>
+                <Link to="#" className="dropdown-item">
+                  <img src={STOREIMAGES.STORE.STORE_03}  alt="Store Logo" className="img-fluid" />
+                  Grocery Bevy
+                </Link>
+                <Link to="#" className="dropdown-item">
+                  <img src={STOREIMAGES.STORE.STORE_04}  alt="Store Logo" className="img-fluid" />
+                  Grocery Eden
+                </Link>
+              </div>
+            </li>
+            {/* /Select Store */}
+{/* <AuthorizationSettings /> */}
 
           { 
             successCnt && <AuthorizationDropdown />
           }  
-          
-
-          {/* <li className="nav-item nav-item-box">
-            <Link
-              to="#"
-              id="btnFullscreen"
-              onClick={() => toggleFullscreen()}
-              className={isFullscreen ? "Exit Fullscreen" : "Go Fullscreen"}
-            > */}
-              {/* <i data-feather="maximize" /> */}
-              {/* <i className="ti ti-maximize"></i> */}
-            {/* </Link>
-          </li> */}
+           {/*
+      			<li className="nav-item nav-item-box">
+              <Link
+                to="#"
+                id="btnFullscreen"
+                onClick={() => toggleFullscreen()}
+                className={isFullscreen ? "Exit Fullscreen" : "Go Fullscreen"}>
+                
+                {/* <i data-feather="maximize" /> *}
+                <i className="ti ti-maximize"></i>
+              </Link>
+            </li>
+            */}
 
           {/* Profile Dropdown */}
           <li className="nav-item dropdown has-arrow main-drop profile-nav">
             <a href="#!" className="nav-link userset" data-bs-toggle="dropdown">
               <span className="user-info p-0">
-                <span className="user-letter">
-                  <img
-                    src={headerImage || STOREIMAGES.PROFILE.AVATAR_1}
-                    alt="Profile"
-                    className="img-fluid"
-                  />
+                 <span className="welcome-text">
+                  Welcome,
+                </span>
+                <span className="welcome-user">
+                  {user?.name || "Guest User"}
+                </span>
+                <span className="user-letter">       
+                    <img
+                        src={headerImage || STOREIMAGES.PROFILE.AVATAR_1}
+                        alt="Profile"
+                        className="img-fluid"
+                    />
                 </span>
               </span>
             </a>

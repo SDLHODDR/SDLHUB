@@ -5,12 +5,12 @@ export const notifySuccess = (message) => {
     icon: "success",
     title: "Success",
     text: message,
-    confirmButtonText: "OK",
+    timer: 1800,
+    timerProgressBar: true,
+    showConfirmButton: false,
     customClass: {
       popup: "dreampos-popup",
-      confirmButton: "dreampos-btn-primary",
     },
-    buttonsStyling: false,
   });
 };
 
@@ -54,7 +54,7 @@ export const confirmAction = async (
     title,
     text,
     showCancelButton: true,
-    confirmButtonText: "Continue",
+    confirmButtonText: "Yes",
     cancelButtonText: "Cancel",
      customClass: {
         popup: "dreampos-popup",
