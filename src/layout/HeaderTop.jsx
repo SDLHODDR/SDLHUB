@@ -194,7 +194,9 @@ const HeaderTop = () => {
                 </span>
               </span>
             </Link>
-            
+
+            {successCnt && <AuthorizationDropdown />}
+
             <div className="dropdown-menu dropdown-menu-right">
               <Link to="#" className="dropdown-item">
                 <img
@@ -204,6 +206,7 @@ const HeaderTop = () => {
                 />
                 Freshmart
               </Link>
+
               <Link to="#" className="dropdown-item">
                 <img
                   src={STOREIMAGES.STORE.STORE_02}
@@ -212,6 +215,7 @@ const HeaderTop = () => {
                 />
                 Grocery Apex
               </Link>
+
               <Link to="#" className="dropdown-item">
                 <img
                   src={STOREIMAGES.STORE.STORE_03}
@@ -220,6 +224,7 @@ const HeaderTop = () => {
                 />
                 Grocery Bevy
               </Link>
+
               <Link to="#" className="dropdown-item">
                 <img
                   src={STOREIMAGES.STORE.STORE_04}
@@ -232,6 +237,9 @@ const HeaderTop = () => {
           </li>
           {/* /Select Store */}
           {/* <AuthorizationSettings /> */}
+
+          <span className="welcome-text">Welcome,</span>
+          <span className="welcome-user">{user?.name || "Guest User"}</span>
 
           {successCnt && <AuthorizationDropdown />}
           {/*
@@ -252,10 +260,6 @@ const HeaderTop = () => {
           <li className="nav-item dropdown has-arrow main-drop profile-nav">
             <a href="#!" className="nav-link userset" data-bs-toggle="dropdown">
               <span className="user-info p-0">
-                <span className="welcome-text">Welcome,</span>
-                <span className="welcome-user">
-                  {user?.name || "Guest User"}
-                </span>
                 <span className="user-letter">
                   <img
                     src={headerImage || STOREIMAGES.PROFILE.AVATAR_1}

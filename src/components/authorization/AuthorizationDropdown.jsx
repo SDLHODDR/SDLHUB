@@ -41,7 +41,9 @@ const ActivityHeader = ({ open, onToggle }) => (
 );
 
 const ActivityItem = ({ item }) => {
-  const badgeClass = item.badgeClass ? `${item.badgeClass} badge-xs` : "text-gray";
+  const badgeClass = item.badgeClass
+    ? `${item.badgeClass} badge-xs`
+    : "text-gray";
   const itemClass = `d-flex align-items-center justify-content-between p-2 rounded ${item.active ? "active" : ""}`;
 
   return (
@@ -51,7 +53,9 @@ const ActivityItem = ({ item }) => {
           <i className={`ti ${item.icon} text-gray me-2`}></i>
           {item.label}
         </span>
-        <span className={`badge shadow-none rounded-pill ${badgeClass}`}>{item.count}</span>
+        <span className={`badge shadow-none rounded-pill ${badgeClass}`}>
+          {item.count}
+        </span>
       </a>
     </li>
   );
@@ -61,15 +65,26 @@ const AuthorizationDropdown = () => {
   const [bellOpen, setBellOpen] = useState(false);
   const [activitiesOpen, setActivitiesOpen] = useState(true);
   const [authBellCount, setAuthBellCount] = useState(0);
+
   const wrapperRef = useRef(null);
 
   const authState = useSelector((state) => state.eportalAuthCounts.data);
-   const successCnt = useSelector((state) => state.eportalAuthCounts.success);
-  const countTotalData = useSelector((state) => state.eportalAuthCounts.subtotal);
+
+  const successCnt = useSelector((state) => state.eportalAuthCounts.success);
+
+  const countTotalData = useSelector(
+    (state) => state.eportalAuthCounts.subtotal,
+  );
+
   const activities = useMemo(() => normalizeActivities(authState), [authState]);
 
-  const toggleBell = useCallback(() => setBellOpen((prev) => !prev), []);
-  const toggleActivities = useCallback(() => setActivitiesOpen((prev) => !prev), []);
+  const toggleBell = useCallback(() => {
+    setBellOpen((prev) => !prev);
+  }, []);
+
+  const toggleActivities = useCallback(() => {
+    setActivitiesOpen((prev) => !prev);
+  }, []);
 
   useEffect(() => {
     if (!bellOpen) {
@@ -87,23 +102,36 @@ const AuthorizationDropdown = () => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, [bellOpen, successCnt, countTotalData]);
 
-  // console.log("==========successCnt inside dropdown===========", successCnt);
-  // console.log("==========authBellCount inside dropdown===========", authBellCount);
-  // console.log("==========countTotalData inside dropdown===========", countTotalData);
-
-
   return (
-    <li className="nav-item main-drop profile-nav" ref={wrapperRef} style={{ position: "relative" }}>
-      <button type="button" className="nav-link btn btn-link p-0" onClick={toggleBell}>
+    <div
+      ref={wrapperRef}
+      className="authorization-dropdown"
+      style={{
+        position: "relative",
+      }}
+    >
+      {/* Bell Button */}
+      <button
+        type="button"
+        className="nav-link btn btn-link p-0"
+        onClick={toggleBell}
+      >
         <i className="ti ti-bell"></i>
+
         {successCnt && (
-          <span className="badge rounded-pill badge-danger">{countTotalData}</span>
+          <span className="badge rounded-pill badge-danger">
+            {countTotalData}
+          </span>
         )}
       </button>
 
+      {/* Dropdown */}
       {bellOpen && (
         <div
           style={{
@@ -125,13 +153,15 @@ const AuthorizationDropdown = () => {
               {activities.length === 0 ? (
                 <li className="p-2 text-gray">No activities</li>
               ) : (
-                activities.map((item) => <ActivityItem key={item.href} item={item} />)
+                activities.map((item) => (
+                  <ActivityItem key={item.href} item={item} />
+                ))
               )}
             </ul>
           )}
         </div>
       )}
-    </li>
+    </div>
   );
 };
 
