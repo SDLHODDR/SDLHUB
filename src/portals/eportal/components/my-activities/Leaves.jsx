@@ -8,9 +8,10 @@ import SDLSearch from "../../../../components/datatable/SDLSearch";
 import SDLCalendar from "../../../../components/calendar/SDLCalendar";
 import LeavesModal from "../../modal/LeavesModal";
 import { leavesColumns } from "../../utils/columnHandlers/leavesColumns";
-import Swal from "sweetalert2";
+//import Swal from "sweetalert2";
 import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
 import { getLRDataDetails } from "../../services/leavesService";
+import { notifyError, notifyWarning } from "../../../../services/alertService";
 
 const Leaves = () => {
   const dispatch = useDispatch();
@@ -111,12 +112,7 @@ const Leaves = () => {
       //console.log("==========lastDayNextMonth========", formattedLastDay);
 
       // if (modalDate < firstDayCurrentMonth || modalDate > lastDayNextMonth) {
-      //   Swal.fire({
-      //     icon: "warning",
-      //     title: "Not Permitted",
-      //     text: `Leave can only be requested between ${formattedFirstDay} and ${formattedLastDay}`,
-      //   });
-
+      //notifyWarning(`Leave can only be requested between ${formattedFirstDay} and ${formattedLastDay}`,"Not Permitted")
       //   return;
       // }
     }
@@ -158,12 +154,7 @@ const Leaves = () => {
               isPostRemark: config.isPostRemark || null,
             });
           } else if(response?.data?.pass.flag === "No") {
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: "You have already applied leave!",
-            });
-
+            notifyError("You have already applied leave!");
             setModalState({
               isOpen: false,
               mode: config.mode || "create",

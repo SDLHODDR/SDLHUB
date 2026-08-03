@@ -3,7 +3,7 @@ import { EPORTAL_API } from "../config/eportalApiConfig";
 //import { eportalAPI } from "../../../services/api";
 import { PORTALAPI } from "../../../services/apiConfig";
 import moment from "moment";
-import Swal from "sweetalert2";
+import { notifyWarning } from "../../../services/alertService";
 
 /* ---------------------------
    OUTDOOR DUTIES API
@@ -110,12 +110,8 @@ export const isDateAllowed = (date) => {
     clickedDate.isBefore(firstDayOfCurrentMonth) ||
     clickedDate.isAfter(lastAllowedDay)
   ) {
-    Swal.fire({
-      icon: "warning",
-      title: "Selection not allowed",
-      text: `You can only select dates from ${firstDayOfCurrentMonth.format("DD-MMM-YYYY")} to ${lastAllowedDay.format("DD-MMM-YYYY")}`,
-    });
-
+    notifyWarning(`You can only select dates from ${firstDayOfCurrentMonth.format("DD-MMM-YYYY")} to ${lastAllowedDay.format("DD-MMM-YYYY")}`,"Selection not allowed");
+    
     return false;
   }
 

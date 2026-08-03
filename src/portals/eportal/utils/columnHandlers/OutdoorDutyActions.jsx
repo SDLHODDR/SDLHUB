@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-//import Swal from "sweetalert2";
 
 export const renderOutdoorDutyActions = (
   rowData,
@@ -29,19 +28,7 @@ export const renderOutdoorDutyActions = (
   const handleClick = (e, action) => {
     //console.log("********Action Disabled*******", action, status);
     e.preventDefault();
-    e.stopPropagation();
-
-    //  const disableHandler = ["A", "R", "T", "X"].includes(status);
-    // if (disabled || disableHandler) {
-    //   Swal.fire({
-    //     icon: "error",
-    //     title: "Failed!",
-    //     text: "Cannot Perform this action"
-    //   });
-
-    //   return
-    // };
-    
+    e.stopPropagation();    
     action(id);
   };
 

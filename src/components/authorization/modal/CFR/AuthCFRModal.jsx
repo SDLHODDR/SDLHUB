@@ -1,13 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { useContext } from "react";
-import moment from "moment";
 import {
   authCBRData,
   rejectCBRData,
   getConferenceRoomOptions
 } from "../../../../portals/eportal/services/conferenceService";
 import "../modal.css";
-import Swal from "sweetalert2";
+import { notifyError, notifySuccess } from "../../../../services/alertService";
 
 const AuthCFRModal = ({
     formSettings,
@@ -55,13 +53,8 @@ const AuthCFRModal = ({
 
       } catch (error) {
         console.error("Room API Error:", error);
-
-        Swal.fire({
-          icon: "error",
-          title: "Failed",
-          text: "Unable to load room list",
-        });
-
+        notifyError("Unable to load room list");
+        
       } finally {
         setLoading(false);
       }
@@ -155,15 +148,9 @@ const AuthCFRModal = ({
             onClose?.();
 
             if (!response?.status) {
-                 Swal.fire({
-                    icon: "danger",
-                    title: "Error Occured!!!",
-                });
+              notifyError("Error Occured!!!");
             } else {
-                Swal.fire({
-                    icon: "success",
-                    title: "Success",
-                });
+              notifySuccess("Success");
             }
         } catch (err) {
             console.error(err);
@@ -186,15 +173,9 @@ const AuthCFRModal = ({
             onClose?.();
 
             if (!response?.status) {
-                 Swal.fire({
-                    icon: "danger",
-                    title: "Error Occured!!!",
-                });
+              notifyError("Error Occured!!!");
             } else {
-                Swal.fire({
-                    icon: "success",
-                    title: "Success",
-                });
+              notifySuccess("Success");
             }
         } catch (err) {
             console.error(err);
