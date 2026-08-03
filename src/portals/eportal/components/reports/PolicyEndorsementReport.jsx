@@ -351,10 +351,12 @@ const PolicyEndorsementReport = () => {
                     Export Excel
                   </button>
 
-                  <button
-                    className="btn-close"
+                 <button
+                    aria-label="Close"
+                    className="close"
                     onClick={() => setShowModal(false)}
-                  />
+                  ><span aria-hidden="true">×</span></button>
+
                 </div>
               </div>
 
