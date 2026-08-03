@@ -319,6 +319,37 @@ ul.tabs.owl-carousel.pos-category {
   background-color: #1d1d42;
 }
 
+@media (max-width: 991.96px) {
+  .header .mobile-notification {
+    position: absolute;
+    top: 0;
+    right: 60px;
+    z-index: 11;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-right: 10px;
+  }
+
+  .header .mobile-notification .authorization-dropdown {
+    min-width: 60px;
+  }
+
+  .header .mobile-notification .authorization-dropdown button {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header .mobile-user-menu {
+    right: 0;
+  }
+}
+
+
 [data-layout-mode="dark_mode"] .css-1nmdiq5-menu {
   background-color: #1d1d42;
 }

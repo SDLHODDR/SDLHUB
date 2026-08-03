@@ -239,17 +239,22 @@ const HeaderTop = () => {
           }  
           
 
-          {/* <li className="nav-item nav-item-box">
-            <Link
-              to="#"
-              id="btnFullscreen"
-              onClick={() => toggleFullscreen()}
-              className={isFullscreen ? "Exit Fullscreen" : "Go Fullscreen"}
-            > */}
-              {/* <i data-feather="maximize" /> */}
-              {/* <i className="ti ti-maximize"></i> */}
-            {/* </Link>
-          </li> */}
+                			<li className="nav-item nav-item-box">
+          {successCnt && <AuthorizationDropdown />}
+          </li>
+          {/*
+      			<li className="nav-item nav-item-box">
+              <Link
+                to="#"
+                id="btnFullscreen"
+                onClick={() => toggleFullscreen()}
+                className={isFullscreen ? "Exit Fullscreen" : "Go Fullscreen"}>
+                
+                {/* <i data-feather="maximize" /> *}
+                <i className="ti ti-maximize"></i>
+              </Link>
+            </li>
+            */}
 
           {/* Profile Dropdown */}
           <li className="nav-item dropdown has-arrow main-drop profile-nav">
@@ -304,7 +309,13 @@ const HeaderTop = () => {
           </li>
         </ul>
 
-        {/* Mobile Dropdown */}
+        {/* Mobile Notification + Dropdown */}
+        {successCnt && (
+          <div className="mobile-notification d-flex align-items-center d-lg-none">
+            <AuthorizationDropdown />
+          </div>
+        )}
+
         <div className="dropdown mobile-user-menu">
           <a
             href="#!"
