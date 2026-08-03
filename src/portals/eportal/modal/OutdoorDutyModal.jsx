@@ -9,6 +9,8 @@ import {
 } from "../services/outdoorDutyService";
 
 import { notifyError, notifySuccess } from "../../../services/alertService";
+import SDLtextEditor  from "../../../components/editor/SDLtextEditor";
+import { stripHtmlToText } from "../utils/formatUtils";
 
 const OutdoorDutyModal = ({
     formSettings,
@@ -17,7 +19,7 @@ const OutdoorDutyModal = ({
     onSuccess,
 }) => {
     const { mode } = formSettings;
-
+    const MAX_POST_REMARKS_BYTES = 200;
     //const [date, setDate] = useState(new Date());
     //const [startTime, setStartTime] = useState("");
     //const [endTime, setEndTime] = useState("");
@@ -38,6 +40,7 @@ const OutdoorDutyModal = ({
     //const isPostRemarkMode = mode === "postremark";
     //const isCreateMode = mode === "create";
     const isPostRemarkNwMode = modalState.isPostRemark;
+    const [postRemarksKey, setPostRemarksKey] = useState(0);
 
     //const enableOutType = isCreateMode || isEditMode || isRejectEditMode;
     //const enablePostRemarks = (isEditMode && status === "Not send to auth") || isPostRemarkMode;
@@ -79,6 +82,35 @@ const OutdoorDutyModal = ({
         closeModal();
     };
 
+    
+
+    const handlePostRemarksChange = (e) => {
+      const html = e.target.value;
+      const plainText = stripHtmlToText(html);
+      const byteLength = getByteLength(plainText);
+
+      if (byteLength > MAX_POST_REMARKS_BYTES) {
+        // formData.POST_REMARKS is left untouched (last valid value);
+        // bump key to force the editor to remount and re-sync its DOM to that value
+        setPostRemarksKey((k) => k + 1);
+        setErrors((prev) => ({
+          ...prev,
+          POST_REMARKS: `Limit of ${MAX_POST_REMARKS_BYTES} characters reached`,
+        }));
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        POST_REMARKS: html,
+      }));
+
+      setErrors((prev) => ({
+        ...prev,
+        POST_REMARKS: "",
+      }));
+    };
+
     const handleSave = async (e) => {
         e.preventDefault();
 
@@ -92,6 +124,7 @@ const OutdoorDutyModal = ({
             isEditPM = isPostRemarkNwMode ? isPostRemarkNwMode : isEditPM;
             const payload = {
                 ...formData,
+                POST_REMARKS: stripHtmlToText(formData.POST_REMARKS) ?? "",
                 ...(isEditPM ? { editGpData: true } : { saveGpData: true }),
             };
             const apiCall = saveGPData;
@@ -131,6 +164,7 @@ const OutdoorDutyModal = ({
             const isEdit = modalState.mode === "edit";
             const payload = {
                 ...formData,
+                POST_REMARKS: stripHtmlToText(formData.POST_REMARKS) ?? "",
                 ...(isEdit ? { editGpData: true } : { saveGpData: true }),
                 withAuth: true,
             };
@@ -350,6 +384,15 @@ const OutdoorDutyModal = ({
             newErrors.REMARKS = "Remarks is required";
         }
 
+        if (isPostRemarkNwMode) {
+            const plainPostRemarks = stripHtmlToText(formData.POST_REMARKS).trim();
+            if (!plainPostRemarks) {
+                newErrors.POST_REMARKS = "Post Remarks is required";
+            } else if (getByteLength(plainPostRemarks) > MAX_POST_REMARKS_BYTES) {
+                newErrors.POST_REMARKS = `Post Remarks exceeds ${MAX_POST_REMARKS_BYTES} characters`;
+            }
+        }
+
         setErrors(newErrors);
 
         return Object.keys(newErrors).length === 0;
@@ -381,11 +424,11 @@ const OutdoorDutyModal = ({
     if (!isOpen) return null;
     return (
     <>
-        {loading && (
+        {/* {loading && (
         <div className="p-4 text-center">
           <div className="spinner-border text-warning"></div>
         </div>
-      )}
+      )} */}
         {/* Add Outdoor Duty */}
         <div
             className={`modal fade ${isOpen ? "show d-block" : ""}`}
@@ -497,18 +540,27 @@ const OutdoorDutyModal = ({
                   <div className="col-12">
                     <div className="mb-3">
                       <label className="form-label">
-                        POST Remarks
+                        Post Remarks
                       </label>
 
-                      <textarea
+                      {/* <textarea
                         className={`form-control ${errors.POST_REMARKS ? "is-invalid" : ""}`}
                         name="POST_REMARKS"
                         id="POST_REMARKS"
                         value={formData.POST_REMARKS || ""}
                         onChange={handleChange}
                         placeholder="Enter outdoor duty purpose"
-                      />
-                      <div className="char-counter">{getByteLength(formData.POST_REMARKS || "")} / 200</div>
+                      /> */}
+                        
+                        <SDLtextEditor
+                          key={postRemarksKey}
+                          value={formData.POST_REMARKS || ""}
+                          onChange={handlePostRemarksChange}
+                          disabled={isSubmitting}
+                          placeholder="Enter post remarks"
+                        />
+                      
+                      <div className="char-counter">{getByteLength(formData.POST_REMARKS || "")} / {MAX_POST_REMARKS_BYTES}</div>
                       {errors.POST_REMARKS && (
                         <div className="invalid-feedback">{errors.POST_REMARKS}</div>
                       )}

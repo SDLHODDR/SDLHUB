@@ -1,5 +1,6 @@
 //import { renderLeaveActions } from "./leavesActions";
 import { IconWithTooltip } from "../tooltipHelper";
+import { formatDate } from "../formatUtils";
 
 export const leavesColumns = (handlers) => [
   {
@@ -9,16 +10,20 @@ export const leavesColumns = (handlers) => [
     
   },
   {
-    field: "LVE_DATE_FR",
-    header: "From Dt.",
-    sortable: true,
-    
+    header: "From Dt",
+    body: (rowData) => {
+      return (
+        formatDate(rowData.LVE_DATE_FR)
+      )
+    }
   },
   {
-    field: "LVE_DATE_TO",
-    header: "To Dt.",
-    sortable: true,
-   
+    header: "To Dt",
+    body: (rowData) => {
+      return (
+        formatDate(rowData.LVE_DATE_TO)
+      )
+    }
   },
   {
     field: "NO_DAYS",

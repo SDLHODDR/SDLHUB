@@ -1,13 +1,18 @@
 import { renderOutdoorDutyActions } from "./OutdoorDutyActions";
 import { IconWithTooltip } from "../tooltipHelper";
+import { formatDate } from "../formatUtils";
 
 export const outdoorDutyColumns = (handlers) => [
     {
-        field: "asonDate",
         header: "Date",
         sortable: true,
-        style: { width: "120px", whiteSpace: "nowrap" },
+        body: (rowData) => {
+            return (
+                formatDate(rowData.asonDate)
+            )
+        }
     },
+    
     {
         field: "outType",
         header: "Out Type",
@@ -15,10 +20,13 @@ export const outdoorDutyColumns = (handlers) => [
         style: { width: "150px", whiteSpace: "nowrap" },
     },
     {
-        field: "createdOn",
         header: "Created On",
         sortable: true,
-        style: { width: "150px", whiteSpace: "nowrap" },
+        body: (rowData) => {
+            return (
+                formatDate(rowData.createdOn)
+            )
+        }
     },
     {
         field: "remarks",

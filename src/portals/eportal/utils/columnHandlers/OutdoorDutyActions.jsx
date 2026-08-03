@@ -51,10 +51,11 @@ export const renderOutdoorDutyActions = (
 
       {/* Update Remarks */}
       {!postRemarks &&
-        // ["A", "T"].includes(status) &&
-        ["A"].includes(status) &&
+        ["A", "T"].includes(status) &&
+        //["A"].includes(status) &&
         outType &&
-        datePass <= 0 && (
+        //datePass <= 0 && 
+        (
           <OverlayTrigger placement="top" overlay={renderTooltip("Update Remarks")}>
             <span>
               <Link

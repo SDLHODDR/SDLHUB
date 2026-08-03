@@ -181,11 +181,11 @@ const OutdoorDutyAuthorizationModal = ({
             <form>
               {/* Body */}
               <div className="modal-body">
-                {loading && (
+                {/* {loading && (
                   <div className="p-4 text-center">
                     <div className="spinner-border text-warning"></div>
                   </div>
-                )}
+                )} */}
                 <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">

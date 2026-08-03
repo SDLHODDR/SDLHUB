@@ -505,6 +505,14 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
       }
     }
 
+    if (errors[name]) {
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
+  }
+
     setFormData(updated);
   };
 
@@ -515,6 +523,15 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
       ...formData,
       [name]: value,
     };
+
+    // clear this field's error as soon as user changes it
+    if (errors[name]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
 
     // Leave balance
     if (name === "LVE_CODE") {

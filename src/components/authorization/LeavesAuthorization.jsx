@@ -3,11 +3,11 @@ import BreadcrumbNav from "../../portals/eportal/components/breadcrumb-nav/Bread
 import SDLDataTable from "../datatable/SDLDataTable";
 import SDLSearch from "../datatable/SDLSearch";
 import "../../portals/eportal/assets/css/companyPolicies.css";
-
 import LeavesAuthorizationModal from "../../portals/eportal/modal/LeavesAuthorizationModal";
 import { useDispatch, useSelector } from "react-redux";
 import { getAuthDataResponse } from "../../store/eportal/ePortalAuthorizationDataSlice";
 import { getAuthroizationTaskCount } from "../../store/eportal/ePortalAuthorizationCountSlice";
+import { formatDate } from "../../portals/eportal/utils/formatUtils";
 
 const LeavesAuthorization = () => {
   const dispatch = useDispatch();
@@ -89,6 +89,19 @@ const LeavesAuthorization = () => {
     setShowModal(false);
   };
 
+  // const formatDate = (dateStr) => {
+  //   if (!dateStr) return "-";
+    
+  //   const date = new Date(dateStr);
+  //   if (isNaN(date)) return "-";
+
+  //     return date.toLocaleDateString("en-GB", {
+  //         day: "2-digit",
+  //         month: "short",
+  //         year: "numeric",
+  //     });
+  // };
+
   const columns = [
     {
       header: "Raised by Employee",
@@ -108,13 +121,29 @@ const LeavesAuthorization = () => {
         );
       },
     },
-    { field: "CREATED_ON", header: "Added On", sortable: true },
+    {
+      header: "Added On",
+      body: (rowData) => {
+        return(
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openModal(rowData);
+            }}
+            title="Added On"
+          >
+            {formatDate(rowData.CREATED_ON)}
+          </a>
+        )
+      } 
+    },
     {
       header: "Task",
       body: (rowData) => {
         const taskfor = rowData?.REQUEST_FOR || "-";
-         const dateFrom = rowData?.LVE_DATE_FR || "-";
-         const dateTo = rowData?.LVE_DATE_TO || "-";
+         const dateFrom = formatDate(rowData?.LVE_DATE_FR) || "-";
+         const dateTo = formatDate(rowData?.LVE_DATE_TO )|| "-";
         return (
           <a
             href="#"
@@ -124,7 +153,7 @@ const LeavesAuthorization = () => {
             }}
             title="Task From"
           >
-            {taskfor} ({dateFrom} To {dateTo})
+            {taskfor} ({dateFrom} - {dateTo})
           </a>
         );
       },

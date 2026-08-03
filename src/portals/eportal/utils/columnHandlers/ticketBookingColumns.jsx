@@ -1,5 +1,6 @@
 import { renderTicketBookingActions } from "./ticketBookingActions";
 import { IconWithTooltip } from "../tooltipHelper";
+import { formatDate } from "../formatUtils";
 
 export const ticketBookingColumns = (handlers) => [
   {
@@ -8,18 +9,26 @@ export const ticketBookingColumns = (handlers) => [
     sortable: true,
     style: { width: "120px", whiteSpace: "nowrap" },
   },
-//   {
-//     field: "trvl_mode",
-//     header: "Travel Mode",
-//     sortable: true,
-//     // style: { width: "150px", whiteSpace: "nowrap" },
-//   },
+  // {
+  //   field: "trvl_mode",
+  //   header: "Travel Mode",
+  //   sortable: true,
+  //   // style: { width: "150px", whiteSpace: "nowrap" },
+  // },
   {
-    field: "trvl_date",
-    header: "Travel Date",
-    sortable: true,
-    // style: { width: "150px", whiteSpace: "nowrap" },
+    header: "Trvl Date",
+    body(rowData){
+      return(
+        formatDate(rowData.trvl_date)
+      )
+    }
   },
+  // {
+  //   field: "trvl_date",
+  //   header: "Travel Date",
+  //   sortable: true,
+  //   // style: { width: "150px", whiteSpace: "nowrap" },
+  // },
   {
     field: "trvl_from_location",
     header: "From",

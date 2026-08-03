@@ -174,6 +174,7 @@ const TicketBookingModal = ({
   //   }
   // }, [isOpen]);
 
+  console.log("+++++++=========modalState===========++++++", modalState);
   
   const fetchTBData = useCallback(async () => {
     //const fetchTBData = async () => {
@@ -202,7 +203,7 @@ const TicketBookingModal = ({
     }
   }, [isOpen, fetchTBData]);
 
-   // console.log("===============",tbData);
+  console.log("=========TBData======",tbData);
   // ===========================
   // Initialize Form
   // ===========================
@@ -238,13 +239,13 @@ const TicketBookingModal = ({
   if (tbData !== prevTBData) {
     setPrevTBData(tbData);
 
-    const tbFormData = tbData?.form_data;
+    //const tbFormData = tbData?.form_data || null;
     const tbFormDataHdn = tbData?.hidden;
 
     const types = tbData?.var?.type;
     if (!types) return;
 
-    if (tbFormData) {
+    //if (tbFormData) {
       const initial = {};
 
         // Fields are grouped by input type (TEXT, TEXTAREA, SELECT, HIDDEN).
@@ -295,9 +296,11 @@ const TicketBookingModal = ({
         }
 
         setFormData(initial);
-    }
+    //}
   }
   
+  console.log("+++++++++++=====formData================", formData);
+
   // ===========================
   // Handle Change
   // ===========================
