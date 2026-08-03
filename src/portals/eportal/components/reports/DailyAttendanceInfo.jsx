@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getAttendance } from "../../services/attendanceService";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
+import Badge from "../Badge";
 
 const DailyAttendanceInfo = () => {
    
@@ -119,9 +120,10 @@ const DailyAttendanceInfo = () => {
         };
 
         return (
-            <span className={`badge ${map[row.status] || "badge-secondary"}`}>
-                {row.description}
-            </span>
+            <Badge
+                text={row.description}
+                className={map[row.status] || "badge-secondary"}
+            />
         );
     };
 

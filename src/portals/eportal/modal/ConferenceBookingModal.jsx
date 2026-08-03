@@ -775,7 +775,7 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
                   <button
                     disabled={loading}
                     type="button"
-                    className="btn btn-primary"
+                    className="btn btn-primary me-2"
                     onClick={(e) => handleAddBooking(e, false)}
                   >
                     Save Booking

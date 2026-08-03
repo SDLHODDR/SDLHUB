@@ -11,7 +11,7 @@ import {
 } from "../services/leavesService";
 import Swal from "sweetalert2";
 import moment from "moment";
-//import SDLDatePicker from "../../../components/calendar/SDLDatePicker";
+// import SDLDatePicker from "../../../components/calendar/SDLDatePicker";
 
 const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
   const { modalPage, mode, modeLabel, form_header, form_text } = formSettings;
@@ -131,12 +131,12 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
 
   const handleSave = async (e) => {
       e.preventDefault();
-  
+
       const isValid = validateForm(formData);
       if (!isValid) return;
-  
+
       setIsSubmitting(true); // disable immediatel
-  
+
       try {
         const isEdit = modalState.mode === "edit";
         const payload = {
@@ -144,7 +144,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
           ...(isEdit ? { editLrData: true } : { saveLrData: true }),
         };
         const apiCall = isEdit ? editLRData : saveLRData;
-  
+
         const response = await apiCall(payload);
         if (response?.status) {
           await Swal.fire({
@@ -154,7 +154,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
               response?.message ||
               `Leave Request ${isEdit ? "updated" : "saved"} successfully.`,
           });
-  
+
           //onSuccess?.();
           resetForm();
           onSuccess?.();
@@ -170,7 +170,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
           });
         }
         //console.log("Submitting:", formData);
-  
+
         //console.log("-------Submitting:-------Payload---", payload);
         setLoading(true);
         //console.log("==============Save Response:==========", response);
@@ -187,15 +187,15 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
         setLoading(false);
       }
     };
-  
+
     const handleSaveAuth = async (e) => {
       e.preventDefault();
-  
+
       const isValid = validateForm(formData);
       if (!isValid) return;
-  
+
       setIsSubmitting(true); // disable immediatel
-  
+
       try {
         const isEdit = modalState.mode === "edit";
         const payload = {
@@ -204,7 +204,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
           withAuth: true,
         };
         const apiCall = isEdit ? editLRDataAUTH : saveLRDataAUTH;
-  
+
         const response = await apiCall(payload);
         if (response?.status) {
           await Swal.fire({
@@ -214,7 +214,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
               response?.message ||
               `Leave Request ${isEdit ? "updated" : "saved"} successfully.`,
           });
-  
+
           //onSuccess?.();
           resetForm();
           onSuccess?.();
@@ -230,7 +230,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
           });
         }
         //console.log("Submitting:", formData);
-  
+
         //console.log("-------Submitting:-------Payload---", payload);
         setLoading(true);
         //console.log("==============Save Response:==========", response);
@@ -304,13 +304,13 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
 
   const getByteLength = (str) => new TextEncoder().encode(str || "").length;
 
-  
-
-  
 
 
 
-  
+
+
+
+
 
   // ===========================
   // Initialize Form Data
@@ -329,9 +329,9 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
       // });
       // return;
     }
-    
 
-    const initial = {}; 
+
+    const initial = {};
     for (const group of Object.values(types)) {
       for (const field of Object.values(group)) {
         if (field?.name) {
@@ -405,7 +405,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
       //   //Diable save button - Pending
       //   return { status: false, message: "Insufficient leave balance" };
       // } else {
-        //Enable save button - Pending 
+        //Enable save button - Pending
         //---------OL Validation-----------
         if(dataNw.LVE_CODE == "OL"){
           const dateStart = dataNw.LVE_DATE_FR;
@@ -413,7 +413,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
           const date2 = new Date(dateStart);
           const Difference_In_Time = date2.getTime() - date1.getTime();
           const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
-          
+
           if (dateStart === '') {
             return { status: true, message: "" }
           } else {
@@ -430,11 +430,11 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                 //console.log("diff days :", Difference_In_Days);
                 if (Difference_In_Days <= 5) {
                   //Diable save button - Pending
-                  return { status: false, message: "Note: Optional leave has to be informed atleast 6 days prior!" }; 
+                  return { status: false, message: "Note: Optional leave has to be informed atleast 6 days prior!" };
                 }
               } else if (responseOL?.data?.data === 0) {
                 //Diable save button - Pending
-                return { status: false, message: "Optional leave for this date is not applicable!" };   
+                return { status: false, message: "Optional leave for this date is not applicable!" };
               } else {
                 //Enable save button - Pending
               }
@@ -447,8 +447,8 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
 
         //---------PL Validation-----------
         if (dataNw.LVE_CODE === "PL") {
-          const numDays = dataNw.NO_DAYS !== undefined && dataNw.NO_DAYS !== null 
-            ? dataNw.NO_DAYS 
+          const numDays = dataNw.NO_DAYS !== undefined && dataNw.NO_DAYS !== null
+            ? dataNw.NO_DAYS
             : calculateNoDays(dataNw.LVE_DATE_FR, dataNw.LVE_DATE_TO);
 
           if (dataNw.PL_COUNT >= 3 || numDays <= 2) {
@@ -459,7 +459,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
           } else {
             //Enable save button - Pending
           }
-        } 
+        }
 
         //-----------CL Validation----------
         if (dataNw.LVE_CODE === "CL") {
@@ -477,7 +477,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
 
               if (responseCL?.data?.data === 0) {
                 //Diable save button - Pending
-                return { status: false, message: "CL can not be taken more than thrice in a month and CL can not be more than 2 days!" };   
+                return { status: false, message: "CL can not be taken more than thrice in a month and CL can not be more than 2 days!" };
               } else {
                 //Enable save button - Pending
               }
@@ -492,7 +492,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
         if (dataNw.LVE_CODE === "PLC") {
           const eff = moment(dataNw.EFF_DATE);
           const upto = moment(dataNw.UPTO_DATE);
-  
+
           if (
             !moment(dataNw.LVE_DATE_FR).isBetween(eff, upto, null, "[]") ||
             !moment(dataNw.LVE_DATE_TO).isBetween(eff, upto, null, "[]")
@@ -518,8 +518,8 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
           return { status: false, message: "Insufficient leave balance" };
         }
 
-      //} 
-    }  
+      //}
+    }
     return { status: true, message: "" };
   };
 
@@ -579,15 +579,15 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
     const leaveStartNw    = updated.LEAVE_STARTS;
     const leaveEndNw      = updated.LEAVE_ENDS;
     // console.log(
-    //   "--1--lveCodeNw: ", lveCodeNw, 
-    //   "--2--lveFromNw: ", lveFromNw, 
+    //   "--1--lveCodeNw: ", lveCodeNw,
+    //   "--2--lveFromNw: ", lveFromNw,
     //   "--3--lveToNw: ", lveToNw,
-    //   "--4--startDayNw: ", startDayNw, 
-    //   "--5--endDayNw: ", endDayNw, 
-    //   "--6--millisBetweenNw: ", millisBetweenNw, 
-    //   "--7--daysNw: ", daysNw, 
-    //   "--8--noDaysNw: ", noDaysNw, 
-    //   "--9--leaveStartNw: ", leaveStartNw, 
+    //   "--4--startDayNw: ", startDayNw,
+    //   "--5--endDayNw: ", endDayNw,
+    //   "--6--millisBetweenNw: ", millisBetweenNw,
+    //   "--7--daysNw: ", daysNw,
+    //   "--8--noDaysNw: ", noDaysNw,
+    //   "--9--leaveStartNw: ", leaveStartNw,
     //   "--10--leaveEndNw: ", leaveEndNw);
       let noDaysNww;
 
@@ -597,19 +597,19 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
     } else {
       noDaysNww = noDaysNw;
     }
-    updated.NO_DAYS = noDaysNww; 
+    updated.NO_DAYS = noDaysNww;
     updated.noDaysNww = noDaysNww;
-    
+
     try {
       //setIsBtnDisable(true);
       const isAllow = await validateLeaveStatus(updated);
       if (!isAllow.status) {
         setErrorMsg(isAllow.message);
-        setIsBtnDisable(true);  
+        setIsBtnDisable(true);
       } else {
         setErrorMsg(false);
         setIsBtnDisable(false);
-      }  
+      }
     } catch (err) {
       setErrorMsg(err);
       setIsBtnDisable(true);
@@ -744,7 +744,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                 <div className="row mb-3">
                   <div className="col-md-6">
                     <label>From Date</label>
-                    
+
                     <input
                       type="date"
                       className={`form-control ${errors.LVE_DATE_FR ? "is-invalid" : ""}`}
@@ -773,7 +773,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
 
                   <div className="col-md-6">
                     <label>Leave Starts</label>
-                    
+
                     <select
                       className={`select2 form-control ${errors.LEAVE_STARTS ? "is-invalid" : ""}`}
                       name="LEAVE_STARTS"
@@ -804,13 +804,13 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                 <div className="row mb-3">
                   <div className="col-md-6">
                     <label>To Date</label>
-                    
+
                     <input
                       type="date"
                       className={`form-control ${errors.LVE_DATE_TO ? "is-invalid" : ""}`}
                       name="LVE_DATE_TO"
                       value={formData.LVE_DATE_TO || ""}
-                      onChange={handleChange} 
+                      onChange={handleChange}
                       min={moment().startOf("month").format("YYYY-MM-DD")}
                       max={
                         moment().month() === 11
@@ -819,9 +819,9 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                               .add(1, "month")
                               .endOf("month")
                               .format("YYYY-MM-DD")
-                      } 
+                      }
                     />
-                    
+
                     {errors.LVE_DATE_TO && (
                       <div className="invalid-feedback">
                         {errors.LVE_DATE_TO}
@@ -831,7 +831,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
 
                   <div className="col-md-6">
                     <label>Leave Ends</label>
-                   
+
                     <select
                       className={`select2 form-control ${errors.LEAVE_ENDS ? "is-invalid" : ""}`}
                       name="LEAVE_ENDS"
@@ -861,7 +861,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                 <div className="row mb-3">
                   <div className="col-md-4">
                     <label>No Of Days</label>
-                    
+
                     {/* <input className={`form-control ${errors.NO_DAYS ? "is-invalid" : ""}`} value={formData.NO_DAYS || "1"} readOnly /> */}
                     <input
                       className={`form-control ${errors.NO_DAYS ? "is-invalid" : ""}`}
@@ -878,7 +878,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                     <label>Reason</label>
 
                     <div className="position-relative">
-                     
+
                       <textarea
                         className={`form-control ${errors.REASON ? "is-invalid" : ""}`}
                         name="REASON"
@@ -944,7 +944,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                     </button>
                   )}
                   {/* <button type="submit" className="btn btn-primary" data-bs-dismiss="modal" >
-                    Save and Send for Auth 
+                    Save and Send for Auth
                   </button> */}
                   <button
                     type="button"
@@ -960,7 +960,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
           </div>
         </div>
       </div>
-      
+
     </>
   );
 };

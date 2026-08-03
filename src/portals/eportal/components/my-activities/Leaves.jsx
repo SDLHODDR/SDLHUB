@@ -272,7 +272,7 @@ const Leaves = () => {
                   data={filteredData}
                   columns={columns}
                   loading={loading}
-                  emptyMessage="No ticket booking found"
+                  emptyMessage="No leave requests found"
                   removableSort
                 />
               </div>

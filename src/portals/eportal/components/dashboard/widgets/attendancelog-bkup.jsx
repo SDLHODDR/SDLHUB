@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { getAttendanceLog } from "../../services/dashboardService";
+import Badge from "../../Badge";
 
 const formatDate = (date) =>
   new Date(date).toLocaleDateString("en-GB", {
@@ -132,14 +133,10 @@ const AttendanceLog = ({ initialData = null }) => {
                 }}
               >
                 <div className="me-2">
-                  <span
-                    className={`badge ${item.type === "IN"
-                        ? "bg-success"
-                        : "bg-danger"
-                      }`}
-                  >
-                    {item.type}
-                  </span>
+                  <Badge
+                    text={item.type}
+                    className={item.type === "IN" ? "bg-success" : "bg-danger"}
+                  />
                 </div>
 
                 <div>

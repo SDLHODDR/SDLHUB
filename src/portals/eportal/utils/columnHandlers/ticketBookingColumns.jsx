@@ -1,5 +1,6 @@
 import { renderTicketBookingActions } from "./ticketBookingActions";
 import { IconWithTooltip } from "../tooltipHelper";
+import Badge from "../../components/Badge";
 
 export const ticketBookingColumns = (handlers) => [
   {
@@ -99,18 +100,16 @@ export const ticketBookingColumns = (handlers) => [
 
       return hasAuthRemark ? (
         <IconWithTooltip text={rowData.authremarks}>
-          <span
-            className={`badge badge-${rowData.statusColor} d-inline-flex align-items-center badge-xs`}
-          >
-            {rowData.statusText}
-          </span>
+          <Badge
+            text={rowData.statusText}
+            className={`badge-${rowData.statusColor}`}
+          />
         </IconWithTooltip>
       ) : (
-        <span
-          className={`badge badge-${rowData.statusColor} d-inline-flex align-items-center badge-xs`}
-        >
-          {rowData.statusText}
-        </span>
+        <Badge 
+          text={rowData.statusText}
+          className={`badge-${rowData.statusColor}`}
+        />
       );
     },
   },

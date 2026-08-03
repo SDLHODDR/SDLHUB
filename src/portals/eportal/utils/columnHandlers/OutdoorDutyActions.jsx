@@ -1,35 +1,43 @@
-import { Link } from "react-router-dom";
-import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import Swal from "sweetalert2";
+import { Link } from 'react-router-dom'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
+import Swal from 'sweetalert2'
 
 export const renderOutdoorDutyActions = (
   rowData,
-  { sendAuth, resendAuth, updateRemarks, closeTicketGP, viewGP, editGP, deleteGP }
+  {
+    sendAuth,
+    resendAuth,
+    updateRemarks,
+    closeTicketGP,
+    viewGP,
+    editGP,
+    deleteGP
+  }
 ) => {
+  const status = rowData.status?.trim()?.toUpperCase()
+  const postRemarks = rowData.postremarks
+  const outType = rowData.outType
+  const datePass = rowData.dateTimePass
+  const id = rowData.id
 
-  const status = rowData.status?.trim()?.toUpperCase();
-  const postRemarks = rowData.postremarks;
-  const outType = rowData.outType;
-  const datePass = rowData.dateTimePass;
-  const id = rowData.id;
-
-  const disableEditDelete = ["A", "R", "T", "X"].includes(status);
+  const disableEditDelete = ['A', 'R', 'T', 'X'].includes(status)
 
   //console.log("==============DisableEditDelete======Status============", status, disableEditDelete);
 
   //console.log("==============RowData============", postRemarks, ["A", "T"].includes(status), outType, datePass <= 0);
 
-  const renderTooltip = (text) => (props) => (
-    <Tooltip id={`tooltip-${text}`} {...props}>
-      {text}
-    </Tooltip>
-  );
+  const renderTooltip = text => props =>
+    (
+      <Tooltip id={`tooltip-${text}`} {...props}>
+        {text}
+      </Tooltip>
+    )
 
   // safe click handler
-  const handleClick = (e, action, disabled = false, status = "") => {
+  const handleClick = (e, action, disabled = false, status = '') => {
     //console.log("********Action Disabled*******", action, status);
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
 
     //  const disableHandler = ["A", "R", "T", "X"].includes(status);
     // if (disabled || disableHandler) {
@@ -41,22 +49,23 @@ export const renderOutdoorDutyActions = (
 
     //   return
     // };
-    
-    action(id);
-  };
+
+    action(id)
+  }
 
   return (
-    <div className="d-flex align-items-center gap-2 flex-wrap">
-
+    <div className='d-flex align-items-center gap-2 flex-wrap'>
       {/* Resend Auth */}
-      {status === "R" && (
-        <OverlayTrigger placement="top" overlay={renderTooltip("Resend Auth")}>
+      {status === 'R' && (
+        <OverlayTrigger placement='top' overlay={renderTooltip('Resend Auth')}>
           <span>
             <Link
-              to=""
-              onClick={(e) => handleClick(e, resendAuth, false, status)}
+              to=''
+              onClick={e => handleClick(e, resendAuth, false, status)}
             >
-              <i className="ti ti-refresh"></i>
+              <button type='button' className='btn btn-icon btn-sm btn-primary'>
+                <i className='ti ti-refresh'></i>
+              </button>
             </Link>
           </span>
         </OverlayTrigger>
@@ -65,59 +74,68 @@ export const renderOutdoorDutyActions = (
       {/* Update Remarks */}
       {!postRemarks &&
         // ["A", "T"].includes(status) &&
-        ["A"].includes(status) &&
+        ['A'].includes(status) &&
         outType &&
         datePass <= 0 && (
-          <OverlayTrigger placement="top" overlay={renderTooltip("Update Remarks")}>
+          <OverlayTrigger
+            placement='top'
+            overlay={renderTooltip('Update Remarks')}
+          >
             <span>
               <Link
-                to=""
+                to=''
                 // onClick={(e) => handleClick(e, updateRemarks)}
-                onClick={(e) =>
+                onClick={e =>
                   handleClick(e, () => updateRemarks(rowData), false, status)
                 }
               >
-                <i className="ti ti-message-plus"></i>
+                <button
+                  type='button'
+                  className='btn btn-icon btn-sm btn-primary'
+                >
+                  <i className='ti ti-message-plus'></i>
+                </button>
               </Link>
             </span>
           </OverlayTrigger>
         )}
 
       {/* Send Auth */}
-      {status === "N" && (
-        <OverlayTrigger placement="top" overlay={renderTooltip("Send for Auth")}>
+      {status === 'N' && (
+        <OverlayTrigger
+          placement='top'
+          overlay={renderTooltip('Send for Auth')}
+        >
           <span>
-            <Link
-              to=""
-              onClick={(e) => handleClick(e, sendAuth, false, status)}
-            >
-              <i className="ti ti-send"></i>
+            <Link to='' onClick={e => handleClick(e, sendAuth, false, status)}>
+              <button type='button' className='btn btn-icon btn-sm btn-primary'>
+                <i className='ti ti-send'></i>
+              </button>
             </Link>
           </span>
         </OverlayTrigger>
       )}
 
       {/* {["A", "T", "R"].includes(status) && */}
-      {["A", "R"].includes(status) &&
-       datePass >= 0 && (
-          <OverlayTrigger placement="top" overlay={renderTooltip("Close Ticket")}>
-            <span>
-              <Link
-                to=""
-                // onClick={(e) => handleClick(e, updateRemarks)}
-                onClick={(e) =>
-                  handleClick(e, () => closeTicketGP(rowData.id), false, status)
-                }
-              >
-                <i className="ti ti-x" />
-              </Link>
-            </span>
-          </OverlayTrigger>
-        )}
+      {['A', 'R'].includes(status) && datePass >= 0 && (
+        <OverlayTrigger placement='top' overlay={renderTooltip('Close Ticket')}>
+          <span>
+            <Link
+              to=''
+              // onClick={(e) => handleClick(e, updateRemarks)}
+              onClick={e =>
+                handleClick(e, () => closeTicketGP(rowData.id), false, status)
+              }
+            >
+              <i className='ti ti-x' />
+            </Link>
+          </span>
+        </OverlayTrigger>
+      )}
 
       {/* Close Ticket */}
       {/* {status === "T" && !postRemarks && datePass > 0 && "-"} */}
-      {status === "T" && !postRemarks && "-"}
+      {status === 'T' && !postRemarks && '-'}
     </div>
-  );
-};
+  )
+}

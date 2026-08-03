@@ -7,6 +7,7 @@ import SDLSearch from "../../../../components/datatable/SDLSearch";
 import { getErrorLogs } from "../../services/logService";
 import { notifyError } from "../../../../services/alertService";
 import "../../assets/css/viewLog.css";
+import Badge from "../Badge";
 
 const ViewLog = () => {
   /* ==========================================
@@ -129,9 +130,10 @@ const ViewLog = () => {
     ========================================== */
 
   const errorBadge = (rowData) => (
-    <span className={`badge rounded-pill ${getBadgeClass(rowData.errorCode)}`}>
-      {rowData.errorCode || "-"}
-    </span>
+    <Badge
+      text={rowData.errorCode || "-"}
+      className={getBadgeClass(rowData.errorCode)}
+    />
   );
 
   /* ==========================================
@@ -358,13 +360,10 @@ const ViewLog = () => {
                       <label className="fw-semibold">Error Code</label>
 
                       <div className="detail-box">
-                        <span
-                          className={`badge rounded-pill ${getBadgeClass(
-                            selectedLog.errorCode,
-                          )}`}
-                        >
-                          {selectedLog.errorCode}
-                        </span>
+                        <Badge
+                          text={selectedLog.errorCode}
+                          className={getBadgeClass(selectedLog.errorCode)}
+                        />
                       </div>
                     </div>
 

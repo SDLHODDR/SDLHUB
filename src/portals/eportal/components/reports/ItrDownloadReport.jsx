@@ -11,6 +11,7 @@ import {
   confirmAction,
 } from "../../../../services/alertService";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
+import Badge from "../Badge";
 
 const ItrDownloadReport = () => {
   const [loading, setLoading] = useState(false);
@@ -34,13 +35,10 @@ const ItrDownloadReport = () => {
   const [rows, setRows] = useState([]);
 
   const statusTemplate = (rowData) => (
-    <span
-      className={`badge ${
-        rowData.STATUS === "SUCCESS" ? "bg-success" : "bg-danger"
-      }`}
-    >
-      {rowData.STATUS}
-    </span>
+    <Badge
+      text={rowData.STATUS}
+      className={rowData.STATUS === "SUCCESS" ? "bg-success" : "bg-danger"}
+    />
   );
 
   const loadReport = async () => {
