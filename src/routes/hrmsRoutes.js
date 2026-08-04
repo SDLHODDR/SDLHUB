@@ -1,7 +1,9 @@
 import HRMSDashboard from "../portals/hrms/components/dashboard/Dashboard";
+import KRAActivity from "../portals/hrms/pages/maintainance/KRAActivity"
 
 export const hrmsRoutes = [
   {path: "hrms/dashboard", element: HRMSDashboard,},
+  
 
    // Master Data
   // {
@@ -14,6 +16,7 @@ export const hrmsRoutes = [
   //   path: "hrms/department",
   //   element: Department,
   // },
+  { path: "hrms/maintainance/kra-activity", element: KRAActivity },
 
   // Recruitment
   // {

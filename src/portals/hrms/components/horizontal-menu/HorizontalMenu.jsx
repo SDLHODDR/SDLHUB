@@ -19,10 +19,13 @@ const HorizontalMenu = () => {
   */
 
   const formatRoute = (route) => {
-    if (!route) return "/hrms";
+    if (!route || typeof route !== "string") return "/hrms";
 
     const cleanRoute = route
+      .trim()
       .replace(/^\/+/, "")
+      .replace(/\\/g, "/")
+      .replace(/\/+/g, "/")
       .replace(".php", "")
       .replaceAll("_", "-");
 
@@ -180,20 +183,21 @@ const HorizontalMenu = () => {
                 display: isOpen ? "block" : "none",
               }}
             >
-              {menu.children.map((child) => {
-                const active = isChildActive(
-                  child.route
-                );
+              {menu.children.map((child, index) => {
+                const childRoute = child.url || child.route || child.path;
+                const active = isChildActive(childRoute);
+                const childKey = `hrms-submenu-${menu.id}-${child.id || "child"}-${child.label || "item"}-${childRoute || index}`;
+                const uniqueKey = `${childKey}-${index}`;
 
                 return (
                   <li
-                    key={`hrms-submenu-${menu.id}-${child.id}`}
+                    key={uniqueKey}
                     className={
                       active ? "hrms-child-active" : ""
                     }
                   >
                     <Link
-                      to={formatRoute(child.route)}
+                      to={formatRoute(childRoute)}
                       onClick={() => {
                         if (mobile) {
                           closeMobileMenu();
