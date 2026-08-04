@@ -36,12 +36,16 @@ export const eportalAPI = axios.create({
   },
 });
 
-eportalAPI.interceptors.request.use((config) => {
-  const csrfToken = sessionStorage.getItem("csrf_token");
-  if (csrfToken) {
-    config.headers["X-CSRF-Token"] = csrfToken;
-  }
-  return config;
+/* ============================
+   HRMS APIs
+============================ */
+
+export const hrmsAPI = axios.create({
+  baseURL: `${BASE_URL}/hrms`,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 /* ============================
@@ -56,15 +60,6 @@ export const eppAPI = axios.create({
   },
 });
 
-eppAPI.interceptors.request.use((config) => {
-  const csrfToken = sessionStorage.getItem("csrf_token");
-  if (csrfToken) {
-    config.headers["X-CSRF-Token"] = csrfToken;
-  }
-  return config;
-});
-
-
 /* ============================
    HELPER: IDENTIFY SAFE CALLS
 ============================ */
@@ -77,7 +72,9 @@ const isAuthCall = (url = "") => {
   );
 };
 
-const isGetRequest = (method = "") => method.toLowerCase() === "get";
+const isGetRequest = (method = "") => {
+  return method.toLowerCase() === "get";
+};
 
 /* ============================
    INTERCEPTOR
@@ -86,47 +83,87 @@ const isGetRequest = (method = "") => method.toLowerCase() === "get";
 const attachInterceptor = (instance) => {
 
   /* ---------- REQUEST ---------- */
-  instance.interceptors.request.use((config) => {
-    const url = config.url || "";
-    const method = config.method || "get";
 
-    const authCall = isAuthCall(url);
-    const isGet = isGetRequest(method);
+  instance.interceptors.request.use(
+    (config) => {
 
-    /**
-     * Attach AbortController ONLY for:
-     * GET requests
-     * NOT auth/session APIs
-     */
-    if (!config.signal && isGet && !authCall) {
-      const controller = createController();
-      config.signal = controller.signal;
-      config._controller = controller;
-    }
+      const url = config.url || "";
+      const method = config.method || "get";
 
-    return config;
-  });
+      const authCall = isAuthCall(url);
+      const isGet = isGetRequest(method);
 
-  /* ---------- RESPONSE ---------- */
-  instance.interceptors.response.use(
-    (response) => {
-      // cleanup controller
-      if (response?.config?._controller) {
-        removeController(response.config._controller);
+      /*
+      |--------------------------------------------------------------------------
+      | CSRF TOKEN
+      |--------------------------------------------------------------------------
+      | Token is shared between browser tabs using localStorage.
+      |--------------------------------------------------------------------------
+      */
+
+      const csrfToken = localStorage.getItem("csrf_token");
+
+      if (csrfToken) {
+        config.headers = config.headers || {};
+
+        config.headers["X-CSRF-Token"] = csrfToken;
       }
-      return response;
+
+      /*
+      |--------------------------------------------------------------------------
+      | ABORT CONTROLLER
+      |--------------------------------------------------------------------------
+      | Only attach to GET requests.
+      | Don't attach to authentication/session APIs.
+      |--------------------------------------------------------------------------
+      */
+
+      if (!config.signal && isGet && !authCall) {
+
+        const controller = createController();
+
+        config.signal = controller.signal;
+        config._controller = controller;
+      }
+
+      return config;
     },
     (error) => {
-      // cleanup controller
-      if (error?.config?._controller) {
-        removeController(error.config._controller);
+      return Promise.reject(error);
+    }
+  );
+
+  /* ---------- RESPONSE ---------- */
+
+  instance.interceptors.response.use(
+
+    (response) => {
+
+      // Cleanup controller
+      if (response?.config?._controller) {
+        removeController(
+          response.config._controller
+        );
       }
 
-      /**
-       * IMPORTANT:
-       * Do NOT convert cancel into success
-       * Let it be handled in service layer
-       */
+      return response;
+    },
+
+    (error) => {
+
+      // Cleanup controller
+      if (error?.config?._controller) {
+        removeController(
+          error.config._controller
+        );
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | REQUEST CANCELLED
+      |--------------------------------------------------------------------------
+      */
+
       if (
         error?.name === "CanceledError" ||
         error?.code === "ERR_CANCELED"
@@ -146,3 +183,4 @@ const attachInterceptor = (instance) => {
 attachInterceptor(coreAPI);
 attachInterceptor(secureAPI);
 attachInterceptor(eportalAPI);
+attachInterceptor(eppAPI);
