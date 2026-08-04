@@ -95,11 +95,10 @@ export const renderOutdoorDutyActions = (
           overlay={renderTooltip('Send for Auth')}
         >
           <span>
-            <Link
-              to=""
-              onClick={(e) => handleClick(e, sendAuth)}
-            >
-              <i className="ti ti-send"></i>
+            <Link to='' onClick={e => handleClick(e, sendAuth)}>
+              <button type='button' className='btn btn-icon btn-sm btn-primary'>
+                <i className='ti ti-send'></i>
+              </button>
             </Link>
           </span>
         </OverlayTrigger>
