@@ -6,17 +6,20 @@ import AuthContext from "../auth/AuthContext";
 import AuthorizationDropdown from "../components/authorization/AuthorizationDropdown";
 import { useDispatch, useSelector } from "react-redux";
 import { getAuthroizationTaskCount } from "../store/eportal/ePortalAuthorizationCountSlice";
+import { PORTALS, getPortalFromPath } from "../config/portalConfig";
+import PortalSwitcher from "../components/portal-switcher/PortalSwitcher";
 
 const HeaderTop = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const activePortal = getPortalFromPath(location.pathname);
 
   const isPolicyPage = location.pathname === "/policy-acceptance";
 
   const { user, logout } = useContext(AuthContext);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [headerImage, setHeaderImage] = useState("");
-  const [authBellCount, setAuthBellCount] = useState(0);
 
   const successCnt = useSelector((state) => state.eportalAuthCounts.success);
   //const countData = useSelector((state) => state.eportalAuthCounts.data);
@@ -74,6 +77,20 @@ const HeaderTop = () => {
     document.addEventListener("mozfullscreenchange", handleFullscreenChange);
     document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
     document.addEventListener("msfullscreenchange", handleFullscreenChange);
+
+  const handlePortalSwitch = (portalKey) => {
+    const portal = PORTALS[portalKey];
+
+    if (!portal) {
+      return;
+    }
+
+    if (portalKey === activePortal.key) {
+      return;
+    }
+
+    navigate(portal.path);
+  };
 
     return () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
@@ -237,6 +254,8 @@ const HeaderTop = () => {
           </li>
           {/* /Select Store */}
           {/* <AuthorizationSettings /> */}
+
+          <PortalSwitcher />
 
           <span className="welcome-text">Welcome,</span>
           <span className="welcome-user">{user?.name || "Guest User"}</span>

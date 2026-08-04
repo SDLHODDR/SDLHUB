@@ -11,6 +11,7 @@ import ConferenceScheduler from "./ConferenceScheduler";
 import { OverlayTrigger } from "react-bootstrap";
 import { renderConferenceTooltip } from "../../utils/tooltipHelper";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const ConferenceRoom = () => {
   /* =========================================================
@@ -19,6 +20,10 @@ const ConferenceRoom = () => {
 
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+
+	// Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
 
   /* =========================================================
      SEARCH
@@ -124,7 +129,7 @@ const ConferenceRoom = () => {
 
   /* =========================================================
      REFRESH TABLE
-     
+
      Call this after adding/updating/deleting booking.
   ========================================================= */
 
@@ -150,11 +155,11 @@ const ConferenceRoom = () => {
 
   /* =========================================================
      SEARCH
-     
+
      NOTE:
      This currently searches only the records loaded
      on the current server page.
-     
+
      For complete search across all 75 records,
      search should later be moved to PHP/API.
   ========================================================= */
@@ -266,10 +271,10 @@ const ConferenceRoom = () => {
 
   /* =========================================================
      SERIAL NUMBER
-     
+
      Important:
      options.rowIndex starts from 0 for each page.
-     
+
      So we add the page offset here.
   ========================================================= */
 
@@ -360,7 +365,7 @@ const ConferenceRoom = () => {
           items={[
             {
               text: "Home",
-              link: "/eportal/dashboard",
+              link: portalHome,
             },
             {
               text: "Conference Room",

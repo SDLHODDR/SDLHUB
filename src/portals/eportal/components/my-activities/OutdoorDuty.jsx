@@ -10,6 +10,7 @@ import OutdoorDutyModal from "../../modal/OutdoorDutyModal";
 import { outdoorDutyColumns } from "../../utils/columnHandlers/outdoorDutyColumns";
 import { notifyWarning } from "../../../../services/alertService";
 import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const OutdoorDuty = () => {
   const dispatch = useDispatch();
@@ -19,6 +20,10 @@ const OutdoorDuty = () => {
   const odLoading = useSelector((state) => state.eportalODData.loading); // if your slice tracks this
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);``
+
+  // Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
 
   useEffect(() => {
     dispatch(getOutdoorDutyDataResponse());
@@ -47,7 +52,7 @@ const OutdoorDuty = () => {
     }
   }, [outdoorDutydata]);
   //console.log("=====", outdoorDutydata);
- 
+
 
   /* ================= SEARCH FILTER ================= */
   const filteredData = useMemo(() => {
@@ -156,7 +161,7 @@ const OutdoorDuty = () => {
 
         <BreadcrumbNav
           items={[
-            { text: "Home", link: "/eportal/dashboard" },
+            { text: "Home", link: portalHome },
             { text: "Outdoor Duties" },
           ]}
         />

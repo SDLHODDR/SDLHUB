@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { getAttendance } from "../../services/attendanceService";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const DailyAttendanceInfo = () => {
-   
+
     const [data, setData] = useState([]);
     const [meta, setMeta] = useState({});
     const [summary, setSummary] = useState({});
@@ -14,6 +15,11 @@ const DailyAttendanceInfo = () => {
 
     const [time, setTime] = useState(new Date());
     const [selectedMonth, setSelectedMonth] = useState(new Date());
+
+	// Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
+
 
     /* ================= LIVE CLOCK ================= */
     useEffect(() => {
@@ -214,7 +220,7 @@ const DailyAttendanceInfo = () => {
 
                  <BreadcrumbNav
                  items={[
-                    { text: "Home", link: "/eportal/dashboard" },
+                    { text: "Home", link: portalHome },
                     { text: "Daily Attendance Information" },
                 ]}
                 />
