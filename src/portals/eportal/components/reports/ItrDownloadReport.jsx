@@ -13,9 +13,15 @@ import {
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import Badge from "../Badge";
 
+import { getPortalFromPath } from "../../../../config/portalConfig";
+
 const ItrDownloadReport = () => {
   const [loading, setLoading] = useState(false);
   const [globalFilter, setGlobalFilter] = useState("");
+
+	// Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
 
   const [filters, setFilters] = useState({
     financial_year: "",
@@ -285,7 +291,7 @@ const ItrDownloadReport = () => {
         </div>
         <BreadcrumbNav
           items={[
-            { text: "Home", link: "/eportal/dashboard" },
+            { text: "Home", link: portalHome },
             { text: "ITR Download Report" },
           ]}
         />

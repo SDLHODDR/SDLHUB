@@ -9,6 +9,8 @@ import { notifyError } from "../../../../services/alertService";
 import "../../assets/css/viewLog.css";
 import Badge from "../Badge";
 
+import { getPortalFromPath } from "../../../../config/portalConfig";
+
 const ViewLog = () => {
   /* ==========================================
         TODAY
@@ -30,6 +32,11 @@ const ViewLog = () => {
   const [logDate, setLogDate] = useState("");
 
   const [selectedLog, setSelectedLog] = useState(null);
+
+	// Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
+
 
   /* ==========================================
         INITIAL LOAD
@@ -228,7 +235,7 @@ const ViewLog = () => {
           items={[
             {
               text: "Home",
-              link: "/eportal/dashboard",
+              link: portalHome,
             },
             {
               text: "Application Logs",

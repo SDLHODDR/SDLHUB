@@ -12,6 +12,7 @@ import { OverlayTrigger } from "react-bootstrap";
 import { renderConferenceTooltip } from "../../utils/tooltipHelper";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import Badge from "../Badge";
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const ConferenceRoom = () => {
   /* =========================================================
@@ -20,6 +21,10 @@ const ConferenceRoom = () => {
 
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+
+	// Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
 
   /* =========================================================
      SEARCH
@@ -327,7 +332,7 @@ const ConferenceRoom = () => {
           items={[
             {
               text: "Home",
-              link: "/eportal/dashboard",
+              link: portalHome,
             },
             {
               text: "Conference Room",

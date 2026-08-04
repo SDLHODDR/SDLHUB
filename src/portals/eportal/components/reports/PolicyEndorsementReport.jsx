@@ -16,6 +16,8 @@ import "../../assets/css/policyEndorsementReport.css";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import Badge from "../Badge";
 
+import { getPortalFromPath } from "../../../../config/portalConfig";
+
 const PolicyEndorsementReport = () => {
   const [loading, setLoading] = useState(true);
 
@@ -28,6 +30,10 @@ const PolicyEndorsementReport = () => {
 
   const [policySearch, setPolicySearch] = useState("");
   const [employeeSearch, setEmployeeSearch] = useState("");
+
+	// Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -301,7 +307,7 @@ const PolicyEndorsementReport = () => {
 
         <BreadcrumbNav
           items={[
-            { text: "Home", link: "/eportal/dashboard" },
+            { text: "Home", link: portalHome },
             { text: "Policy Endorsement Report" },
           ]}
         />

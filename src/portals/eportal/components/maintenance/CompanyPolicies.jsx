@@ -6,11 +6,17 @@ import "../../assets/css/companyPolicies.css";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable"; // Update path if required
 import SDLSearch from "../../../../components/datatable/SDLSearch";
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const CompanyPolicies = () => {
     const [listData, setListData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
+
+    // Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
+
 
     useEffect(() => {
         let mounted = true;
@@ -127,7 +133,7 @@ const CompanyPolicies = () => {
 
                 <BreadcrumbNav
                     items={[
-                        { text: "Home", link: "/eportal/dashboard" },
+                        { text: "Home", link: portalHome },
                         { text: "Company Policies" },
                     ]}
                 />

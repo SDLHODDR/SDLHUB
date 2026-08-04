@@ -6,6 +6,7 @@ import {
   notifyWarning,
 } from "../../../../services/alertService";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const DownloadItrDocs = () => {
 
@@ -19,6 +20,10 @@ const DownloadItrDocs = () => {
   const [errors, setErrors] = useState({});
 
   const [downloadCategory, setDownloadCategory] = useState("documents");
+
+	// Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
 
   /*
 =========================================
@@ -101,7 +106,7 @@ useEffect(() => {
         );
         return;
       }
-      
+
       const data = response.data || {};
 
 		/*
@@ -114,7 +119,7 @@ useEffect(() => {
 			notifySuccess(response.message);
 			return;
 		}
-		
+
 		/*
 		--------------------------------------
 		Immediate Download
@@ -129,7 +134,7 @@ useEffect(() => {
 				data.download_url,
 				"_blank"
 			);
-			
+
 			/*window.open(data.download_url, "_self"); */
 			/*
 			const link = document.createElement("a");
@@ -141,7 +146,7 @@ useEffect(() => {
 
 			return;
 		}
-		notifyWarning("Unable to download file.");		     
+		notifyWarning("Unable to download file.");
 
     } catch (error) {
       console.error("Download Error:", error);
@@ -155,7 +160,7 @@ useEffect(() => {
       setLoading(false);
     }
   };
-  
+
  const getButtonText = () => {
 
     if (loading)
@@ -180,10 +185,10 @@ useEffect(() => {
             <h4>Download ITR Documents</h4>
           </div>
         </div>
-       
+
          <BreadcrumbNav
         items={[
-            { text: "Home", link: "/eportal/dashboard" },
+            { text: "Home", link: portalHome },
             { text: "Download ITR Documents" },
         ]}
         />
@@ -194,7 +199,7 @@ useEffect(() => {
           <div className="row align-items-end g-3">
 
              {/* Category */}
-            <div className={type === "single" ? "col-lg-2 col-md-6 mb-3" : "col-lg-3 col-md-4 mb-3"}>             
+            <div className={type === "single" ? "col-lg-2 col-md-6 mb-3" : "col-lg-3 col-md-4 mb-3"}>
               <label className="form-label">
                 Download Category
               </label>
@@ -215,7 +220,7 @@ useEffect(() => {
             </div>
 
             {/* DOWNLOAD TYPE */}
-            <div className={type === "single" ? "col-lg-2 col-md-6 mb-3" : "col-lg-3 col-md-4 mb-3"}>          
+            <div className={type === "single" ? "col-lg-2 col-md-6 mb-3" : "col-lg-3 col-md-4 mb-3"}>
               <label className="form-label">
                 Download Type
               </label>
@@ -231,7 +236,7 @@ useEffect(() => {
                   setErrors((prev) => ({
                     ...prev,
                     empCode: "",
-            
+
                   }));
                 }}
               >
@@ -241,7 +246,7 @@ useEffect(() => {
             </div>
 
             {/* FINANCIAL YEAR */}
-            <div className={type === "single" ? "col-lg-2 col-md-6 mb-3" : "col-lg-3 col-md-4 mb-3"}>            
+            <div className={type === "single" ? "col-lg-2 col-md-6 mb-3" : "col-lg-3 col-md-4 mb-3"}>
               <label className="form-label">
                 Financial Year
               </label>
@@ -320,7 +325,7 @@ useEffect(() => {
               </div>
             )}
 
-            {/* BUTTON */}         
+            {/* BUTTON */}
             <div className={type === "single"
               ? "col-lg-2 col-md-6 mb-3"
               : "col-lg-3 col-md-4 mb-3"}>
