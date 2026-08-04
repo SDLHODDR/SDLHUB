@@ -40,10 +40,6 @@
     #sidebar .menu-arrow {
         cursor: pointer;
     }
-
-    #sidebar .submenu ul li {
-        padding-left: 15px;
-    }
 }
 
 .form-control,
@@ -52,4 +48,96 @@
 .css-t3ipsp-control {     /* react-select focused */
     height: 40px;
     min-height: 40px;
+}
+
+/* ============================================================
+   EPORTAL MOBILE MENU
+   Fix submenu bullets / dots appearing inside text
+   ============================================================ */
+
+@media (max-width: 991px) {
+
+    #sidebar {
+        display: block !important;
+        width: 280px;
+        z-index: 1050;
+    }
+
+    #horizontal-menu {
+        display: none !important;
+    }
+
+    #sidebar .submenu > ul {
+        display: none;
+    }
+
+    #sidebar .submenu.submenu-open > ul {
+        display: block !important;
+    }
+
+    #sidebar .menu-arrow {
+        cursor: pointer;
+    }
+
+    /* Remove default bullets */
+    #sidebar .sidebar-menu ul,
+    #sidebar .sidebar-menu li {
+        list-style: none !important;
+        list-style-type: none !important;
+    }
+
+    /* Remove theme markers */
+    #sidebar .submenu > ul > li::before,
+    #sidebar .submenu > ul > li::after,
+    #sidebar .submenu > ul > li > a::before,
+    #sidebar .submenu > ul > li > a::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    /* Submenu */
+    #sidebar .submenu > ul {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    #sidebar .submenu > ul > li {
+        margin: 0 !important;
+        padding: 0 !important;
+        list-style: none !important;
+    }
+
+    #sidebar .submenu > ul > li > a {
+        display: flex !important;
+        align-items: center;
+
+        width: 100%;
+
+        margin: 0 !important;
+
+        padding: 9px 15px 9px 42px !important;
+
+        text-indent: 0 !important;
+
+        color: #374151;
+
+        background: #ffffff;
+
+        font-size: 13px;
+
+        line-height: 1.4;
+
+        text-decoration: none;
+    }
+
+    #sidebar .submenu > ul > li > a:hover {
+        color: #ff8c32;
+        background: #fff8f2;
+    }
+
+    #sidebar .submenu > ul > li.active > a {
+        color: #ff8c32;
+        background: #fff8f2;
+        font-weight: 600;
+    }
 }

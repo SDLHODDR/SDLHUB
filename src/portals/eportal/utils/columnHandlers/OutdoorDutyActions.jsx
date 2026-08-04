@@ -3,9 +3,17 @@ import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 export const renderOutdoorDutyActions = (
   rowData,
-  { sendAuth, resendAuth, updateRemarks, closeTicketGP, viewGP, editGP, deleteGP }
+  {
+    sendAuth,
+    resendAuth,
+    updateRemarks,
+    closeTicketGP,
+    viewGP,
+    editGP,
+    deleteGP
+  }
 ) => {
-
+  
   const status = rowData.status?.trim()?.toUpperCase();
   const postRemarks = rowData.postremarks;
   const outType = rowData.outType;
@@ -18,11 +26,12 @@ export const renderOutdoorDutyActions = (
 
   //console.log("==============RowData============", postRemarks, ["A", "T"].includes(status), outType, datePass <= 0);
 
-  const renderTooltip = (text) => (props) => (
-    <Tooltip id={`tooltip-${text}`} {...props}>
-      {text}
-    </Tooltip>
-  );
+  const renderTooltip = text => props =>
+    (
+      <Tooltip id={`tooltip-${text}`} {...props}>
+        {text}
+      </Tooltip>
+    )
 
   // safe click handler
   const handleClick = (e, action) => {
@@ -33,17 +42,18 @@ export const renderOutdoorDutyActions = (
   };
 
   return (
-    <div className="d-flex align-items-center gap-2 flex-wrap">
-
+    <div className='d-flex align-items-center gap-2 flex-wrap'>
       {/* Resend Auth */}
-      {status === "R" && (
-        <OverlayTrigger placement="top" overlay={renderTooltip("Resend Auth")}>
+      {status === 'R' && (
+        <OverlayTrigger placement='top' overlay={renderTooltip('Resend Auth')}>
           <span>
             <Link
               to=""
               onClick={(e) => handleClick(e, resendAuth)}
             >
-              <i className="ti ti-refresh"></i>
+              <button type='button' className='btn btn-icon btn-sm btn-primary'>
+                <i className='ti ti-refresh'></i>
+              </button>
             </Link>
           </span>
         </OverlayTrigger>
@@ -59,21 +69,29 @@ export const renderOutdoorDutyActions = (
           <OverlayTrigger placement="top" overlay={renderTooltip("Update Remarks")}>
             <span>
               <Link
-                to=""
+                to=''
                 // onClick={(e) => handleClick(e, updateRemarks)}
                 onClick={(e) =>
                   handleClick(e, () => updateRemarks(rowData))
                 }
               >
-                <i className="ti ti-message-plus"></i>
+                <button
+                  type='button'
+                  className='btn btn-icon btn-sm btn-primary'
+                >
+                  <i className='ti ti-message-plus'></i>
+                </button>
               </Link>
             </span>
           </OverlayTrigger>
         )}
 
       {/* Send Auth */}
-      {status === "N" && (
-        <OverlayTrigger placement="top" overlay={renderTooltip("Send for Auth")}>
+      {status === 'N' && (
+        <OverlayTrigger
+          placement='top'
+          overlay={renderTooltip('Send for Auth')}
+        >
           <span>
             <Link
               to=""
@@ -105,7 +123,7 @@ export const renderOutdoorDutyActions = (
 
       {/* Close Ticket */}
       {/* {status === "T" && !postRemarks && datePass > 0 && "-"} */}
-      {status === "T" && !postRemarks && "-"}
+      {status === 'T' && !postRemarks && '-'}
     </div>
-  );
-};
+  )
+}

@@ -23,6 +23,8 @@ import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 
 import { EMPLOYEE_ACCESS_MESSAGES } from "../../constants/employeeAccessConstants";
 
+import { getPortalFromPath } from "../../../../config/portalConfig";
+
 const EmployeeAccess = () => {
   const [companies, setCompanies] = useState([]);
   const [divisions, setDivisions] = useState([]);
@@ -49,6 +51,10 @@ const EmployeeAccess = () => {
 
   /* ---------------- useRef GUARD ---------------- */
   const hasFetchedDropdowns = useRef(false);
+
+    // Get current portal dynamically
+  const portal = getPortalFromPath(location.pathname);
+  const portalHome = `/${portal.key}/dashboard`;
 
   /* ---------------- LOAD DROPDOWNS ---------------- */
 
@@ -271,7 +277,7 @@ const handleDepartmentChange = async (selected) => {
   }
 };
 
-/* ---------------- COMPANY CHANGE ---------------- 
+/* ---------------- COMPANY CHANGE ----------------
 
 const handleCompanyChange = async (selected) => {
   setSelectedCompany(selected);
@@ -547,7 +553,7 @@ const handleCompanyChange = async (selected) => {
 
         <BreadcrumbNav
           items={[
-            { text: "Home", link: "/eportal/dashboard" },
+            { text: "Home", link: portalHome },
             { text: "Employee Access" },
           ]}
         />

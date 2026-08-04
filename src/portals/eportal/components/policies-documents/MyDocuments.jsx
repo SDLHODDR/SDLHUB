@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { getPayslips } from "../../services/payslipService";
 import { getDocuments } from "../../services/documentService";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 import {MY_DOCUMENTS_MESSAGES} from "../../constants/policies-documentsConstants";
 
@@ -22,6 +23,10 @@ const MyDocuments = () => {
 
   const payslipFetchedRef = useRef(false);
   const documentFetchedRef = useRef(false);
+
+  // Get current portal dynamically
+  const portal = getPortalFromPath(window.location.pathname);
+  const portalHome = `/${portal.key}/dashboard`;
 
   /* ================= FETCH DATA ================= */
 
@@ -109,7 +114,7 @@ const MyDocuments = () => {
 
          <BreadcrumbNav
           items={[
-              { text: "Home", link: "/eportal/dashboard" },
+              { text: "Home", link: portalHome },
               { text: "My Documents" },
           ]}
           />
@@ -174,7 +179,7 @@ const MyDocuments = () => {
                       <button
                         key={item.id || item.downloadUrl}
                         type="button"
-                        className={`nav-link text-start 
+                        className={`nav-link text-start
                           ${selectedPdf === item.downloadUrl ? "active" : ""}`}
                         onClick={() => {
                           if (selectedPdf !== item.downloadUrl) {
@@ -258,7 +263,7 @@ const MyDocuments = () => {
                       <button
                         key={doc.docId}
                         type="button"
-                        className={`nav-link text-start 
+                        className={`nav-link text-start
                           ${selectedDoc === doc.previewUrl ? "active" : ""}`}
                         onClick={() => {
                           if (selectedDoc !== doc.previewUrl) {

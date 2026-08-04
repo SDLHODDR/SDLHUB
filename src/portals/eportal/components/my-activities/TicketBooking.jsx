@@ -11,6 +11,7 @@ import { ticketBookingColumns } from "../../utils/columnHandlers/ticketBookingCo
 //import Swal from "sweetalert2";
 import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
 import { notifyWarning } from "../../../../services/alertService";
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const TicketBooking = () => {
   const dispatch = useDispatch();
@@ -19,6 +20,10 @@ const TicketBooking = () => {
   const loading = useSelector((state) => state.eportalTBRData.loading);
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+
+  	// Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
 
   useEffect(() => {
     dispatch(getTicketBookingDataResponse());
@@ -59,7 +64,7 @@ const TicketBooking = () => {
         item.trvl_mode?.toLowerCase().includes(query) ||
         item.remarks?.toLowerCase().includes(query),
     );
-    
+
   }, [searchQuery, listData]);
 
   const [modalState, setModalState] = useState({
@@ -147,7 +152,7 @@ const TicketBooking = () => {
 
         <BreadcrumbNav
           items={[
-            { text: "Home", link: "/eportal/dashboard" },
+            { text: "Home", link: portalHome },
             { text: "Ticket Booking" },
           ]}
         />
