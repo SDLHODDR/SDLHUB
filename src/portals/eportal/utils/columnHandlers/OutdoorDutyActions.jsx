@@ -1,6 +1,5 @@
-import { Link } from 'react-router-dom'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import Swal from 'sweetalert2'
+import { Link } from "react-router-dom";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 export const renderOutdoorDutyActions = (
   rowData,
@@ -14,13 +13,14 @@ export const renderOutdoorDutyActions = (
     deleteGP
   }
 ) => {
-  const status = rowData.status?.trim()?.toUpperCase()
-  const postRemarks = rowData.postremarks
-  const outType = rowData.outType
-  const datePass = rowData.dateTimePass
-  const id = rowData.id
+  
+  const status = rowData.status?.trim()?.toUpperCase();
+  const postRemarks = rowData.postremarks;
+  const outType = rowData.outType;
+  const datePass = rowData.dateTimePass;
+  const id = rowData.id;
 
-  const disableEditDelete = ['A', 'R', 'T', 'X'].includes(status)
+  // const disableEditDelete = ["A", "R", "T", "X"].includes(status);
 
   //console.log("==============DisableEditDelete======Status============", status, disableEditDelete);
 
@@ -34,24 +34,12 @@ export const renderOutdoorDutyActions = (
     )
 
   // safe click handler
-  const handleClick = (e, action, disabled = false, status = '') => {
+  const handleClick = (e, action) => {
     //console.log("********Action Disabled*******", action, status);
-    e.preventDefault()
-    e.stopPropagation()
-
-    //  const disableHandler = ["A", "R", "T", "X"].includes(status);
-    // if (disabled || disableHandler) {
-    //   Swal.fire({
-    //     icon: "error",
-    //     title: "Failed!",
-    //     text: "Cannot Perform this action"
-    //   });
-
-    //   return
-    // };
-
-    action(id)
-  }
+    e.preventDefault();
+    e.stopPropagation();    
+    action(id);
+  };
 
   return (
     <div className='d-flex align-items-center gap-2 flex-wrap'>
@@ -60,8 +48,8 @@ export const renderOutdoorDutyActions = (
         <OverlayTrigger placement='top' overlay={renderTooltip('Resend Auth')}>
           <span>
             <Link
-              to=''
-              onClick={e => handleClick(e, resendAuth, false, status)}
+              to=""
+              onClick={(e) => handleClick(e, resendAuth)}
             >
               <button type='button' className='btn btn-icon btn-sm btn-primary'>
                 <i className='ti ti-refresh'></i>
@@ -85,8 +73,8 @@ export const renderOutdoorDutyActions = (
               <Link
                 to=''
                 // onClick={(e) => handleClick(e, updateRemarks)}
-                onClick={e =>
-                  handleClick(e, () => updateRemarks(rowData), false, status)
+                onClick={(e) =>
+                  handleClick(e, () => updateRemarks(rowData))
                 }
               >
                 <button
@@ -107,31 +95,33 @@ export const renderOutdoorDutyActions = (
           overlay={renderTooltip('Send for Auth')}
         >
           <span>
-            <Link to='' onClick={e => handleClick(e, sendAuth, false, status)}>
-              <button type='button' className='btn btn-icon btn-sm btn-primary'>
-                <i className='ti ti-send'></i>
-              </button>
+            <Link
+              to=""
+              onClick={(e) => handleClick(e, sendAuth)}
+            >
+              <i className="ti ti-send"></i>
             </Link>
           </span>
         </OverlayTrigger>
       )}
 
       {/* {["A", "T", "R"].includes(status) && */}
-      {['A', 'R'].includes(status) && datePass >= 0 && (
-        <OverlayTrigger placement='top' overlay={renderTooltip('Close Ticket')}>
-          <span>
-            <Link
-              to=''
-              // onClick={(e) => handleClick(e, updateRemarks)}
-              onClick={e =>
-                handleClick(e, () => closeTicketGP(rowData.id), false, status)
-              }
-            >
-              <i className='ti ti-x' />
-            </Link>
-          </span>
-        </OverlayTrigger>
-      )}
+      {["A", "R"].includes(status) &&
+       datePass >= 0 && (
+          <OverlayTrigger placement="top" overlay={renderTooltip("Close Ticket")}>
+            <span>
+              <Link
+                to=""
+                // onClick={(e) => handleClick(e, updateRemarks)}
+                onClick={(e) =>
+                  handleClick(e, () => closeTicketGP(rowData.id))
+                }
+              >
+                <i className="ti ti-x" />
+              </Link>
+            </span>
+          </OverlayTrigger>
+        )}
 
       {/* Close Ticket */}
       {/* {status === "T" && !postRemarks && datePass > 0 && "-"} */}

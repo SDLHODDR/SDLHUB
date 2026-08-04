@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import Swal from "sweetalert2";
+import { notifyError } from "../../../../services/alertService";
 
 export const renderLeaveActions = (
   rowData,
@@ -25,11 +25,7 @@ export const renderLeaveActions = (
     e.stopPropagation();
 
     if (disabled) {
-      Swal.fire({
-        icon: "error",
-        title: "Failed!",
-        text: "Cannot Perform this action",
-      });
+      notifyError("Cannot Perform this action");
       return;
     }
 

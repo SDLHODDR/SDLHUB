@@ -9,9 +9,9 @@ import {
   checkCL,
   checkOL,
 } from "../services/leavesService";
-import Swal from "sweetalert2";
 import moment from "moment";
 // import SDLDatePicker from "../../../components/calendar/SDLDatePicker";
+import { notifyError, notifySuccess } from "../../../services/alertService";
 
 const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
   const { modalPage, mode, modeLabel, form_header, form_text } = formSettings;
@@ -57,12 +57,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
     } else {
       setLoading(false);
       closeModal();
-
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "You have already applied leave!",
-      });
+      notifyError("You have already applied leave!");
       return;
     }
   }, [isOpen, isLeaveAllowed, closeModal]);
@@ -147,27 +142,15 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
 
         const response = await apiCall(payload);
         if (response?.status) {
-          await Swal.fire({
-            icon: "success",
-            title: "Success",
-            text:
-              response?.message ||
-              `Leave Request ${isEdit ? "updated" : "saved"} successfully.`,
-          });
-
+          notifySuccess(response?.message || `Leave Request ${isEdit ? "updated" : "saved"} successfully.`);
           //onSuccess?.();
           resetForm();
           onSuccess?.();
           closeModal();
         } else {
           setIsSubmitting(false); // re-enable
-          Swal.fire({
-            icon: "error",
-            title: "Failed",
-            text:
-              response?.message ||
-              `Unable to ${isEdit ? "update" : "save"} Leave Request.`,
-          });
+          notifyError(response?.message || `Unable to ${isEdit ? "update" : "save"} Leave Request.`);
+          
         }
         //console.log("Submitting:", formData);
 
@@ -177,11 +160,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
       } catch (err) {
         console.error("Submit Error:", err);
         setIsSubmitting(false); // re-enable on error
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Something went wrong while saving data.",
-        });
+        notifyError("Something went wrong while saving data.");
       } finally {
         setIsSubmitting(false); // ALWAYS reset
         setLoading(false);
@@ -207,27 +186,14 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
 
         const response = await apiCall(payload);
         if (response?.status) {
-          await Swal.fire({
-            icon: "success",
-            title: "Success",
-            text:
-              response?.message ||
-              `Leave Request ${isEdit ? "updated" : "saved"} successfully.`,
-          });
-
-          //onSuccess?.();
+          notifySuccess(response?.message || `Leave Request ${isEdit ? "updated" : "saved"} successfully.`);
+            //onSuccess?.();
           resetForm();
           onSuccess?.();
           closeModal();
         } else {
           setIsSubmitting(false); // re-enable
-          Swal.fire({
-            icon: "error",
-            title: "Failed",
-            text:
-              response?.message ||
-              `Unable to ${isEdit ? "update" : "save"} Leave Request.`,
-          });
+          notifyError(response?.message || `Unable to ${isEdit ? "update" : "save"} Leave Request.`);
         }
         //console.log("Submitting:", formData);
 
@@ -237,11 +203,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
       } catch (err) {
         console.error("Submit Error:", err);
         setIsSubmitting(false); // re-enable on error
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Something went wrong while saving data.",
-        });
+        notifyError("Something went wrong while saving data.");
       } finally {
         setIsSubmitting(false); // ALWAYS reset
         setLoading(false);
@@ -322,11 +284,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
 
     if(lrData.flag !== "Yes" || lrData.flag === "No") {
       setIsLeaveAllowed(false);
-      // Swal.fire({
-      //   icon: "error",
-      //   title: "Failed",
-      //   text: `You have already applied leave for this date!`,
-      // });
+      notifyError(`You have already applied leave for this date!`);
       // return;
     }
 

@@ -8,14 +8,16 @@ import SDLSearch from "../../../../components/datatable/SDLSearch";
 import SDLCalendar from "../../../../components/calendar/SDLCalendar";
 import LeavesModal from "../../modal/LeavesModal";
 import { leavesColumns } from "../../utils/columnHandlers/leavesColumns";
-import Swal from "sweetalert2";
+//import Swal from "sweetalert2";
 import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
 import { getLRDataDetails } from "../../services/leavesService";
+import { notifyError, notifyWarning } from "../../../../services/alertService";
 
 const Leaves = () => {
   const dispatch = useDispatch();
-  const [listData, setListData] = useState([]);
-  const [loader, setLoader] = useState(true);
+  //const [listData, setListData] = useState([]);
+  //const [loader, setLoader] = useState(true);
+  const [modalLoading, setModalLoading] = useState(false);
   const leavesData = useSelector((state) => state.eportalLRData.data);
   const loading = useSelector((state) => state.eportalLRData.loading);
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,33 +29,28 @@ const Leaves = () => {
   }, [dispatch, refreshKey]);
   //console.log("=====", leavesData);
 
-  useEffect(() => {
-    let mounted = true;
+  const listData = useMemo(() => {
     try {
-      const flattened = (leavesData.data || []).map((item, index) => {
-        return {
-          ID: item.ID || index,
-          LVE_DATE_FR: item.LVE_DATE_FR || "-",
-          LVE_DATE_TO: item.LVE_DATE_TO || "-",
-          //LVE_START_ON: item.LVE_START_ON || "-",
-          //LVE_END_ON: item.LVE_END_ON || "-",
-          LVE_CODE: item.LVE_CODE || "-",
-          NO_DAYS: item.NO_DAYS || "-",
-          REMARKS: item.REMARKS || "-",
-          statusText: item.STATUS || "-",
-          statusColor: item.statusColor || "-",
-          status: item.status || "-",
-        };
-      });
-      if (mounted) setListData(flattened);
+      return (leavesData.data || []).map((item, index) => ({
+        ID: item.ID || index,
+        LVE_DATE_FR: item.LVE_DATE_FR || "-",
+        LVE_DATE_TO: item.LVE_DATE_TO || "-",
+        //LVE_START_ON: item.LVE_START_ON || "-",
+        //LVE_END_ON: item.LVE_END_ON || "-",
+        LVE_CODE: item.LVE_CODE || "-",
+        NO_DAYS: item.NO_DAYS || "-",
+        REMARKS: item.REMARKS || "-",
+        statusText: item.STATUS || "-",
+        statusColor: item.statusColor || "-",
+        status: item.status || "-",
+      }));
     } catch (error) {
       console.error(error);
-      if (mounted) setListData([]);
+      return [];
     }
-    return () => {
-      mounted = false;
-    };
   }, [leavesData]);
+
+  
 
   //console.log("=======LIstData=====", listData);
   /* ================= SEARCH FILTER ================= */
@@ -75,7 +72,7 @@ const Leaves = () => {
   });
 
   const openModal = (config = {}) => {
-    setLoader(true);
+    setModalLoading(true);
     //console.log("-----------CoNFIG---------------", config);
     if (config.modalDate) {
       const currentDate = new Date();
@@ -86,41 +83,36 @@ const Leaves = () => {
       modalDate.setHours(0, 0, 0, 0);
 
       // 1st day of current month
-      const firstDayCurrentMonth = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        1
-      );
+      // const firstDayCurrentMonth = new Date(
+      //   currentDate.getFullYear(),
+      //   currentDate.getMonth(),
+      //   1
+      // );
 
       // Last day of NEXT month
-      const lastDayNextMonth = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() + 2,
-        0
-      );
+      // const lastDayNextMonth = new Date(
+      //   currentDate.getFullYear(),
+      //   currentDate.getMonth() + 2,
+      //   0
+      // );
 
       // Format dates as "1 July 2026"
-      const formatDate = (date) => {
-        return date.toLocaleDateString("en-GB", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        });
-      };
+      // const formatDate = (date) => {
+      //   return date.toLocaleDateString("en-GB", {
+      //     day: "numeric",
+      //     month: "long",
+      //     year: "numeric",
+      //   });
+      // };
 
-      const formattedFirstDay = formatDate(firstDayCurrentMonth);
-      const formattedLastDay = formatDate(lastDayNextMonth);
+      //const formattedFirstDay = formatDate(firstDayCurrentMonth);
+      //const formattedLastDay = formatDate(lastDayNextMonth);
 
       //console.log("==========firstDayCurrentMonth========", formattedFirstDay);
       //console.log("==========lastDayNextMonth========", formattedLastDay);
 
       // if (modalDate < firstDayCurrentMonth || modalDate > lastDayNextMonth) {
-      //   Swal.fire({
-      //     icon: "warning",
-      //     title: "Not Permitted",
-      //     text: `Leave can only be requested between ${formattedFirstDay} and ${formattedLastDay}`,
-      //   });
-
+      //notifyWarning(`Leave can only be requested between ${formattedFirstDay} and ${formattedLastDay}`,"Not Permitted")
       //   return;
       // }
     }
@@ -140,7 +132,7 @@ const Leaves = () => {
 
     const fetchLRData = async () => {
         try {
-          setLoader(true);
+          setModalLoading(true);
           const response = await getLRDataDetails({
             id: config.modalDate || null,
             //ID: mid || null,
@@ -162,12 +154,7 @@ const Leaves = () => {
               isPostRemark: config.isPostRemark || null,
             });
           } else if(response?.data?.pass.flag === "No") {
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: "You have already applied leave!",
-            });
-
+            notifyError("You have already applied leave!");
             setModalState({
               isOpen: false,
               mode: config.mode || "create",
@@ -180,13 +167,13 @@ const Leaves = () => {
         } catch (error) {
           console.error("Error fetching Leave Request Data:", error);
         } finally {
-          setLoader(false);
+          setModalLoading(false);
         }
       };
 
     fetchLRData();
 
-    setLoader(false);
+    setModalLoading(false);
   };
 
   const formSettings = {
@@ -206,7 +193,7 @@ const Leaves = () => {
       ...prev,
       isOpen: false,
     }));
-    setLoader(false);
+    setModalLoading(false);
   };
 
   const handleSuccess = () => {
@@ -242,7 +229,11 @@ const Leaves = () => {
           ]}
         />
       </div>
-
+      {loading || modalLoading && (
+        <div className="p-4 text-center">
+          <div className="spinner-border text-warning"></div>
+        </div>
+      )}
       {/* ================= MAIN CARD ================= */}
       <div className="card">
         <div className="card-body">

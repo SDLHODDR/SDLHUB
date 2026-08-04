@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import Swal from "sweetalert2";
 import { getGpAttdData, authGPData, rejectGPData } from "../services/outdoorDutyService";
+import { notifyError, notifySuccess } from "../../../services/alertService";
 
 const OutdoorDutyAuthorizationModal = ({
   outddorduty,
@@ -53,12 +53,7 @@ const OutdoorDutyAuthorizationModal = ({
 
             setGPAttdData(response.data || {});
         } else {
-            Swal.fire({
-              icon: "error",
-              title: "Failed",
-              text:
-                  response?.message || `Unable to fetch Emp Attendance.`,
-            });
+          notifyError(response?.message || `Unable to fetch Emp Attendance.`);
         }
     } catch (error) {
         console.error("Error fetching data:", error);
@@ -104,12 +99,12 @@ const OutdoorDutyAuthorizationModal = ({
       });
 
       if (!response?.status) {
-        Swal.fire({ icon: "error", title: "Error Occurred!" }); // note: "danger" isn't a valid SweetAlert2 icon
+        notifyError("Error Occurred");
         return; // keep modal open so user can retry
       }
 
       onClose?.();
-      Swal.fire({ icon: "success", title: "Request rejected successfully" });
+      notifySuccess("Request rejected successfully");
       onSuccess?.(); // only refetch on actual success
     } catch (err) {
       console.error(err);
@@ -127,19 +122,15 @@ const OutdoorDutyAuthorizationModal = ({
       });
 
       if (!response?.status) {
-        Swal.fire({ icon: "error", title: "Error Occurred!" });
+        notifyError("Error Occurred!");
         return;
       }
       onClose?.();
-
-      Swal.fire({
-        icon: "success",
-        title: "Request authorized successfully",
-      });
+      notifySuccess("Request authorized successfully");
       onSuccess?.(); // only refetch on actual success
     } catch (err) {
       console.error(err);
-      Swal.fire({ icon: "error", title: "Something went wrong" });
+      notifyError("Something went wrong");
     }
   };
 
@@ -190,6 +181,11 @@ const OutdoorDutyAuthorizationModal = ({
             <form>
               {/* Body */}
               <div className="modal-body">
+                {loading && (
+                  <div className="p-4 text-center">
+                    <div className="spinner-border text-warning"></div>
+                  </div>
+                )}
                 <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">

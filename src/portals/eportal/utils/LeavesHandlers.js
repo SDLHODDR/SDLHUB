@@ -1,8 +1,8 @@
-import Swal from "sweetalert2";
 import {
   deleteLRData,
 } from "../services/leavesService";
 //import { getLeavesDataResponse } from "../../../store/eportal/ePortalLeavesSlice";
+import { confirmAction, notifyError, notifySuccess } from "../../../services/alertService";
 
 export const createLeavesHandlers = ({ handleSuccess, openModal }) => {
   
@@ -17,29 +17,15 @@ export const createLeavesHandlers = ({ handleSuccess, openModal }) => {
   };
 
   const deleteLR = async (id) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "Delete this Ticket Booking request?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Delete!",
-    });
+    const result = await confirmAction("Delete this Ticket Booking request?");
     if (!result.isConfirmed) return;
 
     const response = await deleteLRData({ deleteLR: true, delteId: id });
     if (response?.status) {
-      await Swal.fire({
-        icon: "success",
-        title: "Deleted!",
-        text: response?.message || "leaves Request deleted successfully",
-      });
+      notifySuccess(response?.message || "leaves Request deleted successfully");
       handleSuccess?.();
     } else {
-      Swal.fire({
-        icon: "error",
-        title: "Failed!",
-        text: response?.message || "Delete failed",
-      });
+      notifyError(response?.message || "Delete failed");
     }
   };
 

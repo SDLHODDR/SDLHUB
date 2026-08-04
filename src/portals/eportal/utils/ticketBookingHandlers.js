@@ -1,70 +1,45 @@
-import Swal from "sweetalert2";
 import {
   sendauthTBDataDetails,
   resendauthTBDataDetails,
   closeTBTicket,
 } from "../services/ticketbookingService";
+import { confirmAction, notifyError, notifySuccess } from "../../../services/alertService";
 
 export const createTicketBookingHandlers = ({ handleSuccess }) => {
   const sendAuth = async (id) => {
-    const result = await Swal.fire({
-      title: "Send for Authorization?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes",
-    });
+    const result = await confirmAction(
+      "Send for Authorization?"
+    );
+   
     if (!result.isConfirmed) return;
 
     const response = await sendauthTBDataDetails({ ID: id, sendAuth: true });
     if (response?.status) {
-      await Swal.fire({
-        icon: "success",
-        title: "Sent!",
-        text: response?.message || "Authorization request sent successfully.",
-      });
+      notifySuccess(response?.message || "Authorization request sent successfully.");
       handleSuccess?.();
     } else {
-      Swal.fire({
-        icon: "error",
-        title: "Failed!",
-        text: response?.message || "Unable to send authorization request.",
-      });
+      notifyError(response?.message || "Unable to send authorization request.");
     }
   };
 
   const resendAuth = async (id) => {
-    const result = await Swal.fire({
-      title: "Resend Authorization?",
-      icon: "warning",
-      showCancelButton: true,
-    });
+    const result = await confirmAction("Resend Authorization?");
+    
     if (!result.isConfirmed) return;
 
     const response = await resendauthTBDataDetails({ ID: id, resendAuth: true });
     if (response?.status) {
-      await Swal.fire({
-        icon: "success",
-        title: "Resent!",
-        text: response?.message || "Authorization request resent successfully.",
-      });
+      notifySuccess(response?.message || "Authorization request resent successfully.");
       handleSuccess?.();
     } else {
-      Swal.fire({
-        icon: "error",
-        title: "Failed!",
-        text: response?.message || "Unable to resend authorization request.",
-      });
+      notifyError(response?.message || "Unable to resend authorization request.");
     }
   };
 
   const closeTicketTB = async (id) => {
     try {
-      const result = await Swal.fire({
-        title: "Close Ticket Booking?",
-        icon: "question",
-        showCancelButton: true
-      });
-      
+      const result = await confirmAction("Close Ticket Booking?");
+            
       if (!result.isConfirmed) return;
 
       const response = await closeTBTicket({
@@ -72,22 +47,9 @@ export const createTicketBookingHandlers = ({ handleSuccess }) => {
         closeTicket: true
       });
       if (response?.status) {
-        await Swal.fire({
-          icon: "success",
-          title: "Closed!",
-          text:
-            response?.message ||
-            "Ticket Booking Closed successfully."
-        });
-
+        notifySuccess(response?.message || "Ticket Booking Closed successfully.");
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Failed!",
-          text:
-            response?.message ||
-            "Unable to close request."
-        });
+        notifyError(response?.message || "Unable to close request.");
       }
       handleSuccess?.();
     } catch (err) {

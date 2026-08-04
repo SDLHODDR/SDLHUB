@@ -8,13 +8,13 @@ import SDLSearch from "../../../../components/datatable/SDLSearch";
 import SDLCalendar from "../../../../components/calendar/SDLCalendar";
 import TicketBookingModal from "../../modal/TicketBookingModal";
 import { ticketBookingColumns } from "../../utils/columnHandlers/ticketBookingColumns";
-import Swal from "sweetalert2";
+//import Swal from "sweetalert2";
 import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
+import { notifyWarning } from "../../../../services/alertService";
 
 const TicketBooking = () => {
   const dispatch = useDispatch();
-  const [listData, setListData] = useState([]);
-  const [loader, setLoader] = useState(true);
+  const [modalLoading, setModalLoading] = useState(false);
   const ticketBookingData = useSelector((state) => state.eportalTBRData.data);
   const loading = useSelector((state) => state.eportalTBRData.loading);
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,34 +24,27 @@ const TicketBooking = () => {
     dispatch(getTicketBookingDataResponse());
   }, [dispatch, refreshKey]);
 
-  useEffect(() => {
-    let mounted = true;
+  const listData = useMemo(() => {
     try {
-      const flattened = (ticketBookingData || []).map((item, index) => {
-        return {
-          id: item.id || index,
-          person_name: item.person_name || "-",
-          //trvl_mode: item.trvl_mode || "-",
-          trvl_date: item.trvl_date || "-",
-          trvl_from_location: item.trvl_from_location || "-",
-          trvl_to_loc: item.trvl_to_loc || "-",
-          trvl_ft_name: item.trvl_ft_name || "-",
-          trvl_ft_no: item.trvl_ft_no || "-",
-          //ttnt_depr_time: item.ttnt_depr_time || "-",
-          statusText: item.approval || "-",
-          remarks: item.remarks || "-",
-          statusColor: item.statusColor || "-",
-          status: item.status || "-",
-        };
-      });
-      if (mounted) setListData(flattened);
+      return (ticketBookingData || []).map((item, index) => ({
+        id: item.id || index,
+        person_name: item.person_name || "-",
+        //trvl_mode: item.trvl_mode || "-",
+        trvl_date: item.trvl_date || "-",
+        trvl_from_location: item.trvl_from_location || "-",
+        trvl_to_loc: item.trvl_to_loc || "-",
+        trvl_ft_name: item.trvl_ft_name || "-",
+        trvl_ft_no: item.trvl_ft_no || "-",
+        //ttnt_depr_time: item.ttnt_depr_time || "-",
+        statusText: item.approval || "-",
+        remarks: item.remarks || "-",
+        statusColor: item.statusColor || "-",
+        status: item.status || "-",
+      }));
     } catch (error) {
       console.error(error);
-      if (mounted) setListData([]);
+      return [];
     }
-    return () => {
-      mounted = false;
-    };
   }, [ticketBookingData]);
 
   /* ================= SEARCH FILTER ================= */
@@ -76,7 +69,7 @@ const TicketBooking = () => {
   });
 
   const openModal = (config = {}) => {
-    setLoader(true);
+    setModalLoading(true);
     if (config.modalDate) {
       const currentDate = new Date();
       const modalDate = new Date(config.modalDate);
@@ -92,13 +85,9 @@ const TicketBooking = () => {
       //console.log("==========diffDays========", diffDays);
 
       if (diffDays < 0) {
+        setModalLoading(false);
         // modalDate is before today → block it
-        Swal.fire({
-          icon: "warning",
-          title: "Not Permitted",
-          text: "It is not permitted to raise a Ticket Booking request for past dates",
-        });
-
+        notifyWarning("It is not permitted to raise a Ticket Booking request for past dates", "Not Permitted");
         return;
       }
     }
@@ -111,7 +100,7 @@ const TicketBooking = () => {
       isPostRemark: config.isPostRemark || null,
     });
 
-    setLoader(false);
+    setModalLoading(false);
   };
 
   const formSettings = {
@@ -131,7 +120,7 @@ const TicketBooking = () => {
       ...prev,
       isOpen: false,
     }));
-    setLoader(false);
+    setModalLoading(false);
   };
 
   const handleSuccess = () => {
@@ -163,7 +152,12 @@ const TicketBooking = () => {
           ]}
         />
       </div>
-
+      {/* ================= MAIN CARD ================= */}
+      {loading || modalLoading && (
+        <div className="p-4 text-center">
+          <div className="spinner-border text-warning"></div>
+        </div>
+      )}
       {/* ================= MAIN CARD ================= */}
       <div className="card">
         <div className="card-body">

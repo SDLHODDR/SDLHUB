@@ -1,6 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-//import { eportalAPI } from "../../services/api";
-//import { EPORTAL_API } from "../../portals/eportal/config/eportalApiConfig";
 import { outDoorDutyFetchData } from "../../portals/eportal/services/outdoorDutyService";
 
 const initialState = {

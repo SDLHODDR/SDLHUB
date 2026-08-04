@@ -1,7 +1,7 @@
 // import { useState, useEffect, useRef } from "react";
 import { useState } from "react";
-import Swal from "sweetalert2";
 import { authTBRData, rejectTBRData } from "../services/ticketbookingService";
+import { notifyError, notifySuccess } from "../../../services/alertService";
 
 const TicketBookingAuthorizationModal = ({
   ticketbooking,
@@ -62,12 +62,12 @@ const TicketBookingAuthorizationModal = ({
       });
 
       if (!response?.status) {
-        Swal.fire({ icon: "error", title: "Error Occurred!" }); // note: "danger" isn't a valid SweetAlert2 icon
+        notifyError("Error Occurred!");
         return; // keep modal open so user can retry
       }
 
       onClose?.();
-      Swal.fire({ icon: "success", title: "Request rejected successfully" });
+      notifySuccess("Request rejected successfully");
       onSuccess?.(); // only refetch on actual success
     } catch (err) {
       console.error(err);
@@ -85,19 +85,15 @@ const TicketBookingAuthorizationModal = ({
       });
 
       if (!response?.status) {
-        Swal.fire({ icon: "error", title: "Error Occurred!" });
+        notifyError("Error Occurred!");
         return;
       }
       onClose?.();
-
-      Swal.fire({
-        icon: "success",
-        title: "Request authorized successfully",
-      });
+      notifySuccess("Request authorized successfully")
       onSuccess?.(); // only refetch on actual success
     } catch (err) {
       console.error(err);
-      Swal.fire({ icon: "error", title: "Something went wrong" });
+      notifyError("Something went wrong");
     }
   };
 

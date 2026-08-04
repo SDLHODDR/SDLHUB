@@ -3,7 +3,6 @@ import { useState, useMemo, useEffect } from "react";
 import { Calendar } from "primereact/calendar";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { getCalendarData } from "../../services/calendarService";
-import Swal from "sweetalert2";
 
 const SDLCalendar = ({ openModal }) => {
   const [date, setDate] = useState(null);
@@ -58,15 +57,15 @@ const SDLCalendar = ({ openModal }) => {
   };
 
   // Disable logic (ONLY H & W)
-  const isDisabledDate = (holiday) => {
-    return holiday?.type === "H" || holiday?.type === "W";
-  };
+  // const isDisabledDate = (holiday) => {
+  //   return holiday?.type === "H" || holiday?.type === "W";
+  // };
 
   // Calendar cell renderer
   const dateTemplate = (date) => {
     const key = getKey(date);
     const holiday = holidayMap[key];
-    const isDisabled = isDisabledDate(holiday);
+    //const isDisabled = isDisabledDate(holiday);
 
     let tooltipText = null;
 
