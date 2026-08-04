@@ -30,6 +30,8 @@ import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 
 import { PROFILE_MAINTENANCE_MESSAGES } from "../../constants/profileMaintenanceConstants";
 
+import { getPortalFromPath } from "../../../../config/portalConfig";
+
 const ProfileMaintenance = () => {
   const hasFetchedProfiles = useRef(false);
 
@@ -62,6 +64,10 @@ const ProfileMaintenance = () => {
 
   const [profileUsers, setProfileUsers] = useState([]);
   const [userLoading, setUserLoading] = useState(false);
+
+  // Get current portal dynamically
+  const portal = getPortalFromPath(location.pathname);
+  const portalHome = `/${portal.key}/dashboard`;
 
   const allExpanded =
     menus.length > 0 && menus.every((menu) => expandedMenus[menu.ID]);
@@ -174,7 +180,7 @@ const ProfileMaintenance = () => {
 
         try {
             const data = await getProfiles();
-           
+
             const options = data.map((p) => ({
                 value: p.PROFILE_ID,
                 label: p.PROFILE_DESC
@@ -383,7 +389,7 @@ const ProfileMaintenance = () => {
     } catch {
       notifyError(PROFILE_MAINTENANCE_MESSAGES.MENU_SAVE_ERROR);
 
-      /*    
+      /*
       notifyError(
           err?.response?.data?.message ||
           err?.message ||
@@ -605,7 +611,7 @@ const ProfileMaintenance = () => {
 
         <BreadcrumbNav
           items={[
-            { text: "Home", link: "/eportal/dashboard" },
+            { text: "Home", link: portalHome },
             { text: "Profile Maintenance" },
           ]}
         />

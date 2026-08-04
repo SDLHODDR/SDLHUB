@@ -11,10 +11,17 @@ import {
   confirmAction,
 } from "../../../../services/alertService";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
+import Badge from "../Badge";
+
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const ItrDownloadReport = () => {
   const [loading, setLoading] = useState(false);
   const [globalFilter, setGlobalFilter] = useState("");
+
+	// Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
 
   const [filters, setFilters] = useState({
     financial_year: "",
@@ -34,13 +41,10 @@ const ItrDownloadReport = () => {
   const [rows, setRows] = useState([]);
 
   const statusTemplate = (rowData) => (
-    <span
-      className={`badge ${
-        rowData.STATUS === "SUCCESS" ? "bg-success" : "bg-danger"
-      }`}
-    >
-      {rowData.STATUS}
-    </span>
+    <Badge
+      text={rowData.STATUS}
+      className={rowData.STATUS === "SUCCESS" ? "bg-success" : "bg-danger"}
+    />
   );
 
   const loadReport = async () => {
@@ -287,7 +291,7 @@ const ItrDownloadReport = () => {
         </div>
         <BreadcrumbNav
           items={[
-            { text: "Home", link: "/eportal/dashboard" },
+            { text: "Home", link: portalHome },
             { text: "ITR Download Report" },
           ]}
         />

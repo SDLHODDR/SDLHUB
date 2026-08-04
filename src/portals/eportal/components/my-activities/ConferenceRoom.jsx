@@ -11,6 +11,8 @@ import ConferenceScheduler from "./ConferenceScheduler";
 import { OverlayTrigger } from "react-bootstrap";
 import { renderConferenceTooltip } from "../../utils/tooltipHelper";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
+import Badge from "../Badge";
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const ConferenceRoom = () => {
   /* =========================================================
@@ -19,6 +21,10 @@ const ConferenceRoom = () => {
 
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+
+	// Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
 
   /* =========================================================
      SEARCH
@@ -124,7 +130,7 @@ const ConferenceRoom = () => {
 
   /* =========================================================
      REFRESH TABLE
-     
+
      Call this after adding/updating/deleting booking.
   ========================================================= */
 
@@ -150,11 +156,11 @@ const ConferenceRoom = () => {
 
   /* =========================================================
      SEARCH
-     
+
      NOTE:
      This currently searches only the records loaded
      on the current server page.
-     
+
      For complete search across all 75 records,
      search should later be moved to PHP/API.
   ========================================================= */
@@ -214,62 +220,28 @@ const ConferenceRoom = () => {
   const getStatusBadge = (status) => {
     switch (status) {
       case "A":
-        return (
-          <span className="badge bg-success">
-            Confirmed
-          </span>
-        );
-
+        return <Badge text="Confirmed" className="bg-success" />;
       case "R":
-        return (
-          <span className="badge bg-danger">
-            Rejected
-          </span>
-        );
-
+        return <Badge text="Rejected" className="bg-danger" />;
       case "D":
-        return (
-          <span className="badge bg-danger">
-            Booking Deleted
-          </span>
-        );
-
+        return <Badge text="Booking Deleted" className="bg-danger" />;
       case "N":
-        return (
-          <span className="badge bg-warning text-dark">
-            Planned
-          </span>
-        );
-
+        return <Badge text="Planned" className="bg-warning" />;
       case "X":
-        return (
-          <span className="badge bg-secondary">
-            Booking Cancelled
-          </span>
-        );
-
+        return <Badge text="Booking Cancelled" className="bg-secondary" />;
       case "T":
-        return (
-          <span className="badge bg-info">
-            Confirmation Pending
-          </span>
-        );
-
+        return <Badge text="Confirmation Pending" className="bg-blue" />;
       default:
-        return (
-          <span className="badge bg-light text-dark">
-            {status || "-"}
-          </span>
-        );
+        return <Badge text={status} className="bg-light text-dark" />;
     }
   };
 
   /* =========================================================
      SERIAL NUMBER
-     
+
      Important:
      options.rowIndex starts from 0 for each page.
-     
+
      So we add the page offset here.
   ========================================================= */
 
@@ -360,7 +332,7 @@ const ConferenceRoom = () => {
           items={[
             {
               text: "Home",
-              link: "/eportal/dashboard",
+              link: portalHome,
             },
             {
               text: "Conference Room",
@@ -592,6 +564,7 @@ const ConferenceRoom = () => {
                   style={{
                     width: "90px",
                   }}
+
                 />
 
               </DataTable>

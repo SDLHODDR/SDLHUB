@@ -1,51 +1,51 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo } from 'react'
 import {
   saveExemptions,
   getExemptionData,
-  deleteExemptionData,
-} from "../../../../services/itReturnService";
+  deleteExemptionData
+} from '../../../../services/itReturnService'
 import {
   notifySuccess,
   notifyError,
-  confirmAction,
-} from "../../../../../../services/alertService";
+  confirmAction
+} from '../../../../../../services/alertService'
 
-import SDLDataTable from "../../../../../../components/datatable/SDLDataTable";
-import SDLSearch from "../../../../../../components/datatable/SDLSearch";
-import { ITR_MESSAGES } from "../../../../constants/itrMessages";
+import SDLDataTable from '../../../../../../components/datatable/SDLDataTable'
+import SDLSearch from '../../../../../../components/datatable/SDLSearch'
+import { ITR_MESSAGES } from '../../../../constants/itrMessages'
 
 const ExemptionsTab = ({ onDataSaved, editable }) => {
   const initialFormState = {
-    exemption_id: "",
-    from: "",
-    to: "",
-    monthlyRent: "",
-    annualRent: "",
-    address: "",
-    city: "Non Metro",
-    landlordHasPan: "yes",
-    landlordName: "",
-    landlordAddress: "",
-    landlordPan: "",
+    exemption_id: '',
+    from: '',
+    to: '',
+    monthlyRent: '',
+    annualRent: '',
+    address: '',
+    city: 'Non Metro',
+    landlordHasPan: 'yes',
+    landlordName: '',
+    landlordAddress: '',
+    landlordPan: '',
     panCopy: null,
-    agreementCopy: null,
-  };
+    agreementCopy: null
+  }
 
-  const [formData, setFormData] = useState(initialFormState);
-  const [errors, setErrors] = useState({});
-  const [exemptionList, setExemptionList] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState(initialFormState)
+  const [errors, setErrors] = useState({})
+  const [exemptionList, setExemptionList] = useState([])
+  const [loading, setLoading] = useState(false)
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const isEditable = Boolean(editable);
+  const [searchQuery, setSearchQuery] = useState('')
+  const isEditable = Boolean(editable)
 
   // PREVENT DUPLICATE API CALLS
-  const hasFetched = useRef(false);
+  const hasFetched = useRef(false)
 
   const filteredData = useMemo(() => {
-    if (!searchQuery) return exemptionList;
+    if (!searchQuery) return exemptionList
 
-    return exemptionList.filter((item) =>
+    return exemptionList.filter(item =>
       [
         item.from,
         item.to,
@@ -53,114 +53,129 @@ const ExemptionsTab = ({ onDataSaved, editable }) => {
         item.annualRent,
         item.city,
         item.landlordName,
-        item.landlordPan,
+        item.landlordPan
       ]
-        .join(" ")
+        .join(' ')
         .toLowerCase()
-        .includes(searchQuery.toLowerCase()),
-    );
-  }, [searchQuery, exemptionList]);
+        .includes(searchQuery.toLowerCase())
+    )
+  }, [searchQuery, exemptionList])
 
-  const actionBodyTemplate = (rowData) => (
-    <div className="d-flex gap-2">
-      <button
+  const actionBodyTemplate = rowData => (
+    <div className='d-flex gap-2'>
+      {/* <button
         className="btn btn-sm btn-outline-primary"
         onClick={() => handleEdit(rowData)}
       >
         Edit
-      </button>
+      </button> */}
 
       <button
+        type='button'
+        className='btn btn-icon btn-sm btn-primary'
+        onClick={() => handleEdit(rowData)}
+      >
+        <i className='ti ti-edit'></i>
+      </button>
+
+      {/* <button
         className="btn btn-sm btn-outline-danger"
         onClick={() => handleDelete(rowData)}
       >
         Delete
+      </button> */}
+      <button
+        type='button'
+        className='btn btn-icon btn-sm btn-primary'
+        onClick={() => handleDelete(rowData)}
+      >
+        <i className='ti ti-trash'></i>
       </button>
     </div>
-  );
+  )
 
-  const serialBodyTemplate = (_, options) => options.rowIndex + 1;
+  const serialBodyTemplate = (_, options) => options.rowIndex + 1
 
   const columns = [
     {
-      header: "#",
+      header: '#',
       body: serialBodyTemplate,
       style: {
-        width: "60px",
-        textAlign: "center",
-      },
+        width: '60px',
+        textAlign: 'center'
+      }
     },
     {
-      field: "from",
-      header: "From",
+      field: 'from',
+      header: 'From',
       sortable: true,
       style: {
-        width: "120px",
-      },
+        width: '120px'
+      }
     },
     {
-      field: "to",
-      header: "To",
+      field: 'to',
+      header: 'To',
       sortable: true,
       style: {
-        width: "120px",
-      },
+        width: '120px'
+      }
     },
     {
-      field: "monthlyRent",
-      header: "Monthly Rent",
+      field: 'monthlyRent',
+      header: 'Monthly Rent',
       sortable: true,
       style: {
-        width: "150px",
-        textAlign: "right",
-      },
+        width: '150px',
+        textAlign: 'right'
+      }
     },
     {
-      field: "annualRent",
-      header: "Annual Rent",
+      field: 'annualRent',
+      header: 'Annual Rent',
       sortable: true,
       style: {
-        width: "150px",
-        textAlign: "right",
-      },
+        width: '150px',
+        textAlign: 'right'
+      }
     },
     {
-      field: "city",
-      header: "City",
+      field: 'city',
+      header: 'City',
       sortable: true,
       style: {
-        width: "140px",
-      },
+        width: '140px'
+      }
     },
     {
-      field: "landlordName",
-      header: "Landlord",
+      field: 'landlordName',
+      header: 'Landlord',
       sortable: true,
       style: {
-        minWidth: "220px",
-      },
+        minWidth: '220px'
+      }
     },
     {
-      field: "landlordPan",
-      header: "PAN",
+      field: 'landlordPan',
+      header: 'PAN',
       sortable: true,
       style: {
-        width: "160px",
-      },
+        width: '160px'
+      }
     },
     ...(isEditable
       ? [
           {
-            header: "Action",
+            header: 'Action',
             body: actionBodyTemplate,
             style: {
-              width: "150px",
-              textAlign: "center",
-            },
-          },
+              width: '150px',
+              textAlign: 'center'
+            }
+          }
         ]
-      : []),
-  ];
+      : [])
+  ]
 
   /* =========================================
      FETCH EXEMPTION LIST
@@ -168,30 +183,30 @@ const ExemptionsTab = ({ onDataSaved, editable }) => {
 
   const fetchExemptionData = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
 
-      const res = await getExemptionData();
+      const res = await getExemptionData()
 
       if (res?.status) {
-        const { financial_year = "", exemptions = [] } = res.data || {};
+        const { financial_year = '', exemptions = [] } = res.data || {}
 
         // If you have a Financial Year state
         // setFinancialYear(financial_year);
 
-        setExemptionList(Array.isArray(exemptions) ? exemptions : []);
+        setExemptionList(Array.isArray(exemptions) ? exemptions : [])
       } else {
-        setExemptionList([]);
+        setExemptionList([])
       }
     } catch (error) {
-      console.error(error);
+      console.error(error)
 
-      setExemptionList([]);
+      setExemptionList([])
 
-      notifyError(ITR_MESSAGES.FAILED_LOAD_EXEMPTION);
+      notifyError(ITR_MESSAGES.FAILED_LOAD_EXEMPTION)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   /* =========================================
      INITIAL LOAD
@@ -199,26 +214,26 @@ const ExemptionsTab = ({ onDataSaved, editable }) => {
 
   useEffect(() => {
     // Prevent StrictMode duplicate execution
-    if (hasFetched.current) return;
+    if (hasFetched.current) return
 
-    hasFetched.current = true;
+    hasFetched.current = true
 
-    fetchExemptionData();
-  }, []);
+    fetchExemptionData()
+  }, [])
 
   /* =========================================
      VALIDATION
   ========================================= */
 
   const validateForm = () => {
-    let newErrors = {};
+    let newErrors = {}
 
     if (!formData.from) {
-      newErrors.from = "From date is required";
+      newErrors.from = 'From date is required'
     }
 
     if (!formData.to) {
-      newErrors.to = "To date is required";
+      newErrors.to = 'To date is required'
     }
 
     if (
@@ -226,99 +241,99 @@ const ExemptionsTab = ({ onDataSaved, editable }) => {
       formData.to &&
       new Date(formData.to) < new Date(formData.from)
     ) {
-      newErrors.to = "To date cannot be earlier than From date";
+      newErrors.to = 'To date cannot be earlier than From date'
     }
 
     if (!formData.monthlyRent) {
-      newErrors.monthlyRent = "Monthly rent is required";
+      newErrors.monthlyRent = 'Monthly rent is required'
     }
 
     if (!formData.annualRent) {
-      newErrors.annualRent = "Total rent paid is required";
+      newErrors.annualRent = 'Total rent paid is required'
     }
 
     if (!formData.address.trim()) {
-      newErrors.address = "Address is required";
+      newErrors.address = 'Address is required'
     }
 
     if (!formData.landlordName.trim()) {
-      newErrors.landlordName = "Landlord name is required";
+      newErrors.landlordName = 'Landlord name is required'
     }
 
     if (!formData.landlordAddress.trim()) {
-      newErrors.landlordAddress = "Landlord address is required";
+      newErrors.landlordAddress = 'Landlord address is required'
     }
 
     const isPanMandatory =
-      formData.landlordHasPan === "yes" ||
-      Number(formData.annualRent || 0) > 100000;
+      formData.landlordHasPan === 'yes' ||
+      Number(formData.annualRent || 0) > 100000
 
     if (isPanMandatory) {
       if (!formData.landlordPan.trim()) {
-        newErrors.landlordPan = "Landlord PAN is required";
+        newErrors.landlordPan = 'Landlord PAN is required'
       } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i.test(formData.landlordPan)) {
-        newErrors.landlordPan = "Enter valid PAN number";
+        newErrors.landlordPan = 'Enter valid PAN number'
       }
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   /* =========================================
      HANDLE CHANGE
   ========================================= */
 
-  const handleChange = (e) => {
-    const { name, value, files, type } = e.target;
+  const handleChange = e => {
+    const { name, value, files, type } = e.target
 
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: type === "file" ? files?.[0] || null : value,
-    }));
+      [name]: type === 'file' ? files?.[0] || null : value
+    }))
 
-    setErrors((prev) => ({
+    setErrors(prev => ({
       ...prev,
-      [name]: "",
-    }));
-  };
+      [name]: ''
+    }))
+  }
 
   /* =========================================
      EDIT RECORD
   ========================================= */
 
-  const handleEdit = (row) => {
+  const handleEdit = row => {
     setFormData({
-      exemption_id: row.exemption_id || row.ID || row.id || "",
+      exemption_id: row.exemption_id || row.ID || row.id || '',
 
-      from: row.from || "",
-      to: row.to || "",
-      monthlyRent: row.monthlyRent || "",
-      annualRent: row.annualRent || "",
-      address: row.address || "",
-      city: row.city || "Non Metro",
-      landlordHasPan: row.landlordHasPan || "yes",
-      landlordName: row.landlordName || "",
-      landlordAddress: row.landlordAddress || "",
-      landlordPan: row.landlordPan || "",
+      from: row.from || '',
+      to: row.to || '',
+      monthlyRent: row.monthlyRent || '',
+      annualRent: row.annualRent || '',
+      address: row.address || '',
+      city: row.city || 'Non Metro',
+      landlordHasPan: row.landlordHasPan || 'yes',
+      landlordName: row.landlordName || '',
+      landlordAddress: row.landlordAddress || '',
+      landlordPan: row.landlordPan || '',
       panCopy: null,
-      agreementCopy: null,
-    });
+      agreementCopy: null
+    })
 
     window.scrollTo({
       top: 0,
-      behavior: "smooth",
-    });
-  };
+      behavior: 'smooth'
+    })
+  }
 
   /* =========================================
      RESET FORM
   ========================================= */
 
   const resetForm = () => {
-    setFormData(initialFormState);
-    setErrors({});
-  };
+    setFormData(initialFormState)
+    setErrors({})
+  }
 
   /* =========================================
      SAVE
@@ -326,72 +341,72 @@ const ExemptionsTab = ({ onDataSaved, editable }) => {
 
   const handleSave = async () => {
     if (!validateForm()) {
-      return;
+      return
     }
 
     try {
-      const payload = new FormData();
+      const payload = new FormData()
 
-      Object.keys(formData).forEach((key) => {
+      Object.keys(formData).forEach(key => {
         if (formData[key] !== null) {
-          payload.append(key, formData[key]);
+          payload.append(key, formData[key])
         }
-      });
+      })
 
-      const res = await saveExemptions(payload);
+      const res = await saveExemptions(payload)
 
       if (res?.status) {
-        notifySuccess(res.message || ITR_MESSAGES.EXEMPTIONS_SAVED);
+        notifySuccess(res.message || ITR_MESSAGES.EXEMPTIONS_SAVED)
 
-        resetForm();
+        resetForm()
 
-        await fetchExemptionData();
+        await fetchExemptionData()
 
         // SAFE CALLBACK
-        onDataSaved?.();
+        onDataSaved?.()
       } else {
-        notifyError(res?.message || "Please fill all required fields");
+        notifyError(res?.message || 'Please fill all required fields')
       }
     } catch (error) {
-      console.error(error);
-      notifyError(ITR_MESSAGES.EXEMPTION_SERVER_ERROR);
+      console.error(error)
+      notifyError(ITR_MESSAGES.EXEMPTION_SERVER_ERROR)
     }
-  };
+  }
 
   /* =========================================
      DELETE RECORD
   ========================================= */
-  const handleDelete = async (row) => {
+  const handleDelete = async row => {
     const result = await confirmAction(
-      "Are you sure you want to delete this exemption record?",
-    );
+      'Are you sure you want to delete this exemption record?'
+    )
 
-    if (!result.isConfirmed) return;
+    if (!result.isConfirmed) return
 
     try {
-      const response = await deleteExemptionData(row.exemption_id);
+      const response = await deleteExemptionData(row.exemption_id)
 
       if (response?.status) {
-        notifySuccess(response.message || "Record deleted successfully");
+        notifySuccess(response.message || 'Record deleted successfully')
 
-        await fetchExemptionData();
+        await fetchExemptionData()
 
-        resetForm();
+        resetForm()
 
-        onDataSaved?.();
+        onDataSaved?.()
       } else {
-        notifyError(response?.message || "Unable to delete record");
+        notifyError(response?.message || 'Unable to delete record')
       }
     } catch (error) {
-      console.error(error);
-      notifyError("Failed to delete record");
+      console.error(error)
+      notifyError('Failed to delete record')
     }
-  };
+  }
 
   return (
     <>
       {!editable && (
-        <div className="alert alert-warning mb-3">
+        <div className='alert alert-warning mb-3'>
           IT Return editing is allowed only on configured dates.
         </div>
       )}
@@ -400,231 +415,231 @@ const ExemptionsTab = ({ onDataSaved, editable }) => {
           FORM
       ========================================= */}
 
-        <div className="alert alert-warning">
+        <div className='alert alert-warning'>
           If annual rent paid exceeds Rs 1,00,000, landlord PAN is mandatory
           else same is not considered for taxation.
         </div>
 
-        <div className="row">
+        <div className='row'>
           {/* FROM */}
-          <div className="col-md-4 mb-3">
-            <label className="form-label">
-              From <span className="text-danger">*</span>
+          <div className='col-md-4 mb-3'>
+            <label className='form-label'>
+              From <span className='text-danger'>*</span>
             </label>
 
             <input
-              type="date"
-              name="from"
+              type='date'
+              name='from'
               value={formData.from}
               onChange={handleChange}
-              className={`form-control ${errors.from ? "is-invalid" : ""}`}
+              className={`form-control ${errors.from ? 'is-invalid' : ''}`}
             />
 
             {errors.from && (
-              <div className="invalid-feedback">{errors.from}</div>
+              <div className='invalid-feedback'>{errors.from}</div>
             )}
           </div>
 
           {/* TO */}
-          <div className="col-md-4 mb-3">
-            <label className="form-label">
-              To <span className="text-danger">*</span>
+          <div className='col-md-4 mb-3'>
+            <label className='form-label'>
+              To <span className='text-danger'>*</span>
             </label>
 
             <input
-              type="date"
-              name="to"
+              type='date'
+              name='to'
               value={formData.to}
               onChange={handleChange}
-              className={`form-control ${errors.to ? "is-invalid" : ""}`}
+              className={`form-control ${errors.to ? 'is-invalid' : ''}`}
             />
 
-            {errors.to && <div className="invalid-feedback">{errors.to}</div>}
+            {errors.to && <div className='invalid-feedback'>{errors.to}</div>}
           </div>
 
           {/* MONTHLY RENT */}
-          <div className="col-md-4 mb-3">
-            <label className="form-label">
+          <div className='col-md-4 mb-3'>
+            <label className='form-label'>
               Total Monthly Rent
-              <span className="text-danger">*</span>
+              <span className='text-danger'>*</span>
             </label>
 
             <input
-              type="number"
-              name="monthlyRent"
+              type='number'
+              name='monthlyRent'
               value={formData.monthlyRent}
               onChange={handleChange}
               className={`form-control ${
-                errors.monthlyRent ? "is-invalid" : ""
+                errors.monthlyRent ? 'is-invalid' : ''
               }`}
             />
           </div>
 
           {/* TOTAL RENT */}
-          <div className="col-md-4 mb-3">
-            <label className="form-label">
+          <div className='col-md-4 mb-3'>
+            <label className='form-label'>
               Total Rent Paid
-              <span className="text-danger">*</span>
+              <span className='text-danger'>*</span>
             </label>
 
             <input
-              type="number"
-              name="annualRent"
+              type='number'
+              name='annualRent'
               value={formData.annualRent}
               onChange={handleChange}
               className={`form-control ${
-                errors.annualRent ? "is-invalid" : ""
+                errors.annualRent ? 'is-invalid' : ''
               }`}
             />
           </div>
 
           {/* ADDRESS */}
-          <div className="col-md-4 mb-3">
-            <label className="form-label">
+          <div className='col-md-4 mb-3'>
+            <label className='form-label'>
               Address
-              <span className="text-danger">*</span>
+              <span className='text-danger'>*</span>
             </label>
 
             <textarea
-              name="address"
-              rows="2"
+              name='address'
+              rows='2'
               value={formData.address}
               onChange={handleChange}
-              className={`form-control ${errors.address ? "is-invalid" : ""}`}
+              className={`form-control ${errors.address ? 'is-invalid' : ''}`}
             />
           </div>
 
           {/* CITY */}
-          <div className="col-md-4 mb-3">
-            <label className="form-label">City</label>
+          <div className='col-md-4 mb-3'>
+            <label className='form-label'>City</label>
 
             <select
-              name="city"
+              name='city'
               value={formData.city}
               onChange={handleChange}
-              className="form-control"
+              className='form-control'
             >
-              <option value="Non Metro">Non Metro</option>
-              <option value="Metro">Metro</option>
+              <option value='Non Metro'>Non Metro</option>
+              <option value='Metro'>Metro</option>
             </select>
           </div>
 
           {/* DOES LANDLORD HAVE PAN */}
-          <div className="col-md-4 mb-3">
-            <label className="form-label">Does your landlord has PAN ?</label>
+          <div className='col-md-4 mb-3'>
+            <label className='form-label'>Does your landlord has PAN ?</label>
 
-            <div className="mt-2">
-              <div className="form-check form-check-inline">
+            <div className='mt-2'>
+              <div className='form-check form-check-inline'>
                 <input
-                  type="radio"
-                  name="landlordHasPan"
-                  value="yes"
-                  checked={formData.landlordHasPan === "yes"}
+                  type='radio'
+                  name='landlordHasPan'
+                  value='yes'
+                  checked={formData.landlordHasPan === 'yes'}
                   onChange={handleChange}
-                  className="form-check-input"
+                  className='form-check-input'
                 />
-                <label className="form-check-label">Yes</label>
+                <label className='form-check-label'>Yes</label>
               </div>
 
-              <div className="form-check form-check-inline">
+              <div className='form-check form-check-inline'>
                 <input
-                  type="radio"
-                  name="landlordHasPan"
-                  value="no"
-                  checked={formData.landlordHasPan === "no"}
+                  type='radio'
+                  name='landlordHasPan'
+                  value='no'
+                  checked={formData.landlordHasPan === 'no'}
                   onChange={handleChange}
-                  className="form-check-input"
+                  className='form-check-input'
                 />
-                <label className="form-check-label">No</label>
+                <label className='form-check-label'>No</label>
               </div>
             </div>
           </div>
 
           {/* LANDLORD NAME */}
-          <div className="col-md-4 mb-3">
-            <label className="form-label">
+          <div className='col-md-4 mb-3'>
+            <label className='form-label'>
               Landlord Name
-              <span className="text-danger">*</span>
+              <span className='text-danger'>*</span>
             </label>
 
             <input
-              type="text"
-              name="landlordName"
+              type='text'
+              name='landlordName'
               value={formData.landlordName}
               onChange={handleChange}
-              className="form-control"
+              className='form-control'
             />
           </div>
 
           {/* LANDLORD ADDRESS */}
-          <div className="col-md-4 mb-3">
-            <label className="form-label">
+          <div className='col-md-4 mb-3'>
+            <label className='form-label'>
               Landlord Address
-              <span className="text-danger">*</span>
+              <span className='text-danger'>*</span>
             </label>
 
             <textarea
-              name="landlordAddress"
-              rows="2"
+              name='landlordAddress'
+              rows='2'
               value={formData.landlordAddress}
               onChange={handleChange}
-              className="form-control"
+              className='form-control'
             />
           </div>
 
           {/* LANDLORD PAN */}
-          <div className="col-md-4 mb-3">
-            <label className="form-label">Landlord PAN</label>
+          <div className='col-md-4 mb-3'>
+            <label className='form-label'>Landlord PAN</label>
 
             <input
-              type="text"
-              name="landlordPan"
+              type='text'
+              name='landlordPan'
               value={formData.landlordPan}
               onChange={handleChange}
-              className="form-control"
+              className='form-control'
             />
           </div>
 
           {/* LANDLORD PAN CARD COPY */}
-          <div className="col-md-4 mb-3">
-            <label className="form-label">Landlord PAN Card Copy</label>
+          <div className='col-md-4 mb-3'>
+            <label className='form-label'>Landlord PAN Card Copy</label>
 
             <input
-              type="file"
-              name="panCopy"
+              type='file'
+              name='panCopy'
               onChange={handleChange}
-              className={`form-control ${errors.panCopy ? "is-invalid" : ""}`}
+              className={`form-control ${errors.panCopy ? 'is-invalid' : ''}`}
             />
 
             {errors.panCopy && (
-              <div className="invalid-feedback">{errors.panCopy}</div>
+              <div className='invalid-feedback'>{errors.panCopy}</div>
             )}
           </div>
 
           {/* AGREEMENT COPY */}
-          <div className="col-md-4 mb-3">
-            <label className="form-label">Agreement Copy</label>
+          <div className='col-md-4 mb-3'>
+            <label className='form-label'>Agreement Copy</label>
 
             <input
-              type="file"
-              name="agreementCopy"
+              type='file'
+              name='agreementCopy'
               onChange={handleChange}
               className={`form-control ${
-                errors.agreementCopy ? "is-invalid" : ""
+                errors.agreementCopy ? 'is-invalid' : ''
               }`}
             />
 
             {errors.agreementCopy && (
-              <div className="invalid-feedback">{errors.agreementCopy}</div>
+              <div className='invalid-feedback'>{errors.agreementCopy}</div>
             )}
           </div>
           {isEditable && (
-            <div className="text-center mt-3">
-              <button className="btn btn-primary me-2" onClick={handleSave}>
-                {formData.exemption_id ? "Update" : "Save"}
+            <div className='text-center mt-3'>
+              <button className='btn btn-primary me-2' onClick={handleSave}>
+                {formData.exemption_id ? 'Update' : 'Save'}
               </button>
 
-              <button className="btn btn-secondary" onClick={resetForm}>
+              <button className='btn btn-secondary' onClick={resetForm}>
                 Cancel
               </button>
             </div>
@@ -635,16 +650,16 @@ const ExemptionsTab = ({ onDataSaved, editable }) => {
           DATA TABLE
       ========================================= */}
 
-        <div className="card mt-4">
-          <div className="card-header fw-bold">Saved Exemption Records</div>
+        <div className='card mt-4'>
+          <div className='card-header fw-bold'>Saved Exemption Records</div>
 
-          <div className="card-body">
-            <div className="row mb-3">
-              <div className="col-lg-4 col-md-6 col-12">
+          <div className='card-body'>
+            <div className='row mb-3'>
+              <div className='col-lg-4 col-md-6 col-12'>
                 <SDLSearch
                   value={searchQuery}
                   onChange={setSearchQuery}
-                  placeholder="Search..."
+                  placeholder='Search...'
                 />
               </div>
             </div>
@@ -653,16 +668,16 @@ const ExemptionsTab = ({ onDataSaved, editable }) => {
               data={filteredData}
               columns={columns}
               loading={loading}
-              emptyMessage="No exemption records found"
+              emptyMessage='No exemption records found'
               removableSort
-              tableStyle={{ minWidth: "1200px" }}
-              className="exemption-grid"
+              tableStyle={{ minWidth: '1200px' }}
+              className='exemption-grid'
             />
           </div>
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default ExemptionsTab;
+export default ExemptionsTab

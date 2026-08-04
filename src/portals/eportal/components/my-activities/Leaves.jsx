@@ -12,6 +12,7 @@ import { leavesColumns } from "../../utils/columnHandlers/leavesColumns";
 import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
 import { getLRDataDetails } from "../../services/leavesService";
 import { notifyError, notifyWarning } from "../../../../services/alertService";
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const Leaves = () => {
   const dispatch = useDispatch();
@@ -22,7 +23,10 @@ const Leaves = () => {
   const loading = useSelector((state) => state.eportalLRData.loading);
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
- 
+
+	// Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
 
   useEffect(() => {
     dispatch(getLeavesDataResponse());
@@ -50,7 +54,7 @@ const Leaves = () => {
     }
   }, [leavesData]);
 
-  
+
 
   //console.log("=======LIstData=====", listData);
   /* ================= SEARCH FILTER ================= */
@@ -61,7 +65,7 @@ const Leaves = () => {
     return listData.filter(
       (item) =>
         item.LVE_CODE.toLowerCase().includes(query) ||
-        item.REMARKS.toLowerCase().includes(query), 
+        item.REMARKS.toLowerCase().includes(query),
     );
   }, [searchQuery, listData]);
 
@@ -143,7 +147,7 @@ const Leaves = () => {
             //hiddenTaskId: formConfig.taskIdHdn || null
             modal_date: formatLocalDateTime(config.modalDate || null)
           });
-    
+
           //console.log("================= Response ------", response);
           if(response?.data?.pass.flag === "Yes") {
             setModalState({
@@ -163,7 +167,7 @@ const Leaves = () => {
               isPostRemark: config.isPostRemark || null,
             });
           }
-          
+
         } catch (error) {
           console.error("Error fetching Leave Request Data:", error);
         } finally {
@@ -224,7 +228,7 @@ const Leaves = () => {
 
         <BreadcrumbNav
           items={[
-            { text: "Home", link: "/eportal/dashboard" },
+            { text: "Home", link: portalHome },
             { text: "Leaves Request" },
           ]}
         />
@@ -263,7 +267,7 @@ const Leaves = () => {
                   data={filteredData}
                   columns={columns}
                   loading={loading}
-                  emptyMessage="No ticket booking found"
+                  emptyMessage="No leave requests found"
                   removableSort
                 />
               </div>

@@ -14,6 +14,9 @@ import { notifyError, notifySuccess } from "../../../../services/alertService";
 import "../../assets/css/policyEndorsementReport.css";
 
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
+import Badge from "../Badge";
+
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const PolicyEndorsementReport = () => {
   const [loading, setLoading] = useState(true);
@@ -27,6 +30,10 @@ const PolicyEndorsementReport = () => {
 
   const [policySearch, setPolicySearch] = useState("");
   const [employeeSearch, setEmployeeSearch] = useState("");
+
+	// Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -112,13 +119,10 @@ const PolicyEndorsementReport = () => {
   }, [employees, employeeSearch]);
 
   const mandatoryBody = (rowData) => (
-    <span
-      className={`badge ${
-        rowData.is_mandatory === "Y" ? "bg-danger" : "bg-secondary"
-      }`}
-    >
-      {rowData.is_mandatory === "Y" ? "Yes" : "No"}
-    </span>
+    <Badge
+      text={rowData.is_mandatory === "Y" ? "Yes" : "No"}
+      className={rowData.is_mandatory === "Y" ? "bg-danger" : "bg-secondary"}
+    />
   );
 
   const acceptanceBody = (rowData) => (
@@ -151,9 +155,15 @@ const PolicyEndorsementReport = () => {
 
   const statusBody = (rowData) =>
     rowData.policy_status === "Accepted" ? (
-      <span className="badge bg-success">Accepted</span>
+      <Badge
+        text="Accepted"
+        className="bg-success"
+      />
     ) : (
-      <span className="badge bg-warning text-dark">Pending</span>
+      <Badge
+        text="Pending"
+        className="bg-warning text-dark"
+      />
     );
 
   const applicableToTemplate = (rowData) => {
@@ -165,9 +175,11 @@ const PolicyEndorsementReport = () => {
           <div className="d-flex flex-wrap gap-1 mt-1">
             {rowData.applicable_divisions?.length > 0 ? (
               rowData.applicable_divisions.map((div) => (
-                <span key={div} className="badge bg-primary">
-                  {div}
-                </span>
+                <Badge
+                key={div}
+                  text={div}
+                  className="bg-primary"
+                />
               ))
             ) : (
               <span className="text-muted">All</span>
@@ -181,9 +193,11 @@ const PolicyEndorsementReport = () => {
           <div className="d-flex flex-wrap gap-1 mt-1">
             {rowData.applicable_departments?.length > 0 ? (
               rowData.applicable_departments.map((dept) => (
-                <span key={dept} className="badge bg-success">
-                  {dept}
-                </span>
+                <Badge
+                  key={dept}
+                  text={dept}
+                  className="bg-success"
+                />
               ))
             ) : (
               <span className="text-muted">All</span>
@@ -293,7 +307,7 @@ const PolicyEndorsementReport = () => {
 
         <BreadcrumbNav
           items={[
-            { text: "Home", link: "/eportal/dashboard" },
+            { text: "Home", link: portalHome },
             { text: "Policy Endorsement Report" },
           ]}
         />

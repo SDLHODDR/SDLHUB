@@ -1,250 +1,254 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef } from 'react'
 
-import SDLDataTable from "../components/datatable/SDLDataTable";
-import SDLSearch from "../components/datatable/SDLSearch";
+import SDLDataTable from '../components/datatable/SDLDataTable'
+import SDLSearch from '../components/datatable/SDLSearch'
 
-import { STOREIMAGES } from "../assets/assets";
+import { STOREIMAGES } from '../assets/assets'
 import {
   getProfile,
   uploadProfileImage,
   saveFamilyMember,
-  deleteFamilyMember,
-} from "../services/profileService";
+  deleteFamilyMember
+} from '../services/profileService'
 import {
   notifySuccess,
   notifyError,
   notifyWarning,
-  confirmAction,
-} from "../services/alertService";
+  confirmAction
+} from '../services/alertService'
 
-import { PROFILE_MESSAGES, FAMILY_RELATIONS, FAMILY_DEPENDENT } from "../constants/profileMessages";
+import {
+  PROFILE_MESSAGES,
+  FAMILY_RELATIONS,
+  FAMILY_DEPENDENT
+} from '../constants/profileMessages'
 
 const MyProfile = () => {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('')
 
   /* ================= FAMILY FLAGS ================= */
   // hide add/edit/delete buttons
-  const canManageFamily = profile?.permissions?.can_manage_family || false;
+  const canManageFamily = profile?.permissions?.can_manage_family || false
 
-  const [showFamilyForm, setShowFamilyForm] = useState(false);
-  const [editingMember, setEditingMember] = useState(null);
+  const [showFamilyForm, setShowFamilyForm] = useState(false)
+  const [editingMember, setEditingMember] = useState(null)
 
   const [familyForm, setFamilyForm] = useState({
-    id: "",
-    name: "",
-    relation: "",
-    dependent: "",
-    dob: "",
-    occupation: "",
-    aadhaar: "",
-  });
+    id: '',
+    name: '',
+    relation: '',
+    dependent: '',
+    dob: '',
+    occupation: '',
+    aadhaar: ''
+  })
 
   /* ================= LOAD PROFILE ================= */
 
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const res = await getProfile();
+        const res = await getProfile()
 
         if (res?.status) {
-          const data = res.data || {};
-          const emp = data.employee || {};
+          const data = res.data || {}
+          const emp = data.employee || {}
 
           setProfile({
             ...data,
             employee: {
               ...emp,
               profile_image:
-                typeof emp.PROFILE_IMAGE === "string"
+                typeof emp.PROFILE_IMAGE === 'string'
                   ? emp.PROFILE_IMAGE
-                  : emp.PROFILE_IMAGE?.image || null,
-            },
-          });
+                  : emp.PROFILE_IMAGE?.image || null
+            }
+          })
         } else {
-          notifyError(res?.message || "Unable to load profile.");
+          notifyError(res?.message || 'Unable to load profile.')
         }
       } catch (err) {
-        console.error(err);
-        notifyError("Unable to load profile.");
+        console.error(err)
+        notifyError('Unable to load profile.')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
     /* ================= INITIAL LOAD ================= */
-    loadProfile();
+    loadProfile()
 
     /* ================= AUTO REFRESH FLAG ================= */
     const interval = setInterval(() => {
-      loadProfile();
-    }, 30000); // every 30 seconds
+      loadProfile()
+    }, 30000) // every 30 seconds
 
     /* ================= CLEANUP ================= */
-    return () => clearInterval(interval);
-  }, []);
+    return () => clearInterval(interval)
+  }, [])
 
   /* ================= HELPERS ================= */
 
-  const formatDOB = (dob) => {
-    if (!dob) return "";
+  const formatDOB = dob => {
+    if (!dob) return ''
 
-    const [day, mon, year] = dob.split("-");
-    const monthIndex = new Date(`${mon} 1, 2000`).getMonth();
-    const date = new Date(year, monthIndex, day);
+    const [day, mon, year] = dob.split('-')
+    const monthIndex = new Date(`${mon} 1, 2000`).getMonth()
+    const date = new Date(year, monthIndex, day)
 
-    const weekday = date.toLocaleDateString("en-IN", { weekday: "long" });
-    const month = date.toLocaleDateString("en-IN", { month: "long" });
+    const weekday = date.toLocaleDateString('en-IN', { weekday: 'long' })
+    const month = date.toLocaleDateString('en-IN', { month: 'long' })
 
-    const getOrdinal = (d) => {
-      if (d > 3 && d < 21) return "th";
+    const getOrdinal = d => {
+      if (d > 3 && d < 21) return 'th'
       switch (d % 10) {
         case 1:
-          return "st";
+          return 'st'
         case 2:
-          return "nd";
+          return 'nd'
         case 3:
-          return "rd";
+          return 'rd'
         default:
-          return "th";
+          return 'th'
       }
-    };
+    }
 
-    return `${weekday}, ${day}${getOrdinal(Number(day))} ${month} ${year}`;
-  };
+    return `${weekday}, ${day}${getOrdinal(Number(day))} ${month} ${year}`
+  }
 
-  const getMaritalStatus = (m) => (Number(m) === 1 ? "Married" : "Single");
-  const getGender = (g) => (Number(g) === 1 ? "Male" : "Female");
+  const getMaritalStatus = m => (Number(m) === 1 ? 'Married' : 'Single')
+  const getGender = g => (Number(g) === 1 ? 'Male' : 'Female')
 
-  const getFullName = (emp) =>
-    `${emp?.FNAME || ""} ${emp?.MNAME || ""} ${emp?.LNAME || ""}`
-      .replace(/\s+/g, " ")
-      .trim();
+  const getFullName = emp =>
+    `${emp?.FNAME || ''} ${emp?.MNAME || ''} ${emp?.LNAME || ''}`
+      .replace(/\s+/g, ' ')
+      .trim()
 
   /* ================= SAFE DATA ================= */
-  const emp = profile?.employee || {};
-  const spouse = profile?.spouse || {};
-  const children = profile?.children || [];
-  const mother = profile?.mother || {};
-  const father = profile?.father || {};
+  const emp = profile?.employee || {}
+  const spouse = profile?.spouse || {}
+  const children = profile?.children || []
+  const mother = profile?.mother || {}
+  const father = profile?.father || {}
 
   /* ================= MEMO HOOKS (ALWAYS RUN) ================= */
 
   const familyData = useMemo(() => {
-    let list = [];
+    let list = []
 
-    const pushMember = (member, defaultRelation = "") => {
+    const pushMember = (member, defaultRelation = '') => {
       if (member?.FM_NAME) {
         list.push({
           id: member.ID,
           name: member.FM_NAME,
           relation: member.FM_RELATION || defaultRelation,
-          age: member.AGE || "",
-          dob: member.DOB || "",
-          dependent: member.FM_DEP || "",
-          occupation: member.OCCUPATION || member.FM_OCCUPATION || "",
-          aadhaar: member.AADHAAR || "",
-        });
+          age: member.AGE || '',
+          dob: member.DOB || '',
+          dependent: member.FM_DEP || '',
+          occupation: member.OCCUPATION || member.FM_OCCUPATION || '',
+          aadhaar: member.AADHAAR || ''
+        })
       }
-    };
+    }
 
     // spouse
-    pushMember(spouse, "Spouse");
+    pushMember(spouse, 'Spouse')
 
     // mother
-    pushMember(mother, "Mother");
+    pushMember(mother, 'Mother')
 
     // father
-    pushMember(father, "Father");
+    pushMember(father, 'Father')
 
     // children
-    children.forEach((child) => {
-      pushMember(child, "Child");
-    });
+    children.forEach(child => {
+      pushMember(child, 'Child')
+    })
 
-    return list;
-  }, [spouse, mother, father, children]);
+    return list
+  }, [spouse, mother, father, children])
 
   const filteredFamilyData = useMemo(() => {
-    return familyData.filter((item) => {
-      const q = searchQuery.toLowerCase();
+    return familyData.filter(item => {
+      const q = searchQuery.toLowerCase()
 
       const matchesSearch =
         !searchQuery ||
         item.name?.toLowerCase().includes(q) ||
         item.relation?.toLowerCase().includes(q) ||
-        String(item.age || "").includes(q) ||
-        item.dob?.toLowerCase().includes(q);
+        String(item.age || '').includes(q) ||
+        item.dob?.toLowerCase().includes(q)
 
-      return matchesSearch;
-    });
-  }, [familyData, searchQuery]);
+      return matchesSearch
+    })
+  }, [familyData, searchQuery])
 
   /* ================= FAMILY ACTIONS ================= */
   const handleAddFamily = () => {
     if (!canManageFamily) {
-      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED);
-      return;
+      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED)
+      return
     }
 
-    setEditingMember(null);
+    setEditingMember(null)
     setFamilyForm({
-      id: "",
-      name: "",
+      id: '',
+      name: '',
       relation: FAMILY_RELATIONS.WIFE,
       dependent: FAMILY_DEPENDENT.DEPENDANT,
-      dob: "",
-      occupation: "",
-      aadhaar: "",
-    });
-    setShowFamilyForm(true);
-  };
+      dob: '',
+      occupation: '',
+      aadhaar: ''
+    })
+    setShowFamilyForm(true)
+  }
 
-  const handleEditFamily = (row) => {
+  const handleEditFamily = row => {
     if (!canManageFamily) {
-      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED);
-      return;
+      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED)
+      return
     }
 
-    let formattedDOB = "";
+    let formattedDOB = ''
 
     if (row.dob) {
-      const parsedDate = new Date(row.dob);
+      const parsedDate = new Date(row.dob)
 
       if (!isNaN(parsedDate)) {
-        const year = parsedDate.getFullYear();
-        const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
-        const day = String(parsedDate.getDate()).padStart(2, "0");
+        const year = parsedDate.getFullYear()
+        const month = String(parsedDate.getMonth() + 1).padStart(2, '0')
+        const day = String(parsedDate.getDate()).padStart(2, '0')
 
-        formattedDOB = `${year}-${month}-${day}`;
+        formattedDOB = `${year}-${month}-${day}`
       }
     }
 
-    setEditingMember(row);
+    setEditingMember(row)
     setFamilyForm({
       id: row.id,
-      name: row.name || "",
-      relation: row.relation || "",
-      dependent: row.dependent || "Dependant",
+      name: row.name || '',
+      relation: row.relation || '',
+      dependent: row.dependent || 'Dependant',
       dob: formattedDOB,
-      occupation: row.occupation || "",
-      aadhaar: row.aadhaar || "",
-    });
-    setShowFamilyForm(true);
-  };
+      occupation: row.occupation || '',
+      aadhaar: row.aadhaar || ''
+    })
+    setShowFamilyForm(true)
+  }
 
-  const handleDeleteFamily = async (row) => {
+  const handleDeleteFamily = async row => {
     if (!canManageFamily) {
-      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED);
-      return;
+      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED)
+      return
     }
 
     const result = await confirmAction(
       PROFILE_MESSAGES.DELETE_FAMILY_TITLE,
-      PROFILE_MESSAGES.DELETE_FAMILY_MESSAGE(row.name),
-    );
+      PROFILE_MESSAGES.DELETE_FAMILY_MESSAGE(row.name)
+    )
 
     if (!result.isConfirmed) {
       return;
@@ -252,122 +256,126 @@ const MyProfile = () => {
 
     try {
       const res = await deleteFamilyMember({
-        id: row.id,
-      });
+        id: row.id
+      })
 
       if (res?.status) {
-        let updatedChildren = [...children];
-        let updatedSpouse = { ...spouse };
-        let updatedMother = { ...mother };
-        let updatedFather = { ...father };
+        let updatedChildren = [...children]
+        let updatedSpouse = { ...spouse }
+        let updatedMother = { ...mother }
+        let updatedFather = { ...father }
 
         /* ================= REMOVE MEMBER ================= */
 
-        if ([ FAMILY_RELATIONS.WIFE, FAMILY_RELATIONS.HUSBAND].includes(row.relation)) {
-          updatedSpouse = {};
+        if (
+          [FAMILY_RELATIONS.WIFE, FAMILY_RELATIONS.HUSBAND].includes(
+            row.relation
+          )
+        ) {
+          updatedSpouse = {}
         } else if (row.relation === FAMILY_RELATIONS.MOTHER) {
-          updatedMother = {};
+          updatedMother = {}
         } else if (row.relation === FAMILY_RELATIONS.FATHER) {
-          updatedFather = {};
+          updatedFather = {}
         } else {
           updatedChildren = children.filter(
-            (item) => String(item.ID) !== String(row.id),
-          );
+            item => String(item.ID) !== String(row.id)
+          )
         }
 
         /* ================= UPDATE PROFILE ================= */
 
-        setProfile((prev) => ({
+        setProfile(prev => ({
           ...prev,
           spouse: updatedSpouse,
           mother: updatedMother,
           father: updatedFather,
-          children: updatedChildren,
-        }));
+          children: updatedChildren
+        }))
 
-        notifySuccess(PROFILE_MESSAGES.FAMILY_DELETED);
+        notifySuccess(PROFILE_MESSAGES.FAMILY_DELETED)
       } else {
-        notifyError( res?.message || PROFILE_MESSAGES.FAMILY_DELETE_FAILED);
+        notifyError(res?.message || PROFILE_MESSAGES.FAMILY_DELETE_FAILED)
       }
     } catch (error) {
-      console.error(error);
-      notifyError(PROFILE_MESSAGES.FAMILY_DELETE_ERROR);
+      console.error(error)
+      notifyError(PROFILE_MESSAGES.FAMILY_DELETE_ERROR)
     }
-  };
+  }
 
-  const handleFamilyInputChange = (e) => {
-    const { name, value } = e.target;
+  const handleFamilyInputChange = e => {
+    const { name, value } = e.target
 
-    setFamilyForm((prev) => ({
+    setFamilyForm(prev => ({
       ...prev,
-      [name]: value,
-    }));
-  };
+      [name]: value
+    }))
+  }
 
   /* ================= CALCULATE AGE ================= */
-  const calculateAge = (dob) => {
-    if (!dob) return "";
+  const calculateAge = dob => {
+    if (!dob) return ''
 
-    const birthDate = new Date(dob);
+    const birthDate = new Date(dob)
 
-    if (isNaN(birthDate)) return "";
+    if (isNaN(birthDate)) return ''
 
-    const today = new Date();
+    const today = new Date()
 
-    let age = today.getFullYear() - birthDate.getFullYear();
+    let age = today.getFullYear() - birthDate.getFullYear()
 
-    const monthDiff = today.getMonth() - birthDate.getMonth();
+    const monthDiff = today.getMonth() - birthDate.getMonth()
 
     if (
       monthDiff < 0 ||
       (monthDiff === 0 && today.getDate() < birthDate.getDate())
     ) {
-      age--;
+      age--
     }
 
-    return age;
-  };
+    return age
+  }
 
   const handleSaveFamily = async () => {
     if (!canManageFamily) {
-      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED);
-      return;
+      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED)
+      return
     }
 
     if (!familyForm.name || !familyForm.relation) {
-      notifyError(PROFILE_MESSAGES.FAMILY_REQUIRED_FIELDS);
-      return;
+      notifyError(PROFILE_MESSAGES.FAMILY_REQUIRED_FIELDS)
+      return
     }
 
     /* ================= AADHAAR VALIDATION ================= */
 
-    const aadhaar = familyForm.aadhaar?.trim();
+    const aadhaar = familyForm.aadhaar?.trim()
     if (aadhaar) {
       // only digits allowed
       if (!/^\d+$/.test(aadhaar)) {
-        notifyError(PROFILE_MESSAGES.AADHAAR_DIGITS_ONLY);
-        return;
+        notifyError(PROFILE_MESSAGES.AADHAAR_DIGITS_ONLY)
+        return
       }
 
       // must be 12 digits
       if (aadhaar.length !== 12) {
-        notifyError(PROFILE_MESSAGES.AADHAAR_LENGTH);
-        return;
+        notifyError(PROFILE_MESSAGES.AADHAAR_LENGTH)
+        return
       }
 
       // should not start with 0 or 1
       if (/^[01]/.test(aadhaar)) {
-        notifyError(PROFILE_MESSAGES.AADHAAR_INVALID);
-        return;
+        notifyError(PROFILE_MESSAGES.AADHAAR_INVALID)
+        return
       }
     }
 
     /* ================= DUPLICATE VALIDATION ================= */
 
-    const isDuplicate = familyData.some((member) => {
+    const isDuplicate = familyData.some(member => {
       // ignore current row while editing
       if (editingMember && String(member.id) === String(familyForm.id)) {
-        return false;
+        return false
       }
 
       return (
@@ -375,29 +383,29 @@ const MyProfile = () => {
           familyForm.name?.trim().toLowerCase() &&
         member.relation?.trim().toLowerCase() ===
           familyForm.relation?.trim().toLowerCase()
-      );
-    });
+      )
+    })
 
     if (isDuplicate) {
-      notifyError(PROFILE_MESSAGES.DUPLICATE_FAMILY);
-      return;
+      notifyError(PROFILE_MESSAGES.DUPLICATE_FAMILY)
+      return
     }
 
     /* ================= DOB formatting ================= */
 
-    let formattedDOB = familyForm.dob;
+    let formattedDOB = familyForm.dob
 
     if (familyForm.dob) {
-      const date = new Date(familyForm.dob);
+      const date = new Date(familyForm.dob)
 
       if (!isNaN(date)) {
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = date.toLocaleString("en-IN", {
-          month: "short",
-        });
-        const year = date.getFullYear();
+        const day = String(date.getDate()).padStart(2, '0')
+        const month = date.toLocaleString('en-IN', {
+          month: 'short'
+        })
+        const year = date.getFullYear()
 
-        formattedDOB = `${day}-${month}-${year}`;
+        formattedDOB = `${day}-${month}-${year}`
       }
     }
 
@@ -405,107 +413,107 @@ const MyProfile = () => {
       id: editingMember ? familyForm.id : null,
       name: familyForm.name,
       relation: familyForm.relation,
-      dependent: familyForm.dependent || "Dependant",
+      dependent: familyForm.dependent || 'Dependant',
       dob: formattedDOB,
       occupation: familyForm.occupation,
-      aadhaar: familyForm.aadhaar,
-    };
+      aadhaar: familyForm.aadhaar
+    }
 
     //console.log("SAVE PAYLOAD:", payload);
 
     try {
-      const res = await saveFamilyMember(payload);
+      const res = await saveFamilyMember(payload)
 
       //console.log("SAVE RESPONSE:", res);
 
       if (res?.status) {
-        let updatedChildren = [...children];
-        let updatedSpouse = { ...spouse };
-        let updatedMother = { ...mother };
-        let updatedFather = { ...father };
+        let updatedChildren = [...children]
+        let updatedSpouse = { ...spouse }
+        let updatedMother = { ...mother }
+        let updatedFather = { ...father }
 
         const updatedMemberData = {
           ID: familyForm.id || Date.now(),
           FM_NAME: familyForm.name,
           FM_RELATION: familyForm.relation,
-          FM_DEP: familyForm.dependent || "Dependant",
+          FM_DEP: familyForm.dependent || 'Dependant',
           DOB: formattedDOB,
           OCCUPATION: familyForm.occupation,
           AADHAAR: familyForm.aadhaar,
-          AGE: calculateAge(familyForm.dob),
-        };
+          AGE: calculateAge(familyForm.dob)
+        }
 
         /* ================= UPDATE ================= */
         if (editingMember) {
           if (String(spouse?.ID) === String(familyForm.id)) {
             updatedSpouse = {
               ...updatedSpouse,
-              ...updatedMemberData,
-            };
+              ...updatedMemberData
+            }
           } else if (String(mother?.ID) === String(familyForm.id)) {
             updatedMother = {
               ...updatedMother,
-              ...updatedMemberData,
-            };
+              ...updatedMemberData
+            }
           } else if (String(father?.ID) === String(familyForm.id)) {
             updatedFather = {
               ...updatedFather,
-              ...updatedMemberData,
-            };
+              ...updatedMemberData
+            }
           } else {
-            updatedChildren = updatedChildren.map((item) =>
+            updatedChildren = updatedChildren.map(item =>
               String(item.ID) === String(familyForm.id)
                 ? {
                     ...item,
-                    ...updatedMemberData,
+                    ...updatedMemberData
                   }
-                : item,
-            );
+                : item
+            )
           }
         } else {
           /* ================= INSERT ================= */
-          if (["Wife", "Husband"].includes(familyForm.relation)) {
-            updatedSpouse = updatedMemberData;
-          } else if (familyForm.relation === "Mother") {
-            updatedMother = updatedMemberData;
-          } else if (familyForm.relation === "Father") {
-            updatedFather = updatedMemberData;
+          if (['Wife', 'Husband'].includes(familyForm.relation)) {
+            updatedSpouse = updatedMemberData
+          } else if (familyForm.relation === 'Mother') {
+            updatedMother = updatedMemberData
+          } else if (familyForm.relation === 'Father') {
+            updatedFather = updatedMemberData
           } else {
-            updatedChildren.push(updatedMemberData);
+            updatedChildren.push(updatedMemberData)
           }
         }
 
-        setProfile((prev) => ({
+        setProfile(prev => ({
           ...prev,
           spouse: updatedSpouse,
           mother: updatedMother,
           father: updatedFather,
-          children: updatedChildren,
-        }));
+          children: updatedChildren
+        }))
 
-        setShowFamilyForm(false);
-        setEditingMember(null);
+        setShowFamilyForm(false)
+        setEditingMember(null)
 
         notifySuccess(
           editingMember
             ? PROFILE_MESSAGES.FAMILY_UPDATED
             : PROFILE_MESSAGES.FAMILY_ADDED
-        );
+        )
       } else {
-        notifyError(res?.message || PROFILE_MESSAGES.FAMILY_SAVE_FAILED);
+        notifyError(res?.message || PROFILE_MESSAGES.FAMILY_SAVE_FAILED)
       }
     } catch (error) {
-      console.error(error);
-      notifyError(PROFILE_MESSAGES.FAMILY_SAVE_ERROR);
+      console.error(error)
+      notifyError(PROFILE_MESSAGES.FAMILY_SAVE_ERROR)
     }
-  };
+  }
   /* ================= image upload ================= */
 
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef(null)
 
   const handleImageClick = () => {
-    fileInputRef.current.click();
-  };
+    fileInputRef.current.click()
+  }
 
   /*const handleImageUpload = async (e) => {
         const file = e.target.files[0];
@@ -533,326 +541,331 @@ const MyProfile = () => {
         }
     };*/
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const handleImageUpload = async e => {
+    const file = e.target.files[0]
+    if (!file) return
 
-    const formData = new FormData();
-    formData.append("profile_image", file);
+    const formData = new FormData()
+    formData.append('profile_image', file)
 
-    const res = await uploadProfileImage(formData);
+    const res = await uploadProfileImage(formData)
 
     if (res?.status) {
-      const updatedImage = res?.data?.image || "";
+      const updatedImage = res?.data?.image || ''
 
       // PROFILE PAGE
-      setProfile((prev) => ({
+      setProfile(prev => ({
         ...prev,
         employee: {
           ...prev.employee,
-          profile_image: updatedImage,
-        },
-      }));
+          profile_image: updatedImage
+        }
+      }))
 
       // HEADER / GLOBAL USER
-      setUser((prev) => ({
+      setUser(prev => ({
         ...prev,
-        profile_image: updatedImage,
-      }));
+        profile_image: updatedImage
+      }))
 
-      notifySuccess("Profile image updated successfully");
+      notifySuccess('Profile image updated successfully')
     }
-  };
+  }
 
-  const DEFAULT_PROFILE_IMAGE = STOREIMAGES.PROFILE.AVATAR_1;
-  const [imgSrc, setImgSrc] = useState(DEFAULT_PROFILE_IMAGE);
+  const DEFAULT_PROFILE_IMAGE = STOREIMAGES.PROFILE.AVATAR_1
+  const [imgSrc, setImgSrc] = useState(DEFAULT_PROFILE_IMAGE)
 
   useEffect(() => {
-    if (emp?.profile_image && typeof emp.profile_image === "string") {
-      setImgSrc(emp.profile_image);
+    if (emp?.profile_image && typeof emp.profile_image === 'string') {
+      setImgSrc(emp.profile_image)
     } else {
-      setImgSrc(DEFAULT_PROFILE_IMAGE);
+      setImgSrc(DEFAULT_PROFILE_IMAGE)
     }
-  }, [emp?.profile_image]);
+  }, [emp?.profile_image])
 
   /* ================= CONDITIONAL RENDER (AFTER HOOKS) ================= */
 
-  if (loading) return <div>{PROFILE_MESSAGES.LOADING_PROFILE}</div>;
-  if (!profile || !profile.employee) return <div>{PROFILE_MESSAGES.NO_PROFILE_DATA}</div>;
+  if (loading) return <div>{PROFILE_MESSAGES.LOADING_PROFILE}</div>
+  if (!profile || !profile.employee)
+    return <div>{PROFILE_MESSAGES.NO_PROFILE_DATA}</div>
 
-  const actionBody = (rowData) => (
-    <div className="d-flex align-items-center gap-3">
+  const actionBody = rowData => (
+    <div className='d-flex align-items-center gap-3'>
       <a
-        href="#"
+        href='#'
         title={PROFILE_MESSAGES.EDIT_FAMILY_TITLE}
-        className="text-primary"
-        style={{ fontSize: "20px" }}
-        onClick={(e) => {
-          e.preventDefault();
-          handleEditFamily(rowData);
+        className='text-primary'
+        style={{ fontSize: '20px' }}
+        onClick={e => {
+          e.preventDefault()
+          handleEditFamily(rowData)
         }}
       >
-        <i className="ti ti-edit"></i>
+        <button type='button' className='btn btn-icon btn-sm btn-primary'>
+          <i className='ti ti-edit'></i>
+        </button>
       </a>
 
       <a
-        href="#"
+        href='#'
         title={PROFILE_MESSAGES.DELETE_FAMILY_TOOLTIP}
-        className="text-danger"
-        style={{ fontSize: "20px" }}
-        onClick={(e) => {
-          e.preventDefault();
-          handleDeleteFamily(rowData);
+        className='text-danger'
+        style={{ fontSize: '20px' }}
+        onClick={e => {
+          e.preventDefault()
+          handleDeleteFamily(rowData)
         }}
       >
-        <i className="ti ti-trash"></i>
+        <button type='button' className='btn btn-icon btn-sm btn-primary'>
+          <i className='ti ti-trash'></i>
+        </button>
       </a>
     </div>
-  );
+  )
 
   const familyColumns = [
     {
-      field: "name",
-      header: "Name",
-      sortable: true,
+      field: 'name',
+      header: 'Name',
+      sortable: true
     },
     {
-      field: "relation",
-      header: "Relation",
-      sortable: true,
+      field: 'relation',
+      header: 'Relation',
+      sortable: true
     },
     {
-      field: "age",
-      header: "Age",
-      sortable: true,
+      field: 'age',
+      header: 'Age',
+      sortable: true
     },
     {
-      field: "dob",
-      header: "DOB",
-      sortable: true,
+      field: 'dob',
+      header: 'DOB',
+      sortable: true
     },
     {
-      field: "aadhaar",
-      header: "Aadhaar",
-      sortable: true,
+      field: 'aadhaar',
+      header: 'Aadhaar',
+      sortable: true
     },
     {
-      field: "dependent",
-      header: "Dependent",
-      sortable: true,
+      field: 'dependent',
+      header: 'Dependent',
+      sortable: true
     },
     ...(canManageFamily
       ? [
           {
-            header: "Actions",
+            header: 'Actions',
             body: actionBody,
             exportable: false,
             style: {
-              width: "120px",
-              textAlign: "center",
-            },
-          },
+              width: '120px',
+              textAlign: 'center'
+            }
+          }
         ]
-      : []),
-  ];
+      : [])
+  ]
   /* ================= RENDER ================= */
 
   return (
     <>
-      <div className="page-header">
-        <div className="add-item d-flex">
-          <div className="page-title">
+      <div className='page-header'>
+        <div className='add-item d-flex'>
+          <div className='page-title'>
             <h4>Profile</h4>
             <h6>Manage your profile</h6>
           </div>
         </div>
 
-        <nav aria-label="breadcrumb">
-          <ol className="breadcrumb">
-            <li className="breadcrumb-item">
-              <a href="#">Home</a>
+        <nav aria-label='breadcrumb'>
+          <ol className='breadcrumb'>
+            <li className='breadcrumb-item'>
+              <a href='#'>Home</a>
             </li>
-            <li className="breadcrumb-item active" aria-current="page">
+            <li className='breadcrumb-item active' aria-current='page'>
               Profile
             </li>
           </ol>
         </nav>
       </div>
 
-      <div className="row">
-        <div className="col-xl-4">
-          <div style={{ minHeight: 402 }} className="card">
-            <div className="card-header rounded-0 bg-primary d-flex align-items-center">
+      <div className='row'>
+        <div className='col-xl-4'>
+          <div style={{ minHeight: 402 }} className='card'>
+            <div className='card-header rounded-0 bg-primary d-flex align-items-center'>
               {/* Profile Image with Pencil Icon */}
               <div
                 style={{
-                  position: "relative",
-                  width: "80px",
-                  height: "80px",
+                  position: 'relative',
+                  width: '80px',
+                  height: '80px'
                 }}
-                className="me-3"
+                className='me-3'
               >
-                <span className="avatar avatar-xl avatar-rounded border border-white border-3">
+                <span className='avatar avatar-xl avatar-rounded border border-white border-3'>
                   <img
                     src={imgSrc}
-                    alt="Profile"
+                    alt='Profile'
                     onError={() => setImgSrc(DEFAULT_PROFILE_IMAGE)}
                   />
                 </span>
 
                 {/* Pencil Icon */}
                 <a
-                  href="#"
-                  title="Change Image"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleImageClick();
+                  href='#'
+                  title='Change Image'
+                  onClick={e => {
+                    e.preventDefault()
+                    handleImageClick()
                   }}
                   style={{
-                    position: "absolute",
-                    bottom: "12px",
-                    right: "10px",
-                    width: "28px",
-                    height: "28px",
-                    borderRadius: "50%",
-                    background: "#fff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-                    textDecoration: "none",
-                    fontSize: "16px",
-                    color: "#0d6efd",
-                    zIndex: 1,
+                    position: 'absolute',
+                    bottom: '12px',
+                    right: '10px',
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    background: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                    textDecoration: 'none',
+                    fontSize: '16px',
+                    color: '#0d6efd',
+                    zIndex: 1
                   }}
                 >
-                  <i className="ti ti-pencil"></i>
+                  <i className='ti ti-pencil'></i>
                 </a>
 
                 {/* Hidden File Input */}
                 <input
-                  type="file"
+                  type='file'
                   ref={fileInputRef}
                   hidden
-                  accept="image/*"
+                  accept='image/*'
                   onChange={handleImageUpload}
                 />
               </div>
 
               {/* User Info */}
-              <div className="me-3">
-                <h3 className="text-white mb-1">
-                  {`${emp?.FNAME || ""} ${emp?.LNAME || ""}`.trim()}
+              <div className='me-3'>
+                <h3 className='text-white mb-1'>
+                  {`${emp?.FNAME || ''} ${emp?.LNAME || ''}`.trim()}
                 </h3>
 
                 <span
-                  className="badge bg-purple-transparent text-purple"
-                  style={{ fontSize: "13px" }}
+                  className='badge bg-purple-transparent text-purple'
+                  style={{ fontSize: '13px' }}
                 >
-                  {`${emp?.DEPT_NAME || ""} ${emp?.DESIG_NAME || ""}`.trim()}
+                  {`${emp?.DEPT_NAME || ''} ${emp?.DESIG_NAME || ''}`.trim()}
                 </span>
               </div>
             </div>
-            <div className="card-body">
-              <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-2">
-                <span className="d-inline-flex align-items-center">
-                  <i className="ti ti-id me-2" />
+            <div className='card-body'>
+              <div className='d-flex align-items-center justify-content-between border-bottom pb-2 mb-2'>
+                <span className='d-inline-flex align-items-center'>
+                  <i className='ti ti-id me-2' />
                   Employee ID
                 </span>
-                <p className="text-dark">{`${emp?.EMP_CODE || ""}`.trim()}</p>
+                <p className='text-dark'>{`${emp?.EMP_CODE || ''}`.trim()}</p>
               </div>
-              <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-2">
-                <span className="d-inline-flex align-items-center">
-                  <i className="ti ti-calendar-check me-2" />
+              <div className='d-flex align-items-center justify-content-between border-bottom pb-2 mb-2'>
+                <span className='d-inline-flex align-items-center'>
+                  <i className='ti ti-calendar-check me-2' />
                   Date Of Join
                 </span>
-                <p className="text-dark">{emp.DOJ}</p>
+                <p className='text-dark'>{emp.DOJ}</p>
               </div>
-              <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-2">
-                <span className="d-inline-flex align-items-center">
-                  <i className="ti ti-phone me-2" />
+              <div className='d-flex align-items-center justify-content-between border-bottom pb-2 mb-2'>
+                <span className='d-inline-flex align-items-center'>
+                  <i className='ti ti-phone me-2' />
                   Mobile
                 </span>
-                <p className="text-dark">{emp.CELL}</p>
+                <p className='text-dark'>{emp.CELL}</p>
               </div>
 
-              <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-2">
-                <span className="d-inline-flex align-items-center">
-                  <i className="ti ti-mail me-2" />
+              <div className='d-flex align-items-center justify-content-between border-bottom pb-2 mb-2'>
+                <span className='d-inline-flex align-items-center'>
+                  <i className='ti ti-mail me-2' />
                   Email (Off)
                 </span>
-                <p className="text-dark">{emp.COM_EMAIL}</p>
+                <p className='text-dark'>{emp.COM_EMAIL}</p>
               </div>
-              <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-2">
-                <span className="d-inline-flex align-items-center">
-                  <i className="ti ti-mail me-2" />
+              <div className='d-flex align-items-center justify-content-between border-bottom pb-2 mb-2'>
+                <span className='d-inline-flex align-items-center'>
+                  <i className='ti ti-mail me-2' />
                   Email (Per)
                 </span>
-                <p className="text-dark">{emp.PER_EMAIL}</p>
+                <p className='text-dark'>{emp.PER_EMAIL}</p>
               </div>
-              <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-2">
-                <span className="d-inline-flex align-items-center">
-                  <i className="ti ti-calendar-check me-2" />
+              <div className='d-flex align-items-center justify-content-between border-bottom pb-2 mb-2'>
+                <span className='d-inline-flex align-items-center'>
+                  <i className='ti ti-calendar-check me-2' />
                   Birthday
                 </span>
-                <p className="text-dark">{formatDOB(emp.DOB)}</p>
+                <p className='text-dark'>{formatDOB(emp.DOB)}</p>
               </div>
-              <div className="d-flex align-items-center justify-content-between">
-                <span className="d-inline-flex align-items-center">
-                  <i className="ti ti-gender-bigender me-2" />
+              <div className='d-flex align-items-center justify-content-between'>
+                <span className='d-inline-flex align-items-center'>
+                  <i className='ti ti-gender-bigender me-2' />
                   Gender
                 </span>
-                <p className="text-dark">{getGender(emp.GENDER)}</p>
+                <p className='text-dark'>{getGender(emp.GENDER)}</p>
               </div>
             </div>
           </div>
         </div>
-        <div className="col-xl-8">
-          <div style={{ minHeight: 402 }} className="card">
-            <div className="card-body">
-              <ul className="nav nav-tabs nav-tabs-bottom border-bottom mb-3">
-                <li className="nav-item">
+        <div className='col-xl-8'>
+          <div style={{ minHeight: 402 }} className='card'>
+            <div className='card-body'>
+              <ul className='nav nav-tabs nav-tabs-bottom border-bottom mb-3'>
+                <li className='nav-item'>
                   <a
-                    className="nav-link active"
-                    href="#personalDetails"
-                    data-bs-toggle="tab"
+                    className='nav-link active'
+                    href='#personalDetails'
+                    data-bs-toggle='tab'
                   >
                     Personal Details
                   </a>
                 </li>
-                <li className="nav-item">
+                <li className='nav-item'>
                   <a
-                    className="nav-link"
-                    href="#familyDetails"
-                    data-bs-toggle="tab"
+                    className='nav-link'
+                    href='#familyDetails'
+                    data-bs-toggle='tab'
                   >
                     Family Details
                   </a>
                 </li>
-                <li className="nav-item">
+                <li className='nav-item'>
                   <a
-                    className="nav-link"
-                    href="#officeDetails"
-                    data-bs-toggle="tab"
+                    className='nav-link'
+                    href='#officeDetails'
+                    data-bs-toggle='tab'
                   >
                     Office Details
                   </a>
                 </li>
-                <li className="nav-item">
+                <li className='nav-item'>
                   <a
-                    className="nav-link"
-                    href="#bankDetails"
-                    data-bs-toggle="tab"
+                    className='nav-link'
+                    href='#bankDetails'
+                    data-bs-toggle='tab'
                   >
                     Bank & Other Details
                   </a>
                 </li>
               </ul>
 
-              <div className="tab-content">
-                <div className="tab-pane show active" id="personalDetails">
-                  <div className="table-responsive">
-                    <table className="table table-nowrap table-sm mb-0">
+              <div className='tab-content'>
+                <div className='tab-pane show active' id='personalDetails'>
+                  <div className='table-responsive'>
+                    <table className='table table-nowrap table-sm mb-0'>
                       <tbody>
                         <tr>
                           <td>
@@ -879,7 +892,7 @@ const MyProfile = () => {
                           <td>
                             <strong>Current Address:</strong>
                           </td>
-                          <td className="text-wrap">
+                          <td className='text-wrap'>
                             {emp.ADDRESS}, {emp.CITY} - {emp.PINCODE}
                           </td>
                         </tr>
@@ -888,8 +901,8 @@ const MyProfile = () => {
                           <td>
                             <strong>Permanant Address:</strong>
                           </td>
-                          <td className="text-wrap">
-                            {emp.PERMNT_ADDRESS}, {emp.PERMNT_CITY} -{" "}
+                          <td className='text-wrap'>
+                            {emp.PERMNT_ADDRESS}, {emp.PERMNT_CITY} -{' '}
                             {emp.PERMNT_PINCODE}
                           </td>
                         </tr>
@@ -905,39 +918,45 @@ const MyProfile = () => {
                           <td>
                             <strong>Blood Group:</strong>
                           </td>
-                          <td>{emp.BLOOD_GRP || "Not Given"}</td>
+                          <td>{emp.BLOOD_GRP || 'Not Given'}</td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
                 </div>
 
-                <div className="tab-pane" id="familyDetails">
-                  <div className="d-flex justify-content-between align-items-center flex-wrap row-gap-3 mb-3">
+                <div className='tab-pane' id='familyDetails'>
+                  <div className='d-flex justify-content-between align-items-center flex-wrap row-gap-3 mb-3'>
                     <SDLSearch
                       value={searchQuery}
                       onChange={setSearchQuery}
-                      placeholder="Search..."
-                      style={{ width: "280px" }}
+                      placeholder='Search...'
+                      style={{ width: '280px' }}
                     />
 
                     {canManageFamily && (
                       <a
-                        href="#"
-                        title="Add Family Member"
-                        className="text-primary"
-                        style={{ fontSize: "26px" }}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleAddFamily();
+                        href='#'
+                        title='Add Family Member'
+                        className='text-primary'
+                        style={{ fontSize: '26px' }}
+                        onClick={e => {
+                          e.preventDefault()
+                          handleAddFamily()
                         }}
                       >
-                        <i className="ti ti-plus-circle">+</i>
+                        <button
+                type='button'
+                className='btn btn-icon btn-sm btn-primary'
+              >
+
+                        <i className='ti ti-plus-circle'>+</i>
+              </button>
                       </a>
                     )}
                   </div>
 
-                  <div className="table-responsive">
+                  <div className='table-responsive'>
                     <SDLDataTable
                       data={filteredFamilyData}
                       columns={familyColumns}
@@ -945,16 +964,16 @@ const MyProfile = () => {
                       rows={10}
                       rowsPerPageOptions={[10, 20, 50]}
                       removableSort
-                      dataKey="id"
-                      emptyMessage="No family members found"
-                      tableStyle={{ minWidth: "800px" }}
+                      dataKey='id'
+                      emptyMessage='No family members found'
+                      tableStyle={{ minWidth: '800px' }}
                     />
                   </div>
                 </div>
 
-                <div className="tab-pane" id="officeDetails">
-                  <div className="table-responsive">
-                    <table className="table table-nowrap mb-0 table-sm">
+                <div className='tab-pane' id='officeDetails'>
+                  <div className='table-responsive'>
+                    <table className='table table-nowrap mb-0 table-sm'>
                       <tbody>
                         <tr>
                           <td>
@@ -1015,9 +1034,9 @@ const MyProfile = () => {
                     </table>
                   </div>
                 </div>
-                <div className="tab-pane" id="bankDetails">
-                  <div className="table-responsive">
-                    <table className="table table-nowrap mb-0 table-sm">
+                <div className='tab-pane' id='bankDetails'>
+                  <div className='table-responsive'>
+                    <table className='table table-nowrap mb-0 table-sm'>
                       <tbody>
                         <tr>
                           <td>
@@ -1072,7 +1091,7 @@ const MyProfile = () => {
                           <td>
                             <strong>ESI Number:</strong>
                           </td>
-                          <td>{emp.ESIC_NO || "NA"}</td>
+                          <td>{emp.ESIC_NO || 'NA'}</td>
                         </tr>
 
                         <tr>
@@ -1094,148 +1113,158 @@ const MyProfile = () => {
       {/* ================= FAMILY MODAL ================= */}
       {showFamilyForm && (
         <div
-          className="modal fade show"
+          className='modal fade show'
           style={{
-            display: "block",
-            backgroundColor: "rgba(0,0,0,0.5)",
+            display: 'block',
+            backgroundColor: 'rgba(0,0,0,0.5)'
           }}
-          tabIndex="-1"
+          tabIndex='-1'
         >
-          <div className="modal-dialog modal-lg modal-dialog-centered">
-            <div className="modal-content">
+          <div className='modal-dialog modal-lg modal-dialog-centered'>
+            <div className='modal-content'>
               {/* Modal Header */}
-              <div className="modal-header">
-                <h5 className="modal-title">
-                  {editingMember ? "Edit Family Member" : "Add Family Member"}
+              <div className='modal-header'>
+                <h5 className='modal-title'>
+                  {editingMember ? 'Edit Family Member' : 'Add Family Member'}
                 </h5>
 
-                <button
-                  type="button"
-                  className="btn-close"
+                {/* <button
+                  type='button'
+                  className='btn-close'
                   onClick={() => setShowFamilyForm(false)}
-                />
+                /> */}
+
+                <button
+                type="button"
+                className="close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+                  onClick={() => setShowFamilyForm(false)}
+              >
+                <span aria-hidden="true">×</span>
+              </button>
               </div>
 
               {/* Modal Body */}
-              <div className="modal-body">
-                <div className="row g-3">
+              <div className='modal-body'>
+                <div className='row g-3'>
                   {/* Name */}
-                  <div className="col-md-6">
-                    <label className="form-label">
-                      Name <span className="text-danger">*</span>
+                  <div className='col-md-6'>
+                    <label className='form-label'>
+                      Name <span className='text-danger'>*</span>
                     </label>
                     <input
-                      type="text"
-                      className="form-control"
-                      name="name"
+                      type='text'
+                      className='form-control'
+                      name='name'
                       value={familyForm.name}
                       onChange={handleFamilyInputChange}
-                      placeholder="Enter Name"
+                      placeholder='Enter Name'
                     />
                   </div>
 
                   {/* Relation Dropdown */}
-                  <div className="col-md-6">
-                    <label className="form-label">
-                      Relation <span className="text-danger">*</span>
+                  <div className='col-md-6'>
+                    <label className='form-label'>
+                      Relation <span className='text-danger'>*</span>
                     </label>
                     <select
-                      className="form-select"
-                      name="relation"
+                      className='form-select'
+                      name='relation'
                       value={familyForm.relation}
                       onChange={handleFamilyInputChange}
                     >
-                      <option value="Wife">Wife</option>
-                      <option value="Husband">Husband</option>
-                      <option value="Mother">Mother</option>
-                      <option value="Father">Father</option>
-                      <option value="Son">Son</option>
-                      <option value="Daughter">Daughter</option>
+                      <option value='Wife'>Wife</option>
+                      <option value='Husband'>Husband</option>
+                      <option value='Mother'>Mother</option>
+                      <option value='Father'>Father</option>
+                      <option value='Son'>Son</option>
+                      <option value='Daughter'>Daughter</option>
                     </select>
                   </div>
 
                   {/* Dependency */}
-                  <div className="col-md-6">
-                    <label className="form-label">
-                      Dependent <span className="text-danger">*</span>
+                  <div className='col-md-6'>
+                    <label className='form-label'>
+                      Dependent <span className='text-danger'>*</span>
                     </label>
                     <select
-                      className="form-select"
-                      name="dependent"
+                      className='form-select'
+                      name='dependent'
                       value={familyForm.dependent}
                       onChange={handleFamilyInputChange}
                     >
-                      <option value="Dependant">Dependant</option>
-                      <option value="Non-Dependant">Non-Dependant</option>
-                      <option value="Deceased">Deceased</option>
-                      <option value="Not-Applicable">Not-Applicable</option>
+                      <option value='Dependant'>Dependant</option>
+                      <option value='Non-Dependant'>Non-Dependant</option>
+                      <option value='Deceased'>Deceased</option>
+                      <option value='Not-Applicable'>Not-Applicable</option>
                     </select>
                   </div>
 
                   {/* DOB Datepicker */}
-                  <div className="col-md-6">
-                    <label className="form-label">Date of Birth</label>
+                  <div className='col-md-6'>
+                    <label className='form-label'>Date of Birth</label>
                     <input
-                      type="date"
-                      className="form-control"
-                      name="dob"
+                      type='date'
+                      className='form-control'
+                      name='dob'
                       value={familyForm.dob}
                       onChange={handleFamilyInputChange}
                     />
                   </div>
 
                   {/* Occupation */}
-                  <div className="col-md-6">
-                    <label className="form-label">Occupation</label>
+                  <div className='col-md-6'>
+                    <label className='form-label'>Occupation</label>
                     <input
-                      type="text"
-                      className="form-control"
-                      name="occupation"
+                      type='text'
+                      className='form-control'
+                      name='occupation'
                       value={familyForm.occupation}
                       onChange={handleFamilyInputChange}
-                      placeholder="Enter Occupation"
+                      placeholder='Enter Occupation'
                     />
                   </div>
 
                   {/* Aadhar */}
-                  <div className="col-md-6">
-                    <label className="form-label">Aadhaar</label>
+                  <div className='col-md-6'>
+                    <label className='form-label'>Aadhaar</label>
                     <input
-                      type="text"
-                      className="form-control"
-                      name="aadhaar"
+                      type='text'
+                      className='form-control'
+                      name='aadhaar'
                       value={familyForm.aadhaar}
                       maxLength={12}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, "");
+                      onChange={e => {
+                        const value = e.target.value.replace(/\D/g, '')
 
-                        setFamilyForm((prev) => ({
+                        setFamilyForm(prev => ({
                           ...prev,
-                          aadhaar: value,
-                        }));
+                          aadhaar: value
+                        }))
                       }}
-                      placeholder="Enter 12 Digit Aadhaar Number"
+                      placeholder='Enter 12 Digit Aadhaar Number'
                     />
                   </div>
                 </div>
               </div>
 
               {/* Modal Footer */}
-              <div className="modal-footer">
+              <div className='modal-footer'>
+
                 <button
-                  type="button"
-                  className="btn btn-secondary"
+                  type='button'
+                  className='btn btn-primary me-2'
+                  onClick={handleSaveFamily}
+                >
+                  {editingMember ? 'Update' : 'Save'}
+                </button>
+                <button
+                  type='button'
+                  className='btn btn-secondary'
                   onClick={() => setShowFamilyForm(false)}
                 >
                   Cancel
-                </button>
-
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={handleSaveFamily}
-                >
-                  {editingMember ? "Update" : "Save"}
                 </button>
               </div>
             </div>
@@ -1243,7 +1272,7 @@ const MyProfile = () => {
         </div>
       )}
     </>
-  );
-};
+  )
+}
 
-export default MyProfile;
+export default MyProfile

@@ -5,77 +5,182 @@ import HeaderTop from "./HeaderTop";
 import Footer from "./Footer";
 
 import EportalMenu from "../portals/eportal/components/horizontal-menu/HorizontalMenu";
-// import EppMenu from "../portals/epp/components/HorizontalMenu";
+import HrmsMenu from "../portals/hrms/components/horizontal-menu/HorizontalMenu";
 
 import { cancelAllRequests } from "../services/requestManager";
+import { getPortalFromPath } from "../config/portalConfig";
 
 const MainLayout = () => {
   const location = useLocation();
-  const portal = location.pathname.split("/")[1];
 
-  const isPolicyPage = location.pathname === "/policy-acceptance";
+  const portal = getPortalFromPath(location.pathname);
 
-  // Cancel pending API requests on route change
+  const isPolicyPage =
+    location.pathname === "/policy-acceptance";
+
+  /*
+  |--------------------------------------------------------------------------
+  | CANCEL PENDING REQUESTS ON ROUTE CHANGE
+  |--------------------------------------------------------------------------
+  */
+
   useEffect(() => {
     cancelAllRequests();
   }, [location.pathname]);
 
-  // Portal-specific layout classes
+  /*
+  |--------------------------------------------------------------------------
+  | PORTAL-SPECIFIC LAYOUT
+  |--------------------------------------------------------------------------
+  */
+
   useEffect(() => {
-    document.body.classList.remove(
+    const body = document.body;
+    const html = document.documentElement;
+
+    // Remove previous portal layout classes
+    body.classList.remove(
       "menu-horizontal",
       "eportal-layout",
       "epp-layout",
+      "sfm-layout",
       "hrms-layout",
       "policy-layout"
     );
 
-    document.documentElement.removeAttribute("data-layout");
+    html.removeAttribute("data-layout");
 
-    if (portal === "eportal") {
-      document.body.classList.add(
-        "menu-horizontal",
-        "eportal-layout"
-      );
+    /*
+    |--------------------------------------------------------------------------
+    | PORTAL LAYOUT
+    |--------------------------------------------------------------------------
+    */
 
-      document.documentElement.setAttribute(
-        "data-layout",
-        "horizontal"
-      );
-    } else if (portal === "epp") {
-      document.body.classList.add("epp-layout");
+    switch (portal.key) {
+      case "eportal":
+        body.classList.add(
+          "menu-horizontal",
+          "eportal-layout"
+        );
+
+        html.setAttribute(
+          "data-layout",
+          "horizontal"
+        );
+        break;
+
+      case "epp":
+        body.classList.add(
+          "epp-layout"
+        );
+
+        // EPP will be configured later
+        break;
+
+      case "sfm":
+        body.classList.add(
+          "menu-horizontal",
+          "sfm-layout"
+        );
+
+        html.setAttribute(
+          "data-layout",
+          "horizontal"
+        );
+        break;
+
+      case "hrms":
+        body.classList.add(
+          "menu-horizontal",
+          "hrms-layout"
+        );
+
+        html.setAttribute(
+          "data-layout",
+          "horizontal"
+        );
+        break;
+
+      default:
+        break;
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | POLICY PAGE
+    |--------------------------------------------------------------------------
+    */
 
     if (isPolicyPage) {
-        document.body.classList.add("policy-layout");
+      body.classList.add("policy-layout");
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | CLEANUP
+    |--------------------------------------------------------------------------
+    */
+
     return () => {
-      document.body.classList.remove(
+      body.classList.remove(
         "menu-horizontal",
         "eportal-layout",
         "epp-layout",
+        "sfm-layout",
         "hrms-layout",
         "policy-layout"
       );
-      document.documentElement.removeAttribute("data-layout");
+
+      html.removeAttribute("data-layout");
     };
-  }, [portal,isPolicyPage]);
+  }, [portal.key, isPolicyPage]);
+
+  /*
+  |--------------------------------------------------------------------------
+  | RENDER
+  |--------------------------------------------------------------------------
+  */
 
   return (
     <div className="main-wrapper">
+
+      {/* =========================================================
+          TOP HEADER
+      ========================================================= */}
+
       <HeaderTop />
-	  	
-      {/* Portal Menu */}
-      {portal === "eportal" && <EportalMenu />}
-      {/* {portal === "epp" && <EppMenu />} */}  
+
+      {/* =========================================================
+          PORTAL MENU
+      ========================================================= */}
+
+      {portal.key === "eportal" && (
+        <EportalMenu />
+      )}
+
+      {portal.key === "hrms" && (
+        <HrmsMenu />
+      )}
+
+      {/* EPP menu will be added later */}
+      {/* {portal.key === "epp" && <EppMenu />} */}
+
+      {/* =========================================================
+          PAGE CONTENT
+      ========================================================= */}
+
       <div className="page-wrapper">
         <div className="content">
           <Outlet />
         </div>
       </div>
 
+      {/* =========================================================
+          FOOTER
+      ========================================================= */}
+
       <Footer />
+
     </div>
   );
 };

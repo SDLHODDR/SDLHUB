@@ -1,5 +1,6 @@
 ﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import Badge from "../../portals/eportal/components/Badge";
 
 const TASK_CONFIG = {
   109: { icon: "ti-inbox", badgeClass: "badge-danger", active: true },
@@ -53,9 +54,10 @@ const ActivityItem = ({ item }) => {
           <i className={`ti ${item.icon} text-gray me-2`}></i>
           {item.label}
         </span>
-        <span className={`badge shadow-none rounded-pill ${badgeClass}`}>
-          {item.count}
-        </span>
+        <Badge
+          text={item.count}
+          className={`shadow-none ${badgeClass}`}
+        />
       </a>
     </li>
   );
@@ -125,9 +127,10 @@ const AuthorizationDropdown = () => {
         <i className="ti ti-bell"></i>
 
         {successCnt && (
-          <span className="badge rounded-pill badge-danger">
-            {countTotalData}
-          </span>
+          <Badge
+            text={countTotalData}
+            className="badge-danger"
+          />
         )}
       </button>
 
