@@ -3,7 +3,8 @@ import { PORTALAPI } from "./apiConfig";
 import { eportalRequest } from "./request"; // central handler
 import { EPORTAL_API } from "../portals/eportal/config/eportalApiConfig";
 
-const csrfToken = sessionStorage.getItem("csrf_token");
+//const csrfToken = sessionStorage.getItem("csrf_token");
+const csrfToken = localStorage.getItem("csrf_token");
 /**
  * Fetch authrorization task data
  *
