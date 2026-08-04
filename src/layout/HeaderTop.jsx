@@ -260,7 +260,10 @@ const HeaderTop = () => {
           <span className="welcome-text">Welcome,</span>
           <span className="welcome-user">{user?.name || "Guest User"}</span>
 
+          {/* {successCnt && <AuthorizationDropdown />} */}
+                			<li className="nav-item nav-item-box">
           {successCnt && <AuthorizationDropdown />}
+          </li>
           {/*
       			<li className="nav-item nav-item-box">
               <Link
@@ -328,7 +331,13 @@ const HeaderTop = () => {
           </li>
         </ul>
 
-        {/* Mobile Dropdown */}
+        {/* Mobile Notification + Dropdown */}
+        {successCnt && (
+          <div className="mobile-notification d-flex align-items-center d-lg-none">
+            <AuthorizationDropdown />
+          </div>
+        )}
+
         <div className="dropdown mobile-user-menu">
           <a
             href="#!"
