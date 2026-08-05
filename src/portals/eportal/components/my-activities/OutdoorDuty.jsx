@@ -19,7 +19,7 @@ const OutdoorDuty = () => {
   const outdoorDutydata = useSelector((state) => state.eportalODData.data);
   const odLoading = useSelector((state) => state.eportalODData.loading); // if your slice tracks this
   const [searchQuery, setSearchQuery] = useState("");
-  const [refreshKey, setRefreshKey] = useState(0);``
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Get current portal dynamically
 	const portal = getPortalFromPath(location.pathname);
