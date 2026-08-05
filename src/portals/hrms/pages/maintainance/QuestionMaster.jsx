@@ -11,6 +11,7 @@ import {
   deleteQuestion,
   getQuestionGroups,
   getQuestionSubGroups,
+  getAllQuestionSubGroups,
 } from "../../services/questionService";
 import { notifySuccess, notifyError, confirmAction } from "../../../../services/alertService";
 
@@ -47,13 +48,41 @@ const QuestionMaster = () => {
   useEffect(() => {
     fetchAll();
     fetchGroups();
+    fetchSubGroups();
   }, []);
+
+  const fetchSubGroups = async () => {
+    try {
+      const res = await getAllQuestionSubGroups();
+      const raw = res?.data || [];
+      const subNormalized = (raw || []).map((s) => ({
+        ID: String(s.QSSGRP_ID ?? s.ID ?? s.id ?? ""),
+        NAME: s.QSSGRP_DESC ?? s.NAME ?? s.label ?? "",
+      }));
+      setSubgroups(subNormalized);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchAll = async () => {
     try {
       setLoading(true);
       const res = await getQuestions();
-      setList(res?.data || []);
+      // Normalize backend response to expected keys used in the table
+      const raw = res?.data || [];
+      const normalized = (raw || []).map((row) => ({
+        ...row,
+        // question text could be returned as QUESTION or QUES_DESCR
+        QUES_DESCR: row.QUES_DESCR || row.QUESTION || "",
+        // subgroup description
+        QSGRP_DESC: row.QSGRP_DESC || row.SUBGROUP_DESC || row.GROUP_NAME || "",
+        // rating/type
+        RATING: row.RATING || row.rating || row.answer_type || row.ANSWER_TYPE || "",
+        // options can be comma-separated string or array
+        OPTIONS: row.OPTIONS != null ? row.OPTIONS : row.options || "",
+      }));
+      setList(normalized);
     } catch (err) {
       console.error(err);
     } finally {
@@ -64,20 +93,21 @@ const QuestionMaster = () => {
   const fetchGroups = async () => {
     try {
       const res = await getQuestionGroups();
-      setGroups(res?.data || []);
+      // Normalize group payload to `{ ID, NAME }` used by the select
+      const raw = res?.data || [];
+      const groupsNormalized = (raw || []).map((g) => ({
+        ID: String(g.QSGRP_ID ?? g.ID ?? g.id ?? ""),
+        NAME: g.QSGRP_DESC ?? g.NAME ?? g.label ?? "",
+      }));
+      setGroups(groupsNormalized);
     } catch (err) {
       console.error(err);
     }
   };
 
   const handleGroupChange = async (val) => {
+    // Sub-groups are independent; only update selected group id and reset sub-group
     setForm((p) => ({ ...p, QGRP_ID: val, QSGRP_ID: "" }));
-    try {
-      const res = await getQuestionSubGroups(val);
-      setSubgroups(res?.data || []);
-    } catch (err) {
-      console.error(err);
-    }
   };
 
   const handleField = (name, value) => {
@@ -153,9 +183,17 @@ const QuestionMaster = () => {
   };
 
   const buildOptionsFromRow = (row) => {
-    const count = Number(row.noopts || row.NO_OF_OPTIONS || 0);
+    // Prefer array if provided
+    if (!row) return [];
     if (Array.isArray(row.OPTIONS) && row.OPTIONS.length) return row.OPTIONS;
-    return Array.from({ length: count }, (_, i) => row[`opts_${i + 1}`] || "");
+    // If backend provides a comma-separated OPTIONS string, split and trim
+    if (typeof row.OPTIONS === "string" && row.OPTIONS.trim() !== "") {
+      return row.OPTIONS.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    // Fallback to numbered opts_1..opts_n or noopts count
+    const count = Number(row.noopts || row.NO_OF_OPTIONS || 0);
+    if (count > 0) return Array.from({ length: count }, (_, i) => row[`opts_${i + 1}`] || "");
+    return [];
   };
 
   const handleEdit = (row) => {
@@ -172,6 +210,8 @@ const QuestionMaster = () => {
       OPTIONS: buildOptionsFromRow(row),
     });
     if (row.QGRP_ID || row.GROUP_ID) handleGroupChange(row.QGRP_ID || row.GROUP_ID);
+    // Inform user that edit is disabled (read-only view)
+    notifyError("You cannot edit this form. Editing is disabled.");
   };
 
   const resetForm = () => {
@@ -219,17 +259,14 @@ const QuestionMaster = () => {
 
   const columns = [
     { header: "#", body: (r, o) => o.rowIndex + 1 },
-    { field: "GROUP_NAME", header: "Group", style: { width: "200px" } },
+    { header: "Group", body: (r) => r.QSGRP_DESC || r.GROUP_NAME || "", style: { width: "200px" } },
     { header: "Question", body: (r) => r.QUES_DESCR || r.QUESTION || "" , style: { minWidth: "300px" } },
-    { header: "Type", body: (r) => r.answer_type || r.ANSWER_TYPE || "" , style: { width: "120px" } },
+    { header: "Type", body: (r) => r.RATING || r.rating || r.answer_type || r.ANSWER_TYPE || "" , style: { width: "120px" } },
     { header: "Options", body: (r) => buildOptionsFromRow(r).filter(Boolean).join(", ") },
     {
       header: "Action",
       body: (r) => (
         <div className="d-flex gap-2">
-          <button className="btn btn-sm btn-outline-primary" onClick={() => handleEdit(r)}>
-            <i className="ti ti-edit" />
-          </button>
           <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(r)} disabled={deletingId === r.ID}>
             {deletingId === r.ID ? <span className="spinner-border spinner-border-sm" /> : <i className="ti ti-trash" />}
           </button>
@@ -309,10 +346,13 @@ const QuestionMaster = () => {
 
               {!showAll ? (
                 <>
+                  {isEditing && (
+                    <div className="alert alert-warning">You cannot edit this form. Editing is disabled.</div>
+                  )}
                   <div className="row mb-3">
                     <div className="col-lg-4">
                       <label className="form-label">Question Group</label>
-                      <select className={`form-select ${errors.QGRP_ID ? "is-invalid" : ""}`} value={form.QGRP_ID} onChange={(e) => handleGroupChange(e.target.value)}>
+                      <select className={`form-select ${errors.QGRP_ID ? "is-invalid" : ""}`} value={form.QGRP_ID} onChange={(e) => handleGroupChange(e.target.value)} disabled={isEditing}>
                         <option value="">Select Group</option>
                         {groups.map((g) => (
                           <option key={g.ID} value={g.ID}>{g.NAME}</option>
@@ -323,7 +363,7 @@ const QuestionMaster = () => {
 
                     <div className="col-lg-4">
                       <label className="form-label">Question Sub Group</label>
-                      <select className="form-select" value={form.QSGRP_ID} onChange={(e) => handleField("QSGRP_ID", e.target.value)}>
+                      <select className="form-select" value={form.QSGRP_ID} onChange={(e) => handleField("QSGRP_ID", e.target.value)} disabled={isEditing}>
                         <option value="">Select Sub Group</option>
                         {subgroups.map((s) => (
                           <option key={s.ID} value={s.ID}>{s.NAME}</option>
@@ -333,7 +373,7 @@ const QuestionMaster = () => {
 
                     <div className="col-lg-4">
                       <label className="form-label">Answer Type</label>
-                      <select className="form-select" value={form.ANSWER_TYPE} onChange={(e) => handleField("ANSWER_TYPE", e.target.value)}>
+                      <select className="form-select" value={form.ANSWER_TYPE} onChange={(e) => handleField("ANSWER_TYPE", e.target.value)} disabled={isEditing}>
                         {ANSWER_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                       </select>
                     </div>
@@ -342,14 +382,14 @@ const QuestionMaster = () => {
                   <div className="row mb-3">
                     <div className="col-lg-8">
                       <label className="form-label">Question</label>
-                      <input type="text" className={`form-control ${errors.QUES_DESCR ? "is-invalid" : ""}`} value={form.QUES_DESCR} onChange={(e) => handleField("QUES_DESCR", e.target.value)} />
+                      <input type="text" className={`form-control ${errors.QUES_DESCR ? "is-invalid" : ""}`} value={form.QUES_DESCR} onChange={(e) => handleField("QUES_DESCR", e.target.value)} disabled={isEditing} />
                       {errors.QUES_DESCR && <div className="invalid-feedback">{errors.QUES_DESCR}</div>}
                     </div>
 
                     {form.ANSWER_TYPE !== "Text" && (
                       <div className="col-lg-4">
                         <label className="form-label">Number of Options</label>
-                        <select className={`form-select ${errors.NO_OF_OPTIONS ? "is-invalid" : ""}`} value={form.NO_OF_OPTIONS} onChange={(e) => handleField("NO_OF_OPTIONS", e.target.value)}>
+                        <select className={`form-select ${errors.NO_OF_OPTIONS ? "is-invalid" : ""}`} value={form.NO_OF_OPTIONS} onChange={(e) => handleField("NO_OF_OPTIONS", e.target.value)} disabled={isEditing}>
                           <option value="">Select</option>
                           {[2,3,4,5].map((n) => <option key={n} value={String(n)}>{n}</option>)}
                         </select>
@@ -363,9 +403,9 @@ const QuestionMaster = () => {
                       <div className="col-lg-8">
                         <div className="input-group">
                           {form.ANSWER_TYPE === "Radio" && (
-                            <span className="input-group-text"><input type="radio" name="defaultOption" checked={form.DEFAULT_OPTION === idx} onChange={() => setForm((p) => ({ ...p, DEFAULT_OPTION: idx }))} /></span>
+                            <span className="input-group-text"><input type="radio" name="defaultOption" checked={form.DEFAULT_OPTION === idx} onChange={() => setForm((p) => ({ ...p, DEFAULT_OPTION: idx }))} disabled={isEditing} /></span>
                           )}
-                          <input className={`form-control ${errors[`OPTION_${idx}`] ? "is-invalid" : ""}`} value={opt} onChange={(e) => handleOptionChange(idx, e.target.value)} />
+                          <input className={`form-control ${errors[`OPTION_${idx}`] ? "is-invalid" : ""}`} value={opt} onChange={(e) => handleOptionChange(idx, e.target.value)} disabled={isEditing} />
                           {errors[`OPTION_${idx}`] && <div className="invalid-feedback">{errors[`OPTION_${idx}`]}</div>}
                         </div>
                       </div>
@@ -374,7 +414,7 @@ const QuestionMaster = () => {
 
                   <div className="text-end mb-3">
                     <button className="btn btn-secondary me-2" type="button" onClick={resetForm}>Cancel</button>
-                    <button className="btn btn-primary" type="button" onClick={handleSave} disabled={loading}>{loading ? 'Processing...' : isEditing ? 'Update' : 'Save'}</button>
+                    <button className="btn btn-primary" type="button" onClick={handleSave} disabled={loading || isEditing}>{loading ? 'Processing...' : isEditing ? 'Update' : 'Save'}</button>
                   </div>
                 </>
               ) : (

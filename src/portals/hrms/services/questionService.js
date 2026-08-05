@@ -36,6 +36,14 @@ export const getQuestionSubGroups = async (groupId) => {
   return request({
     url: HRMS_API.MAINTAINANCE.QUESTION_SUBGROUPS,
     method: "GET",
-    params: { groupId },
+    params: groupId ? { groupId } : undefined,
+  });
+};
+
+// Fetch all question sub-groups (independent list)
+export const getAllQuestionSubGroups = async () => {
+  return request({
+    url: HRMS_API.MAINTAINANCE.QUESTION_SUBGROUPS,
+    method: "GET",
   });
 };
