@@ -183,4 +183,5 @@ const attachInterceptor = (instance) => {
 attachInterceptor(coreAPI);
 attachInterceptor(secureAPI);
 attachInterceptor(eportalAPI);
+attachInterceptor(hrmsAPI);
 attachInterceptor(eppAPI);

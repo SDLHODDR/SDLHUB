@@ -4,8 +4,6 @@ import { Link, useLocation } from "react-router-dom";
 import { getHrmsMenu } from "../../services/hrmsMenuService";
 import { notifyError } from "../../../../services/alertService";
 
-import "../../../../assets//css/hrms.css";
-
 const HorizontalMenu = () => {
   const location = useLocation();
 
