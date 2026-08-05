@@ -59,10 +59,14 @@ export const maintainenceKRASlice = createSlice({
         //console.log(action);
         state.loading = false;
         state.data = action.payload || [];
-        state.success = !!action.payload.status;
+        // Mark success true when payload contains data (array) or a truthy status
+        if (Array.isArray(action.payload)) {
+          state.success = action.payload.length > 0;
+        } else {
+          state.success = !!(action.payload && action.payload.status);
+        }
         state.successMessage = "Data fetched successfully";
         state.status = "idle";
-        state.authFor = "outdoorduty";
       })
       .addCase(getKRAActivityDataResponse.rejected, (state, action) => {
         state.loading = false;
