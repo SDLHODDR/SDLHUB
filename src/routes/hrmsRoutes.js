@@ -1,24 +1,8 @@
 import HRMSDashboard from "../portals/hrms/components/dashboard/Dashboard";
+import MasterData from "../portals/hrms/pages/master-data/MasterData";
 
 export const hrmsRoutes = [
-  {path: "hrms/dashboard", element: HRMSDashboard,},
-
-   // Master Data
-  // {
-  //   path: "hrms/job-description",
-  //   element: JobDescription,
-  // },
-
-  // Maintenance
-  // {
-  //   path: "hrms/department",
-  //   element: Department,
-  // },
-
-  // Recruitment
-  // {
-  //   path: "hrms/candidate-list",
-  //   element: CandidateList,
-  // },
+  { path: "hrms/dashboard", element: HRMSDashboard, },
+  { path: "hrms/masterdata/mastermaster", element: MasterData, },
 
 ];
