@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { Dropdown } from "primereact/dropdown";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -66,6 +67,7 @@ const ProfileMaintenance = () => {
   const [userLoading, setUserLoading] = useState(false);
 
   // Get current portal dynamically
+  const location = useLocation();
   const portal = getPortalFromPath(location.pathname);
   const portalHome = `/${portal.key}/dashboard`;
 
@@ -510,8 +512,10 @@ const ProfileMaintenance = () => {
   const handleMenuSearch = (value) => {
     setMenuSearch(value);
 
-    if (!value) return;
-
+    if (!value) {
+      setExpandedMenus({});
+      return;
+  }
     const expanded = {};
 
     menus.forEach((menu) => {
@@ -598,7 +602,23 @@ const ProfileMaintenance = () => {
 
   const resetProfileData = () => {
     setProfileId(null);
-  };
+
+    setMenus([]);
+    setTasks([]);
+    setDashboards([]);
+
+    setMenuAccess({});
+    setSubmenuAccess({});
+    setTaskAccess([]);
+    setDashAccess([]);
+
+    setProfileUsers([]);
+
+    setMenuSearch("");
+    setTaskSearch("");
+    setDashSearch("");
+    setUserSearch("");
+};
 
   return (
     <>
