@@ -13,6 +13,9 @@ export const HRMS_API = {
     QUESTION_DELETE: "/hrms/maintainance/question/deleteQuestion.php",
     QUESTION_GROUPS: "/hrms/maintainance/question/getQuestionGroups.php",
     QUESTION_SUBGROUPS: "/hrms/maintainance/question/getQuestionSubGroups.php",
+        DEPARTMENT: "/department/getDepartments.php",
+        
+
   },
 
   DASHBOARD: {
