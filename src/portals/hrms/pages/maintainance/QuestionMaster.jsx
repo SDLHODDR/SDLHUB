@@ -1,25 +1,48 @@
 import { useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import { getQuestionMasterDataResponse } from "../../../../store/hrms/hrmsQuestionMasterSlice";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
 import {
-  getQuestions,
   saveQuestion,
   deleteQuestion,
   getQuestionGroups,
-  getQuestionSubGroups,
   getAllQuestionSubGroups,
 } from "../../services/questionService";
 import { notifySuccess, notifyError, confirmAction } from "../../../../services/alertService";
 
 const ANSWER_TYPES = ["Text", "Radio", "Checkbox"];
 
+const normalizeRecords = (payload) => {
+  if (Array.isArray(payload)) return payload;
+
+  if (payload && typeof payload === "object") {
+    for (const key of ["data", "records", "result", "items", "list", "rows"]) {
+      if (Array.isArray(payload[key])) return payload[key];
+    }
+  }
+
+  return [];
+};
+
+const getDisplayValue = (item, keys, fallback = "-") => {
+  if (!item || typeof item !== "object") return fallback;
+
+  for (const key of keys) {
+    const value = item[key];
+    if (value !== undefined && value !== null && value !== "") {
+      return value;
+    }
+  }
+
+  return fallback;
+};
+
 const QuestionMaster = () => {
   const dispatch = useDispatch();
-  const [list, setList] = useState([]);
   const [groups, setGroups] = useState([]);
   const [subgroups, setSubgroups] = useState([]);
   const [search, setSearch] = useState("");
@@ -37,73 +60,65 @@ const QuestionMaster = () => {
   const location = useLocation();
   const portal = getPortalFromPath(location.pathname);
   const portalHome = `/${portal.key}/dashboard`;
-
+  const questionMasterData = useSelector((state) => state.hrmsquestionMasterData?.data);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [showAll, setShowAll] = useState(true);
+  const [showAll, setShowAll] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
-    fetchAll();
-    fetchGroups();
-    fetchSubGroups();
+    dispatch(getQuestionMasterDataResponse());
+  }, [dispatch]);
+
+  useEffect(() => {
+    const loadLookups = async () => {
+      try {
+        const [groupsRes, subGroupsRes] = await Promise.all([getQuestionGroups(), getAllQuestionSubGroups()]);
+        const groupsRaw = groupsRes?.data || [];
+        const subGroupsRaw = subGroupsRes?.data || [];
+
+        setGroups(
+          (groupsRaw || []).map((g) => ({
+            ID: String(g.QSGRP_ID ?? g.ID ?? g.id ?? ""),
+            NAME: g.QSGRP_DESC ?? g.NAME ?? g.label ?? "",
+          })),
+        );
+
+        setSubgroups(
+          (subGroupsRaw || []).map((s) => ({
+            ID: String(s.QSSGRP_ID ?? s.ID ?? s.id ?? ""),
+            NAME: s.QSSGRP_DESC ?? s.NAME ?? s.label ?? "",
+          })),
+        );
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    void loadLookups();
   }, []);
 
-  const fetchSubGroups = async () => {
+  const listData = useMemo(() => {
     try {
-      const res = await getAllQuestionSubGroups();
-      const raw = res?.data || [];
-      const subNormalized = (raw || []).map((s) => ({
-        ID: String(s.QSSGRP_ID ?? s.ID ?? s.id ?? ""),
-        NAME: s.QSSGRP_DESC ?? s.NAME ?? s.label ?? "",
+      return normalizeRecords(questionMasterData).map((item, index) => ({
+        ID: item.ID ?? item.id ?? index,
+        QGRP_ID: item.QGRP_ID ?? item.GROUP_ID ?? item.qgrp_id ?? "",
+        QSGRP_ID: item.QSGRP_ID ?? item.SUBGROUP_ID ?? item.qsgrp_id ?? "",
+        QUES_DESCR: getDisplayValue(item, ["QUES_DESCR", "QUESTION", "question", "ques_descr", "label"], "-"),
+        GROUP_NAME: getDisplayValue(item, ["QGRP_DESC", "GROUP_NAME", "group_name", "groupName", "NAME"], "-"),
+        QSGRP_DESC: getDisplayValue(item, ["QSGRP_DESC", "SUBGROUP_DESC", "subgroup_desc", "name", "label"], "-"),
+        ANSWER_TYPE: getDisplayValue(item, ["ANSWER_TYPE", "answer_type", "type", "rating"], "Text"),
+        NO_OF_OPTIONS: item.NO_OF_OPTIONS ?? item.noopts ?? item.no_of_options ?? "",
+        OPTIONS: item.OPTIONS ?? item.options ?? "",
+        RATING: getDisplayValue(item, ["RATING", "rating", "ANSWER_TYPE", "answer_type"], ""),
       }));
-      setSubgroups(subNormalized);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
+      return [];
     }
-  };
-
-  const fetchAll = async () => {
-    try {
-      setLoading(true);
-      const res = await getQuestions();
-      // Normalize backend response to expected keys used in the table
-      const raw = res?.data || [];
-      const normalized = (raw || []).map((row) => ({
-        ...row,
-        // question text could be returned as QUESTION or QUES_DESCR
-        QUES_DESCR: row.QUES_DESCR || row.QUESTION || "",
-        // subgroup description
-        QSGRP_DESC: row.QSGRP_DESC || row.SUBGROUP_DESC || row.GROUP_NAME || "",
-        // rating/type
-        RATING: row.RATING || row.rating || row.answer_type || row.ANSWER_TYPE || "",
-        // options can be comma-separated string or array
-        OPTIONS: row.OPTIONS != null ? row.OPTIONS : row.options || "",
-      }));
-      setList(normalized);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchGroups = async () => {
-    try {
-      const res = await getQuestionGroups();
-      // Normalize group payload to `{ ID, NAME }` used by the select
-      const raw = res?.data || [];
-      const groupsNormalized = (raw || []).map((g) => ({
-        ID: String(g.QSGRP_ID ?? g.ID ?? g.id ?? ""),
-        NAME: g.QSGRP_DESC ?? g.NAME ?? g.label ?? "",
-      }));
-      setGroups(groupsNormalized);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  }, [questionMasterData]);
 
   const handleGroupChange = async (val) => {
     // Sub-groups are independent; only update selected group id and reset sub-group
@@ -168,7 +183,7 @@ const QuestionMaster = () => {
       const res = await saveQuestion(payload);
       if (res?.status) {
         notifySuccess(res?.message || "Question saved");
-        fetchAll();
+        dispatch(getQuestionMasterDataResponse());
         setShowAll(true);
         resetForm();
       } else {
@@ -205,13 +220,10 @@ const QuestionMaster = () => {
       QGRP_ID: row.QGRP_ID || row.GROUP_ID || "",
       QSGRP_ID: row.QSGRP_ID || row.SUBGROUP_ID || "",
       QUES_DESCR: row.QUES_DESCR || row.QUESTION || "",
-      ANSWER_TYPE: row.answer_type || row.ANSWER_TYPE || "Text",
-      NO_OF_OPTIONS: row.noopts || row.NO_OF_OPTIONS || "",
+      ANSWER_TYPE: row.ANSWER_TYPE || row.answer_type || "Text",
+      NO_OF_OPTIONS: row.NO_OF_OPTIONS || row.noopts || row.no_of_options || "",
       OPTIONS: buildOptionsFromRow(row),
     });
-    if (row.QGRP_ID || row.GROUP_ID) handleGroupChange(row.QGRP_ID || row.GROUP_ID);
-    // Inform user that edit is disabled (read-only view)
-    notifyError("You cannot edit this form. Editing is disabled.");
   };
 
   const resetForm = () => {
@@ -229,7 +241,7 @@ const QuestionMaster = () => {
       return;
     }
 
-    const selected = list.find((item) => String(item.ID) === String(value));
+    const selected = listData.find((item) => String(item.ID) === String(value));
     if (!selected) return;
 
     handleEdit(selected);
@@ -241,9 +253,12 @@ const QuestionMaster = () => {
     try {
       setDeletingId(row.ID);
       const res = await deleteQuestion({ ID: row.ID });
-      if (res?.status) notifySuccess(res?.message || "Deleted");
-      else notifyError(res?.message || "Unable to delete");
-      fetchAll();
+      if (res?.status) {
+        notifySuccess(res?.message || "Deleted");
+        dispatch(getQuestionMasterDataResponse());
+      } else {
+        notifyError(res?.message || "Unable to delete");
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -252,10 +267,10 @@ const QuestionMaster = () => {
   };
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return list;
+    if (!search.trim()) return listData;
     const q = search.trim().toLowerCase();
-    return list.filter((r) => (r.QUES_DESCR || r.QUESTION || "").toLowerCase().includes(q) || (r.GROUP_NAME || "").toLowerCase().includes(q));
-  }, [search, list]);
+    return listData.filter((r) => (r.QUES_DESCR || r.QUESTION || "").toLowerCase().includes(q) || (r.GROUP_NAME || "").toLowerCase().includes(q));
+  }, [search, listData]);
 
   const columns = [
     { header: "#", body: (r, o) => o.rowIndex + 1 },
@@ -267,6 +282,14 @@ const QuestionMaster = () => {
       header: "Action",
       body: (r) => (
         <div className="d-flex gap-2">
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-primary"
+            onClick={() => handleEdit(r)}
+            aria-label="Edit Question"
+          >
+            <i className="ti ti-edit" />
+          </button>
           <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(r)} disabled={deletingId === r.ID}>
             {deletingId === r.ID ? <span className="spinner-border spinner-border-sm" /> : <i className="ti ti-trash" />}
           </button>
@@ -325,7 +348,7 @@ const QuestionMaster = () => {
                     disabled={loading}
                   >
                     <option value="">Select Question Master</option>
-                    {list.map((item) => (
+                    {listData.map((item) => (
                       <option key={item.ID} value={item.ID}>
                         {item.QUES_DESCR || item.QUESTION || ""}
                       </option>
@@ -347,12 +370,12 @@ const QuestionMaster = () => {
               {!showAll ? (
                 <>
                   {isEditing && (
-                    <div className="alert alert-warning">You cannot edit this form. Editing is disabled.</div>
+                    <div className="alert alert-info">You are updating an existing question.</div>
                   )}
                   <div className="row mb-3">
                     <div className="col-lg-4">
                       <label className="form-label">Question Group</label>
-                      <select className={`form-select ${errors.QGRP_ID ? "is-invalid" : ""}`} value={form.QGRP_ID} onChange={(e) => handleGroupChange(e.target.value)} disabled={isEditing}>
+                      <select className={`form-select ${errors.QGRP_ID ? "is-invalid" : ""}`} value={form.QGRP_ID} onChange={(e) => handleGroupChange(e.target.value)}>
                         <option value="">Select Group</option>
                         {groups.map((g) => (
                           <option key={g.ID} value={g.ID}>{g.NAME}</option>
@@ -363,7 +386,7 @@ const QuestionMaster = () => {
 
                     <div className="col-lg-4">
                       <label className="form-label">Question Sub Group</label>
-                      <select className="form-select" value={form.QSGRP_ID} onChange={(e) => handleField("QSGRP_ID", e.target.value)} disabled={isEditing}>
+                      <select className="form-select" value={form.QSGRP_ID} onChange={(e) => handleField("QSGRP_ID", e.target.value)}>
                         <option value="">Select Sub Group</option>
                         {subgroups.map((s) => (
                           <option key={s.ID} value={s.ID}>{s.NAME}</option>
@@ -373,7 +396,7 @@ const QuestionMaster = () => {
 
                     <div className="col-lg-4">
                       <label className="form-label">Answer Type</label>
-                      <select className="form-select" value={form.ANSWER_TYPE} onChange={(e) => handleField("ANSWER_TYPE", e.target.value)} disabled={isEditing}>
+                      <select className="form-select" value={form.ANSWER_TYPE} onChange={(e) => handleField("ANSWER_TYPE", e.target.value)}>
                         {ANSWER_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                       </select>
                     </div>
@@ -382,14 +405,14 @@ const QuestionMaster = () => {
                   <div className="row mb-3">
                     <div className="col-lg-8">
                       <label className="form-label">Question</label>
-                      <input type="text" className={`form-control ${errors.QUES_DESCR ? "is-invalid" : ""}`} value={form.QUES_DESCR} onChange={(e) => handleField("QUES_DESCR", e.target.value)} disabled={isEditing} />
+                      <input type="text" className={`form-control ${errors.QUES_DESCR ? "is-invalid" : ""}`} value={form.QUES_DESCR} onChange={(e) => handleField("QUES_DESCR", e.target.value)} />
                       {errors.QUES_DESCR && <div className="invalid-feedback">{errors.QUES_DESCR}</div>}
                     </div>
 
                     {form.ANSWER_TYPE !== "Text" && (
                       <div className="col-lg-4">
                         <label className="form-label">Number of Options</label>
-                        <select className={`form-select ${errors.NO_OF_OPTIONS ? "is-invalid" : ""}`} value={form.NO_OF_OPTIONS} onChange={(e) => handleField("NO_OF_OPTIONS", e.target.value)} disabled={isEditing}>
+                        <select className={`form-select ${errors.NO_OF_OPTIONS ? "is-invalid" : ""}`} value={form.NO_OF_OPTIONS} onChange={(e) => handleField("NO_OF_OPTIONS", e.target.value)}>
                           <option value="">Select</option>
                           {[2,3,4,5].map((n) => <option key={n} value={String(n)}>{n}</option>)}
                         </select>
@@ -403,9 +426,9 @@ const QuestionMaster = () => {
                       <div className="col-lg-8">
                         <div className="input-group">
                           {form.ANSWER_TYPE === "Radio" && (
-                            <span className="input-group-text"><input type="radio" name="defaultOption" checked={form.DEFAULT_OPTION === idx} onChange={() => setForm((p) => ({ ...p, DEFAULT_OPTION: idx }))} disabled={isEditing} /></span>
+                            <span className="input-group-text"><input type="radio" name="defaultOption" checked={form.DEFAULT_OPTION === idx} onChange={() => setForm((p) => ({ ...p, DEFAULT_OPTION: idx }))} /></span>
                           )}
-                          <input className={`form-control ${errors[`OPTION_${idx}`] ? "is-invalid" : ""}`} value={opt} onChange={(e) => handleOptionChange(idx, e.target.value)} disabled={isEditing} />
+                          <input className={`form-control ${errors[`OPTION_${idx}`] ? "is-invalid" : ""}`} value={opt} onChange={(e) => handleOptionChange(idx, e.target.value)} />
                           {errors[`OPTION_${idx}`] && <div className="invalid-feedback">{errors[`OPTION_${idx}`]}</div>}
                         </div>
                       </div>
@@ -414,7 +437,7 @@ const QuestionMaster = () => {
 
                   <div className="text-end mb-3">
                     <button className="btn btn-secondary me-2" type="button" onClick={resetForm}>Cancel</button>
-                    <button className="btn btn-primary" type="button" onClick={handleSave} disabled={loading || isEditing}>{loading ? 'Processing...' : isEditing ? 'Update' : 'Save'}</button>
+                    <button className="btn btn-primary" type="button" onClick={handleSave} disabled={loading}>{loading ? 'Processing...' : isEditing ? 'Update' : 'Save'}</button>
                   </div>
                 </>
               ) : (
