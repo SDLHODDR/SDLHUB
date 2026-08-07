@@ -5,10 +5,12 @@ import Capabilities from "../portals/hrms/pages/maintainance/Capabilities";
 import MasterData from "../portals/hrms/pages/master-data/MasterData";
 import DepartmentActivity from "../portals/hrms/pages/maintainance/DepartmentActivity";
 import Department from "../portals/hrms/pages/maintainance/department";
+import ProfileMaintenance from "../portals/hrms/pages/maintainance/ProfileMaintenance";
 
 export const hrmsRoutes = [
   {path: "hrms/dashboard", element: HRMSDashboard,},
   { path: "hrms/masterdata/mastermaster", element: MasterData, },
+  { path: "hrms/maintainance/profilemaintenance", element: ProfileMaintenance, },
 
   { path: "hrms/maintainance/kra-activity", element: KRAActivity },
   { path: "hrms/maintainance/questionmaster", element: QuestionMaster },

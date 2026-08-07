@@ -1,9 +1,9 @@
-import { request } from "../../../services/request";
+import { hrmsRequest } from "../../../services/request";
 import { HRMS_API } from "../config/hrmsApiConfig";
 
 export const getHrmsMenu = async () => {
 
-  return request({
+  return hrmsRequest({
     url: HRMS_API.MENU.GET_MENU,
     method: "GET",
   });
