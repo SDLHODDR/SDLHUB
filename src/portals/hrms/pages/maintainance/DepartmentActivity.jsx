@@ -1,47 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 
 import { getDeptActivitiesDataResponse } from "../../../../store/hrms/hrmsDeptActivitySlice";
-import {
-  getDepartmentMaster,
-  saveDeptActivity,
-  deleteDeptActivity,
-} from "../../services/departmentActivityService";
-import { notifySuccess, notifyError, confirmAction } from "../../../../services/alertService";
+import { getDepartmentMaster } from "../../services/departmentActivityService";
 
 import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
 
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
+import { normalizeRecords, getDisplayValue } from "../../../../utils/formatUtils";
+import { departmentActivityColumns } from "../../portalutils/departmentActivityColumns";
+import { useDepartmentActivityHandler } from "../../portalutils/useDepartmentActivityHandler";
 
 const ACT_TYPES = ["Join", "Exit"];
-
-const normalizeRecords = (payload) => {
-  if (Array.isArray(payload)) return payload;
-
-  if (payload && typeof payload === "object") {
-    for (const key of ["data", "records", "result", "items", "list", "rows"]) {
-      if (Array.isArray(payload[key])) return payload[key];
-    }
-  }
-
-  return [];
-};
-
-const getDisplayValue = (item, keys, fallback = "-") => {
-  if (!item || typeof item !== "object") return fallback;
-
-  for (const key of keys) {
-    const value = item[key];
-    if (value !== undefined && value !== null && value !== "") {
-      return value;
-    }
-  }
-
-  return fallback;
-};
 
 const DepartmentActivity = () => {
   const dispatch = useDispatch();
@@ -72,14 +45,11 @@ const DepartmentActivity = () => {
 
   const [errors, setErrors] = useState({});
 
-  // ===========================
-  // Fetch Data
-  // ===========================
   useEffect(() => {
     dispatch(getDeptActivitiesDataResponse());
   }, [dispatch]);
 
-  const fetchDeptMasterData = async () => {
+  const fetchDeptMasterData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await getDepartmentMaster();
@@ -89,11 +59,11 @@ const DepartmentActivity = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchDeptMasterData();
-  }, []);
+  }, [fetchDeptMasterData]);
 
   const listData = useMemo(() => {
     try {
@@ -116,20 +86,14 @@ const DepartmentActivity = () => {
     return normalizeRecords(listDeptMasterData).map((item, index) => {
       const id = getDisplayValue(item, ["DEPT_ID", "ID", "id", "dept_id", "DEPTID", "deptId"], index);
       const label = getDisplayValue(item, ["DEPT_DESC", "dept_desc", "DEPT_MASTER_DESC", "name", "label"], "-");
-
-      return {
-        id: String(id),
-        label: String(label),
-      };
+      return { id: String(id), label: String(label) };
     });
   }, [listDeptMasterData]);
 
-  /* ================= SEARCH FILTER ================= */
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) return listData;
 
     const query = searchQuery.trim().toLowerCase();
-
     return listData.filter(
       (item) =>
         item.DEPT_DESC.toLowerCase().includes(query) ||
@@ -138,214 +102,38 @@ const DepartmentActivity = () => {
     );
   }, [searchQuery, listData]);
 
-  const handleFieldChange = (name, value) => {
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      [name]: "",
-    }));
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!form.DEPT_ID || String(form.DEPT_ID).trim() === "") {
-      newErrors.DEPT_ID = "Department Master is required";
-    }
-
-    if (!form.ACT_TYPE || String(form.ACT_TYPE).trim() === "") {
-      newErrors.ACT_TYPE = "Type is required";
-    }
-
-    if (!form.ACT_DESC || String(form.ACT_DESC).trim() === "") {
-      newErrors.ACT_DESC = "Department Activity is required";
-    }
-
-    const seqRaw = String(form.DISP_SEQ).trim();
-    if (!seqRaw) {
-      newErrors.DISP_SEQ = "Sequence is required";
-    } else if (!/^\d+$/.test(seqRaw)) {
-      newErrors.DISP_SEQ = "Sequence must be a whole number";
-    } else {
-      const seqNum = Number(seqRaw);
-      if (seqNum < 1 || seqNum > 100) {
-        newErrors.DISP_SEQ = "Sequence must be between 1 and 100";
-      }
-    }
-
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setIsEditing(false);
     setSelectedActivity("");
-    setForm({
-      ID: "",
-      DEPT_ID: "",
-      ACT_TYPE: "",
-      DISP_SEQ: "",
-      ACT_DESC: "",
-    });
+    setForm({ ID: "", DEPT_ID: "", ACT_TYPE: "", DISP_SEQ: "", ACT_DESC: "" });
     setErrors({});
-  };
+  }, []);
 
-  const handleSave = async (e) => {
-    e.preventDefault();
+  const {
+    handleFieldChange,
+    handleSave,
+    handleEditActivity,
+    handleSelectActivity,
+    handleDeleteActivity,
+  } = useDepartmentActivityHandler({
+    form,
+    setForm,
+    setErrors,
+    setIsSubmitting,
+    setDeletingId,
+    dispatch,
+    getDeptActivitiesDataResponse,
+    listData,
+    setSelectedActivity,
+    setIsEditing,
+    setShowAll,
+    resetForm,
+  });
 
-    const isValid = validateForm();
-    if (!isValid) return;
-
-    setIsSubmitting(true);
-
-    try {
-      const payload = {
-        ...form,
-        DISP_SEQ: Number(form.DISP_SEQ),
-      };
-
-      const response = await saveDeptActivity(payload);
-
-      if (response?.status) {
-        notifySuccess(response?.message || "Department Activity saved successfully.");
-        resetForm();
-        dispatch(getDeptActivityDataResponse());
-        setShowAll(true);
-      } else {
-        notifyError(response?.message || "Unable to save Department Activity");
-      }
-    } catch (err) {
-      console.error("Save Error:", err);
-      notifyError("Something went wrong while saving data.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSelectActivity = (value) => {
-    setSelectedActivity(value);
-
-    if (!value) {
-      resetForm();
-      return;
-    }
-
-    setShowAll(false);
-
-    const activity = listData.find((item) => String(item.ID) === String(value));
-
-    if (activity) {
-      setIsEditing(true);
-      setForm({
-        ID: activity.ID,
-        DEPT_ID: activity.DEPT_ID || "",
-        ACT_TYPE: activity.ACT_TYPE || "",
-        DISP_SEQ: activity.DISP_SEQ ?? "",
-        ACT_DESC: activity.ACT_DESC,
-      });
-    }
-  };
-
-  const handleEditActivity = (activity) => {
-    setSelectedActivity(activity.ID);
-    setIsEditing(true);
-    setShowAll(false);
-    setForm({
-      ID: activity.ID,
-      DEPT_ID: activity.DEPT_ID || "",
-      ACT_TYPE: activity.ACT_TYPE || "",
-      DISP_SEQ: activity.DISP_SEQ ?? "",
-      ACT_DESC: activity.ACT_DESC,
-    });
-  };
-
-  const handleDeleteActivity = async (row) => {
-    try {
-      const result = await confirmAction("Are you sure you want to Delete?");
-      if (!result?.isConfirmed) return;
-      setDeletingId(row.ID);
-
-      const payload = {
-        ID: row.ID,
-      };
-
-      const response = await deleteDeptActivity(payload);
-
-      if (response?.status) {
-        notifySuccess(response?.message || "Record deleted successfully.");
-      } else {
-        notifyError(response?.message || "Unable to delete record.");
-      }
-
-      dispatch(getDeptActivityDataResponse());
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  const serialBody = (rowData, options) =>
-    options.rowIndex + 1 + (options.props.first || 0);
-
-  const columns = [
-    {
-      header: "#",
-      body: serialBody,
-      style: { width: "70px", textAlign: "center" },
-    },
-    {
-      field: "DEPT_DESC",
-      header: "Department",
-      sortable: true,
-      style: { width: "220px" },
-    },
-    {
-      field: "ACT_TYPE",
-      header: "Type",
-      sortable: true,
-      style: { width: "120px" },
-    },
-    {
-      field: "DISP_SEQ",
-      header: "Sequence",
-      sortable: true,
-      style: { width: "110px", textAlign: "center" },
-    },
-    {
-      field: "ACT_DESC",
-      header: "Department Activity",
-      sortable: true,
-      style: { minWidth: "220px" },
-    },
-    {
-      header: "Action",
-      body: (row) => (
-        <div className="d-flex align-items-center justify-content-center gap-2">
-          
-          <button
-            type="button"
-            className="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center"
-            aria-label="Delete Department Activity"
-            onClick={() => handleDeleteActivity(row)}
-            disabled={deletingId === row.ID}
-          >
-            {deletingId === row.ID ? (
-              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            ) : (
-              <i className="ti ti-trash" />
-            )}
-          </button>
-        </div>
-      ),
-      style: { width: "140px", textAlign: "center" },
-    },
-  ];
+  const columns = useMemo(
+    () => departmentActivityColumns({ handleDeleteActivity, deletingId }),
+    [handleDeleteActivity, deletingId],
+  );
 
   return (
     <>
@@ -432,9 +220,7 @@ const DepartmentActivity = () => {
                             </option>
                           ))}
                         </select>
-                        {errors.DEPT_ID && (
-                          <div className="invalid-feedback">{errors.DEPT_ID}</div>
-                        )}
+                        {errors.DEPT_ID && <div className="invalid-feedback">{errors.DEPT_ID}</div>}
                       </div>
                     </div>
 
@@ -456,9 +242,7 @@ const DepartmentActivity = () => {
                             </option>
                           ))}
                         </select>
-                        {errors.ACT_TYPE && (
-                          <div className="invalid-feedback">{errors.ACT_TYPE}</div>
-                        )}
+                        {errors.ACT_TYPE && <div className="invalid-feedback">{errors.ACT_TYPE}</div>}
                       </div>
                     </div>
 
@@ -476,9 +260,7 @@ const DepartmentActivity = () => {
                           value={form.DISP_SEQ}
                           onChange={(e) => handleFieldChange("DISP_SEQ", e.target.value)}
                         />
-                        {errors.DISP_SEQ && (
-                          <div className="invalid-feedback">{errors.DISP_SEQ}</div>
-                        )}
+                        {errors.DISP_SEQ && <div className="invalid-feedback">{errors.DISP_SEQ}</div>}
                       </div>
                     </div>
 
@@ -494,9 +276,7 @@ const DepartmentActivity = () => {
                           value={form.ACT_DESC}
                           onChange={(e) => handleFieldChange("ACT_DESC", e.target.value)}
                         />
-                        {errors.ACT_DESC && (
-                          <div className="invalid-feedback">{errors.ACT_DESC}</div>
-                        )}
+                        {errors.ACT_DESC && <div className="invalid-feedback">{errors.ACT_DESC}</div>}
                       </div>
                     </div>
                   </div>

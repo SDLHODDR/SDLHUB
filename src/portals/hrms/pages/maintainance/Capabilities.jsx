@@ -1,38 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
-import { notifySuccess, notifyError, notifyWarning, confirmAction } from "../../../../services/alertService";
-import { saveCapabilities } from "../../services/capablitiesService";
 import { getCapabilitiesDataResponse } from "../../../../store/hrms/hrmsCapabilitiesSlice";
-
-const normalizeRecords = (payload) => {
-  if (Array.isArray(payload)) return payload;
-
-  if (payload && typeof payload === "object") {
-    for (const key of ["data", "records", "result", "items", "list", "rows"]) {
-      if (Array.isArray(payload[key])) return payload[key];
-    }
-  }
-
-  return [];
-};
-
-const getDisplayValue = (item, keys, fallback = "-") => {
-  if (!item || typeof item !== "object") return fallback;
-
-  for (const key of keys) {
-    const value = item[key];
-    if (value !== undefined && value !== null && value !== "") {
-      return value;
-    }
-  }
-
-  return fallback;
-};
+import { normalizeRecords, getDisplayValue } from "../../../../utils/formatUtils";
+import { capabilitiesColumns } from "../../portalutils/capabilitiesColumns";
+import { useCapabilitiesHandler } from "../../portalutils/useCapabilitiesHandler";
 
 const Capabilities = () => {
   const dispatch = useDispatch();
@@ -40,7 +16,6 @@ const Capabilities = () => {
   const portal = getPortalFromPath(location.pathname);
   const portalHome = `/${portal.key}/dashboard`;
 
-  // Redux-backed list (replaces local fetchCapabilities/useState list)
   const capabilitiesData = useSelector((state) => state.hrmscapabilitiesData?.data);
   const loading = useSelector((state) => state.hrmscapabilitiesData?.loading) || false;
 
@@ -61,158 +36,72 @@ const Capabilities = () => {
     dispatch(getCapabilitiesDataResponse());
   }, [dispatch]);
 
-  const list = useMemo(() => normalizeRecords(capabilitiesData), [capabilitiesData]);
-
-  //console.log("=========List==========", list);
-  //console.log("=========capabilitiesData==========", capabilitiesData);
+  const list = useMemo(() => {
+    return normalizeRecords(capabilitiesData).map((item, index) => ({
+      CAPA_ID: item.CAPA_ID ?? item.ID ?? item.id ?? index,
+      CAPA_CODE_DISPLAY: getDisplayValue(item, ["CAPA_CODE", "code", "CODE"], ""),
+      CAPA_DESC_DISPLAY: getDisplayValue(item, ["CAPA_DESC", "description", "DESCR"], ""),
+    }));
+  }, [capabilitiesData]);
 
   const capabilityOptions = useMemo(() => {
-    const uniqueCodes = [...new Set(list.map((item) => getDisplayValue(item, ["CAPA_CODE", "code", "CODE"], "")))]
+    const uniqueCodes = [...new Set(list.map((item) => item.CAPA_CODE_DISPLAY))]
       .filter(Boolean)
       .sort();
 
-    return uniqueCodes.map((code) => ({
-      id: String(code),
-      label: String(code),
-    }));
+    return uniqueCodes.map((code) => ({ id: String(code), label: String(code) }));
   }, [list]);
 
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) return list;
 
     const query = searchQuery.trim().toLowerCase();
-
-    return list.filter((item) => {
-      const code = String(getDisplayValue(item, ["CAPA_CODE", "code", "CODE"], "")).toLowerCase();
-      const desc = String(getDisplayValue(item, ["CAPA_DESC", "description", "DESCR"], "")).toLowerCase();
-      return code.includes(query) || desc.includes(query);
-    });
+    return list.filter(
+      (item) =>
+        item.CAPA_CODE_DISPLAY.toLowerCase().includes(query) ||
+        item.CAPA_DESC_DISPLAY.toLowerCase().includes(query),
+    );
   }, [searchQuery, list]);
 
-  const handleFieldChange = (name, value) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.CAPA_CODE || String(formData.CAPA_CODE).trim() === "") {
-      newErrors.CAPA_CODE = "Capabilities code is required";
-    }
-
-    if (!formData.CAPA_DESC || String(formData.CAPA_DESC).trim() === "") {
-      newErrors.CAPA_DESC = "Description is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setIsEditing(false);
     setSelectedCapability("");
     setFormData({ CAPA_ID: "", CAPA_CODE: "", CAPA_DESC: "" });
     setErrors({});
-  };
+  }, []);
 
-  const handleSave = async (e) => {
-    e.preventDefault();
+  const {
+    handleFieldChange,
+    handleSave,
+    handleEdit,
+    handleSelectCapability,
+  } = useCapabilitiesHandler({
+    formData,
+    setFormData,
+    setErrors,
+    setIsSubmitting,
+    dispatch,
+    getCapabilitiesDataResponse,
+    setShowAll,
+    setSelectedCapability,
+    setIsEditing,
+    resetForm,
+    list,
+  });
 
-    if (!validateForm()) {
-      //notifyWarning("Please fill in all required fields.");
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const payload = {
-        ID: formData.CAPA_ID,
-        CAPA_ID: formData.CAPA_ID,
-        CAPA_CODE: formData.CAPA_CODE,
-        CAPA_DESC: formData.CAPA_DESC,
-      };
-
-      const response = await saveCapabilities(payload);
-
-      if (response?.status) {
-        notifySuccess(response?.message || "Capabilities saved successfully.");
-        resetForm();
-        dispatch(getCapabilitiesDataResponse());
-        setShowAll(true);
-      } else {
-        notifyError(response?.message || "Unable to save capabilities.");
-      }
-    } catch (error) {
-      console.error("Save error:", error);
-      notifyError("Something went wrong while saving capabilities.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSelectCapability = (value) => {
-    setSelectedCapability(value);
-
-    if (!value) {
-      resetForm();
-      return;
-    }
-
-    setShowAll(false);
-
-    const selected = list.find(
-      (item) => String(getDisplayValue(item, ["CAPA_CODE", "code", "CODE"], "")) === String(value),
-    );
-    if (selected) {
-      setIsEditing(true);
-      setFormData({
-        CAPA_ID: selected.CAPA_ID ?? selected.ID ?? selected.id ?? "",
-        CAPA_CODE: selected.CAPA_CODE || selected.code || "",
-        CAPA_DESC: selected.CAPA_DESC || selected.description || selected.DESCR || "",
-      });
-    }
-  };
-
-  const handleToggleView = () => {
+  const handleToggleView = useCallback(() => {
     if (showAll) {
-      // Currently on table view, about to switch into form view.
-      // Always open the form in Add/Create mode by default.
       resetForm();
       setShowAll(false);
     } else {
-      // Currently on form view, switch back to table view.
       setShowAll(true);
     }
-  };
+  }, [showAll, resetForm]);
 
-  const handleEdit = (row) => {
-    setSelectedCapability(String(row.CAPA_ID ?? row.ID ?? row.id));
-    setIsEditing(true);
-    setShowAll(false);
-    setFormData({
-      CAPA_ID: row.CAPA_ID ?? row.ID ?? row.id ?? "",
-      CAPA_CODE: row.CAPA_CODE || row.code || "",
-      CAPA_DESC: row.CAPA_DESC || row.description || row.DESCR || "",
-    });
-  };
-
-  const columns = [
-    { header: "#", body: (row, meta) => meta.rowIndex + 1 },
-    { header: "Skill", body: (row) => getDisplayValue(row, ["CAPA_CODE", "code", "CODE"], "") },
-    { header: "Description", body: (row) => getDisplayValue(row, ["CAPA_DESC", "description", "DESCR"], "") },
-    {
-      header: "Action",
-      body: (row) => (
-        <div className="d-flex gap-2">
-          <button className="btn btn-sm btn-outline-primary" onClick={() => handleEdit(row)}>
-            <i className="ti ti-edit" />
-          </button>
-        </div>
-      ),
-    },
-  ];
+  const columns = useMemo(
+    () => capabilitiesColumns({ handleEdit }),
+    [handleEdit],
+  );
 
   return (
     <>
@@ -279,8 +168,10 @@ const Capabilities = () => {
               </div>
 
               {!showAll ? (
-                <form onSubmit={handleSave}>
-                  {isEditing && <div className="alert alert-warning">You are editing the selected capability.</div>}
+                <>
+                  {isEditing && (
+                    <div className="alert alert-warning">You are editing the selected capability.</div>
+                  )}
                   <div className="row mb-3">
                     <div className="col-lg-4">
                       <label className="form-label">Capabilities Code</label>
@@ -323,34 +214,15 @@ const Capabilities = () => {
                     </div>
                   </div>
 
-                 
-                     {/* <button className="btn btn-secondary" type="button" onClick={resetForm}>
-                      Cancel
-                    </button>
-                    <button className="btn btn-primary me-2" type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? <span className="spinner-border spinner-border-sm me-2" /> : null}
-                      {isSubmitting ? "Processing..." : isEditing ? "Update" : "Save"}
-                    </button> */}
-                   
-                  
                   <div className="text-end mb-3">
-                    <button
-                      type="button"
-                      className="btn btn-secondary me-2"
-                      onClick={resetForm}
-                    >
+                    <button type="button" className="btn btn-secondary me-2" onClick={resetForm}>
                       Cancel
                     </button>
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={handleSave}
-                      disabled={isSubmitting}
-                    >
+                    <button type="button" className="btn btn-primary" onClick={handleSave} disabled={isSubmitting}>
                       {isSubmitting ? "Processing..." : isEditing ? "Update" : "Save"}
                     </button>
                   </div>
-                </form>
+                </>
               ) : (
                 <>
                   {filteredData.length === 0 ? (

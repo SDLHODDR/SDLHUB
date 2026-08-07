@@ -1,16 +1,15 @@
-import { request } from "../../../services/request";
+import { hrmsRequest } from "../../../services/request";
 import { HRMS_API } from "../config/hrmsApiConfig";
 
 export const getQuestions = async (params = {}) => {
-  return request({
+  return hrmsRequest({
     url: HRMS_API.MAINTAINANCE.QUESTION_GET,
     method: "GET",
-    params,
   });
 };
 
 export const saveQuestion = async (payload = {}) => {
-  return request({
+  return hrmsRequest({
     url: HRMS_API.MAINTAINANCE.QUESTION_SAVE,
     method: "POST",
     data: payload,
@@ -18,7 +17,7 @@ export const saveQuestion = async (payload = {}) => {
 };
 
 export const deleteQuestion = async (payload = {}) => {
-  return request({
+  return hrmsRequest({
     url: HRMS_API.MAINTAINANCE.QUESTION_DELETE,
     method: "POST",
     data: payload,
@@ -26,14 +25,14 @@ export const deleteQuestion = async (payload = {}) => {
 };
 
 export const getQuestionGroups = async () => {
-  return request({
+  return hrmsRequest({
     url: HRMS_API.MAINTAINANCE.QUESTION_GROUPS,
     method: "GET",
   });
 };
 
 export const getQuestionSubGroups = async (groupId) => {
-  return request({
+  return hrmsRequest({
     url: HRMS_API.MAINTAINANCE.QUESTION_SUBGROUPS,
     method: "GET",
     params: groupId ? { groupId } : undefined,
@@ -42,7 +41,7 @@ export const getQuestionSubGroups = async (groupId) => {
 
 // Fetch all question sub-groups (independent list)
 export const getAllQuestionSubGroups = async () => {
-  return request({
+  return hrmsRequest({
     url: HRMS_API.MAINTAINANCE.QUESTION_SUBGROUPS,
     method: "GET",
   });
