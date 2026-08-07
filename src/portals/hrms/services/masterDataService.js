@@ -1,17 +1,15 @@
-import { hrmsAPI } from "../../../services/api";
-import { request } from "../../../services/request";
+import { hrmsRequest } from "../../../services/request";
+import { HRMS_API } from "../config/hrmsApiConfig";
 
 export const getMasterTables = () =>
-  request({
-    api: hrmsAPI,
-    url: "/masterdata/master/getMasterTables.php",
+  hrmsRequest({
+    url: HRMS_API.MASTERDATA.GET_MASTER_TABLES,
     method: "GET",
   });
 
 export const getMasterData = (tabName) =>
-  request({
-    api: hrmsAPI,
-    url: "/masterdata/master/getMasterData.php",
+  hrmsRequest({
+    url: HRMS_API.MASTERDATA.GET_MASTER_DATA,
     method: "GET",
     params: {
       tab: tabName,
@@ -23,9 +21,8 @@ export const saveMasterData = async ({
   id = "",
   description,
 }) => {
-  return request({
-    api: hrmsAPI,
-    url: "/masterdata/master/saveMasterData.php",
+  return hrmsRequest({
+    url: HRMS_API.MASTERDATA.SAVE_MASTER_DATA,
     method: "POST",
     data: {
       tabName,
