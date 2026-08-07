@@ -182,6 +182,8 @@ const Department = () => {
         notifySuccess(response?.message || "Department saved successfully.");
         resetForm();
         // refresh list
+          await fetchDepartmentMasterData();   // <-- refresh from API
+
         void refreshDepartmentData();
         setShowAll(true);
       } else {
@@ -260,6 +262,7 @@ const Department = () => {
       }
 
       // refresh list
+      await fetchDepartmentMasterData();
       void refreshDepartmentData();
     } catch (err) {
       console.error(err);

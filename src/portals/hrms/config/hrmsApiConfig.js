@@ -13,9 +13,13 @@ export const HRMS_API = {
     QUESTION_DELETE: "/hrms/maintainance/question/deleteQuestion.php",
     QUESTION_GROUPS: "/hrms/maintainance/question/getQuestionGroups.php",
     QUESTION_SUBGROUPS: "/hrms/maintainance/question/getQuestionSubGroups.php",
-        DEPARTMENT: "/department/getDepartments.php",
-        
 
+    DEPARTMENT: "/department/getDepartments.php",
+
+    GET_PROFILES: "/maintainance/profilemaintenance/getProfiles.php",
+    GET_PROFILE_ACCESS: "/maintainance/profilemaintenance/getProfileAccess.php",
+    SAVE_PROFILE_ACCESS: "/maintainance/profilemaintenance/saveProfileAccess.php",
+      
   },
 
   DASHBOARD: {
@@ -27,12 +31,5 @@ export const HRMS_API = {
     GET_MASTER_TABLES: "/masterdata/master/getMasterTables.php",
     SAVE_MASTER_DATA: "/masterdata/master/saveMasterData.php",
   },
-
-  MAINTAINANCE: {
-    GET_PROFILES: "/maintainance/profilemaintenance/getProfiles.php",
-    GET_PROFILE_ACCESS: "/maintainance/profilemaintenance/getProfileAccess.php",
-    SAVE_PROFILE_ACCESS: "/maintainance/profilemaintenance/saveProfileAccess.php",
-  },
-
 
 };
