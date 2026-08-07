@@ -22,6 +22,9 @@ export const HRMS_API = {
     DEPTACTIVITY_FETCH: "/hrms/maintainance/deptactivities/getDeptActivitiesList.php",
     DEPTACTIVITY_SAVE: "/hrms/maintainance/deptactivities/saveDeptActivities.php",
     DEPTACTIVITY_DELETE: "/hrms/maintainance/deptactivities/deleteDeptActivities.php",
+    DEPARTMENT: "/department/getDepartments.php",
+        
+
   },
 
   DASHBOARD: {

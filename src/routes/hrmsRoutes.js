@@ -4,6 +4,7 @@ import QuestionMaster from "../portals/hrms/pages/maintainance/QuestionMaster";
 import Capabilities from "../portals/hrms/pages/maintainance/Capabilities";
 import MasterData from "../portals/hrms/pages/master-data/MasterData";
 import DepartmentActivity from "../portals/hrms/pages/maintainance/DepartmentActivity";
+import Department from "../portals/hrms/pages/maintainance/department";
 
 export const hrmsRoutes = [
   {path: "hrms/dashboard", element: HRMSDashboard,},
@@ -14,4 +15,6 @@ export const hrmsRoutes = [
   { path: "hrms/maintainance/capabilities", element: Capabilities },
   { path: "hrms/maintainance/department-activity", element: DepartmentActivity },
   
+    { path: "hrms/maintainance/department", element: Department },
+
 ];
