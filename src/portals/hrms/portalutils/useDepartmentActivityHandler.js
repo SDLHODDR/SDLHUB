@@ -86,7 +86,7 @@ export const useDepartmentActivityHandler = ({
     setShowAll(false);
     setForm({
       ID: activity.ID,
-      DEPT_ID: activity.DEPT_ID || "",
+      DEPT_ID: activity.DEPT_ID != null ? String(activity.DEPT_ID) : "",
       ACT_TYPE: activity.ACT_TYPE || "",
       DISP_SEQ: activity.DISP_SEQ ?? "",
       ACT_DESC: activity.ACT_DESC,
@@ -108,7 +108,7 @@ export const useDepartmentActivityHandler = ({
       setIsEditing(true);
       setForm({
         ID: activity.ID,
-        DEPT_ID: activity.DEPT_ID || "",
+        DEPT_ID: activity.DEPT_ID != null ? String(activity.DEPT_ID) : "",
         ACT_TYPE: activity.ACT_TYPE || "",
         DISP_SEQ: activity.DISP_SEQ ?? "",
         ACT_DESC: activity.ACT_DESC,

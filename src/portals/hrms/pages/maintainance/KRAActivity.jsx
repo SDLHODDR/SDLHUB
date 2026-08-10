@@ -196,10 +196,26 @@ const KRAActivity = () => {
                       <option key={item.ID} value={item.ID}>{item.ACTT_DESC}</option>
                     ))}
                   </select>
-                  <button
+                  {/* <button
                     type="button"
                     className="btn btn-outline-secondary d-flex align-items-center gap-2"
                     onClick={() => setShowAll((prev) => !prev)}
+                    style={{ minWidth: "120px" }}
+                  >
+                    <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
+                    {showAll ? "Form" : "Table"}
+                  </button> */}
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
+                    onClick={() => {
+                      if (isSubmitting) return; // don't reset while a save is in flight
+                      setShowAll((prev) => {
+                        const next = !prev;
+                        if (next) resetForm();
+                        return next;
+                      });
+                    }}
                     style={{ minWidth: "120px" }}
                   >
                     <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />

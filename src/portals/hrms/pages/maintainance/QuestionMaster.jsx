@@ -60,7 +60,7 @@ const QuestionMaster = () => {
           NAME: g.QSGRP_DESC ?? g.NAME ?? g.label ?? "",
         })),
       );
-
+      console.log("==========GROUPSRaw===========", groupsRaw);
       setSubgroups(
         subGroupsRaw.map((s) => ({
           ID: String(s.QSSGRP_ID ?? s.ID ?? s.id ?? ""),
@@ -76,25 +76,114 @@ const QuestionMaster = () => {
     loadLookups();
   }, [loadLookups]);
 
+  // FIX: now depends on `groups` as well — QGRP_ID is resolved by matching
+  // the question row's group description against the loaded groups list,
+  // since the Question Master API never returns a group ID directly.
   const listData = useMemo(() => {
     try {
-      return normalizeRecords(questionMasterData).map((item, index) => ({
-        ID: item.ID ?? item.id ?? index,
-        QGRP_ID: item.QGRP_ID ?? item.GROUP_ID ?? item.qgrp_id ?? "",
-        QSGRP_ID: item.QSGRP_ID ?? item.SUBGROUP_ID ?? item.qsgrp_id ?? "",
-        QUES_DESCR: getDisplayValue(item, ["QUES_DESCR", "QUESTION", "question", "ques_descr", "label"], "-"),
-        GROUP_NAME: getDisplayValue(item, ["QGRP_DESC", "GROUP_NAME", "group_name", "groupName", "NAME"], "-"),
-        QSGRP_DESC: getDisplayValue(item, ["QSGRP_DESC", "SUBGROUP_DESC", "subgroup_desc", "name", "label"], "-"),
-        ANSWER_TYPE: getDisplayValue(item, ["ANSWER_TYPE", "answer_type", "type", "rating"], "Text"),
-        NO_OF_OPTIONS: item.NO_OF_OPTIONS ?? item.noopts ?? item.no_of_options ?? "",
-        OPTIONS: item.OPTIONS ?? item.options ?? "",
-        RATING: getDisplayValue(item, ["RATING", "rating", "ANSWER_TYPE", "answer_type"], ""),
-      }));
+      return normalizeRecords(questionMasterData).map((item, index) => {
+        // OPTIONS comes back as a comma-separated string ("Excellent, Very Good, ...").
+        // Normalize to an array so buildOptionsFromRow / form .map() calls are always safe.
+        const rawOptions = item.OPTIONS ?? item.options ?? "";
+        const optionsArr =
+          typeof rawOptions === "string"
+            ? rawOptions.split(",").map((o) => o.trim()).filter(Boolean)
+            : Array.isArray(rawOptions)
+            ? rawOptions
+            : [];
+
+        // RATING comes back as "Radio Box" / "Checkbox" / null, not matching
+        // ANSWER_TYPES ["Text","Radio","Checkbox"] exactly — normalize via pattern match.
+        const ratingRaw = getDisplayValue(
+          item,
+          ["ANSWER_TYPE", "answer_type", "RATING", "rating", "type"],
+          "Text",
+        );
+        const answerType = /radio/i.test(ratingRaw)
+          ? "Radio"
+          : /check/i.test(ratingRaw)
+          ? "Checkbox"
+          : "Text";
+        console.log("==========ITEM===========", item);
+        return {
+          ID: item.ID ?? item.id ?? index,
+          // The Question Master API names the parent group ID `QSGRP_ID`
+          // (while the form uses `QGRP_ID`). Preserve the form's field name
+          // but read both API variants so the select can match its option value.
+          QGRP_ID: String(
+            item.QGRP_ID ?? item.GROUP_ID ?? item.QSGRP_ID ?? item.qgrp_id ?? "",
+          ),
+          QSGRP_ID: String(item.QSSGRP_ID ?? item.SUBGROUP_ID ?? item.qssgrp_id ?? ""),
+          QUES_DESCR: getDisplayValue(item, ["QUES_DESCR", "QUESTION", "question", "ques_descr", "label"], "-"),
+          GROUP_NAME: getDisplayValue(item, ["QSGRP_DESC", "GROUP_NAME", "group_name", "groupName"], "-"),
+          QSGRP_DESC: getDisplayValue(item, ["QSSGRP_DESC", "SUBGROUP_DESC", "subgroup_desc", "name"], "-"),
+          ANSWER_TYPE: answerType,
+          NO_OF_OPTIONS: String(optionsArr.length || ""),
+          OPTIONS: optionsArr,
+          RATING: ratingRaw,
+        };
+      });
     } catch (error) {
       console.error(error);
       return [];
     }
   }, [questionMasterData]);
+  // const listData = useMemo(() => {
+  //   try {
+  //     return normalizeRecords(questionMasterData).map((item, index) => {
+  //       // API only returns a group *description* (QSGRP_DESC on the question
+  //       // row), never an ID. Resolve QGRP_ID by matching that description
+  //       // against the `groups` lookup list loaded from getQuestionGroups().
+  //       const groupDesc = getDisplayValue(
+  //         item,
+  //         ["QGRP_DESC", "GROUP_NAME", "group_name", "groupName", "QSGRP_DESC"],
+  //         "-",
+  //       );
+  //       const matchedGroup = groups.find((g) => g.NAME === groupDesc);
+
+  //       // FIX: OPTIONS comes back as a comma-separated string ("test1, test2"),
+  //       // not an array. Normalize to an array here so buildOptionsFromRow /
+  //       // the form's .map() calls downstream are always safe.
+  //       const rawOptions = item.OPTIONS ?? item.options ?? "";
+  //       const optionsArr =
+  //         typeof rawOptions === "string"
+  //           ? rawOptions.split(",").map((o) => o.trim()).filter(Boolean)
+  //           : Array.isArray(rawOptions)
+  //           ? rawOptions
+  //           : [];
+
+  //       // FIX: RATING comes back as "Radio Box" / "Checkbox" / null, which
+  //       // doesn't exactly match ANSWER_TYPES ["Text","Radio","Checkbox"].
+  //       // Normalize via pattern match instead of relying on exact string match.
+  //       const ratingRaw = getDisplayValue(
+  //         item,
+  //         ["ANSWER_TYPE", "answer_type", "RATING", "rating", "type"],
+  //         "Text",
+  //       );
+  //       const answerType = /radio/i.test(ratingRaw)
+  //         ? "Radio"
+  //         : /check/i.test(ratingRaw)
+  //         ? "Checkbox"
+  //         : "Text";
+
+  //       return {
+  //         ID: item.ID ?? item.id ?? index,
+  //         QGRP_ID: matchedGroup?.ID ?? "",
+  //         QSGRP_ID: item.QSGRP_ID ?? item.SUBGROUP_ID ?? item.qsgrp_id ?? "",
+  //         QUES_DESCR: getDisplayValue(item, ["QUES_DESCR", "QUESTION", "question", "ques_descr", "label"], "-"),
+  //         GROUP_NAME: groupDesc,
+  //         QSGRP_DESC: getDisplayValue(item, ["SUBGROUP_DESC", "subgroup_desc", "name", "label"], "-"),
+  //         ANSWER_TYPE: answerType,
+  //         NO_OF_OPTIONS: String(optionsArr.length || ""),
+  //         OPTIONS: optionsArr,
+  //         RATING: ratingRaw,
+  //       };
+  //     });
+  //   } catch (error) {
+  //     console.error(error);
+  //     return [];
+  //   }
+  // }, [questionMasterData, groups]);
 
   const resetForm = useCallback(() => {
     setIsEditing(false);

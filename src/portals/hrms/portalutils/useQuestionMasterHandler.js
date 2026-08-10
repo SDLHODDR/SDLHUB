@@ -101,6 +101,7 @@ export const useQuestionMasterHandler = ({
   }, [form, validateForm, setLoading, dispatch, getQuestionMasterDataResponse, setShowAll, resetForm]);
 
   const handleEdit = useCallback((row) => {
+    console.log("==========EDIT ROW===========", row);
     setSelectedQuestion(row.ID);
     setIsEditing(true);
     setShowAll(false);

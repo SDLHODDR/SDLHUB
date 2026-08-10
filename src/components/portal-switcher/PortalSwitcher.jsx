@@ -63,10 +63,8 @@ const PortalSwitcher = () => {
       };
 
       loadHRMSPortalConfigs();
-      return;
     }
     
-
     navigate(portal.path);
   };
 

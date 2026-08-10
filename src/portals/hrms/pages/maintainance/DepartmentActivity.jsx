@@ -189,7 +189,15 @@ const DepartmentActivity = () => {
                   <button
                     type="button"
                     className="btn btn-outline-secondary d-flex align-items-center gap-2"
-                    onClick={() => setShowAll((prev) => !prev)}
+                    onClick={() => {
+                      setShowAll((prev) => {
+                        const next = !prev;
+                        if (next) {
+                          resetForm();
+                        }
+                        return next;
+                      });
+                    }}
                     style={{ minWidth: "120px" }}
                   >
                     <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
