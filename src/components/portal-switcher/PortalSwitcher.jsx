@@ -1,8 +1,15 @@
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   PORTALS,
   getPortalFromPath,
 } from "../../config/portalConfig";
+
+import {
+  notifyError,
+} from "../../services/alertService";
+
+import { getHRMSConfigs } from "../../portals/hrms/services/orgonogramService";
 
 const PortalSwitcher = () => {
 
@@ -10,6 +17,7 @@ const PortalSwitcher = () => {
   const location = useLocation();
 
   const activePortal = getPortalFromPath(location.pathname);
+  const [loadingHRMSCnf, setLoadingHRMSCnf] = useState(false);
 
   const handleSwitch = (portalKey) => {
 
@@ -22,6 +30,42 @@ const PortalSwitcher = () => {
     if (portal.key === activePortal.key) {
       return;
     }
+
+    if(portal.key == "hrms"){
+      console.log("portalKey", portal.key);
+      console.log("activePortalKey", activePortal.key);
+
+      const loadHRMSPortalConfigs = async () => {
+        try {
+          setLoadingHRMSCnf(true);
+
+          const res = await getHRMSConfigs();
+          if (res?.status) {
+            const { COMP_ID_STR, DEPT_ID_STR, DIVISION_ID_STR } = res.data;
+
+            const stringifyObj = JSON.stringify({
+              COMP_ID: COMP_ID_STR,
+              DEPT_ID: DEPT_ID_STR,
+              DIVISION_ID: DIVISION_ID_STR,
+            });
+
+            console.log("=======RES==========", stringifyObj);
+
+            // Store auth data
+            localStorage.setItem("user-hrms-config", stringifyObj);
+          }
+        } catch (error) {
+          console.error("Load HRMS configs error:", error);
+          notifyError(error?.message || "Unable to load HRMS Configs.");
+        } finally {
+          setLoadingHRMSCnf(false);
+        }
+      };
+
+      loadHRMSPortalConfigs();
+      return;
+    }
+    
 
     navigate(portal.path);
   };

@@ -39,5 +39,8 @@ export const HRMS_API = {
     GET_MASTER_DATA: "/masterdata/master/getMasterData.php",
     GET_MASTER_TABLES: "/masterdata/master/getMasterTables.php",
     SAVE_MASTER_DATA: "/masterdata/master/saveMasterData.php",
+
+    GET_ORGANOGRAM_DATA: "/masterdata/orgonogram/getOrgonogramData.php",
+    GET_HRMS_CONFIGS: "/masterdata/orgonogram/getHRMSConfigData.php",
   },
 };

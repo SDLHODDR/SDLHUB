@@ -137,6 +137,22 @@ const KRAActivity = () => {
     [handleEditActivity, handleDeleteActivity, deletingId],
   );
 
+   if (!kraActivityData || !listKRAMasterData) {
+    return (
+      <div className="d-flex align-items-center justify-content-center vh-100">
+        <div className="text-center">
+          <div
+            className="spinner-border text-primary mb-3"
+            role="status"
+          />
+          <div className="fw-semibold">
+            Loading kractivity...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="page-header">

@@ -7,10 +7,12 @@ import DepartmentActivity from "../portals/hrms/pages/maintainance/DepartmentAct
 import Department from "../portals/hrms/pages/maintainance/department";
 import ProfileMaintenance from "../portals/hrms/pages/maintainance/ProfileMaintenance";
 import PolicyList from "../portals/hrms/pages/maintainance/PolicyList";
+import Organogram from "../portals/hrms/pages/master-data/Organogram";
 
 export const hrmsRoutes = [
   { path: "hrms/dashboard", element: HRMSDashboard,},
   { path: "hrms/masterdata/mastermaster", element: MasterData, },
+  { path: "hrms/masterdata/organogram", element: Organogram, },
 
   { path: "hrms/maintainance/profilemaintenance", element: ProfileMaintenance, },
   { path: "hrms/maintainance/kra-activity", element: KRAActivity },

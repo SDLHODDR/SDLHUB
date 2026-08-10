@@ -14,7 +14,7 @@ import { normalizeRecords, getDisplayValue } from "../../../../utils/formatUtils
 import { departmentActivityColumns } from "../../portalutils/departmentActivityColumns";
 import { useDepartmentActivityHandler } from "../../portalutils/useDepartmentActivityHandler";
 
-const ACT_TYPES = ["Join", "Exit"];
+const ACT_TYPES = { J: "Join", E: "Exit" };
 
 const DepartmentActivity = () => {
   const dispatch = useDispatch();
@@ -236,11 +236,12 @@ const DepartmentActivity = () => {
                           onChange={(e) => handleFieldChange("ACT_TYPE", e.target.value)}
                         >
                           <option value="">Select Type</option>
-                          {ACT_TYPES.map((t) => (
-                            <option key={t} value={t}>
-                              {t}
+                          {Object.entries(ACT_TYPES).map(([code, label]) => (
+                            <option key={code} value={code}>
+                              {label}
                             </option>
                           ))}
+                          
                         </select>
                         {errors.ACT_TYPE && <div className="invalid-feedback">{errors.ACT_TYPE}</div>}
                       </div>
