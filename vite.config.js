@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost/projects/sdlhub-backend",
+        target: "http://localhost/sdlhub-backend",
         changeOrigin: true,
       },
     },
