@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { getActivePolicies } from "../../services/policyService";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 import { POLICY_MESSAGES } from "../../constants/policies-documentsConstants";
 
@@ -12,6 +13,10 @@ const Policies = () => {
 
   const [loading, setLoading] = useState(true);
   const [pdfLoading, setPdfLoading] = useState(false);
+
+  // Get current portal dynamically
+  const portal = getPortalFromPath(window.location.pathname);
+  const portalHome = `/${portal.key}/dashboard`;
 
   /* ================= FETCH POLICIES ================= */
 
@@ -69,7 +74,7 @@ const Policies = () => {
 
         <BreadcrumbNav
           items={[
-            { text: "Home", link: "/eportal/dashboard" },
+            { text: "Home", link: portalHome },
             { text: "Policies" },
           ]}
         />

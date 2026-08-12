@@ -1,5 +1,5 @@
 import axios from "axios";
-import { coreAPI, secureAPI, eportalAPI, eppAPI } from "./api";
+import { coreAPI, secureAPI, eportalAPI, hrmsAPI, eppAPI } from "./api";
 import { API_MESSAGES } from "./apiMessages";
 
 /* ============================
@@ -14,6 +14,9 @@ export const secureRequest = (config) =>
 
 export const eportalRequest = (config) =>
   request({ ...config, api: eportalAPI });
+
+export const hrmsRequest = (config) =>
+  request({ ...config, api: hrmsAPI });
 
 export const eppRequest = (config) =>
   request({ ...config, api: eppAPI });

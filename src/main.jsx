@@ -21,16 +21,21 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import "../node_modules/sweetalert2/dist/sweetalert2.min.css";
 import "./assets/css/sweetalert.css";
+import "./assets/css/portal.css";
 
 import RouteLoader from "./components/loader/RouteLoader";
+import { Provider } from "react-redux";
+import { store } from "./store/store.js";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
     <StrictMode>
         <BrowserRouter>
-            <AuthProvider>
-                <RouteLoader />
-                <App />
-            </AuthProvider>
+            <Provider store={store}>
+                <AuthProvider>
+                    <RouteLoader />
+                    <App />
+                </AuthProvider>
+            </Provider>
         </BrowserRouter>
     </StrictMode>,
 );

@@ -17,6 +17,7 @@ export const PORTALAPI = {
 
   GATEPASS: {
     GPData: "/gatepass/gp_info_sv.php", // GP Info Data
+    GPSVData: "/gatepass/gp_sv.php", // GP Info Data
     SAVEGPData: "/gatepass/gp_save.php", // GP Info Data
     SAVEGPDataAuth: "/gatepass/gp_save.php", // GP Info Data
     EDITGPData: "/gatepass/gp_save.php", // GP Info Data
@@ -41,7 +42,8 @@ export const PORTALAPI = {
     SENDAUTHTBData: "/ticketbooking/tb_auth.php",
     AUTHTBData: "/ticketbooking/tb_svauth.php",
     REJECTTBData: "/ticketbooking/tb_svauth.php",
-    CLOSETBData: "/ticketbooking/tb_save.php"
+    CLOSETBData: "/ticketbooking/tb_save.php",
+    RESENDAUTHTBData: "/ticketbooking/tb_auth.php",
   },
 
   AUTHORIZATION: {

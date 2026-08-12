@@ -1,0 +1,853 @@
+/* ==========================================================
+   HRMS PROFILE MAINTENANCE
+========================================================== */
+
+.hrms-profile-maintenance{
+    width:100%;
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:6px;
+    margin-bottom:20px;
+}
+
+.hrms-profile-maintenance .card-body{
+    padding:18px 20px;
+}
+
+
+/* ==========================================================
+   DROPDOWN
+========================================================== */
+
+.hrms-profile-maintenance .p-dropdown{
+    width:100%;
+    min-height:40px;
+    border:1px solid #dfe3e8;
+    border-radius:5px;
+    box-shadow:none;
+}
+
+.hrms-profile-maintenance .p-dropdown:hover{
+    border-color:#ff963f;
+}
+
+.hrms-profile-maintenance .p-dropdown.p-focus{
+    border-color:#ff963f;
+    box-shadow:0 0 0 2px rgba(255,150,63,.08);
+}
+
+.hrms-profile-maintenance .p-dropdown-label{
+    padding:9px 12px;
+    font-size:13px;
+}
+
+.hrms-profile-maintenance .p-dropdown-trigger{
+    width:38px;
+}
+
+
+/* ==========================================================
+   PROFILE SELECTION
+========================================================== */
+
+.profile-selection-row {
+  width: 100%;
+}
+
+.profile-selection-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-dropdown {
+  width: 360px !important;
+}
+
+.profile-reset-btn {
+  white-space: nowrap;
+}
+
+
+/* ==========================================================
+   DROPDOWN PANEL
+========================================================== */
+
+.hrms-profile-maintenance .p-dropdown-panel{
+    border:1px solid #e5e7eb;
+    border-radius:5px;
+}
+
+.hrms-profile-maintenance .p-dropdown-item{
+    padding:8px 12px;
+    font-size:13px;
+}
+
+.hrms-profile-maintenance .p-dropdown-item:hover{
+    background:#fff7f0;
+}
+
+.hrms-profile-maintenance .p-dropdown-item.p-highlight{
+    background:#fff2e8;
+    color:#ff963f;
+}
+
+
+/* ==========================================================
+   TABS
+========================================================== */
+
+.profile-tabs-wrapper{
+    margin-top:5px;
+}
+
+.hrms-profile-tabs{
+    border-bottom:1px solid #e5e7eb;
+}
+
+.hrms-profile-tabs .nav-link{
+    border:none;
+    border-bottom:2px solid transparent;
+    color:#667085;
+    font-size:13px;
+    font-weight:500;
+    padding:10px 16px;
+    transition:.2s;
+}
+
+.hrms-profile-tabs .nav-link:hover{
+    color:#ff963f;
+    background:#fff;
+    font-weight:500;
+    border-bottom-color:#ff963f !important;
+
+}
+
+.hrms-profile-tabs .nav-link.active{
+    color:#ff963f;
+    font-weight:600;
+    background:#fff;
+    border-bottom-color:#ff963f !important;
+    border-width: 0 0 2px 0;
+}
+
+
+/* ==========================================================
+   TAB CONTENT
+========================================================== */
+
+.profile-tab-content{
+    padding-top:18px;
+    min-height:320px;
+}
+
+
+/* ==========================================================
+   MENU TOOLBAR
+========================================================== */
+
+.profile-menu-toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:15px;
+    margin-bottom:18px;
+}
+
+.profile-menu-search{
+    width:420px;
+    max-width:100%;
+}
+
+.profile-menu-search .form-control{
+    height:40px;
+    border-radius:5px;
+    border:1px solid #dfe3e8;
+    font-size:13px;
+    box-shadow:none;
+}
+
+.profile-menu-search .form-control:focus{
+    border-color:#ff963f;
+    box-shadow:0 0 0 2px rgba(255,150,63,.08);
+}
+
+.profile-menu-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.profile-menu-actions .btn{
+    height:30px;
+    min-width:95px;
+    font-size:12px;
+}
+
+/* ==========================================================
+   MENU ROW
+========================================================== */
+
+.profile-menu-row{
+    border:1px solid #e5e7eb;
+    border-radius:5px;
+    margin-bottom:10px;
+    overflow:hidden;
+    background:#fff;
+}
+
+.profile-menu-parent{
+    background:#f8fafc;
+    min-height:40px;
+    display:flex;
+    align-items:center;
+}
+
+.profile-menu-parent-left{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    width:100%;
+    padding:8px 12px;
+}
+
+
+/* ==========================================================
+   COMMON CHECKBOX
+========================================================== */
+
+.hrms-profile-maintenance input[type="checkbox"]{
+
+    appearance:none;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+
+    width:18px;
+    height:18px;
+    margin:0;
+    flex-shrink:0;
+
+    border:2px solid #ff9800;
+    border-radius:4px;
+
+    background:#fff;
+    cursor:pointer;
+    position:relative;
+
+    transition:.2s;
+}
+
+.hrms-profile-maintenance input[type="checkbox"]:hover{
+    border-color:#ff9800;
+}
+
+.hrms-profile-maintenance input[type="checkbox"]:checked{
+    background:#ff9800;
+    border-color:#ff9800;
+}
+
+.hrms-profile-maintenance input[type="checkbox"]:checked::after{
+
+    content:"✓";
+
+    position:absolute;
+    left:50%;
+    top:50%;
+
+    transform:translate(-50%,-56%);
+
+    color:#fff;
+    font-size:12px;
+    font-weight:700;
+}
+
+
+/* ==========================================================
+   MENU EXPAND ICON
+========================================================== */
+
+.profile-menu-expand{
+    width:22px;
+    height:22px;
+    border:none;
+    background:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#173b5e;
+    cursor:pointer;
+}
+
+.profile-menu-expand:hover{
+    color:#ff963f;
+}
+
+
+/* ==========================================================
+   MENU LABEL
+========================================================== */
+
+.profile-menu-label{
+    color:#092C4C;
+    font-size:13px;
+    font-weight:700;
+}
+
+
+/* ==========================================================
+   SUBMENU GRID
+========================================================== */
+
+.profile-submenu-container{
+
+    display:grid;
+    grid-template-columns:repeat(5,minmax(160px,1fr));
+
+    gap:12px 18px;
+
+    padding:14px;
+
+    border-top:1px solid #e5e7eb;
+
+    background:#fff;
+}
+
+
+/* ==========================================================
+   SUBMENU ITEM
+========================================================== */
+
+.profile-submenu-item{
+
+    display:inline-flex;
+    align-items:center;
+
+    gap:8px;
+
+    margin:0;
+
+    cursor:pointer;
+
+    color:#5d6679;
+
+    font-size:13px;
+
+    line-height:18px;
+}
+
+.profile-submenu-item span{
+
+    display:inline;
+
+    margin:0;
+
+    word-break:break-word;
+}
+
+.profile-submenu-item:hover{
+
+    color:#ff963f;
+}
+
+/* ==========================================================
+   GENERIC ACCESS SECTION
+========================================================== */
+
+.profile-access-section{
+    border:1px solid #e5e7eb;
+    border-radius:5px;
+    background:#fff;
+    overflow:hidden;
+}
+
+
+/* ==========================================================
+   ACCESS TOOLBAR
+========================================================== */
+
+.profile-access-toolbar{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    gap:15px;
+
+    padding:10px 14px;
+
+    background:#f8fafc;
+
+    border-bottom:1px solid #e5e7eb;
+}
+
+.profile-access-title{
+    display:flex;
+    align-items:center;
+}
+
+
+/* ==========================================================
+   PARENT CHECKBOX
+========================================================== */
+
+.profile-parent-checkbox{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin:0;
+
+    cursor:pointer;
+
+    color:#173b5e;
+
+    font-size:13px;
+
+    font-weight:600;
+}
+
+.profile-parent-checkbox span{
+
+    display:inline;
+
+    margin:0;
+
+    white-space:nowrap;
+}
+
+
+/* ==========================================================
+   ACCESS ACTION BUTTONS
+========================================================== */
+
+.profile-access-actions{
+
+    display:flex;
+
+    gap:8px;
+
+    flex-wrap:wrap;
+}
+
+.profile-access-actions .btn{
+
+    min-width:95px;
+
+    height:30px;
+
+    font-size:12px;
+}
+
+
+/* ==========================================================
+   ACCESS GRID
+========================================================== */
+
+.profile-access-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(5,minmax(160px,1fr));
+
+    gap:14px 20px;
+
+    padding:16px;
+}
+
+
+/* ==========================================================
+   ACCESS ITEM
+========================================================== */
+
+.profile-access-item{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin:0;
+
+    cursor:pointer;
+
+    color:#5d6679;
+
+    font-size:13px;
+
+    line-height:18px;
+}
+
+.profile-access-item span{
+
+    display:inline;
+
+    margin:0;
+
+    word-break:break-word;
+}
+
+.profile-access-item:hover{
+
+    color:#ff963f;
+}
+
+
+/* ==========================================================
+   BUTTONS
+========================================================== */
+
+.hrms-profile-maintenance .btn-primary{
+
+    background:#ff963f;
+
+    border-color:#ff963f;
+
+    border-radius:5px;
+
+    font-size:13px;
+
+    font-weight:500;
+
+    box-shadow:0 4px 12px rgba(255,150,63,.15);
+}
+
+.hrms-profile-maintenance .btn-primary:hover{
+
+    background:#f48529;
+
+    border-color:#f48529;
+}
+
+.hrms-profile-maintenance .btn-outline-primary{
+
+    color:#173b5e;
+
+    border-color:#173b5e;
+
+    border-radius:5px;
+
+    font-size:13px;
+}
+
+.hrms-profile-maintenance .btn-outline-primary:hover{
+
+    background:#173b5e;
+
+    color:#fff;
+}
+
+.hrms-profile-maintenance .btn-outline-success,
+.hrms-profile-maintenance .btn-outline-danger,
+.hrms-profile-maintenance .btn-outline-warning{
+
+    font-size:12px;
+
+    border-radius:5px;
+}
+
+
+/* ==========================================================
+   SAVE BUTTON AREA
+========================================================== */
+
+.hrms-profile-maintenance>.card-body>.text-center.mt-4{
+
+    padding-top:15px;
+
+    border-top:1px solid #ececec;
+}
+
+
+/* ==========================================================
+   LOADING
+========================================================== */
+
+.profile-tab-content .spinner-border{
+
+    width:1.8rem;
+
+    height:1.8rem;
+}
+
+
+/* ==========================================================
+   DISABLED
+========================================================== */
+
+.hrms-profile-maintenance button:disabled{
+
+    opacity:.65;
+
+    cursor:not-allowed;
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width:1199px){
+
+.profile-submenu-container{
+
+grid-template-columns:repeat(3,minmax(160px,1fr));
+
+}
+
+.profile-access-grid{
+
+grid-template-columns:repeat(3,minmax(160px,1fr));
+
+}
+
+}
+
+
+@media (max-width:991px){
+
+.hrms-profile-maintenance .card-body{
+
+padding:14px;
+
+}
+
+.profile-menu-toolbar{
+
+flex-direction:column;
+
+align-items:stretch;
+
+}
+
+.profile-menu-search{
+
+width:100%;
+
+}
+
+.profile-menu-actions{
+
+justify-content:flex-start;
+
+}
+
+.profile-access-toolbar{
+
+flex-direction:column;
+
+align-items:flex-start;
+
+}
+
+.profile-access-actions{
+
+justify-content:flex-start;
+
+}
+
+.profile-submenu-container{
+
+grid-template-columns:repeat(2,minmax(160px,1fr));
+
+}
+
+.profile-access-grid{
+
+grid-template-columns:repeat(2,minmax(160px,1fr));
+
+}
+
+}
+
+
+@media (max-width:575px){
+
+.hrms-profile-maintenance .card-body{
+
+padding:10px;
+
+}
+
+.hrms-profile-tabs{
+
+flex-wrap:nowrap;
+
+overflow-x:auto;
+
+}
+
+.hrms-profile-tabs .nav-link{
+
+flex-shrink:0;
+
+font-size:12px;
+
+padding:9px 12px;
+
+}
+
+.profile-menu-actions,
+
+.profile-access-actions{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+width:100%;
+
+}
+
+.profile-menu-actions .btn,
+
+.profile-access-actions .btn{
+
+width:100%;
+
+}
+
+.profile-submenu-container{
+
+grid-template-columns:1fr;
+
+padding:10px;
+
+}
+
+.profile-access-grid{
+
+grid-template-columns:1fr;
+
+padding:12px;
+
+}
+
+.profile-menu-parent-left{
+
+padding:8px;
+
+}
+
+.profile-menu-label{
+
+font-size:12px;
+
+}
+
+}
+
+
+/* ==========================================================
+   COLORS
+========================================================== */
+
+.hrms-profile-maintenance a{
+
+color:inherit;
+
+text-decoration:none;
+
+}
+
+.profile-menu-label{
+
+color:#092C4C;
+
+}
+
+.profile-submenu-item{
+
+color:#5d6679;
+
+}
+
+.profile-access-item{
+
+color:#5d6679;
+
+}
+
+.profile-parent-checkbox{
+
+color:#173b5e;
+
+}
+
+/* ==========================================
+   FIX CHECKBOX LABEL ALIGNMENT
+========================================== */
+
+.hrms-profile-maintenance .profile-submenu-item,
+.hrms-profile-maintenance .profile-access-item,
+.hrms-profile-maintenance .profile-parent-checkbox {
+
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+
+    gap:8px !important;
+
+    width:auto !important;
+}
+
+.hrms-profile-maintenance .profile-submenu-item span,
+.hrms-profile-maintenance .profile-access-item span,
+.hrms-profile-maintenance .profile-parent-checkbox span {
+
+    display:inline-block !important;
+
+    width:auto !important;
+
+    flex:none !important;
+
+    margin:0 !important;
+
+    padding:0 !important;
+
+    white-space:nowrap !important;
+}
+
+.hrms-profile-maintenance .profile-submenu-item input[type="checkbox"],
+.hrms-profile-maintenance .profile-access-item input[type="checkbox"],
+.hrms-profile-maintenance .profile-parent-checkbox input[type="checkbox"]{
+
+    margin:0 !important;
+
+    flex:0 0 18px !important;
+}
+
+/* ==========================================================
+   SAVE BUTTON LOADING STATE
+========================================================== */
+
+.save-button-loading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  line-height: 1;
+}
+
+.save-spinner {
+  width: 14px !important;
+  height: 14px !important;
+  border-width: 2px !important;
+  flex: 0 0 14px;
+}
+
+.profile-menu-actions .btn-outline-primary {
+    color: #173b5e;
+    border-color: #173b5e;
+    border-radius: 5px;
+}
+
+.profile-menu-actions .btn-outline-primary:hover {
+    background: #173b5e;
+    border-color: #173b5e;
+    color: #fff;
+}

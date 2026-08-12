@@ -1,0 +1,267 @@
+import { useState, useEffect } from "react";
+import { getGpAttdData, authGPData, rejectGPData } from "../services/outdoorDutyService";
+import { notifyError, notifySuccess } from "../../../services/alertService";
+
+const OutdoorDutyAuthorizationModal = ({
+  outddorduty,
+  isOpen,
+  onClose,
+  onSuccess,
+}) => {
+  const OUT_TYPE_LABELS = {
+    OI: "In/Out same day",
+    OD: "Out for full day",
+    FO: "First Half Out",
+    SO: "Second Half Out",
+    FW: "Field Work",
+    TO: "Tour",
+    "": "-",
+  };
+
+  //const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [gpAttdData, setGPAttdData] = useState({});
+
+  const getByteLength = (str) => new TextEncoder().encode(str || "").length;
+  
+  console.log("===========outdoorDuty=============", outddorduty);
+
+  const [formData, setFormData] = useState(() => ({
+    ID: outddorduty.TRAN_CODE,
+    TASK_ID: outddorduty.ID,
+    TRAN_CODE: outddorduty.TRAN_CODE,
+    OUT_TYPE: outddorduty.OUT_TYPE,
+    empName: outddorduty.REQUEST_FOR,
+    empCode: outddorduty.DETAILS.EMP_CODE,
+    TabId: outddorduty.TASK_ID,
+    REMARKS: outddorduty.REMARKS,
+    GPASS_DATE: outddorduty.GPASS_DATE,
+  }));
+
+  const fetchGPAttdData = async (frmDt) => {
+    console.log("++++++++++++=======FormData=======++++++++", frmDt);
+    try {
+        setLoading(true);
+        const response = await getGpAttdData({
+            emp_code: frmDt?.DETAILS?.EMP_CODE || null,
+            gpass_date: frmDt.GPASS_DATE || null,
+            out_type: frmDt.OUT_TYPE || null,
+            getGpAttddata: true,
+        });
+        if (response.status) {
+            // Expecting FORM API response (not list)
+
+            setGPAttdData(response.data || {});
+        } else {
+          notifyError(response?.message || `Unable to fetch Emp Attendance.`);
+        }
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+  };
+
+  // ===========================
+  // Fetch Attendance Data
+  // ===========================
+  useEffect(() => {
+    console.log("++++++++++++=======outddorduty useeffect=======++++++++", outddorduty);
+      fetchGPAttdData(outddorduty);
+  }, [outddorduty]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let newValue = value;
+
+    if (["REMARKS", "POST_REMARKS", "AUTH_REMARKS"].includes(name)) {
+      const encoder = new TextEncoder();
+      let bytes = encoder.encode(newValue);
+
+      if (bytes.length > 200) {
+        newValue = newValue.slice(0, 200); // simple cut
+      }
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: newValue,
+    }));
+  };
+
+  const handleReject = async () => {
+    try {
+      const latestData = formData;
+
+      //console.log("---------Reject request -------", latestData);
+      const response = await rejectGPData({
+        ...latestData,
+        authForm: true,
+        flag: "R",
+      });
+
+      if (!response?.status) {
+        notifyError("Error Occurred");
+        return; // keep modal open so user can retry
+      }
+
+      onClose?.();
+      notifySuccess("Request rejected successfully");
+      onSuccess?.(); // only refetch on actual success
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleAuthorize = async () => {
+    try {
+      const latestData = formData;
+      //console.log("---------Authorize request -------", latestData);
+      const response = await authGPData({
+        ...latestData,
+        authForm: true,
+        flag: "A",
+      });
+
+      if (!response?.status) {
+        notifyError("Error Occurred!");
+        return;
+      }
+      onClose?.();
+      notifySuccess("Request authorized successfully");
+      onSuccess?.(); // only refetch on actual success
+    } catch (err) {
+      console.error(err);
+      notifyError("Something went wrong");
+    }
+  };
+
+  console.log("==============gpAttdData=============", gpAttdData);
+  return (
+    <>
+      <div
+        className={`modal fade ${isOpen ? "show d-block" : ""}`}
+        tabIndex="-1"
+        aria-hidden={!isOpen}
+        role="dialog"
+        style={{
+          backgroundColor: "rgba(0,0,0,0.5)",
+        }}
+      >
+        <div className="modal-dialog modal-dialog-centered modal-lg">
+          <div className="modal-content">
+            {/* Header */}
+            <div className="modal-header">
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "10px" }}
+              >
+                <h4 className="modal-title">
+                  <div>
+                    OutDoor Duty Request for &nbsp;
+                    <span className="fw-semibold">
+                      {formData.empName ?? ""}
+                    </span>
+                    <span
+                      className="text-muted ms-2"
+                      style={{ fontSize: "14px" }}
+                    >
+                      ({formData.GPASS_DATE || ""})
+                    </span>
+                  </div>
+                </h4>
+              </div>
+              <button
+                type="button"
+                className="btn-close custom-btn-close p-0"
+                onClick={onClose}
+                aria-label="Close"
+              >
+                <i className="ti ti-x" />
+              </button>
+            </div>
+
+            <form>
+              {/* Body */}
+              <div className="modal-body">
+                {/* {loading && (
+                  <div className="p-4 text-center">
+                    <div className="spinner-border text-warning"></div>
+                  </div>
+                )} */}
+                <div className="row">
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="fw-semibold">Out Type :</label>
+                      <span className="ms-2">
+                        {" "}
+                        {OUT_TYPE_LABELS[formData.OUT_TYPE || ""]}{" "}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="form-label fw-semibold">
+                        Remarks :
+                      </label>
+                      <span className="ms-2">{formData.REMARKS || ""}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-12">
+                    <div className="form-group mb-3">
+                      <label className="form-label">Auth Remarks:</label>
+                      <textarea
+                        className="form-control"
+                        name="AUTH_REMARKS"
+                        value={formData.AUTH_REMARKS || ""}
+                        onChange={handleChange}
+                      />
+                      <div className="char-counter">
+                        {getByteLength(formData.AUTH_REMARKS || "")} / 200
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {
+                  gpAttdData && (
+                    <div className="row">
+                      <div className="col-12">
+                        <div className="form-group mb-3">
+                          <label className="form-label">{gpAttdData.keyRt}:</label>
+                          <span className="ms-2">{gpAttdData.valRt || ""}</span>
+                        </div>
+                      </div>
+                    </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="modal-footer">
+                <div className="d-flex gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleAuthorize}
+                  >
+                    Authorize
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={handleReject}
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {/* /Add Outdoor Duty */}
+    </>
+  );
+};
+
+export default OutdoorDutyAuthorizationModal;

@@ -7,85 +7,181 @@ import { getConferenceRooms } from "../../services/conferenceService";
 import ConferenceBookingModal from "../../modal/ConferenceBookingModal";
 import ConferenceYearlyBookings from "../../modal/ConferenceYearlyBookings";
 import ConferenceScheduler from "./ConferenceScheduler";
+
 import { OverlayTrigger } from "react-bootstrap";
 import { renderConferenceTooltip } from "../../utils/tooltipHelper";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
+import Badge from "../Badge";
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const ConferenceRoom = () => {
+  /* =========================================================
+     DATA
+  ========================================================= */
+
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
+	// Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
+
+  /* =========================================================
+     SEARCH
+  ========================================================= */
+
   const [searchQuery, setSearchQuery] = useState("");
 
+  /* =========================================================
+     SERVER-SIDE PAGINATION
+  ========================================================= */
+
   const [rows, setRows] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+
+  /* =========================================================
+     MODALS / VIEWS
+  ========================================================= */
+
   const [showScheduler, setShowScheduler] = useState(false);
 
-  /* ================= Form modal constants ================= */
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showModal, setShowModal] = useState(false);
+
   const [showAllBookings, setShowAllBookings] = useState(false);
+
+  /* =========================================================
+     OPEN BOOKING MODAL
+  ========================================================= */
 
   const openModal = (row = null) => {
     if (row) {
-      setSelectedBooking(row); // null = add new booking
+      setSelectedBooking(row);
     } else {
       setSelectedBooking({});
     }
+
     setShowModal(true);
   };
+
+  /* =========================================================
+     CLOSE BOOKING MODAL
+  ========================================================= */
 
   const closeModal = () => {
     setSelectedBooking(null);
     setShowModal(false);
   };
 
-  /* ================= FETCH DATA ================= */
+  /* =========================================================
+     FETCH DATA
+     SERVER-SIDE PAGINATION
+  ========================================================= */
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (page = 1, limit = 10) => {
     setLoading(true);
 
     try {
-      const res = await getConferenceRooms();
+      const res = await getConferenceRooms({
+        page,
+        limit,
+      });
 
       if (res?.status) {
-        const bookings = res?.data?.data || [];
+        const responseData = res?.data || {};
 
-        setBookings(Array.isArray(bookings) ? bookings : []);
+        const fetchedBookings = responseData?.data || [];
+
+        setBookings(
+          Array.isArray(fetchedBookings)
+            ? fetchedBookings
+            : []
+        );
+
+        setTotalRecords(
+          Number(responseData?.totalRecords || 0)
+        );
+
+        setCurrentPage(
+          Number(responseData?.page || page)
+        );
       } else {
         setBookings([]);
+        setTotalRecords(0);
       }
     } catch (err) {
       console.error("Conference rooms load failed:", err);
 
       setBookings([]);
+      setTotalRecords(0);
     } finally {
       setLoading(false);
     }
   }, []);
 
+  /* =========================================================
+     INITIAL LOAD
+  ========================================================= */
+
   useEffect(() => {
-    fetchData();
+    fetchData(1, 10);
   }, [fetchData]);
 
-  /* ================= DATE FORMATTER ================= 
+  /* =========================================================
+     REFRESH TABLE
 
-  const formatToInputDate = (dateStr) => {
-    if (!dateStr) return "";
+     Call this after adding/updating/deleting booking.
+  ========================================================= */
 
-    // If already yyyy-mm-dd, return directly
-    if (dateStr.includes("-") && dateStr.split("-")[0].length === 4) {
-      return dateStr;
+  const refreshTable = useCallback(() => {
+    setCurrentPage(1);
+    fetchData(1, rows);
+  }, [fetchData, rows]);
+
+  /* =========================================================
+     PAGINATION HANDLER
+  ========================================================= */
+
+  const handlePageChange = (event) => {
+    const newPage = Math.floor(event.first / event.rows) + 1;
+
+    const newRows = event.rows;
+
+    setRows(newRows);
+    setCurrentPage(newPage);
+
+    fetchData(newPage, newRows);
+  };
+
+  /* =========================================================
+     SEARCH
+
+     NOTE:
+     This currently searches only the records loaded
+     on the current server page.
+
+     For complete search across all 75 records,
+     search should later be moved to PHP/API.
+  ========================================================= */
+
+  const filteredData = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return bookings;
     }
 
-    const date = new Date(dateStr);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
+    const query = searchQuery.toLowerCase().trim();
 
-    return `${year}-${month}-${day}`;
-  };*/
+    return bookings.filter(
+      (item) =>
+        item.ROOM_LABEL?.toLowerCase().includes(query) ||
+        item.DT?.toLowerCase().includes(query)
+    );
+  }, [searchQuery, bookings]);
 
-  /* ================= DURATION FORMATTER ================= */
+  /* =========================================================
+     DURATION FORMATTER
+  ========================================================= */
 
   const calculateDuration = (start, end) => {
     if (!start || !end) return "-";
@@ -98,7 +194,7 @@ const ConferenceRoom = () => {
 
     let diff = endMinutes - startMinutes;
 
-    // Handle overnight case (if ever needed)
+    // Handle overnight booking
     if (diff < 0) {
       diff += 24 * 60;
     }
@@ -106,71 +202,103 @@ const ConferenceRoom = () => {
     const hours = Math.floor(diff / 60);
     const minutes = diff % 60;
 
-    if (hours === 0) return `${minutes} min`;
-    if (minutes === 0) return `${hours} hr`;
+    if (hours === 0) {
+      return `${minutes} min`;
+    }
+
+    if (minutes === 0) {
+      return `${hours} hr`;
+    }
+
     return `${hours} hr ${minutes} min`;
   };
 
-  /* ================= SEARCH ================= */
-  const filteredData = useMemo(() => {
-    if (!searchQuery) return bookings;
+  /* =========================================================
+     STATUS BADGE
+  ========================================================= */
 
-    return bookings.filter(
-      (item) =>
-        item.ROOM_LABEL?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.DT?.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-  }, [searchQuery, bookings]);
-
-  // useEffect(() => {
-  //   setTotalRecords(filteredData.length);
-  //   setCurrentPage(1);
-  // }, [filteredData]);
-
-  /* ================= STATUS BADGE ================= */
   const getStatusBadge = (status) => {
     switch (status) {
       case "A":
-        return <span className="badge bg-success">Confirmed</span>;
+        return <Badge text="Confirmed" className="bg-success" />;
       case "R":
-        return <span className="badge bg-danger">Rejected</span>;
+        return <Badge text="Rejected" className="bg-danger" />;
       case "D":
-        return <span className="badge bg-danger">Booking Deleted</span>;
+        return <Badge text="Booking Deleted" className="bg-danger" />;
       case "N":
-        return <span className="badge bg-warning text-dark">Planned</span>;
+        return <Badge text="Planned" className="bg-warning" />;
       case "X":
-        return <span className="badge bg-secondary">Booking Cancelled</span>;
+        return <Badge text="Booking Cancelled" className="bg-secondary" />;
       case "T":
-        return <span className="badge bg-info">Confirmation Pending</span>;
+        return <Badge text="Confirmation Pending" className="bg-blue" />;
       default:
-        return <span className="badge bg-light text-dark">{status}</span>;
+        return <Badge text={status} className="bg-light text-dark" />;
     }
   };
 
-  const serialBody = (rowData, options) => options.rowIndex + 1;
+  /* =========================================================
+     SERIAL NUMBER
+
+     Important:
+     options.rowIndex starts from 0 for each page.
+
+     So we add the page offset here.
+  ========================================================= */
+
+  const serialBody = (rowData, options) => {
+    return (currentPage - 1) * rows + options.rowIndex + 1;
+  };
+
+  /* =========================================================
+     DURATION COLUMN
+  ========================================================= */
 
   const durationBody = (row) => (
     <OverlayTrigger
       placement="right"
       overlay={renderConferenceTooltip(row)}
-      delay={{ show: 200, hide: 100 }}
+      delay={{
+        show: 200,
+        hide: 100,
+      }}
       container={document.body}
     >
-      <span>{calculateDuration(row.STARTTIME, row.ENDTIME)}</span>
+      <span>
+        {calculateDuration(
+          row.STARTTIME,
+          row.ENDTIME
+        )}
+      </span>
     </OverlayTrigger>
   );
+
+  /* =========================================================
+     REASON COLUMN
+  ========================================================= */
 
   const reasonBody = (row) => {
     const text = row.REMARKS || "-";
 
     return (
       <span title={text}>
-        {text.length > 25 ? text.substring(0, 25) + "..." : text}
+        {text.length > 25
+          ? `${text.substring(0, 25)}...`
+          : text}
       </span>
     );
   };
 
-  const statusBody = (row) => getStatusBadge(row.STATUS);
+  /* =========================================================
+     STATUS COLUMN
+  ========================================================= */
+
+  const statusBody = (row) => {
+    return getStatusBadge(row.STATUS);
+  };
+
+  /* =========================================================
+     ACTION COLUMN
+  ========================================================= */
 
   const actionBody = (row) => (
     <button
@@ -183,8 +311,16 @@ const ConferenceRoom = () => {
     </button>
   );
 
+  /* =========================================================
+     RENDER
+  ========================================================= */
+
   return (
     <>
+      {/* =====================================================
+          PAGE HEADER
+      ===================================================== */}
+
       <div className="page-header">
         <div className="add-item d-flex">
           <div className="page-title">
@@ -194,16 +330,30 @@ const ConferenceRoom = () => {
 
         <BreadcrumbNav
           items={[
-            { text: "Home", link: "/eportal/dashboard" },
-            { text: "Conference Room" },
+            {
+              text: "Home",
+              link: portalHome,
+            },
+            {
+              text: "Conference Room",
+            },
           ]}
         />
       </div>
+
+      {/* =====================================================
+          ACTION BUTTONS
+      ===================================================== */}
+
       <div className="row">
         <div className="card">
           <div className="card-body">
             <div className="d-flex justify-content-end gap-2">
+
+              {/* ADD BOOKING */}
+
               <button
+                type="button"
                 className="btn btn-primary d-flex align-items-center gap-2"
                 onClick={() => openModal(null)}
               >
@@ -211,35 +361,63 @@ const ConferenceRoom = () => {
                 Add Booking
               </button>
 
+              {/* TIMELINE VIEW */}
+
               <button
+                type="button"
                 className="btn btn-info d-flex align-items-center gap-2"
-                onClick={() => setShowScheduler(!showScheduler)}
+                onClick={() =>
+                  setShowScheduler((prev) => !prev)
+                }
               >
                 <i className="fas fa-calendar-alt"></i>
                 Timeline View
               </button>
 
+              {/* VIEW ALL */}
+
               <button
+                type="button"
                 className="btn btn-outline-secondary d-flex align-items-center gap-2"
                 onClick={() => setShowAllBookings(true)}
               >
                 <i className="fas fa-table"></i>
                 View All
               </button>
+
             </div>
           </div>
         </div>
       </div>
 
-      {showScheduler && <ConferenceScheduler bookings={bookings} />}
+      {/* =====================================================
+          TIMELINE
+      ===================================================== */}
+
+      {showScheduler && (
+        <ConferenceScheduler
+          bookings={bookings}
+        />
+      )}
+
+      {/* =====================================================
+          TABLE
+      ===================================================== */}
+
       <div className="row">
         <div className="card">
           <div className="card-body">
-            {/* SEARCH */}
+
+            {/* =================================================
+                SEARCH
+            ================================================= */}
+
             <div className="row mb-3">
               <div className="col-lg-4 col-md-6">
+
                 <div className="search-set">
                   <div className="search-input position-relative">
+
                     <span className="btn-searchset">
                       <i className="ti ti-search"></i>
                     </span>
@@ -249,13 +427,21 @@ const ConferenceRoom = () => {
                       className="form-control"
                       placeholder="Search Room / Date..."
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onChange={(e) =>
+                        setSearchQuery(e.target.value)
+                      }
                     />
+
                   </div>
                 </div>
+
               </div>
             </div>
-            {/* TABLE */}
+
+            {/* =================================================
+                LOADING
+            ================================================= */}
+
             {loading ? (
               <div className="p-4 text-center">
                 <div className="spinner-border text-warning"></div>
@@ -265,71 +451,159 @@ const ConferenceRoom = () => {
                 No bookings found
               </div>
             ) : (
+
+              /* =================================================
+                 PRIME REACT DATATABLE
+              ================================================= */
+
               <DataTable
                 value={filteredData}
                 loading={loading}
-                paginator={filteredData.length > 10}
+
+                /* SERVER-SIDE PAGINATION */
+                paginator
+                lazy
+                first={(currentPage - 1) * rows}
                 rows={rows}
-                rowsPerPageOptions={[10, 25, 50, 100]}
-                onPage={(e) => setRows(e.rows)}
+                totalRecords={totalRecords}
+
+                rowsPerPageOptions={[
+                  10,
+                  25,
+                  50,
+                  100,
+                ]}
+
+                onPage={handlePageChange}
+
+                /* TABLE OPTIONS */
                 stripedRows
                 showGridlines
                 removableSort
+
                 responsiveLayout="scroll"
                 scrollable
+
                 paginatorDropdownAppendTo="self"
+
                 emptyMessage="No bookings found"
+
                 className="p-datatable-sm"
+
                 dataKey="ID"
               >
+
+                {/* SERIAL NUMBER */}
+
                 <Column
                   header="#"
                   body={serialBody}
-                  style={{ width: "70px" }}
+                  style={{
+                    width: "70px",
+                  }}
                 />
 
-                <Column field="ROOM_LABEL" header="Room" sortable />
+                {/* ROOM */}
 
-                <Column field="DT" header="Date" sortable />
+                <Column
+                  field="ROOM_LABEL"
+                  header="Room"
+                  sortable
+                />
 
-                <Column header="Duration" body={durationBody} />
+                {/* DATE */}
 
-                <Column field="BOOK_BY_NAME" header="Booked By" sortable />
+                <Column
+                  field="DT"
+                  header="Date"
+                  sortable
+                />
 
-                <Column field="CHG_ON" header="Requested On" sortable />
+                {/* DURATION */}
 
-                <Column header="Reason" body={reasonBody} />
+                <Column
+                  header="Duration"
+                  body={durationBody}
+                />
 
-                <Column header="Status" body={statusBody} />
+                {/* BOOKED BY */}
+
+                <Column
+                  field="BOOK_BY_NAME"
+                  header="Booked By"
+                  sortable
+                />
+
+                {/* REQUESTED ON */}
+
+                <Column
+                  field="CHG_ON"
+                  header="Requested On"
+                  sortable
+                />
+
+                {/* REASON */}
+
+                <Column
+                  header="Reason"
+                  body={reasonBody}
+                />
+
+                {/* STATUS */}
+
+                <Column
+                  header="Status"
+                  body={statusBody}
+                />
+
+                {/* ACTION */}
 
                 <Column
                   header="Action"
                   body={actionBody}
-                  style={{ width: "90px" }}
+                  style={{
+                    width: "90px",
+                  }}
+
                 />
+
               </DataTable>
             )}
           </div>
         </div>
       </div>
-      {/* modal form */}
+
+      {/* =====================================================
+          BOOKING MODAL
+      ===================================================== */}
+
       {showModal && (
         <ConferenceBookingModal
           booking={selectedBooking}
-          mode={selectedBooking?.ID ? "view" : "add"}
+          mode={
+            selectedBooking?.ID
+              ? "view"
+              : "add"
+          }
           onClose={closeModal}
-          refreshTable={fetchData}
+          refreshTable={refreshTable}
         />
-        //mode={selectedBooking ? "view" : "add"}
       )}
+
+      {/* =====================================================
+          YEARLY BOOKINGS MODAL
+      ===================================================== */}
 
       {showAllBookings && (
         <ConferenceYearlyBookings
           bookings={bookings}
-          onClose={() => setShowAllBookings(false)}
+          onClose={() =>
+            setShowAllBookings(false)
+          }
         />
       )}
     </>
   );
 };
+
 export default ConferenceRoom;

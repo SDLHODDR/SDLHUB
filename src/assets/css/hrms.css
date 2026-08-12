@@ -1,0 +1,624 @@
+/* ============================================================
+   HRMS PORTAL
+   ============================================================ */
+
+body.hrms-layout {
+    background: #f5f6f8;
+}
+
+/* ============================================================
+   HRMS PORTAL MENU
+   Same divider / separation as EPORTAL
+   ============================================================ */
+
+body.hrms-layout .hrms-horizontal-menu {
+    position: relative;
+    width: 100%;
+    min-height: 48px;
+    background: #ffffff;
+    border-top: 1px solid #eeeeee;
+    border-bottom: 1px solid #eeeeee;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    z-index: 100;
+}
+
+/* ============================================================
+   MENU CONTAINER
+   ============================================================ */
+
+body.hrms-layout .hrms-horizontal-menu #sidebar-menu-3 {
+    width: 100%;
+}
+
+/* ============================================================
+   MAIN MENU
+   ============================================================ */
+
+body.hrms-layout .hrms-horizontal-menu .nav-menu {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 48px;
+    margin: 0;
+    padding: 0 15px;
+    list-style: none;
+}
+
+/* ============================================================
+   MAIN MENU ITEM
+   ============================================================ */
+
+body.hrms-layout .hrms-horizontal-menu .nav-menu>li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    margin: 0;
+}
+
+/* ============================================================
+   MENU LINK
+   ============================================================ */
+
+body.hrms-layout .hrms-horizontal-menu .hrms-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 48px;
+    padding: 0 16px;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #374151;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        color 0.2s ease,
+        background-color 0.2s ease;
+}
+
+/* ============================================================
+   ICON
+   ============================================================ */
+
+body.hrms-layout .hrms-menu-icon {
+    font-size: 14px;
+    width: 16px;
+    color: #374151;
+}
+
+/* ============================================================
+   ARROW
+   ============================================================ */
+
+body.hrms-layout .hrms-menu-arrow {
+    display: flex;
+    align-items: center;
+    margin-left: 2px;
+    font-size: 12px;
+    transition: transform 0.2s ease;
+}
+
+/* ============================================================
+   ARROW OPEN
+   ============================================================ */
+
+body.hrms-layout .hrms-menu-arrow.open {
+    transform: rotate(180deg);
+}
+
+/* ============================================================
+   HOVER
+   ============================================================ */
+
+body.hrms-layout .hrms-horizontal-menu .nav-menu>li:hover>.hrms-menu-link {
+    color: #ff8c32;
+    background: #fffaf6;
+}
+
+body.hrms-layout .hrms-horizontal-menu .nav-menu>li:hover .hrms-menu-icon {
+    color: #ff8c32;
+}
+
+/* ============================================================
+   ACTIVE MENU
+   ============================================================ */
+
+body.hrms-layout .hrms-horizontal-menu .hrms-menu-link.active {
+    color: #ff8c32;
+    font-weight: 600;
+}
+
+/* ============================================================
+   SUBMENU
+   ============================================================ */
+
+body.hrms-layout .hrms-horizontal-menu .hrms-submenu {
+    position: absolute;
+    top: 48px;
+    left: 0;
+    min-width: 220px;
+    max-width: 320px;
+    margin: 0;
+    padding: 5px 0;
+    list-style: none;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0 0 5px 5px;
+    box-shadow:
+        0 5px 18px rgba(0, 0, 0, 0.12);
+    display: none;
+    z-index: 1000;
+}
+
+/* ============================================================
+   DESKTOP SHOW SUBMENU
+   ============================================================ */
+
+body.hrms-layout .hrms-horizontal-menu .nav-menu>li:hover>.hrms-submenu {
+    display: block;
+}
+
+/* ============================================================
+   SUBMENU ITEM
+   ============================================================ */
+
+body.hrms-layout .hrms-horizontal-menu .hrms-submenu li {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* ============================================================
+   SUBMENU LINK
+   ============================================================ */
+
+body.hrms-layout .hrms-horizontal-menu .hrms-submenu li a {
+    display: block;
+    width: 100%;
+    padding: 9px 15px;
+    color: #374151;
+    background: #ffffff;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+/* ============================================================
+   SUBMENU HOVER
+   ============================================================ */
+
+body.hrms-layout .hrms-horizontal-menu .hrms-submenu li a:hover {
+    color: #ff8c32;
+    background: #fff8f2;
+}
+
+/* ============================================================
+   ACTIVE SUBMENU
+   ============================================================ */
+
+body.hrms-layout .hrms-horizontal-menu .hrms-submenu li.active a,
+body.hrms-layout .hrms-horizontal-menu .hrms-submenu li a.active {
+    color: #ff8c32;
+    background: #fff8f2;
+    font-weight: 600;
+}
+
+/* ============================================================
+   MOBILE SIDEBAR
+   ============================================================ */
+
+body.hrms-layout .hrms-mobile-sidebar {
+    z-index: 1050;
+}
+
+/* ============================================================
+   MOBILE SIDEBAR MENU
+   ============================================================ */
+
+@media (max-width: 991px) {
+    body.hrms-layout .hrms-horizontal-menu {
+        display: none !important;
+    }
+
+    body.hrms-layout .hrms-mobile-sidebar {
+        display: block !important;
+        width: 280px;
+        z-index: 1050;
+    }
+
+    body.hrms-layout .hrms-mobile-sidebar .hrms-menu-link {
+        width: 100%;
+        min-height: 44px;
+        padding: 0 15px;
+        justify-content: flex-start;
+        color: #374151;
+        background: transparent;
+        text-align: left;
+    }
+
+    body.hrms-layout .hrms-mobile-sidebar .hrms-menu-link:hover {
+        color: #ff8c32;
+        background: #fff8f2;
+    }
+
+    body.hrms-layout .hrms-mobile-sidebar .hrms-menu-link.active {
+        color: #ff8c32;
+        background: #fff8f2;
+    }
+
+    /* Important:
+       Disable desktop absolute dropdown behaviour
+    */
+
+    body.hrms-layout .hrms-mobile-sidebar .hrms-submenu {
+
+        position: static !important;
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        margin: 0;
+        padding: 0 0 5px 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background: #ffffff;
+    }
+
+    /* Disable hover opening on mobile */
+
+    body.hrms-layout .hrms-mobile-sidebar .submenu:hover>.hrms-submenu {
+        display: none;
+    }
+
+    body.hrms-layout .hrms-mobile-sidebar .submenu.submenu-open>.hrms-submenu {
+        display: block;
+    }
+
+    body.hrms-layout .hrms-mobile-sidebar .hrms-submenu li a {
+        padding: 9px 15px 9px 42px;
+        color: #4b5563;
+        background: #ffffff;
+        font-size: 13px;
+    }
+
+    body.hrms-layout .hrms-mobile-sidebar .hrms-submenu li a:hover,
+    body.hrms-layout .hrms-mobile-sidebar .hrms-submenu li.active a {
+        color: #ff8c32;
+        background: #fff8f2;
+    }
+
+}
+
+/* ============================================================
+   HEADER - PORTAL SWITCHER
+   ============================================================ */
+
+.header-top {
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    background: #ffffff;
+    border-bottom: 1px solid #eeeeee;
+    position: relative;
+    z-index: 1100;
+}
+
+/* ============================================================
+   HEADER LOGO
+   ============================================================ */
+
+.header-logo {
+    display: flex;
+    align-items: center;
+}
+
+.header-main-logo {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* ============================================================
+   HEADER RIGHT
+   ============================================================ */
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+/* ============================================================
+   PORTAL SWITCHER
+   ============================================================ */
+
+.portal-switcher {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.portal-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    border: 0;
+    background: transparent;
+    color: #1f2937;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.portal-item:hover {
+    color: #ff8c32;
+}
+
+.portal-item.active {
+    color: #ff8c32;
+    font-weight: 600;
+}
+
+.portal-icon {
+    font-size: 14px;
+}
+
+/* ============================================================
+   WELCOME
+   ============================================================ */
+
+.header-welcome {
+    font-size: 13px;
+    white-space: nowrap;
+    color: #ff8c32;
+}
+
+.header-welcome strong {
+    margin-left: 4px;
+    color: #1f2937;
+}
+
+/* ============================================================
+   NOTIFICATION
+   ============================================================ */
+
+.header-notification {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+}
+
+.notification-count {
+    position: absolute;
+    top: -2px;
+    right: -5px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: red;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+/* ============================================================
+   PROFILE
+   ============================================================ */
+
+.header-profile img {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* ============================================================
+   MOBILE HEADER BUTTON
+   ============================================================ */
+
+.mobile-menu-toggle {
+    display: none;
+    border: 0;
+    background: transparent;
+    color: #ff8c32;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+/* ============================================================
+   MOBILE HEADER
+   ============================================================ */
+
+@media (max-width: 991px) {
+
+    .header-top {
+        min-height: 64px;
+        padding: 0 14px;
+        gap: 10px;
+    }
+
+    .header-logo {
+        order: 2;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .header-main-logo {
+
+        height: 45px;
+    }
+
+    .mobile-menu-toggle {
+        display: block;
+        order: 1;
+    }
+
+    .header-right {
+        order: 3;
+        gap: 8px;
+    }
+
+    /* -----------------------------------------
+       KEEP PORTALS AVAILABLE ON MOBILE
+    ----------------------------------------- */
+
+    .portal-switcher {
+        position: absolute;
+        top: 64px;
+        left: 0;
+        right: 0;
+        display: none;
+        padding: 8px;
+        background: #ffffff;
+        border-top: 1px solid #eeeeee;
+        border-bottom: 1px solid #e5e7eb;
+        box-shadow:
+            0 4px 10px rgba(0, 0, 0, 0.08);
+        z-index: 1200;
+    }
+
+    /* show portal switcher when header is opened */
+
+    html.portal-switcher-open .portal-switcher {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .portal-item {
+        padding: 7px 8px;
+        font-size: 12px;
+    }
+
+    .header-welcome {
+        display: none;
+    }
+
+    .header-notification {
+        display: flex;
+        width: 28px;
+        height: 28px;
+    }
+
+    .header-profile {
+        display: none;
+    }
+}
+
+/* ============================================================
+   VERY SMALL DEVICES
+   ============================================================ */
+
+@media (max-width: 480px) {
+    .header-top {
+        padding: 0 10px;
+    }
+
+    .header-main-logo {
+        height: 40px;
+    }
+
+    .portal-item span {
+        display: inline;
+    }
+}
+
+/* ============================================================
+   HRMS - FIX SUBMENU BULLET / DOT ALIGNMENT
+   ============================================================ */
+
+/* Remove bullets from all HRMS submenu lists */
+body.hrms-layout .hrms-horizontal-menu .hrms-submenu,
+body.hrms-layout .hrms-mobile-sidebar .hrms-submenu {
+    list-style: none !important;
+    list-style-type: none !important;
+    margin: 0 !important;
+}
+
+/* Remove theme-generated bullets / markers */
+body.hrms-layout .hrms-submenu li::before,
+body.hrms-layout .hrms-submenu li::after,
+body.hrms-submenu li::before,
+body.hrms-submenu li::after {
+    content: none !important;
+    display: none !important;
+}
+
+/* Remove default list marker */
+body.hrms-layout .hrms-submenu li {
+    list-style: none !important;
+    list-style-type: none !important;
+}
+
+/* ============================================================
+   SUBMENU LINKS
+   ============================================================ */
+
+body.hrms-layout .hrms-horizontal-menu .hrms-submenu li a,
+body.hrms-layout .hrms-mobile-sidebar .hrms-submenu li a {
+
+    position: relative;
+    display: flex !important;
+    align-items: center;
+    width: 100%;
+    padding: 9px 15px !important;
+    margin: 0 !important;
+    color: #374151;
+    background: #ffffff;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+/* ============================================================
+   MOBILE SUBMENU
+   ============================================================ */
+
+@media (max-width: 991px) {
+
+    body.hrms-layout .hrms-mobile-sidebar .hrms-submenu li a {
+        padding: 9px 15px 9px 42px !important;
+        margin: 0 !important;
+        color: #374151;
+        background: #ffffff;
+        text-indent: 0 !important;
+    }
+
+    /* Absolutely remove any theme marker */
+    body.hrms-layout .hrms-mobile-sidebar .hrms-submenu li::before,
+    body.hrms-layout .hrms-mobile-sidebar .hrms-submenu li::after {
+
+        content: none !important;
+        display: none !important;
+    }
+
+    /* Remove marker from nested ul */
+    body.hrms-layout .hrms-mobile-sidebar .hrms-submenu ul {
+
+        list-style: none !important;
+        list-style-type: none !important;
+    }
+}

@@ -7,6 +7,9 @@ import SDLSearch from "../../../../components/datatable/SDLSearch";
 import { getErrorLogs } from "../../services/logService";
 import { notifyError } from "../../../../services/alertService";
 import "../../assets/css/viewLog.css";
+import Badge from "../Badge";
+
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const ViewLog = () => {
   /* ==========================================
@@ -29,6 +32,11 @@ const ViewLog = () => {
   const [logDate, setLogDate] = useState("");
 
   const [selectedLog, setSelectedLog] = useState(null);
+
+	// Get current portal dynamically
+	const portal = getPortalFromPath(location.pathname);
+	const portalHome = `/${portal.key}/dashboard`;
+
 
   /* ==========================================
         INITIAL LOAD
@@ -129,9 +137,10 @@ const ViewLog = () => {
     ========================================== */
 
   const errorBadge = (rowData) => (
-    <span className={`badge rounded-pill ${getBadgeClass(rowData.errorCode)}`}>
-      {rowData.errorCode || "-"}
-    </span>
+    <Badge
+      text={rowData.errorCode || "-"}
+      className={getBadgeClass(rowData.errorCode)}
+    />
   );
 
   /* ==========================================
@@ -226,7 +235,7 @@ const ViewLog = () => {
           items={[
             {
               text: "Home",
-              link: "/eportal/dashboard",
+              link: portalHome,
             },
             {
               text: "Application Logs",
@@ -332,9 +341,10 @@ const ViewLog = () => {
 
               <button
                 type="button"
-                className="btn-close"
+                aria-label="Close"
+                className="close"
                 data-bs-dismiss="modal"
-              ></button>
+              ><span aria-hidden="true">×</span></button>
             </div>
 
             <div className="modal-body">
@@ -357,13 +367,10 @@ const ViewLog = () => {
                       <label className="fw-semibold">Error Code</label>
 
                       <div className="detail-box">
-                        <span
-                          className={`badge rounded-pill ${getBadgeClass(
-                            selectedLog.errorCode,
-                          )}`}
-                        >
-                          {selectedLog.errorCode}
-                        </span>
+                        <Badge
+                          text={selectedLog.errorCode}
+                          className={getBadgeClass(selectedLog.errorCode)}
+                        />
                       </div>
                     </div>
 

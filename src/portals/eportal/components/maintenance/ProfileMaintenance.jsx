@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { Dropdown } from "primereact/dropdown";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -29,6 +30,8 @@ import {
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 
 import { PROFILE_MAINTENANCE_MESSAGES } from "../../constants/profileMaintenanceConstants";
+
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const ProfileMaintenance = () => {
   const hasFetchedProfiles = useRef(false);
@@ -62,6 +65,11 @@ const ProfileMaintenance = () => {
 
   const [profileUsers, setProfileUsers] = useState([]);
   const [userLoading, setUserLoading] = useState(false);
+
+  // Get current portal dynamically
+  const location = useLocation();
+  const portal = getPortalFromPath(location.pathname);
+  const portalHome = `/${portal.key}/dashboard`;
 
   const allExpanded =
     menus.length > 0 && menus.every((menu) => expandedMenus[menu.ID]);
@@ -174,7 +182,7 @@ const ProfileMaintenance = () => {
 
         try {
             const data = await getProfiles();
-           
+
             const options = data.map((p) => ({
                 value: p.PROFILE_ID,
                 label: p.PROFILE_DESC
@@ -383,7 +391,7 @@ const ProfileMaintenance = () => {
     } catch {
       notifyError(PROFILE_MAINTENANCE_MESSAGES.MENU_SAVE_ERROR);
 
-      /*    
+      /*
       notifyError(
           err?.response?.data?.message ||
           err?.message ||
@@ -504,8 +512,10 @@ const ProfileMaintenance = () => {
   const handleMenuSearch = (value) => {
     setMenuSearch(value);
 
-    if (!value) return;
-
+    if (!value) {
+      setExpandedMenus({});
+      return;
+  }
     const expanded = {};
 
     menus.forEach((menu) => {
@@ -592,7 +602,23 @@ const ProfileMaintenance = () => {
 
   const resetProfileData = () => {
     setProfileId(null);
-  };
+
+    setMenus([]);
+    setTasks([]);
+    setDashboards([]);
+
+    setMenuAccess({});
+    setSubmenuAccess({});
+    setTaskAccess([]);
+    setDashAccess([]);
+
+    setProfileUsers([]);
+
+    setMenuSearch("");
+    setTaskSearch("");
+    setDashSearch("");
+    setUserSearch("");
+};
 
   return (
     <>
@@ -605,7 +631,7 @@ const ProfileMaintenance = () => {
 
         <BreadcrumbNav
           items={[
-            { text: "Home", link: "/eportal/dashboard" },
+            { text: "Home", link: portalHome },
             { text: "Profile Maintenance" },
           ]}
         />

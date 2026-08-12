@@ -1,0 +1,11 @@
+.leave-info-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+}
+
+.leave-info-row label {
+  font-weight: 600;
+  margin-right: 4px;
+}

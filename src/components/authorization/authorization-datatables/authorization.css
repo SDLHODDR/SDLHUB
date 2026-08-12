@@ -1,0 +1,6 @@
+.request-date {
+  display: inline-block;
+  min-width: 120px;      /* keeps all dates same width */
+  text-align: justify;     /* aligns vertically */
+  font-family: monospace; /* fixes uneven spacing */
+}

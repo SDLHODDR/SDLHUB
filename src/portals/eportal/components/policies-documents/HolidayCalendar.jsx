@@ -6,6 +6,7 @@ import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const HolidayCalendar = () => {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -15,6 +16,10 @@ const HolidayCalendar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [holidayRules, setHolidayRules] = useState([]);
   const [rulesLoading, setRulesLoading] = useState(true);
+
+  // Get current portal dynamically
+  const portal = getPortalFromPath(window.location.pathname);
+  const portalHome = `/${portal.key}/dashboard`;
 
   /* ================= FETCH DATA ================= */
 
@@ -142,7 +147,7 @@ const HolidayCalendar = () => {
 
         <BreadcrumbNav
         items={[
-            { text: "Home", link: "/eportal/dashboard" },
+            { text: "Home", link: portalHome },
             { text: "Holiday Calendar" },
         ]}
         />

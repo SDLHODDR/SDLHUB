@@ -41,7 +41,8 @@ const Login = () => {
       const { user, csrf_token } = response.data || {}; //redirect
 
       if (csrf_token) {
-        sessionStorage.setItem("csrf_token", csrf_token);
+        //sessionStorage.setItem("csrf_token", csrf_token);
+        localStorage.setItem("csrf_token", csrf_token);
       }
 
       const normalizedUser = normalizeUser(user);
