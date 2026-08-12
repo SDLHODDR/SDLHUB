@@ -42,5 +42,16 @@ export const HRMS_API = {
 
     GET_ORGANOGRAM_DATA: "/masterdata/orgonogram/getOrgonogramData.php",
     GET_HRMS_CONFIGS: "/masterdata/orgonogram/getHRMSConfigData.php",
+
+    GET_FIN_ENTITY: "/masterdata/orgonogram/getHRMSFinEntityData.php",
+    GET_DESIGNATION: "/masterdata/orgonogram/getHRMSDesignationData.php",
+    GET_COMPANY: "/masterdata/orgonogram/getHRMSCompanyData.php",
+    GET_DEPARTMENT: "/masterdata/orgonogram/getHRMSDepartmentData.php",
+    GET_JD_LABEL: "/masterdata/orgonogram/getHRMSJDLabelData.php",
+    GET_DIVISION: "/masterdata/orgonogram/getHRMSDivisionData.php",
+    GET_EMPLOYEE_LEVEL: "/masterdata/orgonogram/getHRMSEmployeeLevelData.php",
+    GET_ORGANOGRAM_LEVEL: "/masterdata/orgonogram/getHRMSOrgonogramLevelData.php",
+    GET_ORGANOGRAM_DETAILS: "/masterdata/orgonogram/getHRMSOrgonogramDetailsData.php",
+    SAVE_ORGANOGRAM: "/masterdata/orgonogram/saveOrganogramData.php",
   },
 };
