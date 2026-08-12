@@ -42,7 +42,7 @@ const ProfileMaintenance = () => {
 
   const [activeTab, setActiveTab] = useState("menu");
 
-  const [accessData, setAccessData] = useState({
+  const getInitialAccessData = () => ({
     menu: {
       menus: [],
       subMenus: [],
@@ -76,6 +76,7 @@ const ProfileMaintenance = () => {
     },
   });
 
+  const [accessData, setAccessData] = useState(getInitialAccessData());
   const [loadingProfiles, setLoadingProfiles] = useState(false);
   const [loadingAccess, setLoadingAccess] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -142,7 +143,7 @@ const ProfileMaintenance = () => {
     const subMenus = menuAccess.flatMap((menu) => {
       const menuId = getId(menu);
 
-      return (menu.subMenus || []).map((subMenu) => ({
+      return (menu.subMenus || []).map((subMenu, index) => ({
         ...subMenu,
 
         id: getId(subMenu),
@@ -165,7 +166,8 @@ const ProfileMaintenance = () => {
          *   Open Positions = 90
          *   Requisition Tracker = 90
          */
-        accessKey: `${String(menuId)}-${String(getId(subMenu))}`,
+        //accessKey: `${String(menuId)}-${String(getId(subMenu))}`,
+        accessKey: `${menuId}-${getId(subMenu)}-${index}`,
       }));
     });
 
@@ -174,18 +176,26 @@ const ProfileMaintenance = () => {
      */
 
     const selectedMenus = menus
-      .filter((menu) => menu.checked === true)
+      .filter((menu) => {
+        const menuId = String(getId(menu));
+
+        const children = subMenus.filter(
+          (sub) => String(sub.menuId) === menuId,
+        );
+
+        // If menu has no submenus, use API value
+        if (children.length === 0) {
+          return menu.checked === true;
+        }
+
+        // Parent is selected only if ALL children are selected
+        return children.every((sub) => sub.checked === true);
+      })
       .map((menu) => String(getId(menu)));
 
-    /*
-     * Selected submenu IDs.
-     *
-     * Keep the original ID because this is what the
-     * save API currently expects.
-     */
     const selectedSubMenus = subMenus
-      .filter((subMenu) => subMenu.checked === true)
-      .map((subMenu) => String(getId(subMenu)));
+      .filter((sub) => sub.checked)
+      .map((sub) => sub.accessKey);
 
     /* ========================================================
         EXPANDED MENUS
@@ -443,36 +453,32 @@ const ProfileMaintenance = () => {
   const handleMenuChange = (menuId, checked) => {
     const subMenus = getSubMenus(menuId);
 
-    const subMenuIds = subMenus.map((sub) => String(getId(sub)));
+    const subMenuKeys = subMenus.map((sub) => sub.accessKey);
 
     setAccessData((prev) => {
-      let selectedMenus = [...(prev.menu.selectedMenus || [])];
-
-      let selectedSubMenus = [...(prev.menu.selectedSubMenus || [])];
+      let selectedMenus = [...prev.menu.selectedMenus];
+      let selectedSubMenus = [...prev.menu.selectedSubMenus];
 
       if (checked) {
-        if (!selectedMenus.some((id) => String(id) === String(menuId))) {
+        if (!selectedMenus.includes(String(menuId))) {
           selectedMenus.push(String(menuId));
         }
 
-        subMenuIds.forEach((subId) => {
-          if (!selectedSubMenus.some((id) => String(id) === String(subId))) {
-            selectedSubMenus.push(subId);
+        subMenuKeys.forEach((key) => {
+          if (!selectedSubMenus.includes(key)) {
+            selectedSubMenus.push(key);
           }
         });
       } else {
-        selectedMenus = selectedMenus.filter(
-          (id) => String(id) !== String(menuId),
-        );
+        selectedMenus = selectedMenus.filter((id) => id !== String(menuId));
 
         selectedSubMenus = selectedSubMenus.filter(
-          (id) => !subMenuIds.some((subId) => String(subId) === String(id)),
+          (key) => !subMenuKeys.includes(key),
         );
       }
 
       return {
         ...prev,
-
         menu: {
           ...prev.menu,
           selectedMenus,
@@ -486,53 +492,42 @@ const ProfileMaintenance = () => {
       CHECK SUBMENU
   ========================================================== */
 
-  const handleSubMenuChange = (menuId, subMenuId, checked) => {
+  const handleSubMenuChange = (menuId, subMenu, checked) => {
     setAccessData((prev) => {
-      let selectedSubMenus = [...(prev.menu.selectedSubMenus || [])];
+      let selectedSubMenus = [...prev.menu.selectedSubMenus];
+      let selectedMenus = [...prev.menu.selectedMenus];
 
-      let selectedMenus = [...(prev.menu.selectedMenus || [])];
-
-      const subId = String(subMenuId);
+      const accessKey = subMenu.accessKey;
       const parentId = String(menuId);
 
       if (checked) {
-        if (!selectedSubMenus.some((id) => String(id) === subId)) {
-          selectedSubMenus.push(subId);
+        if (!selectedSubMenus.includes(accessKey)) {
+          selectedSubMenus.push(accessKey);
         }
+      } else {
+        selectedSubMenus = selectedSubMenus.filter((key) => key !== accessKey);
 
-        /*
-         * Selecting a submenu automatically
-         * selects the parent menu.
-         */
-        if (!selectedMenus.some((id) => String(id) === parentId)) {
+        selectedMenus = selectedMenus.filter((id) => id !== parentId);
+      }
+
+      const menuSubMenus = prev.menu.subMenus.filter(
+        (s) => String(s.menuId) === parentId,
+      );
+
+      const allSelected = menuSubMenus.every((s) =>
+        selectedSubMenus.includes(s.accessKey),
+      );
+
+      if (allSelected) {
+        if (!selectedMenus.includes(parentId)) {
           selectedMenus.push(parentId);
         }
       } else {
-        /*
-         * Remove only this submenu ID.
-         */
-        selectedSubMenus = selectedSubMenus.filter(
-          (id) => String(id) !== subId,
-        );
-
-        /*
-         * Check if another submenu belonging to
-         * this parent is still selected.
-         */
-        const menuSubMenus = getSubMenus(menuId);
-
-        const hasSelectedSubMenu = menuSubMenus.some((sub) =>
-          selectedSubMenus.some((id) => String(id) === String(getId(sub))),
-        );
-
-        if (!hasSelectedSubMenu) {
-          selectedMenus = selectedMenus.filter((id) => String(id) !== parentId);
-        }
+        selectedMenus = selectedMenus.filter((id) => id !== parentId);
       }
 
       return {
         ...prev,
-
         menu: {
           ...prev.menu,
           selectedMenus,
@@ -556,16 +551,14 @@ const ProfileMaintenance = () => {
       CHECK IF SUBMENU SELECTED
   ========================================================== */
 
-  const isSubMenuSelected = (menuId, subMenuId) => {
+  const isSubMenuSelected = (subMenu) => {
     /*
      * Current API returns submenu IDs only.
      *
      * Therefore selection is checked against
      * the submenu ID.
      */
-    return (accessData.menu.selectedSubMenus || []).some(
-      (id) => String(id) === String(subMenuId),
-    );
+    return accessData.menu.selectedSubMenus.includes(subMenu.accessKey);
   };
 
   /* ==========================================================
@@ -577,8 +570,8 @@ const ProfileMaintenance = () => {
       String(getId(menu)),
     );
 
-    const subMenuIds = (accessData.menu.subMenus || []).map((sub) =>
-      String(getId(sub)),
+    const subMenuKeys = (accessData.menu.subMenus || []).map(
+      (sub) => sub.accessKey,
     );
 
     setAccessData((prev) => ({
@@ -587,7 +580,7 @@ const ProfileMaintenance = () => {
       menu: {
         ...prev.menu,
         selectedMenus: menuIds,
-        selectedSubMenus: [...new Set(subMenuIds)],
+        selectedSubMenus: [...new Set(subMenuKeys)],
       },
     }));
   };
@@ -623,6 +616,16 @@ const ProfileMaintenance = () => {
 
     setExpandedMenus(expanded);
   };
+
+  const isAllMenusExpanded = useMemo(() => {
+    const menus = accessData.menu.menus || [];
+
+    if (menus.length === 0) {
+      return false;
+    }
+
+    return menus.every((menu) => expandedMenus[String(getId(menu))] === true);
+  }, [accessData.menu.menus, expandedMenus]);
 
   /* ==========================================================
       COLLAPSE ALL
@@ -698,65 +701,117 @@ const ProfileMaintenance = () => {
   };
 
   /* ==========================================================
-      RESET PROFILE ACCESS
+    RESET ENTIRE PAGE
   ========================================================== */
 
-  const handleReset = async () => {
-    if (
-      selectedProfile === null ||
-      selectedProfile === undefined ||
-      selectedProfile === ""
-    ) {
-      return;
-    }
-
-    try {
-      setLoadingAccess(true);
-
-      const res = await getProfileAccess(selectedProfile);
-
-      if (res?.status) {
-        const data = res.data || {};
-
-        const normalized = normalizeProfileAccess(data);
-
-        setAccessData(normalized.accessData);
-
-        setExpandedMenus(normalized.expanded);
-
-        setMenuSearch("");
-
-        notifySuccess("Profile access reset successfully.");
-      } else {
-        notifyError(res?.message || "Unable to reset profile access.");
-      }
-    } catch (error) {
-      console.error("Reset profile access error:", error);
-
-      notifyError(error?.message || "Unable to reset profile access.");
-    } finally {
-      setLoadingAccess(false);
-    }
+  const resetPage = () => {
+    setSelectedProfile(null);
+    setAccessData(getInitialAccessData());
+    setExpandedMenus({});
+    setMenuSearch("");
+    setActiveTab("menu");
   };
 
   /* ==========================================================
-      SAVE PROFILE ACCESS
+    RESET ENTIRE PAGE
   ========================================================== */
 
-  const handleSave = async () => {
+  const resetEntirePage = () => {
+    setSelectedProfile(null);
+
+    setAccessData({
+      menu: {
+        menus: [],
+        subMenus: [],
+        selectedMenus: [],
+        selectedSubMenus: [],
+      },
+
+      company: {
+        items: [],
+        selected: [],
+      },
+
+      division: {
+        items: [],
+        selected: [],
+      },
+
+      department: {
+        items: [],
+        selected: [],
+      },
+
+      task: {
+        items: [],
+        selected: [],
+      },
+
+      dashboard: {
+        items: [],
+        selected: [],
+      },
+    });
+
+    setExpandedMenus({});
+    setMenuSearch("");
+    setActiveTab("menu");
+  };
+
+  const handleSaveTab = async (type) => {
+    /* ==========================================================
+     VALIDATE PROFILE
+  ========================================================== */
+
     if (
       selectedProfile === null ||
       selectedProfile === undefined ||
       selectedProfile === ""
     ) {
       notifyWarning("Please select a profile.");
-
       return;
     }
 
+    /* ==========================================================
+     VALID ACCESS TYPES
+  ========================================================== */
+
+    const allowedAccessTypes = [
+      "menu",
+      "company",
+      "division",
+      "department",
+      "task",
+      "dashboard",
+    ];
+
+    if (!allowedAccessTypes.includes(type)) {
+      notifyError(`Invalid access type: ${type}`);
+      return;
+    }
+
+    /* ==========================================================
+     TAB NAMES
+  ========================================================== */
+
+    const tabNames = {
+      menu: "Menu Access",
+      company: "Company Access",
+      division: "Division Access",
+      department: "Department Access",
+      task: "Task Access",
+      dashboard: "Dashboard Access",
+    };
+
+    const tabName = tabNames[type];
+
+    /* ==========================================================
+     CONFIRM
+  ========================================================== */
+
     const confirmed = await confirmAction(
-      "Save Profile Access?",
-      "Are you sure you want to save the selected profile access?",
+      `Save ${tabName}?`,
+      `Are you sure you want to save ${tabName.toLowerCase()} for this profile?`,
     );
 
     if (!confirmed) {
@@ -766,37 +821,122 @@ const ProfileMaintenance = () => {
     try {
       setSaving(true);
 
+      /* ========================================================
+       BASE PAYLOAD
+       ======================================================== */
+
       const payload = {
-        profileId: selectedProfile,
-
-        menuIds: accessData.menu.selectedMenus || [],
-
-        subMenuIds: accessData.menu.selectedSubMenus || [],
-
-        companyIds: accessData.company.selected || [],
-
-        divisionIds: accessData.division.selected || [],
-
-        departmentIds: accessData.department.selected || [],
-
-        taskIds: accessData.task.selected || [],
-
-        dashboardIds: accessData.dashboard.selected || [],
+        profileId: String(selectedProfile),
+        accessType: type,
       };
 
-      console.log("Save Profile Access Payload:", payload);
+      /* ========================================================
+       MENU
+       ======================================================== */
+
+      if (type === "menu") {
+        const subMenuIds = (accessData.menu.selectedSubMenus || [])
+          .map((accessKey) => {
+            const subMenu = (accessData.menu.subMenus || []).find(
+              (item) => item.accessKey === accessKey,
+            );
+
+            return subMenu?.id;
+          })
+          .filter((id) => id !== null && id !== undefined && id !== "")
+          .map(String);
+
+        payload.subMenuIds = [...new Set(subMenuIds)];
+      }
+
+      /* ========================================================
+       COMPANY
+       ======================================================== */
+
+      if (type === "company") {
+        payload.companyIds = [
+          ...new Set(
+            (accessData.company.selected || []).map(String).filter(Boolean),
+          ),
+        ];
+      }
+
+      /* ========================================================
+       DIVISION
+       ======================================================== */
+
+      if (type === "division") {
+        payload.divisionIds = [
+          ...new Set(
+            (accessData.division.selected || []).map(String).filter(Boolean),
+          ),
+        ];
+      }
+
+      /* ========================================================
+       DEPARTMENT
+       ======================================================== */
+
+      if (type === "department") {
+        payload.departmentIds = [
+          ...new Set(
+            (accessData.department.selected || []).map(String).filter(Boolean),
+          ),
+        ];
+      }
+
+      /* ========================================================
+       TASK
+       ======================================================== */
+
+      if (type === "task") {
+        payload.taskIds = [
+          ...new Set(
+            (accessData.task.selected || []).map(String).filter(Boolean),
+          ),
+        ];
+      }
+
+      /* ========================================================
+       DASHBOARD
+       ======================================================== */
+
+      if (type === "dashboard") {
+        payload.dashboardIds = [
+          ...new Set(
+            (accessData.dashboard.selected || []).map(String).filter(Boolean),
+          ),
+        ];
+      }
+
+      /* ========================================================
+       DEBUG
+       ======================================================== */
+
+      console.log(
+        "saveProfileAccess payload:",
+        JSON.stringify(payload, null, 2),
+      );
+
+      /* ========================================================
+       API CALL
+       ======================================================== */
 
       const res = await saveProfileAccess(payload);
 
+      /* ========================================================
+       RESPONSE
+       ======================================================== */
+
       if (res?.status) {
-        notifySuccess(res?.message || "Profile access saved successfully.");
+        notifySuccess(res?.message || `${tabName} saved successfully.`);
       } else {
-        notifyError(res?.message || "Unable to save profile access.");
+        notifyError(res?.message || `Unable to save ${tabName.toLowerCase()}.`);
       }
     } catch (error) {
-      console.error("Save profile access error:", error);
+      console.error(`Save ${type} access error:`, error);
 
-      notifyError(error?.message || "Unable to save profile access.");
+      notifyError(error?.message || `Unable to save ${tabName.toLowerCase()}.`);
     } finally {
       setSaving(false);
     }
@@ -815,10 +955,11 @@ const ProfileMaintenance = () => {
 
     return (
       <div className="profile-access-section">
+        {" "}
+        sdadsad
         {/* ==================================================
             HEADER
         ================================================== */}
-
         <div className="profile-access-toolbar">
           <div className="profile-access-title">
             <div className="form-check profile-parent-checkbox">
@@ -860,18 +1001,16 @@ const ProfileMaintenance = () => {
             </button>
           </div>
         </div>
-
         {/* ==================================================
             ITEMS
         ================================================== */}
-
         <div className="profile-access-grid">
           {items.length === 0 ? (
             <div className="text-muted py-4 text-center">
               No {title.toLowerCase()} found.
             </div>
           ) : (
-            items.map((item, index) => {
+            items.map((item) => {
               const id = getId(item);
 
               const label = getLabel(item, itemLabelKey);
@@ -881,7 +1020,10 @@ const ProfileMaintenance = () => {
               );
 
               return (
-                <div className="profile-access-item form-check">
+                <div
+                  key={`${type}-${id}`}
+                  className="profile-access-item form-check"
+                >
                   <input
                     id={`${type}-${id}`}
                     className="form-check-input"
@@ -899,6 +1041,33 @@ const ProfileMaintenance = () => {
               );
             })
           )}
+        </div>
+        {/* SAVE THIS TAB ONLY */}
+        <div className="text-center mt-4">
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => handleSaveTab(type)}
+            disabled={saving || loadingAccess || !selectedProfile}
+          >
+            {saving ? (
+              <>
+                <span className="save-button-loading">
+                  <span
+                    className="spinner-border save-spinner"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                  <span>Saving...</span>
+                </span>
+              </>
+            ) : (
+              <>
+                <i className="ti ti-device-floppy me-1" />
+                Save {title} Access
+              </>
+            )}
+          </button>
         </div>
       </div>
     );
@@ -944,51 +1113,38 @@ const ProfileMaintenance = () => {
               PROFILE SELECT
           ================================================== */}
 
-          <div className="row align-items-center mb-4">
-            <div className="col-lg-4 col-md-6">
+          <div className="profile-selection-row mb-4">
+            <div className="profile-selection-controls">
               <Dropdown
                 value={selectedProfile}
                 options={profileOptions}
-                onChange={(e) => setSelectedProfile(e.value)}
+                onChange={(e) => {
+                  if (
+                    e.value === null ||
+                    e.value === undefined ||
+                    e.value === ""
+                  ) {
+                    resetPage();
+                    return;
+                  }
+
+                  setSelectedProfile(e.value);
+                }}
                 placeholder="Select Profile"
-                className="w-100"
+                className="profile-dropdown"
                 showClear
                 filter
                 disabled={loadingProfiles || loadingAccess || saving}
               />
-            </div>
 
-            <div className="col-lg-8 col-md-6 text-md-end mt-3 mt-md-0">
               <button
                 type="button"
-                className="btn btn-outline-primary me-2"
-                onClick={handleReset}
+                className="btn btn-outline-secondary profile-reset-btn"
+                onClick={resetPage}
                 disabled={loadingAccess || saving || !selectedProfile}
               >
                 <i className="ti ti-refresh me-1" />
                 Reset
-              </button>
-
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleSave}
-                disabled={saving || loadingAccess || !selectedProfile}
-              >
-                {saving ? (
-                  <>
-                    <span
-                      className="spinner-border spinner-border-sm me-1"
-                      role="status"
-                    />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <i className="ti ti-device-floppy me-1" />
-                    Save Access
-                  </>
-                )}
               </button>
             </div>
           </div>
@@ -996,330 +1152,346 @@ const ProfileMaintenance = () => {
           {/* ==================================================
               TABS
           ================================================== */}
+          {selectedProfile && (
+            <>
+              <div className="profile-tabs-wrapper">
+                <ul className="nav nav-tabs hrms-profile-tabs">
+                  <li className="nav-item">
+                    <button
+                      type="button"
+                      className={`nav-link ${activeTab === "menu" ? "active" : ""}`}
+                      onClick={() => setActiveTab("menu")}
+                    >
+                      Menu Access
+                    </button>
+                  </li>
 
-          <div className="profile-tabs-wrapper">
-            <ul className="nav nav-tabs hrms-profile-tabs">
-              <li className="nav-item">
-                <button
-                  type="button"
-                  className={`nav-link ${activeTab === "menu" ? "active" : ""}`}
-                  onClick={() => setActiveTab("menu")}
-                >
-                  Menu Access
-                </button>
-              </li>
+                  <li className="nav-item">
+                    <button
+                      type="button"
+                      className={`nav-link ${
+                        activeTab === "company" ? "active" : ""
+                      }`}
+                      onClick={() => setActiveTab("company")}
+                    >
+                      Company Access
+                    </button>
+                  </li>
 
-              <li className="nav-item">
-                <button
-                  type="button"
-                  className={`nav-link ${
-                    activeTab === "company" ? "active" : ""
-                  }`}
-                  onClick={() => setActiveTab("company")}
-                >
-                  Company Access
-                </button>
-              </li>
+                  <li className="nav-item">
+                    <button
+                      type="button"
+                      className={`nav-link ${
+                        activeTab === "division" ? "active" : ""
+                      }`}
+                      onClick={() => setActiveTab("division")}
+                    >
+                      Division Access
+                    </button>
+                  </li>
 
-              <li className="nav-item">
-                <button
-                  type="button"
-                  className={`nav-link ${
-                    activeTab === "division" ? "active" : ""
-                  }`}
-                  onClick={() => setActiveTab("division")}
-                >
-                  Division Access
-                </button>
-              </li>
+                  <li className="nav-item">
+                    <button
+                      type="button"
+                      className={`nav-link ${
+                        activeTab === "department" ? "active" : ""
+                      }`}
+                      onClick={() => setActiveTab("department")}
+                    >
+                      Department Access
+                    </button>
+                  </li>
 
-              <li className="nav-item">
-                <button
-                  type="button"
-                  className={`nav-link ${
-                    activeTab === "department" ? "active" : ""
-                  }`}
-                  onClick={() => setActiveTab("department")}
-                >
-                  Department Access
-                </button>
-              </li>
+                  <li className="nav-item">
+                    <button
+                      type="button"
+                      className={`nav-link ${activeTab === "task" ? "active" : ""}`}
+                      onClick={() => setActiveTab("task")}
+                    >
+                      Task Access
+                    </button>
+                  </li>
 
-              <li className="nav-item">
-                <button
-                  type="button"
-                  className={`nav-link ${activeTab === "task" ? "active" : ""}`}
-                  onClick={() => setActiveTab("task")}
-                >
-                  Task Access
-                </button>
-              </li>
+                  <li className="nav-item">
+                    <button
+                      type="button"
+                      className={`nav-link ${
+                        activeTab === "dashboard" ? "active" : ""
+                      }`}
+                      onClick={() => setActiveTab("dashboard")}
+                    >
+                      Dashboard Access
+                    </button>
+                  </li>
+                </ul>
+              </div>
 
-              <li className="nav-item">
-                <button
-                  type="button"
-                  className={`nav-link ${
-                    activeTab === "dashboard" ? "active" : ""
-                  }`}
-                  onClick={() => setActiveTab("dashboard")}
-                >
-                  Dashboard Access
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          {/* ==================================================
+              {/* ==================================================
               TAB CONTENT
           ================================================== */}
 
-          <div className="profile-tab-content">
-            {loadingAccess ? (
-              <div className="text-center py-5">
-                <div className="spinner-border text-warning" role="status" />
+              <div className="profile-tab-content">
+                {loadingAccess ? (
+                  <div className="text-center py-5">
+                    <div
+                      className="spinner-border text-warning"
+                      role="status"
+                    />
 
-                <div className="mt-2 text-muted">Loading profile access...</div>
-              </div>
-            ) : (
-              <>
-                {/* ==================================================
+                    <div className="mt-2 text-muted">
+                      Loading profile access...
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* ==================================================
                     MENU ACCESS
                 ================================================== */}
 
-                {activeTab === "menu" && (
-                  <div className="profile-menu-access">
-                    {/* Toolbar */}
+                    {activeTab === "menu" && (
+                      <div className="profile-menu-access">
+                        {/* Toolbar */}
 
-                    <div className="profile-menu-toolbar">
-                      <div className="profile-menu-search">
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Search menu..."
-                          value={menuSearch}
-                          onChange={(e) => setMenuSearch(e.target.value)}
-                        />
-                      </div>
+                        <div className="profile-menu-toolbar">
+                          <div className="profile-menu-search">
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Search menu..."
+                              value={menuSearch}
+                              onChange={(e) => setMenuSearch(e.target.value)}
+                            />
+                          </div>
 
-                      <div className="profile-menu-actions">
-                        <button
-                          type="button"
-                          className="btn btn-link profile-expand-btn"
-                          onClick={handleExpandAll}
-                        >
-                          Expand All
-                        </button>
-
-                        <button
-                          type="button"
-                          className="btn btn-outline-warning btn-sm"
-                          onClick={handleCollapseAll}
-                        >
-                          Collapse All
-                        </button>
-
-                        <button
-                          type="button"
-                          className="btn btn-outline-success btn-sm"
-                          onClick={handleSelectAllMenus}
-                        >
-                          Select All
-                        </button>
-
-                        <button
-                          type="button"
-                          className="btn btn-outline-danger btn-sm"
-                          onClick={handleClearAllMenus}
-                        >
-                          Clear All
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Menu list */}
-
-                    <div className="profile-menu-list">
-                      {filteredMenus.length === 0 ? (
-                        <div className="text-center text-muted py-4">
-                          No menus found.
-                        </div>
-                      ) : (
-                        filteredMenus.map((menu) => {
-                          const menuId = getId(menu);
-
-                          const menuLabel = getLabel(menu);
-
-                          const subMenus = getSubMenus(menuId);
-
-                          const expanded = !!expandedMenus[String(menuId)];
-
-                          const selected = isMenuSelected(menuId);
-
-                          return (
-                            <div
-                              key={`menu-${String(menuId)}`}
-                              className="profile-menu-row"
+                          <div className="profile-menu-actions">
+                            <button
+                              type="button"
+                              className={`btn btn-sm ${
+                                isAllMenusExpanded
+                                  ? "btn-primary"
+                                  : "btn-outline-primary"
+                              }`}
+                              onClick={handleExpandAll}
                             >
-                              {/* ==================================================
+                              Expand All
+                            </button>
+
+                            <button
+                              type="button"
+                              className="btn btn-outline-warning btn-sm"
+                              onClick={handleCollapseAll}
+                            >
+                              Collapse All
+                            </button>
+
+                            <button
+                              type="button"
+                              className="btn btn-outline-success btn-sm"
+                              onClick={handleSelectAllMenus}
+                            >
+                              Select All
+                            </button>
+
+                            <button
+                              type="button"
+                              className="btn btn-outline-danger btn-sm"
+                              onClick={handleClearAllMenus}
+                            >
+                              Clear All
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Menu list */}
+
+                        <div className="profile-menu-list">
+                          {filteredMenus.length === 0 ? (
+                            <div className="text-center text-muted py-4">
+                              No menus found.
+                            </div>
+                          ) : (
+                            filteredMenus.map((menu) => {
+                              const menuId = getId(menu);
+
+                              const menuLabel = getLabel(menu);
+
+                              const subMenus = getSubMenus(menuId);
+
+                              const expanded = !!expandedMenus[String(menuId)];
+
+                              const selected = isMenuSelected(menuId);
+
+                              return (
+                                <div
+                                  key={`menu-${String(menuId)}`}
+                                  className="profile-menu-row"
+                                >
+                                  {/* ==================================================
                                     PARENT
                                 ================================================== */}
 
-                              <div className="profile-menu-parent">
-                                <div className="profile-menu-parent-left">
-                                  <div className="form-check mb-0">
-                                    <input
-                                      id={`menu-${menuId}`}
-                                      className="form-check-input"
-                                      type="checkbox"
-                                      checked={selected}
-                                      onChange={(e) =>
-                                        handleMenuChange(
-                                          menuId,
-                                          e.target.checked,
-                                        )
-                                      }
-                                    />
-                                  </div>
-
-                                  {subMenus.length > 0 && (
-                                    <button
-                                      type="button"
-                                      className="profile-menu-expand"
-                                      onClick={() => toggleMenu(menuId)}
-                                    >
-                                      <FontAwesomeIcon
-                                        icon={
-                                          expanded
-                                            ? faChevronDown
-                                            : faChevronRight
-                                        }
-                                      />
-                                    </button>
-                                  )}
-
-                                  <label
-                                    htmlFor={`menu-${menuId}`}
-                                    className="profile-menu-label"
-                                  >
-                                    {menuLabel}
-                                  </label>
-                                </div>
-                              </div>
-
-                              {/* ==================================================
-                                    SUBMENUS
-                                ================================================== */}
-
-                              {expanded && subMenus.length > 0 && (
-                                <div className="profile-submenu-container">
-                                  {subMenus.map((subMenu, subIndex) => {
-                                    const subMenuId = getId(subMenu);
-
-                                    const subMenuLabel = getLabel(subMenu);
-
-                                    return (
-                                      <div className="profile-submenu-item form-check">
+                                  <div className="profile-menu-parent">
+                                    <div className="profile-menu-parent-left">
+                                      <div className="form-check mb-0">
                                         <input
-                                          id={`submenu-${menuId}-${subMenuId}`}
+                                          id={`menu-${menuId}`}
                                           className="form-check-input"
                                           type="checkbox"
-                                          checked={isSubMenuSelected(
-                                            menuId,
-                                            subMenuId,
-                                          )}
+                                          checked={selected}
                                           onChange={(e) =>
-                                            handleSubMenuChange(
+                                            handleMenuChange(
                                               menuId,
-                                              subMenuId,
                                               e.target.checked,
                                             )
                                           }
                                         />
-
-                                        <label
-                                          htmlFor={`submenu-${menuId}-${subMenuId}`}
-                                          className="form-check-label"
-                                        >
-                                          {subMenuLabel}
-                                        </label>
                                       </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </div>
-                )}
 
-                {/* ==================================================
+                                      {subMenus.length > 0 && (
+                                        <button
+                                          type="button"
+                                          className="profile-menu-expand"
+                                          onClick={() => toggleMenu(menuId)}
+                                        >
+                                          <FontAwesomeIcon
+                                            icon={
+                                              expanded
+                                                ? faChevronDown
+                                                : faChevronRight
+                                            }
+                                          />
+                                        </button>
+                                      )}
+
+                                      <label
+                                        htmlFor={`menu-${menuId}`}
+                                        className="profile-menu-label"
+                                      >
+                                        {menuLabel}
+                                      </label>
+                                    </div>
+                                  </div>
+
+                                  {/* ==================================================
+                                    SUBMENUS
+                                ================================================== */}
+
+                                  {expanded && subMenus.length > 0 && (
+                                    <div className="profile-submenu-container">
+                                      {subMenus.map((subMenu) => {
+                                        const subMenuId = getId(subMenu);
+                                        const subMenuLabel = getLabel(subMenu);
+
+                                        return (
+                                          <div
+                                            key={subMenu.accessKey}
+                                            className="profile-submenu-item form-check"
+                                          >
+                                            <input
+                                              id={`submenu-${subMenu.accessKey}`}
+                                              className="form-check-input"
+                                              type="checkbox"
+                                              checked={isSubMenuSelected(
+                                                subMenu,
+                                              )}
+                                              onChange={(e) =>
+                                                handleSubMenuChange(
+                                                  menuId,
+                                                  subMenu,
+                                                  e.target.checked,
+                                                )
+                                              }
+                                            />
+
+                                            <label
+                                              htmlFor={`submenu-${subMenu.accessKey}`}
+                                              className="form-check-label"
+                                            >
+                                              {subMenuLabel}
+                                            </label>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+
+                        <div className="text-center mt-4">
+                          <button
+                            type="button"
+                            className="btn btn-primary"
+                            onClick={() => handleSaveTab("menu")}
+                            disabled={
+                              saving || loadingAccess || !selectedProfile
+                            }
+                          >
+                            {saving ? (
+                              <span className="save-button-loading">
+                                <span
+                                  className="spinner-border save-spinner"
+                                  role="status"
+                                  aria-hidden="true"
+                                />
+                                <span>Saving...</span>
+                              </span>
+                            ) : (
+                              <>
+                                <i className="ti ti-device-floppy me-1" />
+                                Save Menu Access
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ==================================================
                     COMPANY ACCESS
                 ================================================== */}
 
-                {activeTab === "company" &&
-                  renderAccessTab("company", "Company", "description")}
+                    {activeTab === "company" &&
+                      renderAccessTab("company", "Company", "description")}
 
-                {/* ==================================================
+                    {/* ==================================================
                     DIVISION ACCESS
                 ================================================== */}
 
-                {activeTab === "division" &&
-                  renderAccessTab("division", "Divisions", "description")}
+                    {activeTab === "division" &&
+                      renderAccessTab("division", "Divisions", "description")}
 
-                {/* ==================================================
+                    {/* ==================================================
                     DEPARTMENT ACCESS
                 ================================================== */}
 
-                {activeTab === "department" &&
-                  renderAccessTab("department", "Department", "description")}
+                    {activeTab === "department" &&
+                      renderAccessTab(
+                        "department",
+                        "Department",
+                        "description",
+                      )}
 
-                {/* ==================================================
+                    {/* ==================================================
                     TASK ACCESS
                 ================================================== */}
 
-                {activeTab === "task" &&
-                  renderAccessTab("task", "Task", "label")}
+                    {activeTab === "task" &&
+                      renderAccessTab("task", "Task", "label")}
 
-                {/* ==================================================
+                    {/* ==================================================
                     DASHBOARD ACCESS
                 ================================================== */}
 
-                {activeTab === "dashboard" &&
-                  renderAccessTab("dashboard", "Dashboard", "label")}
-              </>
-            )}
-          </div>
-
-          {/* ==================================================
-              BOTTOM SAVE
-          ================================================== */}
-
-          <div className="text-center mt-4">
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleSave}
-              disabled={saving || loadingAccess || !selectedProfile}
-            >
-              {saving ? (
-                <>
-                  <span
-                    className="spinner-border spinner-border-sm me-1"
-                    role="status"
-                  />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <i className="ti ti-device-floppy me-1" />
-                  Save Profile Access
-                </>
-              )}
-            </button>
-          </div>
+                    {activeTab === "dashboard" &&
+                      renderAccessTab("dashboard", "Dashboard", "label")}
+                  </>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </>

@@ -47,6 +47,29 @@
 
 
 /* ==========================================================
+   PROFILE SELECTION
+========================================================== */
+
+.profile-selection-row {
+  width: 100%;
+}
+
+.profile-selection-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-dropdown {
+  width: 360px !important;
+}
+
+.profile-reset-btn {
+  white-space: nowrap;
+}
+
+
+/* ==========================================================
    DROPDOWN PANEL
 ========================================================== */
 
@@ -94,15 +117,18 @@
 
 .hrms-profile-tabs .nav-link:hover{
     color:#ff963f;
-    background:#fffaf5;
-    border-bottom-color:#ff963f;
+    background:#fff;
+    font-weight:500;
+    border-bottom-color:#ff963f !important;
+
 }
 
 .hrms-profile-tabs .nav-link.active{
     color:#ff963f;
     font-weight:600;
     background:#fff;
-    border-bottom-color:#ff963f;
+    border-bottom-color:#ff963f !important;
+    border-width: 0 0 2px 0;
 }
 
 
@@ -157,17 +183,6 @@
     min-width:95px;
     font-size:12px;
 }
-
-.profile-expand-btn{
-    background:none!important;
-    border:none!important;
-    color:#344054!important;
-}
-
-.profile-expand-btn:hover{
-    color:#ff963f!important;
-}
-
 
 /* ==========================================================
    MENU ROW
@@ -804,4 +819,35 @@ color:#173b5e;
     margin:0 !important;
 
     flex:0 0 18px !important;
+}
+
+/* ==========================================================
+   SAVE BUTTON LOADING STATE
+========================================================== */
+
+.save-button-loading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  line-height: 1;
+}
+
+.save-spinner {
+  width: 14px !important;
+  height: 14px !important;
+  border-width: 2px !important;
+  flex: 0 0 14px;
+}
+
+.profile-menu-actions .btn-outline-primary {
+    color: #173b5e;
+    border-color: #173b5e;
+    border-radius: 5px;
+}
+
+.profile-menu-actions .btn-outline-primary:hover {
+    background: #173b5e;
+    border-color: #173b5e;
+    color: #fff;
 }
