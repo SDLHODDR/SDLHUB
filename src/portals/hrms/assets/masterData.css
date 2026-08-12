@@ -1,0 +1,363 @@
+/* ============================================================
+   HRMS MASTER DATA
+   Dream POS Theme
+============================================================ */
+
+.hrms-master-list {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+
+/* ============================================================
+   MASTER TABLE BUTTON
+============================================================ */
+
+.hrms-master-tab {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    width: 100%;
+    min-height: 38px;
+
+    padding: 8px 14px;
+    margin: 0;
+
+    border: 0;
+    border-bottom: 1px solid #edf0f2;
+    border-radius: 0;
+
+    background: #ffffff;
+
+    color: #4b5563;
+
+    font-size: 13px;
+    font-weight: 400;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        color 0.2s ease,
+        background-color 0.2s ease,
+        padding-left 0.2s ease;
+}
+
+
+/* Remove border from last item */
+
+.hrms-master-tab:last-child {
+    border-bottom: 0;
+}
+
+
+/* ============================================================
+   HOVER
+============================================================ */
+
+.hrms-master-tab:hover {
+    background: #fff7ed;
+    color: #f57c00;
+    padding-left: 18px;
+}
+
+
+/* ============================================================
+   ACTIVE MASTER
+============================================================ */
+
+.hrms-master-tab.active {
+    background: #fff3e6;
+    color: #f57c00;
+
+    font-weight: 600;
+
+    padding-left: 18px;
+}
+
+
+/* Orange active indicator */
+
+.hrms-master-tab.active::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 3px;
+
+    background: #ff9800;
+}
+
+
+/* ============================================================
+   DATA TABLE WRAPPER
+============================================================ */
+
+.hrms-master-data-table {
+    width: 100%;
+
+    margin-bottom: 0;
+
+    font-size: 13px;
+
+    border-collapse: separate;
+    border-spacing: 0;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+
+/* ============================================================
+   TABLE HEADER
+============================================================ */
+
+.hrms-master-data-table thead th {
+    background: #f7f8fa;
+
+    color: #374151;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    padding: 10px 12px;
+
+    border-bottom: 1px solid #e1e5e9;
+}
+
+
+/* ============================================================
+   TABLE BODY
+============================================================ */
+
+.hrms-master-data-table tbody td {
+    padding: 9px 12px;
+
+    color: #596579;
+
+    font-size: 13px;
+
+    vertical-align: middle;
+
+    border-bottom: 1px solid #edf0f2;
+}
+
+
+/* Remove bottom border from last row */
+
+.hrms-master-data-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
+/* ============================================================
+   ROW HOVER
+============================================================ */
+
+.hrms-master-data-table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.hrms-master-data-table tbody tr:hover {
+    background-color: #fffaf5;
+}
+
+
+/* ============================================================
+   ADD BUTTON
+============================================================ */
+
+.hrms-add-btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 28px;
+    height: 28px;
+
+    color: #ff9800 !important;
+
+    font-size: 18px;
+
+    line-height: 1;
+
+    border-radius: 4px;
+
+    text-decoration: none;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.hrms-add-btn:hover {
+    color: #e87500 !important;
+    background: #fff0df;
+}
+
+
+/* ============================================================
+   EDIT BUTTON
+============================================================ */
+
+.hrms-edit-btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 28px;
+    height: 28px;
+
+    color: #6b7280 !important;
+
+    font-size: 16px;
+
+    line-height: 1;
+
+    border-radius: 4px;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.hrms-edit-btn:hover {
+    color: #ff9800 !important;
+    background: #fff0df;
+}
+
+
+/* ============================================================
+   ACTION COLUMN
+============================================================ */
+
+.hrms-master-data-table th:last-child,
+.hrms-master-data-table td:last-child {
+    width: 70px;
+    text-align: center;
+}
+
+
+/* ============================================================
+   INLINE EDIT
+============================================================ */
+
+.hrms-master-data-table .form-control {
+    height: 32px;
+
+    padding: 5px 9px;
+
+    border: 1px solid #dfe3e8;
+
+    border-radius: 4px;
+
+    font-size: 13px;
+
+    color: #374151;
+
+    box-shadow: none;
+}
+
+.hrms-master-data-table .form-control:focus {
+    border-color: #ff9800;
+
+    box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.12);
+}
+
+
+/* ============================================================
+   NEW / EDIT ROW
+============================================================ */
+
+.hrms-master-data-table .hrms-new-row,
+.hrms-master-data-table tr:has(input) {
+    background: #fffaf5;
+}
+
+
+/* ============================================================
+   SAVE
+============================================================ */
+
+.hrms-save-btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 28px;
+    height: 28px;
+
+    color: #198754 !important;
+
+    font-size: 17px;
+
+    border-radius: 4px;
+}
+
+.hrms-save-btn:hover {
+    color: #ffffff !important;
+
+    background: #198754;
+}
+
+
+/* ============================================================
+   CANCEL
+============================================================ */
+
+.hrms-cancel-btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 28px;
+    height: 28px;
+
+    color: #6b7280 !important;
+
+    font-size: 17px;
+
+    border-radius: 4px;
+}
+
+.hrms-cancel-btn:hover {
+    color: #ffffff !important;
+
+    background: #6b7280;
+}
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 991px) {
+
+    .hrms-master-list {
+        margin-bottom: 20px;
+    }
+
+    .hrms-master-tab {
+        font-size: 13px;
+    }
+
+    .hrms-master-data-table {
+        min-width: 500px;
+    }
+
+}
