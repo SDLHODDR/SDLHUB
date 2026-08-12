@@ -283,25 +283,26 @@ const DepartmentActivity = () => {
                           type="text"
                           className={`form-control ${errors.ACT_DESC ? "is-invalid" : ""}`}
                           value={form.ACT_DESC}
+                          maxLength={100}
                           onChange={(e) => handleFieldChange("ACT_DESC", e.target.value)}
                         />
                         {errors.ACT_DESC && <div className="invalid-feedback">{errors.ACT_DESC}</div>}
                       </div>
-                    </div>
+                    </div>      
+                    
                   </div>
 
+                  
+
                   <div className="text-end mb-3">
-                    <button type="button" className="btn btn-secondary me-2" onClick={resetForm}>
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={handleSave}
-                      disabled={isSubmitting}
+                    <button type="button" className="btn btn-primary me-2" onClick={handleSave} disabled={isSubmitting}
                     >
                       {isSubmitting ? "Processing..." : isEditing ? "Update" : "Save"}
+                    </button>      
+                    <button type="button" className="btn btn-secondary" onClick={resetForm}>
+                      Cancel
                     </button>
+                    
                   </div>
                 </>
               ) : (

@@ -19,7 +19,7 @@ const OutdoorDutyModal = ({
     onSuccess,
 }) => {
     const { mode } = formSettings;
-    const MAX_POST_REMARKS_BYTES = 200;
+    const MAX_POST_REMARKS_BYTES = 3500;
     //const [date, setDate] = useState(new Date());
     //const [startTime, setStartTime] = useState("");
     //const [endTime, setEndTime] = useState("");
@@ -525,7 +525,9 @@ const OutdoorDutyModal = ({
                         disabled={isPostRemarkNwMode}
                         placeholder="Enter outdoor duty purpose"
                       />
-                      <div className="char-counter">{getByteLength(formData.REMARKS || "")} / 200</div>
+                      {!isPostRemarkNwMode && (
+                        <div className="char-counter">{getByteLength(formData.REMARKS || "")} / 200</div>
+                      )}
                       {errors.REMARKS && (
                         <div className="invalid-feedback">{errors.REMARKS}</div>
                       )}
@@ -587,7 +589,7 @@ const OutdoorDutyModal = ({
               <div className="modal-footer">
                 <div className="d-flex gap-2">
                   {mode === "create" && (
-                    <button type="submit" className="btn btn-primary" data-bs-dismiss="modal"
+                    <button type="submit" className="btn btn-primary me-2" data-bs-dismiss="modal"
                       onClick={handleSave} 
                       disabled={isSubmitting}
                     >

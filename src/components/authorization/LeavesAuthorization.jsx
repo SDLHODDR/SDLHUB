@@ -7,7 +7,7 @@ import LeavesAuthorizationModal from "../../portals/eportal/modal/LeavesAuthoriz
 import { useDispatch, useSelector } from "react-redux";
 import { getAuthDataResponse } from "../../store/eportal/ePortalAuthorizationDataSlice";
 import { getAuthroizationTaskCount } from "../../store/eportal/ePortalAuthorizationCountSlice";
-import { formatDate } from "../../portals/eportal/utils/formatUtils";
+import { formatDashDate } from "../../portals/eportal/utils/formatUtils";
 
 const LeavesAuthorization = () => {
   const dispatch = useDispatch();
@@ -89,19 +89,6 @@ const LeavesAuthorization = () => {
     setShowModal(false);
   };
 
-  // const formatDate = (dateStr) => {
-  //   if (!dateStr) return "-";
-    
-  //   const date = new Date(dateStr);
-  //   if (isNaN(date)) return "-";
-
-  //     return date.toLocaleDateString("en-GB", {
-  //         day: "2-digit",
-  //         month: "short",
-  //         year: "numeric",
-  //     });
-  // };
-
   const columns = [
     {
       header: "Raised by Employee",
@@ -133,7 +120,7 @@ const LeavesAuthorization = () => {
             }}
             title="Added On"
           >
-            {formatDate(rowData.CREATED_ON)}
+            {formatDashDate(rowData.CREATED_ON)}
           </a>
         )
       } 
@@ -142,8 +129,8 @@ const LeavesAuthorization = () => {
       header: "Task",
       body: (rowData) => {
         const taskfor = rowData?.REQUEST_FOR || "-";
-         const dateFrom = formatDate(rowData?.LVE_DATE_FR) || "-";
-         const dateTo = formatDate(rowData?.LVE_DATE_TO )|| "-";
+         const dateFrom = formatDashDate(rowData?.LVE_DATE_FR) || "-";
+         const dateTo = formatDashDate(rowData?.LVE_DATE_TO )|| "-";
         return (
           <a
             href="#"

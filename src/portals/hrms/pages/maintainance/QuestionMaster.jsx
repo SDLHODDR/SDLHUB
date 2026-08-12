@@ -295,9 +295,9 @@ const QuestionMaster = () => {
 
               {!showAll ? (
                 <>
-                  {isEditing && (
+                  {/* {isEditing && (
                     <div className="alert alert-info">You are updating an existing question.</div>
-                  )}
+                  )} */}
                   <div className="row mb-3">
                     <div className="col-lg-4">
                       <label className="form-label">Question Group</label>
@@ -349,6 +349,7 @@ const QuestionMaster = () => {
                         type="text"
                         className={`form-control ${errors.QUES_DESCR ? "is-invalid" : ""}`}
                         value={form.QUES_DESCR}
+                        maxLength={1000}
                         onChange={(e) => handleField("QUES_DESCR", e.target.value)}
                       />
                       {errors.QUES_DESCR && <div className="invalid-feedback">{errors.QUES_DESCR}</div>}
@@ -390,6 +391,7 @@ const QuestionMaster = () => {
                             <input
                               className={`form-control ${errors[`OPTION_${idx}`] ? "is-invalid" : ""}`}
                               value={opt}
+                               maxLength={500}
                               onChange={(e) => handleOptionChange(idx, e.target.value)}
                             />
                             {errors[`OPTION_${idx}`] && (
@@ -401,12 +403,13 @@ const QuestionMaster = () => {
                     ))}
 
                   <div className="text-end mb-3">
-                    <button className="btn btn-secondary me-2" type="button" onClick={resetForm}>
-                      Cancel
-                    </button>
-                    <button className="btn btn-primary" type="button" onClick={handleSave} disabled={loading}>
+                    <button className="btn btn-primary me-2" type="button" onClick={handleSave} disabled={loading}>
                       {loading ? "Processing..." : isEditing ? "Update" : "Save"}
                     </button>
+                    <button className="btn btn-secondary" type="button" onClick={resetForm}>
+                      Cancel
+                    </button>
+                    
                   </div>
                 </>
               ) : (

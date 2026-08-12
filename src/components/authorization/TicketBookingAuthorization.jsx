@@ -8,7 +8,7 @@ import TicketBookingAuthorizationModal from "../../portals/eportal/modal/TicketB
 import { useDispatch, useSelector } from "react-redux";
 import { getAuthDataResponse } from "../../store/eportal/ePortalAuthorizationDataSlice";
 import { getAuthroizationTaskCount } from "../../store/eportal/ePortalAuthorizationCountSlice";
-import { formatDate } from "../../portals/eportal/utils/formatUtils";
+import { formatDashDate } from "../../portals/eportal/utils/formatUtils";
 
 const TicketBookingAuthorization = () => {
   const dispatch = useDispatch();
@@ -86,19 +86,6 @@ const TicketBookingAuthorization = () => {
     setShowModal(false);
   };
 
-  //  const formatDate = (dateStr) => {
-  //   if (!dateStr) return "-";
-    
-  //   const date = new Date(dateStr);
-  //   if (isNaN(date)) return "-";
-
-  //     return date.toLocaleDateString("en-GB", {
-  //         day: "2-digit",
-  //         month: "short",
-  //         year: "numeric",
-  //     });
-  // };
-
   const columns = [
     // { field: "REQUEST_FOR", header: "Task For", sortable: true },
     {
@@ -132,7 +119,7 @@ const TicketBookingAuthorization = () => {
             }}
             title="Added On"
           >
-            {formatDate(rowData.CREATED_ON)}
+            {formatDashDate(rowData.CREATED_ON)}
           </a>
         )
       }
@@ -142,7 +129,7 @@ const TicketBookingAuthorization = () => {
       header: "Task",
       sortable: true,
       body: (rowData) => {
-        const trvlDate = formatDate(rowData?.TRVL_DATE) || "-";
+        const trvlDate = formatDashDate(rowData?.TRVL_DATE) || "-";
         const fromLoc = rowData?.TRVL_FROM_LOC || "-";
         const toLoc = rowData?.TRVL_TO_LOC || "-";
         return (
@@ -167,7 +154,7 @@ const TicketBookingAuthorization = () => {
       header: "Request DATE",
       sortable: true,
       body: (rowData) => {
-        const reqDate = formatDate(rowData?.REQ_DATE) || "-";
+        const reqDate = formatDashDate(rowData?.REQ_DATE) || "-";
         return (
           <a
             href="#"
