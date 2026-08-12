@@ -103,9 +103,14 @@ const KRAActivity = () => {
     if (!formData.KRA_ID || String(formData.KRA_ID).trim() === "") {
       newErrors.KRA_ID = "KRA Master is required";
     }
-    if (!formData.ACTT_DESC || String(formData.ACTT_DESC).trim() === "") {
+    
+    const actDescRaw = String(formData.ACTT_DESC ?? "").trim();
+    if (!actDescRaw) {
       newErrors.ACTT_DESC = "KRA Activity is required";
+    } else if (actDescRaw.length > 100) {
+      newErrors.ACTT_DESC = "KRA Activity must not exceed 100 characters";
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [formData]);
@@ -260,6 +265,7 @@ const KRAActivity = () => {
                           type="text"
                           className={`form-control ${errors.ACTT_DESC ? "is-invalid" : ""}`}
                           value={formData.ACTT_DESC}
+                          maxLength={100}
                           onChange={(e) => handleFieldChange("ACTT_DESC", e.target.value)}
                         />
                         {errors.ACTT_DESC && <div className="invalid-feedback">{errors.ACTT_DESC}</div>}
@@ -268,10 +274,11 @@ const KRAActivity = () => {
                   </div>
 
                   <div className="text-end mb-3">
-                    <button type="button" className="btn btn-secondary me-2" onClick={resetForm}>Cancel</button>
-                    <button type="button" className="btn btn-primary" onClick={handleSave} disabled={isSubmitting}>
+                    <button type="button" className="btn btn-primary me-2" onClick={handleSave} disabled={isSubmitting}>
                       {isSubmitting ? "Processing..." : isEditing ? "Update" : "Save"}
                     </button>
+                    <button type="button" className="btn btn-secondary" onClick={resetForm}>Cancel</button>
+                    
                   </div>
                 </>
               ) : (

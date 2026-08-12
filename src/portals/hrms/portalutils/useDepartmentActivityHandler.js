@@ -30,8 +30,12 @@ export const useDepartmentActivityHandler = ({
     if (!form.ACT_TYPE || String(form.ACT_TYPE).trim() === "") {
       newErrors.ACT_TYPE = "Type is required";
     }
-    if (!form.ACT_DESC || String(form.ACT_DESC).trim() === "") {
+
+    const actDescRaw = String(form.ACT_DESC ?? "").trim();
+    if (!actDescRaw) {
       newErrors.ACT_DESC = "Department Activity is required";
+    } else if (actDescRaw.length > 100) {
+      newErrors.ACT_DESC = "Department Activity must not exceed 100 characters";
     }
 
     const seqRaw = String(form.DISP_SEQ).trim();

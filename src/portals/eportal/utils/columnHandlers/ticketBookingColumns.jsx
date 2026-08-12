@@ -1,6 +1,6 @@
 import { renderTicketBookingActions } from "./ticketBookingActions";
 import { IconWithTooltip } from "../tooltipHelper";
-import { formatDate } from "../formatUtils";
+import { formatDashDate } from "../formatUtils";
 import Badge from "../../components/Badge";
 
 export const ticketBookingColumns = (handlers) => [
@@ -20,7 +20,7 @@ export const ticketBookingColumns = (handlers) => [
     header: "Trvl Date",
     body(rowData){
       return(
-        formatDate(rowData.trvl_date)
+        formatDashDate(rowData.trvl_date)
       )
     }
   },

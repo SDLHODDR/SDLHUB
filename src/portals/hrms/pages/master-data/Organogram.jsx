@@ -11,6 +11,9 @@ import {
   //confirmAction,
 } from "../../../../services/alertService";
 
+import SDLTabsComponent from "../../components/tabs/SDLTabsComponent";
+import useSDLTabComponentHandler from "../../portalutils/useSDLTabComponentHandler";
+
 import {
   getOrgonograms,
   //getProfileAccess,
@@ -44,30 +47,16 @@ const Organogram = () => {
     const loadOrgonogram = async () => {
       try {
         setLoadingOrgonogram(true);
+        const userConfig = localStorage.getItem("user-hrms-config");
 
-        const res = await getOrgonograms();
+        const res = await getOrgonograms(userConfig);
 
         if (res?.status) {
-          const profileList = Array.isArray(res.data) ? res.data : [];
+          const orgonoList = Array.isArray(res.data) ? res.data : [];
 
-          setOrgonogram(profileList);
+          setOrgonogram(orgonoList);
 
-          /*
-           * Automatically select first profile.
-           */
-
-          if (profileList.length > 0) {
-            const firstProfile = profileList[0];
-
-            const firstProfileId =
-              firstProfile.id ??
-              firstProfile.profileId ??
-              firstProfile.PROFILE_ID;
-
-            setSelectedOrgonogram(firstProfileId);
-          } else {
-            setSelectedOrgonogram(null);
-          }
+          setSelectedOrgonogram(null);
         } else {
           notifyError(res?.message || "Unable to load profiles.");
         }
@@ -83,26 +72,17 @@ const Organogram = () => {
     loadOrgonogram();
   }, []);
 
-  /* ==========================================================
-      PROFILE DROPDOWN OPTIONS
-  ========================================================== */
-
   const orgonogramOptions = useMemo(() => {
     return orgonogram.map((orgngm) => ({
-      label:
-        orgngm.description ??
-        orgngm.profileDesc ??
-        orgngm.PROFILE_DESC ??
-        orgngm.label ??
-        "",
+      label: orgngm.OPTIONS ?? "",
 
-      value: orgngm.id ?? orgngm.orgonogramId ?? orgngm.ORGONOGRAM_ID,
+      value: orgngm.ID,
     }));
   }, [orgonogram]);
 
-  /* ==========================================================
-      RENDER
-  ========================================================== */
+  const { tabs, selectedTab, handleTabChange, tabContent } =
+    useSDLTabComponentHandler(selectedOrganogram);
+
 
   return (
     <>
@@ -130,31 +110,37 @@ const Organogram = () => {
         />
       </div>
 
-      {/* ======================================================
-          MAIN CARD
-      ====================================================== */}
-      <div className="card hrms-profile-maintenance">
-        <div className="card-body">
-          {/* ==================================================
-              PROFILE SELECT
-        ================================================== */}
-
-          <div className="row align-items-center mb-4">
-            <div className="col-lg-4 col-md-6">
-              <Dropdown
-                value={selectedOrganogram}
-                options={orgonogramOptions}
-                onChange={(e) => setSelectedOrgonogram(e.value)}
-                placeholder="Select Orgonogram"
-                className="w-100"
-                showClear
-                filter
-                disabled={loadingOrgonogram || saving}
+      {/* Default Nav Tabs */}
+      <div className="row">
+        <div className="col-xl-12">
+          <div className="card">
+            <div className="card-header">
+              <div className="card-title">
+                <Dropdown
+                  value={selectedOrganogram}
+                  options={orgonogramOptions}
+                  onChange={(e) => setSelectedOrgonogram(e.value)}
+                  placeholder="Select Orgonogram"
+                  className="w-100"
+                  showClear
+                  filter
+                  disabled={loadingOrgonogram}
+                />
+              </div>
+            </div>
+            <div className="card-body">
+              <SDLTabsComponent
+                tabs={tabs}
+                selectedTab={selectedTab}
+                onTabChange={handleTabChange}
+                tabContent={tabContent}
+                loading={loadingOrgonogram}
               />
             </div>
           </div>
         </div>
       </div>
+      {/* /Default Nav Tabs */}
     </>
   );
 };

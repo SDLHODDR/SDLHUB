@@ -1,6 +1,6 @@
 import { renderOutdoorDutyActions } from "./OutdoorDutyActions";
 import { IconWithTooltip } from "../tooltipHelper";
-import { formatDate } from "../formatUtils";
+import { formatDashDate } from "../formatUtils";
 import Badge from "../../components/Badge";
 
 export const outdoorDutyColumns = (handlers) => [
@@ -9,7 +9,7 @@ export const outdoorDutyColumns = (handlers) => [
         sortable: true,
         body: (rowData) => {
             return (
-                formatDate(rowData.asonDate)
+                formatDashDate(rowData.asonDate)
             )
         }
     },
@@ -25,7 +25,7 @@ export const outdoorDutyColumns = (handlers) => [
         sortable: true,
         body: (rowData) => {
             return (
-                formatDate(rowData.createdOn)
+                formatDashDate(rowData.createdOn)
             )
         }
     },
