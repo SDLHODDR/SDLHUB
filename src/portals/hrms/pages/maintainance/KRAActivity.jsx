@@ -1,64 +1,45 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-
 import { useDispatch, useSelector } from "react-redux";
 import { getKRAActivityDataResponse } from "../../../../store/hrms/hrmsKRAActivitySlice";
-import { getKRAMasterData, saveKRAActivity, deleteKRAActivity } from "../../services/kraActivityService";
-import { notifySuccess, notifyError, confirmAction } from "../../../../services/alertService";
-
 import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
+import { useKRAActivityHandler } from "../../portalutils/useKRAActivityHandler";
+import { normalizeRecords, getDisplayValue } from "../../../../utils/formatUtils";
 import { getPortalFromPath } from "../../../../config/portalConfig";
-
+import { kraActivityColumns } from "../../portalutils/kraActivityColumns";
+import { getKRAMasterData } from "../../services/kraActivityService";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 
-const normalizeRecords = (payload) => {
-  if (Array.isArray(payload)) return payload;
-
-  if (payload && typeof payload === "object") {
-    for (const key of ["data", "records", "result", "items", "list", "rows"]) {
-      if (Array.isArray(payload[key])) return payload[key];
-    }
-  }
-
-  return [];
-};
-
-const getDisplayValue = (item, keys, fallback = "-") => {
-  if (!item || typeof item !== "object") return fallback;
-
-  for (const key of keys) {
-    const value = item[key];
-    if (value !== undefined && value !== null && value !== "") {
-      return value;
-    }
-  }
-
-  return fallback;
-};
-
 const KRAActivity = () => {
   const dispatch = useDispatch();
-  
   const location = useLocation();
   const portal = getPortalFromPath(location.pathname);
   const portalHome = `/${portal.key}/dashboard`;
-  //const kraLoading = useSelector((state) => state.hrmsKRAAcivityData.loading);
+
   const [loading, setLoading] = useState(false);
   const [listKRAMasterData, setListKRAMasterData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-
-  const kraActivityData = useSelector((state) => state.hrmsKRAAcivityData?.data);
-
   const [showAll, setShowAll] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({
+    ID: "",
+    KRA_ID: "",
+    KRA_DESC: "",
+    ACTT_DESC: "",
+  });
+
+  const kraActivityData = useSelector((state) => state.hrmsKRAAcivityData?.data);
 
   useEffect(() => {
     dispatch(getKRAActivityDataResponse());
   }, [dispatch]);
 
-  const fetchKRAMasterData = async () => {
+  const fetchKRAMasterData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await getKRAMasterData();
@@ -68,15 +49,11 @@ const KRAActivity = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // ===========================
-  // Fetch Data
-  // ===========================
-  
   useEffect(() => {
     fetchKRAMasterData();
-  }, []);
+  }, [fetchKRAMasterData]);
 
   const listData = useMemo(() => {
     try {
@@ -96,21 +73,18 @@ const KRAActivity = () => {
   const masterOptions = useMemo(() => {
     return normalizeRecords(listKRAMasterData).map((item, index) => {
       const id = getDisplayValue(item, ["KRA_ID", "ID", "id", "kra_id", "KRAID", "kraId"], index);
-      const label = getDisplayValue(item, ["KRA_DESC", "kra_desc", "KRA_MASTER_DESC", "name", "label", "ACTT_DESC"], "-");
-
-      return {
-        id: String(id),
-        label: String(label),
-      };
+      const label = getDisplayValue(
+        item,
+        ["KRA_DESC", "kra_desc", "KRA_MASTER_DESC", "name", "label", "ACTT_DESC"],
+        "-",
+      );
+      return { id: String(id), label: String(label) };
     });
   }, [listKRAMasterData]);
 
-  /* ================= SEARCH FILTER ================= */
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) return listData;
-
     const query = searchQuery.trim().toLowerCase();
-
     return listData.filter(
       (item) =>
         item.KRA_DESC.toLowerCase().includes(query) ||
@@ -118,238 +92,75 @@ const KRAActivity = () => {
     );
   }, [searchQuery, listData]);
 
-  const [formData, setFormData] = useState({
-    ID: "",
-    KRA_ID: "",
-    KRA_DESC: "",
-    ACTT_DESC: "",
-  });
+  const resetForm = useCallback(() => {
+    setIsEditing(false);
+    setSelectedActivity("");
+    setFormData({ ID: "", KRA_ID: "", KRA_DESC: "", ACTT_DESC: "" });
+  }, []);
 
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [deletingId, setDeletingId] = useState(null);
-
-  const handleFieldChange = (name, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      [name]: "",
-    }));
-  };
-
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     const newErrors = {};
-
     if (!formData.KRA_ID || String(formData.KRA_ID).trim() === "") {
       newErrors.KRA_ID = "KRA Master is required";
     }
-
     if (!formData.ACTT_DESC || String(formData.ACTT_DESC).trim() === "") {
       newErrors.ACTT_DESC = "KRA Activity is required";
     }
-
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
-  };
+  }, [formData]);
 
-  const handleSave = async (e) => {
-    e.preventDefault();
+  const {
+    handleFieldChange,
+    handleSave,
+    handleSelectActivity,
+    handleEditActivity,
+    handleDeleteActivity,
+  } = useKRAActivityHandler({
+    formData,
+    setFormData,
+    setErrors,
+    validateForm,
+    setIsSubmitting,
+    setDeletingId,
+    dispatch,
+    getKRAActivityDataResponse,
+    listData,
+    setSelectedActivity,
+    setIsEditing,
+    setShowAll,
+    resetForm,
+  });
 
-    const isValid = validateForm();
-    if (!isValid) return;
+  const columns = useMemo(
+    () => kraActivityColumns({ handleEditActivity, handleDeleteActivity, deletingId }),
+    [handleEditActivity, handleDeleteActivity, deletingId],
+  );
 
-    setIsSubmitting(true);
-
-    try {
-      const payload = {
-        ...formData,
-        // API may expect flags; keep minimal payload and let backend decide
-      };
-
-      const response = await saveKRAActivity(payload);
-
-      if (response?.status) {
-        notifySuccess(response?.message || "KRA Activity saved successfully.");
-        resetForm();
-        // refresh list
-        dispatch(getKRAActivityDataResponse());
-        // show table view after successful save/update
-        setShowAll(true);
-      } else {
-        notifyError(response?.message || "Unable to save KRA Activity");
-      }
-    } catch (err) {
-      console.error("Save Error:", err);
-      notifyError("Something went wrong while saving data.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  //const currentActivity = listData.find((item) => item.ACTT_DESC === selectedActivity) || null;
-
-  const resetForm = () => {
-    setIsEditing(false);
-    setSelectedActivity("");
-    setFormData({
-      ID: "",
-      KRA_ID: "",
-      KRA_DESC: "",
-      ACTT_DESC: "",
-    });
-  };
-
-  const handleSelectActivity = (value) => {
-    setSelectedActivity(value);
-
-    if (!value) {
-      resetForm();
-      return;
-    }
-
-    setShowAll(false);
-
-    const activity = listData.find((item) => String(item.ID) === String(value));
-
-    if (activity) {
-      setIsEditing(true);
-      setFormData({
-        ID: activity.ID,
-        KRA_ID: activity.KRA_ID || "",
-        KRA_DESC: activity.KRA_DESC,
-        ACTT_DESC: activity.ACTT_DESC,
-      });
-    }
-  };
-
-  const handleEditActivity = (activity) => {
-    setSelectedActivity(activity.ID);
-    setIsEditing(true);
-    setShowAll(false);
-    setFormData({
-      ID: activity.ID,
-      KRA_ID: activity.KRA_ID || "",
-      KRA_DESC: activity.KRA_DESC,
-      ACTT_DESC: activity.ACTT_DESC,
-    });
-  };
-
-  const handleDeleteActivity = async (row) => {
-    try {
-      const result = await confirmAction("Are you sure you want to Delete?");
-      if (!result?.isConfirmed) return;
-      setDeletingId(row.ID);
-
-      const payload = {
-        ID: row.ID,
-      };
-
-      const response = await deleteKRAActivity(payload);
-
-      if (response?.status) {
-        notifySuccess(response?.message || "Record deleted successfully.");
-      } else {
-        notifyError(response?.message || "Unable to delete record.");
-      }
-
-      // refresh list
-      dispatch(getKRAActivityDataResponse());
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  const serialBody = (rowData, options) =>
-    options.rowIndex + 1 + (options.props.first || 0);
-
-  const titleBody = (row) => <>{row.ACTT_DESC}</>;
-
-  const columns = [
-    {
-      header: "#",
-      body: serialBody,
-      style: {
-        width: "70px",
-        textAlign: "center",
-      },
-    },
-    {
-      field: "KRA_DESC",
-      header: "KRA Master",
-      sortable: true,
-      style: {
-        width: "260px",
-      },
-    },
-    {
-      field: "ACTT_DESC",
-      header: "KRA Activity",
-      body: titleBody,
-      sortable: true,
-      style: {
-        width: "220px",
-      },
-    },
-    {
-      header: "Action",
-      body: (row) => (
-        <div className="d-flex align-items-center justify-content-center gap-2">
-          <button
-            type="button"
-            className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
-            onClick={() => handleEditActivity(row)}
-            aria-label="Edit KRA Activity"
-          >
-            <i className="ti ti-edit" />
-          </button>
-          <button
-            type="button"
-            className="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center"
-            aria-label="Delete KRA Activity"
-            onClick={() => handleDeleteActivity(row)}
-            disabled={deletingId === row.ID}
-          >
-            {deletingId === row.ID ? (
-              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            ) : (
-              <i className="ti ti-trash" />
-            )}
-          </button>
+   if (!kraActivityData || !listKRAMasterData) {
+    return (
+      <div className="d-flex align-items-center justify-content-center vh-100">
+        <div className="text-center">
+          <div
+            className="spinner-border text-primary mb-3"
+            role="status"
+          />
+          <div className="fw-semibold">
+            Loading kractivity...
+          </div>
         </div>
-      ),
-      style: {
-        width: "140px",
-        textAlign: "center",
-      },
-    },
-  ];
+      </div>
+    );
+  }
 
   return (
     <>
       <div className="page-header">
         <div className="add-item d-flex">
-          <div className="page-title">
-            <h4>KRA Activity</h4>
-          </div>
+          <div className="page-title"><h4>KRA Activity</h4></div>
         </div>
-
         <BreadcrumbNav
-          items={[
-            {
-              text: "Home",
-              link: portalHome,
-            },
-            {
-              text: "KRA Activity",
-            },
-          ]}
+          items={[{ text: "Home", link: portalHome }, { text: "KRA Activity" }]}
         />
       </div>
 
@@ -382,15 +193,29 @@ const KRAActivity = () => {
                   >
                     <option value="">Select KRA Activity</option>
                     {listData.map((item) => (
-                      <option key={item.ID} value={item.ID}>
-                        {item.ACTT_DESC}
-                      </option>
+                      <option key={item.ID} value={item.ID}>{item.ACTT_DESC}</option>
                     ))}
                   </select>
-                  <button
+                  {/* <button
                     type="button"
                     className="btn btn-outline-secondary d-flex align-items-center gap-2"
                     onClick={() => setShowAll((prev) => !prev)}
+                    style={{ minWidth: "120px" }}
+                  >
+                    <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
+                    {showAll ? "Form" : "Table"}
+                  </button> */}
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
+                    onClick={() => {
+                      if (isSubmitting) return; // don't reset while a save is in flight
+                      setShowAll((prev) => {
+                        const next = !prev;
+                        if (next) resetForm();
+                        return next;
+                      });
+                    }}
                     style={{ minWidth: "120px" }}
                   >
                     <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
@@ -405,17 +230,13 @@ const KRAActivity = () => {
                     <div className="col-lg-4 col-md-6">
                       <div className="mb-3">
                         <label className="form-label">
-                        KRA Master
-                        <span className="text-danger ms-1">*</span>
-                      </label>
+                          KRA Master<span className="text-danger ms-1">*</span>
+                        </label>
                         <select
                           className={`form-select ${errors.KRA_ID ? "is-invalid" : ""}`}
                           value={formData.KRA_ID}
                           onChange={(e) => {
-                            const selectedMaster = masterOptions.find(
-                              (option) => option.id === e.target.value,
-                            );
-
+                            const selectedMaster = masterOptions.find((option) => option.id === e.target.value);
                             handleFieldChange("KRA_ID", e.target.value);
                             handleFieldChange("KRA_DESC", selectedMaster?.label || "");
                           }}
@@ -423,50 +244,32 @@ const KRAActivity = () => {
                         >
                           <option value="">Select KRA Master</option>
                           {masterOptions.map((option) => (
-                            <option key={option.id} value={option.id}>
-                              {option.label}
-                            </option>
+                            <option key={option.id} value={option.id}>{option.label}</option>
                           ))}
                         </select>
-                        {errors.KRA_ID && (
-                          <div className="invalid-feedback">{errors.KRA_ID}</div>
-                        )}
+                        {errors.KRA_ID && <div className="invalid-feedback">{errors.KRA_ID}</div>}
                       </div>
                     </div>
 
                     <div className="col-lg-4 col-md-6">
                       <div className="mb-3">
                         <label className="form-label">
-                        KRA Activity
-                        <span className="text-danger ms-1">*</span>
-                      </label>
+                          KRA Activity<span className="text-danger ms-1">*</span>
+                        </label>
                         <input
                           type="text"
                           className={`form-control ${errors.ACTT_DESC ? "is-invalid" : ""}`}
                           value={formData.ACTT_DESC}
                           onChange={(e) => handleFieldChange("ACTT_DESC", e.target.value)}
                         />
-                        {errors.ACTT_DESC && (
-                          <div className="invalid-feedback">{errors.ACTT_DESC}</div>
-                        )}
+                        {errors.ACTT_DESC && <div className="invalid-feedback">{errors.ACTT_DESC}</div>}
                       </div>
                     </div>
                   </div>
 
                   <div className="text-end mb-3">
-                    <button
-                      type="button"
-                      className="btn btn-secondary me-2"
-                      onClick={resetForm}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={handleSave}
-                      disabled={isSubmitting}
-                    >
+                    <button type="button" className="btn btn-secondary me-2" onClick={resetForm}>Cancel</button>
+                    <button type="button" className="btn btn-primary" onClick={handleSave} disabled={isSubmitting}>
                       {isSubmitting ? "Processing..." : isEditing ? "Update" : "Save"}
                     </button>
                   </div>
@@ -474,9 +277,7 @@ const KRAActivity = () => {
               ) : (
                 <>
                   {listData.length === 0 ? (
-                    <div className="p-4 text-center text-muted">
-                      No data found
-                    </div>
+                    <div className="p-4 text-center text-muted">No data found</div>
                   ) : (
                     <div className="table-responsive">
                       <SDLDataTable

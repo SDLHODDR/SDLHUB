@@ -1,24 +1,21 @@
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import { getQuestionMasterDataResponse } from "../../../../store/hrms/hrmsQuestionMasterSlice";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
-import {
-  getQuestions,
-  saveQuestion,
-  deleteQuestion,
-  getQuestionGroups,
-  getQuestionSubGroups,
-} from "../../services/questionService";
-import { notifySuccess, notifyError, confirmAction } from "../../../../services/alertService";
+import { getQuestionGroups, getAllQuestionSubGroups } from "../../services/questionService";
+import { normalizeRecords, getDisplayValue } from "../../../../utils/formatUtils";
+import { questionMasterColumns } from "../../portalutils/questionMasterColumns";
+import { useQuestionMasterHandler } from "../../portalutils/useQuestionMasterHandler";
+import { buildOptionsFromRow } from "../../portalutils/questionOptionsUtils";
 
 const ANSWER_TYPES = ["Text", "Radio", "Checkbox"];
 
 const QuestionMaster = () => {
   const dispatch = useDispatch();
-  const [list, setList] = useState([]);
   const [groups, setGroups] = useState([]);
   const [subgroups, setSubgroups] = useState([]);
   const [search, setSearch] = useState("");
@@ -36,207 +33,201 @@ const QuestionMaster = () => {
   const location = useLocation();
   const portal = getPortalFromPath(location.pathname);
   const portalHome = `/${portal.key}/dashboard`;
-
+  const questionMasterData = useSelector((state) => state.hrmsquestionMasterData?.data);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [showAll, setShowAll] = useState(true);
+  const [showAll, setShowAll] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
-    fetchAll();
-    fetchGroups();
+    dispatch(getQuestionMasterDataResponse());
+  }, [dispatch]);
+
+  const loadLookups = useCallback(async () => {
+    try {
+      const [groupsRes, subGroupsRes] = await Promise.all([
+        getQuestionGroups(),
+        getAllQuestionSubGroups(),
+      ]);
+      const groupsRaw = groupsRes?.data || [];
+      const subGroupsRaw = subGroupsRes?.data || [];
+
+      setGroups(
+        groupsRaw.map((g) => ({
+          ID: String(g.QSGRP_ID ?? g.ID ?? g.id ?? ""),
+          NAME: g.QSGRP_DESC ?? g.NAME ?? g.label ?? "",
+        })),
+      );
+      console.log("==========GROUPSRaw===========", groupsRaw);
+      setSubgroups(
+        subGroupsRaw.map((s) => ({
+          ID: String(s.QSSGRP_ID ?? s.ID ?? s.id ?? ""),
+          NAME: s.QSSGRP_DESC ?? s.NAME ?? s.label ?? "",
+        })),
+      );
+    } catch (err) {
+      console.error(err);
+    }
   }, []);
 
-  const fetchAll = async () => {
+  useEffect(() => {
+    loadLookups();
+  }, [loadLookups]);
+
+  // FIX: now depends on `groups` as well — QGRP_ID is resolved by matching
+  // the question row's group description against the loaded groups list,
+  // since the Question Master API never returns a group ID directly.
+  const listData = useMemo(() => {
     try {
-      setLoading(true);
-      const res = await getQuestions();
-      setList(res?.data || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return normalizeRecords(questionMasterData).map((item, index) => {
+        // OPTIONS comes back as a comma-separated string ("Excellent, Very Good, ...").
+        // Normalize to an array so buildOptionsFromRow / form .map() calls are always safe.
+        const rawOptions = item.OPTIONS ?? item.options ?? "";
+        const optionsArr =
+          typeof rawOptions === "string"
+            ? rawOptions.split(",").map((o) => o.trim()).filter(Boolean)
+            : Array.isArray(rawOptions)
+            ? rawOptions
+            : [];
 
-  const fetchGroups = async () => {
-    try {
-      const res = await getQuestionGroups();
-      setGroups(res?.data || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleGroupChange = async (val) => {
-    setForm((p) => ({ ...p, QGRP_ID: val, QSGRP_ID: "" }));
-    try {
-      const res = await getQuestionSubGroups(val);
-      setSubgroups(res?.data || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleField = (name, value) => {
-    setForm((p) => {
-      const next = { ...p, [name]: value };
-      if (name === "ANSWER_TYPE") {
-        if (value === "Text") {
-          next.NO_OF_OPTIONS = "";
-          next.OPTIONS = [];
-        }
-      }
-      if (name === "NO_OF_OPTIONS") {
-        const n = parseInt(value, 10) || 0;
-        next.OPTIONS = Array.from({ length: n }, (_, i) => p.OPTIONS[i] || "");
-      }
-      return next;
-    });
-    setErrors((e) => ({ ...e, [name]: "" }));
-  };
-
-  const handleOptionChange = (index, value) => {
-    setForm((p) => {
-      const opts = [...(p.OPTIONS || [])];
-      opts[index] = value;
-      return { ...p, OPTIONS: opts };
-    });
-  };
-
-  const handleSave = async () => {
-    const newErrors = {};
-    if (!form.QGRP_ID) newErrors.QGRP_ID = "Group required";
-    if (!form.QUES_DESCR || !form.QUES_DESCR.trim()) newErrors.QUES_DESCR = "Question required";
-    if (form.ANSWER_TYPE !== "Text") {
-      if (!form.NO_OF_OPTIONS) newErrors.NO_OF_OPTIONS = "Number of options required";
-      (form.OPTIONS || []).forEach((o, i) => {
-        if (!o || !o.trim()) newErrors[`OPTION_${i}`] = "Option required";
+        // RATING comes back as "Radio Box" / "Checkbox" / null, not matching
+        // ANSWER_TYPES ["Text","Radio","Checkbox"] exactly — normalize via pattern match.
+        const ratingRaw = getDisplayValue(
+          item,
+          ["ANSWER_TYPE", "answer_type", "RATING", "rating", "type"],
+          "Text",
+        );
+        const answerType = /radio/i.test(ratingRaw)
+          ? "Radio"
+          : /check/i.test(ratingRaw)
+          ? "Checkbox"
+          : "Text";
+        console.log("==========ITEM===========", item);
+        return {
+          ID: item.ID ?? item.id ?? index,
+          // The Question Master API names the parent group ID `QSGRP_ID`
+          // (while the form uses `QGRP_ID`). Preserve the form's field name
+          // but read both API variants so the select can match its option value.
+          QGRP_ID: String(
+            item.QGRP_ID ?? item.GROUP_ID ?? item.QSGRP_ID ?? item.qgrp_id ?? "",
+          ),
+          QSGRP_ID: String(item.QSSGRP_ID ?? item.SUBGROUP_ID ?? item.qssgrp_id ?? ""),
+          QUES_DESCR: getDisplayValue(item, ["QUES_DESCR", "QUESTION", "question", "ques_descr", "label"], "-"),
+          GROUP_NAME: getDisplayValue(item, ["QSGRP_DESC", "GROUP_NAME", "group_name", "groupName"], "-"),
+          QSGRP_DESC: getDisplayValue(item, ["QSSGRP_DESC", "SUBGROUP_DESC", "subgroup_desc", "name"], "-"),
+          ANSWER_TYPE: answerType,
+          NO_OF_OPTIONS: String(optionsArr.length || ""),
+          OPTIONS: optionsArr,
+          RATING: ratingRaw,
+        };
       });
+    } catch (error) {
+      console.error(error);
+      return [];
     }
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length) return;
+  }, [questionMasterData]);
+  // const listData = useMemo(() => {
+  //   try {
+  //     return normalizeRecords(questionMasterData).map((item, index) => {
+  //       // API only returns a group *description* (QSGRP_DESC on the question
+  //       // row), never an ID. Resolve QGRP_ID by matching that description
+  //       // against the `groups` lookup list loaded from getQuestionGroups().
+  //       const groupDesc = getDisplayValue(
+  //         item,
+  //         ["QGRP_DESC", "GROUP_NAME", "group_name", "groupName", "QSGRP_DESC"],
+  //         "-",
+  //       );
+  //       const matchedGroup = groups.find((g) => g.NAME === groupDesc);
 
-    try {
-      setLoading(true);
-      const optionPayload = (form.OPTIONS || []).reduce((acc, option, index) => {
-        acc[`opts_${index + 1}`] = option;
-        return acc;
-      }, {});
-      const payload = {
-        ID: form.ID,
-        QGRP_ID: form.QGRP_ID,
-        QSGRP_ID: form.QSGRP_ID,
-        QUES_DESCR: form.QUES_DESCR,
-        rateyn: form.ANSWER_TYPE === "Text" ? "N" : "Y",
-        noopts: form.ANSWER_TYPE === "Text" ? 0 : Number(form.NO_OF_OPTIONS) || 0,
-        answer_type: form.ANSWER_TYPE,
-        ...optionPayload,
-      };
-      const res = await saveQuestion(payload);
-      if (res?.status) {
-        notifySuccess(res?.message || "Question saved");
-        fetchAll();
-        setShowAll(true);
-        resetForm();
-      } else {
-        notifyError(res?.message || "Unable to save question");
-      }
-    } catch (err) {
-      console.error(err);
-      notifyError("Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //       // FIX: OPTIONS comes back as a comma-separated string ("test1, test2"),
+  //       // not an array. Normalize to an array here so buildOptionsFromRow /
+  //       // the form's .map() calls downstream are always safe.
+  //       const rawOptions = item.OPTIONS ?? item.options ?? "";
+  //       const optionsArr =
+  //         typeof rawOptions === "string"
+  //           ? rawOptions.split(",").map((o) => o.trim()).filter(Boolean)
+  //           : Array.isArray(rawOptions)
+  //           ? rawOptions
+  //           : [];
 
-  const buildOptionsFromRow = (row) => {
-    const count = Number(row.noopts || row.NO_OF_OPTIONS || 0);
-    if (Array.isArray(row.OPTIONS) && row.OPTIONS.length) return row.OPTIONS;
-    return Array.from({ length: count }, (_, i) => row[`opts_${i + 1}`] || "");
-  };
+  //       // FIX: RATING comes back as "Radio Box" / "Checkbox" / null, which
+  //       // doesn't exactly match ANSWER_TYPES ["Text","Radio","Checkbox"].
+  //       // Normalize via pattern match instead of relying on exact string match.
+  //       const ratingRaw = getDisplayValue(
+  //         item,
+  //         ["ANSWER_TYPE", "answer_type", "RATING", "rating", "type"],
+  //         "Text",
+  //       );
+  //       const answerType = /radio/i.test(ratingRaw)
+  //         ? "Radio"
+  //         : /check/i.test(ratingRaw)
+  //         ? "Checkbox"
+  //         : "Text";
 
-  const handleEdit = (row) => {
-    setSelectedQuestion(row.ID);
-    setIsEditing(true);
-    setShowAll(false);
-    setForm({
-      ID: row.ID,
-      QGRP_ID: row.QGRP_ID || row.GROUP_ID || "",
-      QSGRP_ID: row.QSGRP_ID || row.SUBGROUP_ID || "",
-      QUES_DESCR: row.QUES_DESCR || row.QUESTION || "",
-      ANSWER_TYPE: row.answer_type || row.ANSWER_TYPE || "Text",
-      NO_OF_OPTIONS: row.noopts || row.NO_OF_OPTIONS || "",
-      OPTIONS: buildOptionsFromRow(row),
-    });
-    if (row.QGRP_ID || row.GROUP_ID) handleGroupChange(row.QGRP_ID || row.GROUP_ID);
-  };
+  //       return {
+  //         ID: item.ID ?? item.id ?? index,
+  //         QGRP_ID: matchedGroup?.ID ?? "",
+  //         QSGRP_ID: item.QSGRP_ID ?? item.SUBGROUP_ID ?? item.qsgrp_id ?? "",
+  //         QUES_DESCR: getDisplayValue(item, ["QUES_DESCR", "QUESTION", "question", "ques_descr", "label"], "-"),
+  //         GROUP_NAME: groupDesc,
+  //         QSGRP_DESC: getDisplayValue(item, ["SUBGROUP_DESC", "subgroup_desc", "name", "label"], "-"),
+  //         ANSWER_TYPE: answerType,
+  //         NO_OF_OPTIONS: String(optionsArr.length || ""),
+  //         OPTIONS: optionsArr,
+  //         RATING: ratingRaw,
+  //       };
+  //     });
+  //   } catch (error) {
+  //     console.error(error);
+  //     return [];
+  //   }
+  // }, [questionMasterData, groups]);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setIsEditing(false);
     setSelectedQuestion("");
     setForm({ ID: "", QGRP_ID: "", QSGRP_ID: "", QUES_DESCR: "", ANSWER_TYPE: "Text", NO_OF_OPTIONS: "", OPTIONS: [] });
     setErrors({});
-  };
+  }, []);
 
-  const handleSelectQuestion = (value) => {
-    setSelectedQuestion(value);
-
-    if (!value) {
-      resetForm();
-      return;
-    }
-
-    const selected = list.find((item) => String(item.ID) === String(value));
-    if (!selected) return;
-
-    handleEdit(selected);
-  };
-
-  const handleDelete = async (row) => {
-    const result = await confirmAction("Are you sure you want to Delete?");
-    if (!result?.isConfirmed) return;
-    try {
-      setDeletingId(row.ID);
-      const res = await deleteQuestion({ ID: row.ID });
-      if (res?.status) notifySuccess(res?.message || "Deleted");
-      else notifyError(res?.message || "Unable to delete");
-      fetchAll();
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setDeletingId(null);
-    }
-  };
+  const {
+    handleGroupChange,
+    handleField,
+    handleOptionChange,
+    handleSave,
+    handleEdit,
+    handleSelectQuestion,
+    handleDelete,
+  } = useQuestionMasterHandler({
+    form,
+    setForm,
+    setErrors,
+    setLoading,
+    setDeletingId,
+    dispatch,
+    getQuestionMasterDataResponse,
+    setShowAll,
+    setSelectedQuestion,
+    setIsEditing,
+    resetForm,
+  });
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return list;
+    if (!search.trim()) return listData;
     const q = search.trim().toLowerCase();
-    return list.filter((r) => (r.QUES_DESCR || r.QUESTION || "").toLowerCase().includes(q) || (r.GROUP_NAME || "").toLowerCase().includes(q));
-  }, [search, list]);
+    return listData.filter(
+      (r) =>
+        (r.QUES_DESCR || r.QUESTION || "").toLowerCase().includes(q) ||
+        (r.GROUP_NAME || "").toLowerCase().includes(q),
+    );
+  }, [search, listData]);
 
-  const columns = [
-    { header: "#", body: (r, o) => o.rowIndex + 1 },
-    { field: "GROUP_NAME", header: "Group", style: { width: "200px" } },
-    { header: "Question", body: (r) => r.QUES_DESCR || r.QUESTION || "" , style: { minWidth: "300px" } },
-    { header: "Type", body: (r) => r.answer_type || r.ANSWER_TYPE || "" , style: { width: "120px" } },
-    { header: "Options", body: (r) => buildOptionsFromRow(r).filter(Boolean).join(", ") },
-    {
-      header: "Action",
-      body: (r) => (
-        <div className="d-flex gap-2">
-          <button className="btn btn-sm btn-outline-primary" onClick={() => handleEdit(r)}>
-            <i className="ti ti-edit" />
-          </button>
-          <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(r)} disabled={deletingId === r.ID}>
-            {deletingId === r.ID ? <span className="spinner-border spinner-border-sm" /> : <i className="ti ti-trash" />}
-          </button>
-        </div>
-      ),
-    },
-  ];
+  const columns = useMemo(
+    () => questionMasterColumns({ handleEdit, handleDelete, deletingId }),
+    [handleEdit, handleDelete, deletingId],
+  );
 
   return (
     <>
@@ -249,13 +240,8 @@ const QuestionMaster = () => {
 
         <BreadcrumbNav
           items={[
-            {
-              text: "Home",
-              link: portalHome,
-            },
-            {
-              text: "Question Master",
-            },
+            { text: "Home", link: portalHome },
+            { text: "Question Master" },
           ]}
         />
       </div>
@@ -283,12 +269,12 @@ const QuestionMaster = () => {
                   <select
                     className="form-select"
                     value={selectedQuestion}
-                    onChange={(e) => handleSelectQuestion(e.target.value)}
+                    onChange={(e) => handleSelectQuestion(e.target.value, listData)}
                     style={{ minWidth: "220px" }}
                     disabled={loading}
                   >
                     <option value="">Select Question Master</option>
-                    {list.map((item) => (
+                    {listData.map((item) => (
                       <option key={item.ID} value={item.ID}>
                         {item.QUES_DESCR || item.QUESTION || ""}
                       </option>
@@ -309,10 +295,17 @@ const QuestionMaster = () => {
 
               {!showAll ? (
                 <>
+                  {isEditing && (
+                    <div className="alert alert-info">You are updating an existing question.</div>
+                  )}
                   <div className="row mb-3">
                     <div className="col-lg-4">
                       <label className="form-label">Question Group</label>
-                      <select className={`form-select ${errors.QGRP_ID ? "is-invalid" : ""}`} value={form.QGRP_ID} onChange={(e) => handleGroupChange(e.target.value)}>
+                      <select
+                        className={`form-select ${errors.QGRP_ID ? "is-invalid" : ""}`}
+                        value={form.QGRP_ID}
+                        onChange={(e) => handleGroupChange(e.target.value)}
+                      >
                         <option value="">Select Group</option>
                         {groups.map((g) => (
                           <option key={g.ID} value={g.ID}>{g.NAME}</option>
@@ -323,7 +316,11 @@ const QuestionMaster = () => {
 
                     <div className="col-lg-4">
                       <label className="form-label">Question Sub Group</label>
-                      <select className="form-select" value={form.QSGRP_ID} onChange={(e) => handleField("QSGRP_ID", e.target.value)}>
+                      <select
+                        className="form-select"
+                        value={form.QSGRP_ID}
+                        onChange={(e) => handleField("QSGRP_ID", e.target.value)}
+                      >
                         <option value="">Select Sub Group</option>
                         {subgroups.map((s) => (
                           <option key={s.ID} value={s.ID}>{s.NAME}</option>
@@ -333,8 +330,14 @@ const QuestionMaster = () => {
 
                     <div className="col-lg-4">
                       <label className="form-label">Answer Type</label>
-                      <select className="form-select" value={form.ANSWER_TYPE} onChange={(e) => handleField("ANSWER_TYPE", e.target.value)}>
-                        {ANSWER_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                      <select
+                        className="form-select"
+                        value={form.ANSWER_TYPE}
+                        onChange={(e) => handleField("ANSWER_TYPE", e.target.value)}
+                      >
+                        {ANSWER_TYPES.map((t) => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -342,39 +345,68 @@ const QuestionMaster = () => {
                   <div className="row mb-3">
                     <div className="col-lg-8">
                       <label className="form-label">Question</label>
-                      <input type="text" className={`form-control ${errors.QUES_DESCR ? "is-invalid" : ""}`} value={form.QUES_DESCR} onChange={(e) => handleField("QUES_DESCR", e.target.value)} />
+                      <input
+                        type="text"
+                        className={`form-control ${errors.QUES_DESCR ? "is-invalid" : ""}`}
+                        value={form.QUES_DESCR}
+                        onChange={(e) => handleField("QUES_DESCR", e.target.value)}
+                      />
                       {errors.QUES_DESCR && <div className="invalid-feedback">{errors.QUES_DESCR}</div>}
                     </div>
 
                     {form.ANSWER_TYPE !== "Text" && (
                       <div className="col-lg-4">
                         <label className="form-label">Number of Options</label>
-                        <select className={`form-select ${errors.NO_OF_OPTIONS ? "is-invalid" : ""}`} value={form.NO_OF_OPTIONS} onChange={(e) => handleField("NO_OF_OPTIONS", e.target.value)}>
+                        <select
+                          className={`form-select ${errors.NO_OF_OPTIONS ? "is-invalid" : ""}`}
+                          value={form.NO_OF_OPTIONS}
+                          onChange={(e) => handleField("NO_OF_OPTIONS", e.target.value)}
+                        >
                           <option value="">Select</option>
-                          {[2,3,4,5].map((n) => <option key={n} value={String(n)}>{n}</option>)}
+                          {[2, 3, 4, 5].map((n) => (
+                            <option key={n} value={String(n)}>{n}</option>
+                          ))}
                         </select>
                         {errors.NO_OF_OPTIONS && <div className="invalid-feedback">{errors.NO_OF_OPTIONS}</div>}
                       </div>
                     )}
                   </div>
 
-                  {form.ANSWER_TYPE !== "Text" && (form.OPTIONS || []).map((opt, idx) => (
-                    <div className="row mb-2" key={idx}>
-                      <div className="col-lg-8">
-                        <div className="input-group">
-                          {form.ANSWER_TYPE === "Radio" && (
-                            <span className="input-group-text"><input type="radio" name="defaultOption" checked={form.DEFAULT_OPTION === idx} onChange={() => setForm((p) => ({ ...p, DEFAULT_OPTION: idx }))} /></span>
-                          )}
-                          <input className={`form-control ${errors[`OPTION_${idx}`] ? "is-invalid" : ""}`} value={opt} onChange={(e) => handleOptionChange(idx, e.target.value)} />
-                          {errors[`OPTION_${idx}`] && <div className="invalid-feedback">{errors[`OPTION_${idx}`]}</div>}
+                  {form.ANSWER_TYPE !== "Text" &&
+                    (form.OPTIONS || []).map((opt, idx) => (
+                      <div className="row mb-2" key={idx}>
+                        <div className="col-lg-8">
+                          <div className="input-group">
+                            {form.ANSWER_TYPE === "Radio" && (
+                              <span className="input-group-text">
+                                <input
+                                  type="radio"
+                                  name="defaultOption"
+                                  checked={form.DEFAULT_OPTION === idx}
+                                  onChange={() => setForm((p) => ({ ...p, DEFAULT_OPTION: idx }))}
+                                />
+                              </span>
+                            )}
+                            <input
+                              className={`form-control ${errors[`OPTION_${idx}`] ? "is-invalid" : ""}`}
+                              value={opt}
+                              onChange={(e) => handleOptionChange(idx, e.target.value)}
+                            />
+                            {errors[`OPTION_${idx}`] && (
+                              <div className="invalid-feedback">{errors[`OPTION_${idx}`]}</div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
 
                   <div className="text-end mb-3">
-                    <button className="btn btn-secondary me-2" type="button" onClick={resetForm}>Cancel</button>
-                    <button className="btn btn-primary" type="button" onClick={handleSave} disabled={loading}>{loading ? 'Processing...' : isEditing ? 'Update' : 'Save'}</button>
+                    <button className="btn btn-secondary me-2" type="button" onClick={resetForm}>
+                      Cancel
+                    </button>
+                    <button className="btn btn-primary" type="button" onClick={handleSave} disabled={loading}>
+                      {loading ? "Processing..." : isEditing ? "Update" : "Save"}
+                    </button>
                   </div>
                 </>
               ) : (
