@@ -336,8 +336,13 @@ const PolicyList = () => {
                   </div>
 
                   <div className="text-end mb-3">
-                    <button type="button" className="btn btn-secondary me-2" onClick={resetForm}>
-                      Cancel
+                    <button
+                      type="button"
+                      className="btn btn-primary me-2"
+                      onClick={handleSave}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Processing..." : isEditing ? "Update" : "Save"}
                     </button>
                     {isEditing && formData.STATUS === "N" && (
                       <button
@@ -348,14 +353,11 @@ const PolicyList = () => {
                         Publish
                       </button>
                     )}
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={handleSave}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? "Processing..." : isEditing ? "Update" : "Save"}
+                    <button type="button" className="btn btn-secondary" onClick={resetForm}>
+                      Cancel
                     </button>
+                    
+                    
                   </div>
                 </>
               ) : (

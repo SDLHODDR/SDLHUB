@@ -169,9 +169,9 @@ const Capabilities = () => {
 
               {!showAll ? (
                 <>
-                  {isEditing && (
+                  {/* {isEditing && (
                     <div className="alert alert-warning">You are editing the selected capability.</div>
-                  )}
+                  )} */}
                   <div className="row mb-3">
                     <div className="col-lg-4">
                       <label className="form-label">Capabilities Code</label>
@@ -215,11 +215,11 @@ const Capabilities = () => {
                   </div>
 
                   <div className="text-end mb-3">
-                    <button type="button" className="btn btn-secondary me-2" onClick={resetForm}>
-                      Cancel
-                    </button>
-                    <button type="button" className="btn btn-primary" onClick={handleSave} disabled={isSubmitting}>
+                    <button type="button" className="btn btn-primary me-2" onClick={handleSave} disabled={isSubmitting}>
                       {isSubmitting ? "Processing..." : isEditing ? "Update" : "Save"}
+                    </button>
+                    <button type="button" className="btn btn-secondary" onClick={resetForm}>
+                      Cancel
                     </button>
                   </div>
                 </>

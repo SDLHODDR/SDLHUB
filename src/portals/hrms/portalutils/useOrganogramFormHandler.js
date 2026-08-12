@@ -10,8 +10,8 @@ import {
   getOrganogramLevels,
   getOrganogramDetails,
   saveOrganogram,
-} from "../../services/orgonogramService";
-import { notifyError, notifySuccess } from "../../../../services/alertService";
+} from "../services/orgonogramService";
+import { notifyError, notifySuccess } from "../../../services/alertService";
 
 const INITIAL_FORM_STATE = {
   FIN_ENTITY_ID: "",
@@ -83,12 +83,12 @@ const useOrganogramFormHandler = (organogramId) => {
             getOrganogramLevels(),
           ]);
 
-        setFinEntityOptions(mapToOptions(finEntityRes?.data));
-        setCompanyOptions(mapToOptions(companyRes?.data));
-        setDepartmentOptions(mapToOptions(departmentRes?.data));
-        setDivisionOptions(mapToOptions(divisionRes?.data));
-        setEmpLevelOptions(mapToOptions(empLevelRes?.data));
-        setOrgLevelOptions(mapToOptions(orgLevelRes?.data));
+        setFinEntityOptions(mapToOptions(finEntityRes?.data, "FINDESC", "FIN_ENTITY"));
+        setCompanyOptions(mapToOptions(companyRes?.data, "COMP_DESC", "COMP_ID"));
+        setDepartmentOptions(mapToOptions(departmentRes?.data, "DEPT_DESC", "DEPT_ID" ));
+        setDivisionOptions(mapToOptions(divisionRes?.data, "DIVSN_DESC", "DIVSN_ID"));
+        setEmpLevelOptions(mapToOptions(empLevelRes?.data, "LEVL_DESC", "LEVL"));
+        setOrgLevelOptions(mapToOptions(orgLevelRes?.data, "OLVL_DESC", "OLVL_ID"));
       } catch (error) {
         console.error("Load organogram masters error:", error);
         notifyError(error?.message || "Unable to load master data.");
@@ -147,7 +147,7 @@ const useOrganogramFormHandler = (organogramId) => {
       try {
         setLoadingDesignations(true);
         const res = await getDesignations({ DEPARTMENT_ID: formData.DEPARTMENT_ID });
-        setDesignationOptions(mapToOptions(res?.data));
+        setDesignationOptions(mapToOptions(res?.data, "LABEL", "ID"));
       } catch (error) {
         console.error("Load designations error:", error);
         notifyError(error?.message || "Unable to load designations.");
@@ -175,7 +175,7 @@ const useOrganogramFormHandler = (organogramId) => {
           DEPARTMENT_ID: formData.DEPARTMENT_ID,
           DESIGNATION_ID: formData.DESIGNATION_ID,
         });
-        setJdLabelOptions(mapToOptions(res?.data));
+        setJdLabelOptions(mapToOptions(res?.data, "LABEL", "ID"));
       } catch (error) {
         console.error("Load JD labels error:", error);
         notifyError(error?.message || "Unable to load JD labels.");

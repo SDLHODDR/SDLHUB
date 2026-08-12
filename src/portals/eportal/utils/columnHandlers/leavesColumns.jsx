@@ -1,7 +1,7 @@
 //import { renderLeaveActions } from "./leavesActions";
 import Badge from "../../components/Badge";
 import { IconWithTooltip } from "../tooltipHelper";
-import { formatDate } from "../formatUtils";
+import { formatDashDate } from "../formatUtils";
 
 export const leavesColumns = (handlers) => [
   {
@@ -14,7 +14,7 @@ export const leavesColumns = (handlers) => [
     header: "From Dt",
     body: (rowData) => {
       return (
-        formatDate(rowData.LVE_DATE_FR)
+        formatDashDate(rowData.LVE_DATE_FR)
       )
     }
   },
@@ -22,7 +22,7 @@ export const leavesColumns = (handlers) => [
     header: "To Dt",
     body: (rowData) => {
       return (
-        formatDate(rowData.LVE_DATE_TO)
+        formatDashDate(rowData.LVE_DATE_TO)
       )
     }
   },

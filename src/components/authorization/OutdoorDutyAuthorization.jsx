@@ -8,7 +8,7 @@ import OutdoorDutyAuthorizationModal from "../../portals/eportal/modal/OutdoorDu
 import { useDispatch, useSelector } from "react-redux";
 import { getAuthDataResponse } from "../../store/eportal/ePortalAuthorizationDataSlice";
 import { getAuthroizationTaskCount } from "../../store/eportal/ePortalAuthorizationCountSlice";
-import { formatDate } from "../../portals/eportal/utils/formatUtils";
+import { formatDashDate } from "../../portals/eportal/utils/formatUtils";
 
 const OutdoorDutyAuthorization = () => {
   const dispatch = useDispatch();
@@ -85,19 +85,6 @@ const OutdoorDutyAuthorization = () => {
     setShowModal(false);
   };
 
-  // const formatDate = (dateStr) => {
-  //   if (!dateStr) return "-";
-    
-  //   const date = new Date(dateStr);
-  //   if (isNaN(date)) return "-";
-
-  //     return date.toLocaleDateString("en-GB", {
-  //         day: "2-digit",
-  //         month: "short",
-  //         year: "numeric",
-  //     });
-  // };
-
   const columns = [
     // { field: "REQUEST_FOR", header: "Task For", sortable: true },
     {
@@ -129,7 +116,7 @@ const OutdoorDutyAuthorization = () => {
             }}
             title="Added On"
           >
-            {formatDate(rowData.GPASS_DATE)}
+            {formatDashDate(rowData.GPASS_DATE)}
           </a>
         )
       }
@@ -145,7 +132,7 @@ const OutdoorDutyAuthorization = () => {
             }}
             title="Task Desc"
           >
-            Outdoor Dated on {formatDate(rowData.GPASS_DATE)}
+            Outdoor Dated on {formatDashDate(rowData.GPASS_DATE)}
           </a>
         )
       },
