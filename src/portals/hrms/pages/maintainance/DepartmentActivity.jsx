@@ -72,6 +72,7 @@ const DepartmentActivity = () => {
         DEPT_ID: item.DEPT_ID ?? item.dept_id ?? item.DEPTID ?? item.deptId ?? "",
         DEPT_DESC: getDisplayValue(item, ["DEPT_DESC", "dept_desc", "DEPT_MASTER_DESC", "name", "label"], "-"),
         ACT_TYPE: getDisplayValue(item, ["ACT_TYPE", "act_type", "type"], "-"),
+        ACT_TYPE_TEXT: getDisplayValue(item, ["ACT_TYPE_TEXT", "act_type", "type"], "-"),
         DISP_SEQ: item.DISP_SEQ ?? item.disp_seq ?? item.dispSeq ?? "",
         ACT_DESC: getDisplayValue(item, ["ACT_DESC", "act_desc", "activityDesc", "title", "name"], "-"),
         createdOn: item.created_on || item.createdOn || "-",
@@ -98,7 +99,8 @@ const DepartmentActivity = () => {
       (item) =>
         item.DEPT_DESC.toLowerCase().includes(query) ||
         item.ACT_DESC.toLowerCase().includes(query) ||
-        String(item.ACT_TYPE).toLowerCase().includes(query),
+        String(item.ACT_TYPE).toLowerCase().includes(query) ||
+        String(item.ACT_TYPE_TEXT).toLowerCase().includes(query),
     );
   }, [searchQuery, listData]);
 
@@ -128,11 +130,12 @@ const DepartmentActivity = () => {
     setIsEditing,
     setShowAll,
     resetForm,
+    isEditing,
   });
 
   const columns = useMemo(
-    () => departmentActivityColumns({ handleDeleteActivity, deletingId }),
-    [handleDeleteActivity, deletingId],
+    () => departmentActivityColumns({ handleEditActivity, handleDeleteActivity, deletingId }),
+    [handleEditActivity, handleDeleteActivity, deletingId],
   );
 
   return (
