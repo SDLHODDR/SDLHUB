@@ -9,6 +9,7 @@ import { getCapabilitiesDataResponse } from "../../../../store/hrms/hrmsCapabili
 import { normalizeRecords, getDisplayValue } from "../../../../utils/formatUtils";
 import { capabilitiesColumns } from "../../portalutils/capabilitiesColumns";
 import { useCapabilitiesHandler } from "../../portalutils/useCapabilitiesHandler";
+import SDLActivitySelector from "../../components/SDLActivitySelector";
 
 const Capabilities = () => {
   const dispatch = useDispatch();
@@ -138,8 +139,18 @@ const Capabilities = () => {
                     </div>
                   )}
                 </div>
-
-                <div className="d-flex align-items-center gap-2">
+                <SDLActivitySelector
+                  items={capabilityOptions}
+                  value={selectedCapability}
+                  onChange={handleSelectCapability}
+                  getOptionValue={(item) => item.id}
+                  getOptionLabel={(item) => item.label}
+                  placeholder="Select Capabilities"
+                  loading={loading}
+                  showAll={showAll}
+                  onToggleView={handleToggleView}
+                />
+                {/* <div className="d-flex align-items-center gap-2">
                   <select
                     className="form-select"
                     value={selectedCapability}
@@ -164,7 +175,7 @@ const Capabilities = () => {
                     <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
                     {showAll ? "Form" : "Table"}
                   </button>
-                </div>
+                </div> */}
               </div>
 
               {!showAll ? (

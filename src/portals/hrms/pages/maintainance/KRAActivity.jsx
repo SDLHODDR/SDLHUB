@@ -10,6 +10,7 @@ import { kraActivityColumns } from "../../portalutils/kraActivityColumns";
 import { getKRAMasterData } from "../../services/kraActivityService";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
+import SDLActivitySelector from "../../components/SDLActivitySelector";
 
 const KRAActivity = () => {
   const dispatch = useDispatch();
@@ -142,6 +143,15 @@ const KRAActivity = () => {
     [handleEditActivity, handleDeleteActivity, deletingId],
   );
 
+  const handleToggleView = () => {
+    if (isSubmitting) return;
+    setShowAll((prev) => {
+      const next = !prev;
+      if (next) resetForm();
+      return next;
+    });
+  };
+
    if (!kraActivityData || !listKRAMasterData) {
     return (
       <div className="d-flex align-items-center justify-content-center vh-100">
@@ -188,7 +198,17 @@ const KRAActivity = () => {
                   )}
                 </div>
 
-                <div className="d-flex align-items-center gap-2">
+                <SDLActivitySelector
+                  items={listData}
+                  value={selectedActivity}
+                  onChange={handleSelectActivity}
+                  getOptionLabel={(item) => item.ACTT_DESC}
+                  placeholder="Select KRA Activity"
+                  loading={loading}
+                  showAll={showAll}
+                  onToggleView={handleToggleView}
+                />
+                {/* <div className="d-flex align-items-center gap-2">
                   <select
                     className="form-select"
                     value={selectedActivity}
@@ -201,15 +221,7 @@ const KRAActivity = () => {
                       <option key={item.ID} value={item.ID}>{item.ACTT_DESC}</option>
                     ))}
                   </select>
-                  {/* <button
-                    type="button"
-                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
-                    onClick={() => setShowAll((prev) => !prev)}
-                    style={{ minWidth: "120px" }}
-                  >
-                    <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
-                    {showAll ? "Form" : "Table"}
-                  </button> */}
+                  
                   <button
                     type="button"
                     className="btn btn-outline-secondary d-flex align-items-center gap-2"
@@ -221,12 +233,11 @@ const KRAActivity = () => {
                         return next;
                       });
                     }}
-                    style={{ minWidth: "120px" }}
+                    style={{ minWidth: "15px" }}
                   >
                     <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
-                    {showAll ? "Form" : "Table"}
                   </button>
-                </div>
+                </div> */}
               </div>
 
               {!showAll ? (

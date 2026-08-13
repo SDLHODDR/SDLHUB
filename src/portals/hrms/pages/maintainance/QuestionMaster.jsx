@@ -11,6 +11,7 @@ import { normalizeRecords, getDisplayValue } from "../../../../utils/formatUtils
 import { questionMasterColumns } from "../../portalutils/questionMasterColumns";
 import { useQuestionMasterHandler } from "../../portalutils/useQuestionMasterHandler";
 import { buildOptionsFromRow } from "../../portalutils/questionOptionsUtils";
+import SDLActivitySelector from "../../components/SDLActivitySelector";
 
 const ANSWER_TYPES = ["Text", "Radio", "Checkbox"];
 
@@ -265,7 +266,17 @@ const QuestionMaster = () => {
                   )}
                 </div>
 
-                <div className="d-flex align-items-center gap-2">
+                <SDLActivitySelector
+                  items={listData}
+                  value={selectedQuestion}
+                  onChange={(val) => handleSelectQuestion(val, listData)}
+                  getOptionLabel={(item) => item.QUES_DESCR || item.QUESTION || ""}
+                  placeholder="Select Question Master"
+                  loading={loading}
+                  showAll={showAll}
+                  onToggleView={() => setShowAll((prev) => !prev)}
+                />
+                {/* <div className="d-flex align-items-center gap-2">
                   <select
                     className="form-select"
                     value={selectedQuestion}
@@ -290,7 +301,7 @@ const QuestionMaster = () => {
                     <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
                     {showAll ? "Form" : "Table"}
                   </button>
-                </div>
+                </div> */}
               </div>
 
               {!showAll ? (

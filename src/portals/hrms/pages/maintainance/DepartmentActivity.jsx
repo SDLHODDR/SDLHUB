@@ -14,6 +14,8 @@ import { normalizeRecords, getDisplayValue } from "../../../../utils/formatUtils
 import { departmentActivityColumns } from "../../portalutils/departmentActivityColumns";
 import { useDepartmentActivityHandler } from "../../portalutils/useDepartmentActivityHandler";
 
+import SDLActivitySelector from "../../components/SDLActivitySelector";
+
 const ACT_TYPES = { J: "Join", E: "Exit" };
 
 const DepartmentActivity = () => {
@@ -138,6 +140,16 @@ const DepartmentActivity = () => {
     [handleEditActivity, handleDeleteActivity, deletingId],
   );
 
+  const handleToggleView = () => {
+  setShowAll((prev) => {
+    const next = !prev;
+    if (next) resetForm();
+    return next;
+  });
+};
+
+
+
   return (
     <>
       <div className="page-header">
@@ -174,7 +186,17 @@ const DepartmentActivity = () => {
                   )}
                 </div>
 
-                <div className="d-flex align-items-center gap-2">
+                <SDLActivitySelector
+                  items={listData}
+                  value={selectedActivity}
+                  onChange={handleSelectActivity}
+                  getOptionLabel={(item) => item.ACT_DESC}
+                  placeholder="Select Department Activity"
+                  loading={loading}
+                  showAll={showAll}
+                  onToggleView={handleToggleView}
+                />
+                {/* <div className="d-flex align-items-center gap-2">
                   <select
                     className="form-select"
                     value={selectedActivity}
@@ -206,7 +228,7 @@ const DepartmentActivity = () => {
                     <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
                     {showAll ? "Form" : "Table"}
                   </button>
-                </div>
+                </div> */}
               </div>
 
               {!showAll ? (
