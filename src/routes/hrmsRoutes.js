@@ -8,6 +8,7 @@ import Department from "../portals/hrms/pages/maintainance/department";
 import ProfileMaintenance from "../portals/hrms/pages/maintainance/ProfileMaintenance";
 import PolicyList from "../portals/hrms/pages/maintainance/PolicyList";
 import Organogram from "../portals/hrms/pages/master-data/Organogram";
+import EmployeeAccess from "../portals/hrms/pages/maintainance/EmployeeAccess";
 
 export const hrmsRoutes = [
   { path: "hrms/dashboard", element: HRMSDashboard,},
@@ -21,5 +22,7 @@ export const hrmsRoutes = [
   { path: "hrms/maintainance/department-activity", element: DepartmentActivity },
   { path: "hrms/maintainance/policylist", element: PolicyList },
   { path: "hrms/maintainance/department", element: Department },
+
+  { path: "hrms/maintainance/employee-access", element: EmployeeAccess },
 
 ];

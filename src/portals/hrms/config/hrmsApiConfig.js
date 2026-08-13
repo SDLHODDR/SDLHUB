@@ -15,7 +15,7 @@ export const HRMS_API = {
     DEPARTMENT_MASTER_GET: "/maintainance/policylist/getDepartmentMaster.php",
     DIVISION_MASTER_GET: "/maintainance/policylist/getDivisionMaster.php",
     POLICY_SAVE: "/maintainance/policylist/savePolicies.php",
-    POLICY_PUBLISH: "/maintainance/policylist/getPolicyPublish.php",    
+    POLICY_PUBLISH: "/maintainance/policylist/getPolicyPublish.php",
     KRAACTIVITY_GET: "/maintainance/kraactivity/getKRAActivityList.php",
     KRAMASTER: "/maintainance/kraactivity/getKRAMaster.php",
     KRAACTIVITY_SAVE: "/maintainance/kraactivity/saveKRAActivity.php",
@@ -28,7 +28,12 @@ export const HRMS_API = {
     DEPARTMENT: "/department/getDepartments.php",
     GET_PROFILES: "/maintainance/profilemaintenance/getProfiles.php",
     GET_PROFILE_ACCESS: "/maintainance/profilemaintenance/getProfileAccess.php",
-    SAVE_PROFILE_ACCESS: "/maintainance/profilemaintenance/saveProfileAccess.php",      
+    SAVE_PROFILE_ACCESS: "/maintainance/profilemaintenance/saveProfileAccess.php",
+
+    GET_EMPLOYEES: "/maintainance/employeeaccess/getEmployees.php",
+    GET_EMPLOYEE_ACCESS: "/maintainance/employeeaccess/getEmployeeAccess.php",
+    SAVE_EMPLOYEE_ACCESS: "/maintainance/employeeaccess/saveEmployeeAccess.php",
+    DISABLE_EMPLOYEE_ACCESS: "/maintainance/employeeaccess/disableEmployeeAccess.php",
   },
 
   DASHBOARD: {
