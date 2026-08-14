@@ -1,0 +1,259 @@
+/* ==========================================================
+   EMPLOYEE ACCESS
+========================================================== */
+
+.hrms-employee-access {
+  border-radius: 6px;
+}
+
+.hrms-employee-access .card-body {
+  padding: 20px;
+}
+
+/* ==========================================================
+   LABEL
+========================================================== */
+
+.hrms-employee-access .form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2f3542;
+  margin-bottom: 6px;
+}
+
+/* ==========================================================
+   PRIME DROPDOWN
+========================================================== */
+
+.hrms-employee-access .p-dropdown {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+}
+
+.hrms-employee-access .p-dropdown:not(.p-disabled):hover {
+  border-color: #ff9800;
+}
+
+.hrms-employee-access
+  .p-dropdown:not(.p-disabled).p-focus {
+  border-color: #ff9800;
+  box-shadow: 0 0 0 0.15rem rgba(255, 152, 0, 0.15);
+}
+
+/* ==========================================================
+   PRIME MULTISELECT
+========================================================== */
+
+.hrms-employee-access .p-multiselect {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+}
+
+.hrms-employee-access
+  .p-multiselect:not(.p-disabled):hover {
+  border-color: #ff9800;
+}
+
+.hrms-employee-access
+  .p-multiselect:not(.p-disabled).p-focus {
+  border-color: #ff9800;
+  box-shadow: 0 0 0 0.15rem rgba(255, 152, 0, 0.15);
+}
+
+/* ==========================================================
+   PROFILE CHIPS
+========================================================== */
+
+.hrms-employee-access .p-multiselect-token {
+  background: #176b87;
+  color: #fff;
+  border-radius: 3px;
+  padding: 4px 7px;
+  font-size: 12px;
+  margin: 2px;
+}
+
+.hrms-employee-access
+  .p-multiselect-token-icon {
+  color: #fff;
+  margin-left: 5px;
+}
+
+/* ==========================================================
+   PROFILE OPTIONS
+========================================================== */
+
+.employee-profile-option {
+  font-size: 13px;
+  padding: 2px 0;
+}
+
+/* ==========================================================
+   SAVE / CANCEL
+========================================================== */
+
+.employee-access-actions .btn {
+  min-width: 70px;
+}
+
+/* ==========================================================
+   DISABLE ACTION
+========================================================== */
+
+.employee-disable-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #e65100 !important;
+  background-color: #fff4e8 !important;
+  border: 1px solid #ffd6b3 !important;
+  border-radius: 5px !important;
+
+  font-size: 17px !important;
+  transition: all 0.2s ease !important;;
+}
+
+.employee-disable-btn:hover {
+  color: #fff !important;;
+  background-color: #f57c00 !important;
+  border-color: #f57c00 !important;
+  box-shadow: 0 2px 5px rgba(245, 124, 0, 0.25) !important;;
+}
+
+.employee-disable-btn:focus {
+  color: #fff !important;
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.15rem rgba(220, 53, 69, 0.15) !important;
+}
+
+.employee-disable-btn:disabled {
+  opacity: 0.65 !important;;
+  cursor: not-allowed;
+}
+
+.p-multiselect .p-multiselect-trigger {
+    margin-top: 10px !important;
+}
+
+/* ==========================================================
+   TABLE
+========================================================== */
+
+.employee-access-table {
+  margin-top: 25px;
+}
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media (max-width: 767px) {
+
+  .hrms-employee-access .card-body {
+    padding: 15px;
+  }
+
+  .employee-access-actions {
+    text-align: center;
+  }
+
+  .employee-access-actions .btn {
+    margin-bottom: 5px;
+  }
+
+}
+
+/* ==========================================================
+   PROFILE MULTISELECT - SHOW ALL SELECTED VALUES
+========================================================== */
+
+.hrms-employee-access .employee-profile-multiselect {
+  width: 100%;
+  min-height: 38px;
+}
+
+.hrms-employee-access
+  .employee-profile-multiselect.p-multiselect {
+  align-items: flex-start;
+}
+
+/* Selected profile chips */
+.hrms-employee-access
+  .employee-profile-multiselect
+  .p-multiselect-label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  padding: 4px 42px 4px 8px;
+  min-height: 38px;
+  max-height: 82px;
+  overflow-y: auto;
+  align-content: flex-start;
+}
+
+/* Individual chip */
+.hrms-employee-access
+  .employee-profile-multiselect
+  .p-multiselect-token {
+  margin: 1px;
+  padding: 3px 7px;
+  background: #176b87;
+  color: #fff;
+  border-radius: 3px;
+  font-size: 12px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+/* Remove icon */
+.hrms-employee-access
+  .employee-profile-multiselect
+  .p-multiselect-token-icon {
+  margin-left: 5px;
+  color: #fff;
+  font-size: 11px;
+}
+
+/* Scrollbar */
+.hrms-employee-access
+  .employee-profile-multiselect
+  .p-multiselect-label::-webkit-scrollbar {
+  width: 5px;
+}
+
+.hrms-employee-access
+  .employee-profile-multiselect
+  .p-multiselect-label::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+}
+
+/* ==========================================================
+   SAVE / CANCEL
+========================================================== */
+
+.employee-access-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 24px;
+  padding-bottom: 20px;
+}
+
+
+/* ==========================================================
+   TABLE
+========================================================== */
+
+.employee-access-table {
+  margin-top: 35px;
+}
