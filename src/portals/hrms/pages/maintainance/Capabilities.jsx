@@ -21,7 +21,7 @@ const Capabilities = () => {
   const loading = useSelector((state) => state.hrmscapabilitiesData?.loading) || false;
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [showAll, setShowAll] = useState(true);
+  const [showAll, setShowAll] = useState(false);
   const [selectedCapability, setSelectedCapability] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -9,6 +9,7 @@ import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
+import SDLTagSelect from "../../../../components/SDLTagSelect";
 
 import { normalizeRecords, getDisplayValue, formatDate } from "../../../../utils/formatUtils";
 import { policyColumns } from "../../portalutils/policyColumns";
@@ -49,8 +50,8 @@ const PolicyList = () => {
   const portal = getPortalFromPath(location.pathname);
   const portalHome = `/${portal.key}/dashboard`;
 
-  const policyData = useSelector((state) => state.hrmspolicyData?.data);
-  const loading = useSelector((state) => state.hrmspolicyData?.loading) || false;
+  const policyData = useSelector((state) => state.hrmspoliciesData?.data);
+  const loading = useSelector((state) => state.hrmspoliciesData?.loading) || false;
 
   const [companyList, setCompanyList] = useState([]);
   const [departmentList, setDepartmentList] = useState([]);
@@ -58,7 +59,9 @@ const PolicyList = () => {
   const [lookupsLoading, setLookupsLoading] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [showAll, setShowAll] = useState(true);
+  // Form mode by default, matching KRA / Department Activity pages. Table
+  // view is reached via the toggle button.
+  const [showAll, setShowAll] = useState(false);
   const [selectedPolicy, setSelectedPolicy] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -160,7 +163,6 @@ const PolicyList = () => {
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) return listData;
     const query = searchQuery.trim().toLowerCase();
-    console.log("============ListData==========", listData);
     return listData.filter(
       (item) =>
         item.POLICY_NAME.toLowerCase().includes(query) ||
@@ -180,7 +182,6 @@ const PolicyList = () => {
 
   const {
     handleFieldChange,
-    handleMultiSelectChange,
     handleFileChange,
     handleSave,
     handlePublish,
@@ -244,14 +245,15 @@ const PolicyList = () => {
                   )}
                 </div>
 
+                {/* Icon-only toggle, matching Capabilities page */}
                 <button
                   type="button"
                   className="btn btn-outline-secondary d-flex align-items-center gap-2"
                   onClick={handleToggleView}
-                  style={{ minWidth: "120px" }}
+                  disabled={isSubmitting}
+                  style={{ minWidth: "15px" }}
                 >
                   <i className={`fas ${showAll ? "fa-plus" : "fa-table"}`} />
-                  {showAll ? "New Policy" : "Table"}
                 </button>
               </div>
 
@@ -263,6 +265,9 @@ const PolicyList = () => {
                     </div>
                   )}
 
+                  {/* Row 1: Company / Department / Division — separated into
+                      its own row so the auto-growing chip boxes (Department,
+                      Division) can never overlap the fields below them. */}
                   <div className="row">
                     <div className="col-lg-3">
                       <div className="mb-3">
@@ -284,40 +289,38 @@ const PolicyList = () => {
                       </div>
                     </div>
 
-                    <div className="col-lg-3">
-                      <div className="mb-3">
-                        <label className="form-label">Department</label>
-                        <select
-                          className="form-select"
-                          multiple
-                          value={formData.DEPT_ID}
-                          onChange={(e) => handleMultiSelectChange("DEPT_ID", e.target.selectedOptions)}
-                          disabled={lookupsLoading}
-                        >
-                          {departmentList.map((d) => (
-                            <option key={d.id} value={d.id}>{d.label}</option>
-                          ))}
-                        </select>
-                      </div>
+                    <div className="col-lg-4">
+                      <SDLTagSelect
+                        id="deptSelect"
+                        label="Department"
+                        options={departmentList}
+                        value={formData.DEPT_ID}
+                        onChange={(newIds) =>
+                          setFormData((prev) => ({ ...prev, DEPT_ID: newIds }))
+                        }
+                        placeholder="Select Department"
+                        disabled={lookupsLoading}
+                      />
                     </div>
 
-                    <div className="col-lg-6">
-                      <div className="mb-3">
-                        <label className="form-label">Division</label>
-                        <select
-                          className="form-select"
-                          multiple
-                          value={formData.DIVISION_ID}
-                          onChange={(e) => handleMultiSelectChange("DIVISION_ID", e.target.selectedOptions)}
-                          disabled={lookupsLoading}
-                        >
-                          {divisionList.map((d) => (
-                            <option key={d.id} value={d.id}>{d.label}</option>
-                          ))}
-                        </select>
-                      </div>
+                    <div className="col-lg-5">
+                      <SDLTagSelect
+                        id="divisionSelect"
+                        label="Division"
+                        options={divisionList}
+                        value={formData.DIVISION_ID}
+                        onChange={(newIds) =>
+                          setFormData((prev) => ({ ...prev, DIVISION_ID: newIds }))
+                        }
+                        placeholder="Select Division"
+                        disabled={lookupsLoading}
+                      />
                     </div>
+                  </div>
 
+                  {/* Row 2: everything else, always starts below Row 1
+                      regardless of how many chips Department/Division grow to. */}
+                  <div className="row">
                     <div className="col-md-3">
                       <div className="mb-3">
                         <label className="form-label">
