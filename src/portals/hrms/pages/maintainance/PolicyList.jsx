@@ -7,6 +7,7 @@ import { getCompanyMaster, getDepartmentMaster, getDivisionMaster } from "../../
 
 import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
+import SDLSearch from "../../../../components/datatable/SDLSearch";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 
 import { normalizeRecords, getDisplayValue, formatDate } from "../../../../utils/formatUtils";
@@ -29,6 +30,19 @@ const emptyForm = {
   STATUS: "N",
 };
 
+// formatDate() isn't guaranteed to handle every raw shape the API can send
+// (some records have "" for STARTDATE, others "DD-Mon-YYYY" strings). Wrap
+// it so a bad date can never blow up the whole listData mapping again.
+const safeFormatDate = (raw) => {
+  if (!raw) return "-";
+  try {
+    return formatDate(raw) || raw;
+  } catch (error) {
+    console.warn("formatDate failed for value:", raw, error);
+    return raw;
+  }
+};
+
 const PolicyList = () => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -43,6 +57,7 @@ const PolicyList = () => {
   const [divisionList, setDivisionList] = useState([]);
   const [lookupsLoading, setLookupsLoading] = useState(false);
 
+  const [searchQuery, setSearchQuery] = useState("");
   const [showAll, setShowAll] = useState(true);
   const [selectedPolicy, setSelectedPolicy] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -76,31 +91,85 @@ const PolicyList = () => {
     loadLookups();
   }, [loadLookups]);
 
+  // Lookup maps (id -> label) built from the already-fetched master lists,
+  // used below to translate the policy record's raw codes/ids into
+  // display text, since the Policy Get API only returns codes, not
+  // descriptions.
+  const companyLookup = useMemo(
+    () => new Map(companyList.map((c) => [String(c.id), c.label])),
+    [companyList],
+  );
+  const departmentLookup = useMemo(
+    () => new Map(departmentList.map((d) => [String(d.id), d.label])),
+    [departmentList],
+  );
+  const divisionLookup = useMemo(
+    () => new Map(divisionList.map((d) => [String(d.id), d.label])),
+    [divisionList],
+  );
+
   const listData = useMemo(() => {
     try {
-      return normalizeRecords(policyData).map((item, index) => ({
-        ID: item.POLI_ID ?? item.ID ?? item.id ?? index,
-        COMP_NAME: item.COMP_NAME ?? "",
-        COMP_DESC: getDisplayValue(item, ["COMP_DESC", "COMPANY_DESC"], "-"),
-        DEPT_DESC: getDisplayValue(item, ["DEPT_DESC", "DEPT_NAMES"], "-"),
-        DIVSN_DESC: getDisplayValue(item, ["DIVSN_DESC", "DIVISION_NAMES"], "-"),
-        DEPT_ID_LIST: item.DEPT_ID_LIST ?? item.DEPT_IDS ?? [],
-        DIVISION_ID_LIST: item.DIVISION_ID_LIST ?? item.DIVISION_IDS ?? [],
-        POLICY_NAME: getDisplayValue(item, ["POLICY_NAME"], "-"),
-        POLICY_DESC: getDisplayValue(item, ["POLICY_DESC"], "-"),
-        START_DATE_RAW: item.START_DATE ?? "",
-        END_DATE_RAW: item.END_DATE ?? "",
-        START_DATE_DISPLAY: formatDate(item.START_DATE),
-        END_DATE_DISPLAY: formatDate(item.END_DATE),
-        DOC_PATH: item.DOC_PATH ?? "",
-        IS_MANDAT: item.IS_MANDAT ?? "N",
-        STATUS: item.STATUS ?? "N",
-      }));
+      return normalizeRecords(policyData).map((item, index) => {
+        // API sends DEPT_ID / DIVISION_ID as comma-separated ID strings
+        // (or a single ID, or ""), NOT arrays and NOT *_LIST fields.
+        const deptIdList = String(item.DEPT_ID ?? "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const divisionIdList = String(item.DIVISION_ID ?? "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+
+        const compDesc = companyLookup.get(String(item.COMP_NAME ?? "")) || item.COMP_NAME || "-";
+        const deptDesc = deptIdList.length
+          ? deptIdList.map((id) => departmentLookup.get(id) || id).join(", ")
+          : "-";
+        const divsnDesc = divisionIdList.length
+          ? divisionIdList.map((id) => divisionLookup.get(id) || id).join(", ")
+          : "-";
+
+        return {
+          ID: item.POLI_ID ?? item.ID ?? item.id ?? index,
+          COMP_NAME: item.COMP_NAME ?? "",
+          COMP_DESC: compDesc,
+          DEPT_DESC: deptDesc,
+          DIVSN_DESC: divsnDesc,
+          DEPT_ID_LIST: deptIdList,
+          DIVISION_ID_LIST: divisionIdList,
+          POLICY_NAME: getDisplayValue(item, ["POLICY_NAME"], "-"),
+          POLICY_DESC: getDisplayValue(item, ["POLICY_DESC"], "-"),
+          // API field is STARTDATE/ENDDATE (no underscore) — kept START_DATE/
+          // END_DATE as fallbacks in case a different endpoint variant uses them.
+          START_DATE_RAW: item.STARTDATE ?? item.START_DATE ?? "",
+          END_DATE_RAW: item.ENDDATE ?? item.END_DATE ?? "",
+          START_DATE_DISPLAY: safeFormatDate(item.STARTDATE ?? item.START_DATE),
+          END_DATE_DISPLAY: safeFormatDate(item.ENDDATE ?? item.END_DATE),
+          DOC_PATH: item.DOC_PATH ?? "",
+          IS_MANDAT: item.IS_MANDAT ?? "N",
+          STATUS: item.STATUS ?? "N",
+        };
+      });
     } catch (error) {
       console.error(error);
       return [];
     }
-  }, [policyData]);
+  }, [policyData, companyLookup, departmentLookup, divisionLookup]);
+
+  const filteredData = useMemo(() => {
+    if (!searchQuery.trim()) return listData;
+    const query = searchQuery.trim().toLowerCase();
+    console.log("============ListData==========", listData);
+    return listData.filter(
+      (item) =>
+        item.POLICY_NAME.toLowerCase().includes(query) ||
+        item.POLICY_DESC.toLowerCase().includes(query) ||
+        item.COMP_DESC.toLowerCase().includes(query) ||
+        item.DEPT_DESC.toLowerCase().includes(query) ||
+        item.DIVSN_DESC.toLowerCase().includes(query),
+    );
+  }, [searchQuery, listData]);
 
   const resetForm = useCallback(() => {
     setIsEditing(false);
@@ -130,13 +199,9 @@ const PolicyList = () => {
   });
 
   const handleToggleView = useCallback(() => {
-    if (showAll) {
-      resetForm();
-      setShowAll(false);
-    } else {
-      setShowAll(true);
-    }
-  }, [showAll, resetForm]);
+    resetForm(); // always reset — clears fields/errors regardless of direction
+    setShowAll((prev) => !prev);
+  }, [resetForm]);
 
   const columns = useMemo(
     () => policyColumns({ handleEdit }),
@@ -164,7 +229,21 @@ const PolicyList = () => {
         <div className="col-12">
           <div className="card">
             <div className="card-body">
-              <div className="d-flex justify-content-end mb-3">
+              <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+                <div className="d-flex align-items-center gap-2 flex-wrap">
+                  {showAll && (
+                    <div className="d-flex align-items-center" style={{ minWidth: "260px" }}>
+                      <SDLSearch
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                        placeholder="Search policies..."
+                        className="mb-0"
+                        style={{ width: "100%" }}
+                      />
+                    </div>
+                  )}
+                </div>
+
                 <button
                   type="button"
                   className="btn btn-outline-secondary d-flex align-items-center gap-2"
@@ -356,21 +435,20 @@ const PolicyList = () => {
                     <button type="button" className="btn btn-secondary" onClick={resetForm}>
                       Cancel
                     </button>
-                    
-                    
                   </div>
                 </>
               ) : (
                 <>
-                  {listData.length === 0 ? (
+                  {filteredData.length === 0 ? (
                     <div className="p-4 text-center text-muted">No policies found</div>
                   ) : (
                     <div className="table-responsive">
                       <SDLDataTable
-                        data={listData}
+                        data={filteredData}
                         columns={columns}
                         loading={loading}
                         emptyMessage="No policies found"
+                        removableSort
                         tableStyle={{ minWidth: "900px" }}
                       />
                     </div>
