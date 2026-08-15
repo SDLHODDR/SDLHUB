@@ -30,3 +30,24 @@ export const deleteKRAActivity = async (payload = {}) => {
     data: payload,
   });
 };
+
+/**
+ * Creates a new KRA Master record (used by the "Add new" flow in
+ * SDLDropdownSelect when a user types a KRA Master that doesn't exist yet).
+ *
+ * Expected PHP endpoint should insert via oci_bind_by_name (bound params),
+ * matching the pattern already used elsewhere in the backend, and return
+ * the created row (including its new KRA_ID) so the frontend can select it
+ * immediately without a refetch.
+ *
+ * @param {{ KRA_DESC: string }} payload
+ * @returns {Promise<object>} created record, e.g. { KRA_ID, KRA_DESC }
+ */
+
+export const createKRAMaster = async (payload = {}) => {
+  return hrmsRequest({
+    url: HRMS_API.MAINTAINANCE.KRAMASTER_SAVE,
+    method: "POST",
+    data: payload,
+  });
+};

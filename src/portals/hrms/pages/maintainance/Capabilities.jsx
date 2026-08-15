@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
+import SDLDropdownSelect from "../../components/forms/SDLDropdownSelect";
 import { getCapabilitiesDataResponse } from "../../../../store/hrms/hrmsCapabilitiesSlice";
 import { normalizeRecords, getDisplayValue } from "../../../../utils/formatUtils";
 import { capabilitiesColumns } from "../../portalutils/capabilitiesColumns";
 import { useCapabilitiesHandler } from "../../portalutils/useCapabilitiesHandler";
-import SDLActivitySelector from "../../components/SDLActivitySelector";
 
 const Capabilities = () => {
   const dispatch = useDispatch();
@@ -45,6 +45,11 @@ const Capabilities = () => {
     }));
   }, [capabilitiesData]);
 
+  // There's no separate "Capabilities Master" table — a capability's CODE
+  // effectively IS the master, so the option list is just the distinct
+  // codes already present in `list`. That also means "add new master if
+  // not available" needs no backend round-trip here: a new code becomes
+  // real the moment the whole Capability record is saved via handleSave.
   const capabilityOptions = useMemo(() => {
     const uniqueCodes = [...new Set(list.map((item) => item.CAPA_CODE_DISPLAY))]
       .filter(Boolean)
@@ -53,6 +58,7 @@ const Capabilities = () => {
     return uniqueCodes.map((code) => ({ id: String(code), label: String(code) }));
   }, [list]);
 
+  // Table-mode search — driven only by the visible SDLSearch box.
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) return list;
 
@@ -64,11 +70,35 @@ const Capabilities = () => {
     );
   }, [searchQuery, list]);
 
+  // Form-mode search — driven by typing in the Capabilities Code dropdown.
+  // Two-step, same pattern as KRA/Department Master:
+  //   1. Find which CODES match the typed text.
+  //   2. Show records whose CAPA_CODE_DISPLAY is in that set.
+  // (No second dimension like Department Activity's Type here.)
+  const [codeSearchQuery, setCodeSearchQuery] = useState("");
+
+  const matchedCodes = useMemo(() => {
+    if (!codeSearchQuery.trim()) return null;
+    const query = codeSearchQuery.trim().toLowerCase();
+    return new Set(
+      capabilityOptions
+        .filter((option) => option.label.toLowerCase().includes(query))
+        .map((option) => option.id),
+    );
+  }, [codeSearchQuery, capabilityOptions]);
+
+  const formFilteredData = useMemo(() => {
+    if (!matchedCodes) return [];
+    if (matchedCodes.size === 0) return [];
+    return list.filter((item) => matchedCodes.has(item.CAPA_CODE_DISPLAY));
+  }, [matchedCodes, list]);
+
   const resetForm = useCallback(() => {
     setIsEditing(false);
     setSelectedCapability("");
     setFormData({ CAPA_ID: "", CAPA_CODE: "", CAPA_DESC: "" });
     setErrors({});
+    setCodeSearchQuery(""); // clear the inline preview table too
   }, []);
 
   const {
@@ -90,11 +120,37 @@ const Capabilities = () => {
     list,
   });
 
+  // "Add new" for Capabilities Code — no API call needed, since there's no
+  // separate master table to insert into ahead of time. The typed code
+  // just becomes the form's CAPA_CODE; it's persisted for real when the
+  // Capability record itself is saved via handleSave.
+  const handleAddNewCapabilityCode = useCallback(async (typedText) => {
+    return { id: typedText, label: typedText };
+  }, []);
+
+  const codeSearchDebounceRef = useRef(null);
+
+  const handleCapabilityCodeSearch = useCallback((text) => {
+    if (codeSearchDebounceRef.current) clearTimeout(codeSearchDebounceRef.current);
+    codeSearchDebounceRef.current = setTimeout(() => {
+      setCodeSearchQuery(text ?? "");
+      // Deliberately NOT touching `showAll` — stays in form mode, results
+      // render as an inline table below the form.
+    }, 250);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (codeSearchDebounceRef.current) clearTimeout(codeSearchDebounceRef.current);
+    };
+  }, []);
+
   const handleToggleView = useCallback(() => {
     if (showAll) {
       resetForm();
       setShowAll(false);
     } else {
+      resetForm();
       setShowAll(true);
     }
   }, [showAll, resetForm]);
@@ -139,77 +195,59 @@ const Capabilities = () => {
                     </div>
                   )}
                 </div>
-                <SDLActivitySelector
-                  items={capabilityOptions}
-                  value={selectedCapability}
-                  onChange={handleSelectCapability}
-                  getOptionValue={(item) => item.id}
-                  getOptionLabel={(item) => item.label}
-                  placeholder="Select Capabilities"
-                  loading={loading}
-                  showAll={showAll}
-                  onToggleView={handleToggleView}
-                />
-                {/* <div className="d-flex align-items-center gap-2">
-                  <select
-                    className="form-select"
-                    value={selectedCapability}
-                    onChange={(e) => handleSelectCapability(e.target.value)}
-                    style={{ minWidth: "240px" }}
-                    disabled={loading}
-                  >
-                    <option value="">Select Capabilities</option>
-                    {capabilityOptions.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.label}
-                      </option>
-                    ))}
-                  </select>
 
+                {/* Keyword-searchable "Select Capabilities", same pattern
+                    as the top selectors in KRAActivity / DepartmentActivity
+                    — toggle button kept as its own explicit sibling,
+                    matching this file's original icon+label style. */}
+                <div className="d-flex align-items-center gap-2">
+                  <div style={{ minWidth: "260px" }}>
+                    <SDLDropdownSelect
+                      id="capabilitySelect"
+                      options={capabilityOptions}
+                      value={selectedCapability}
+                      onChange={(id) => handleSelectCapability(id)}
+                      placeholder="Select Capabilities"
+                      disabled={loading}
+                      wrapperClassName=""
+                    />
+                  </div>
                   <button
                     type="button"
                     className="btn btn-outline-secondary d-flex align-items-center gap-2"
                     onClick={handleToggleView}
-                    style={{ minWidth: "120px" }}
+                    disabled={isSubmitting}
+                    style={{ minWidth: "15px" }}
                   >
                     <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
-                    {showAll ? "Form" : "Table"}
+                    {/* {showAll ? "Form" : "Table"} */}
                   </button>
-                </div> */}
+                </div>
               </div>
 
               {!showAll ? (
                 <>
-                  {/* {isEditing && (
-                    <div className="alert alert-warning">You are editing the selected capability.</div>
-                  )} */}
                   <div className="row mb-3">
                     <div className="col-lg-4">
-                      <label className="form-label">Capabilities Code</label>
-                      {isEditing ? (
-                        <select
-                          className={`form-select ${errors.CAPA_CODE ? "is-invalid" : ""}`}
-                          value={formData.CAPA_CODE}
-                          onChange={(e) => handleFieldChange("CAPA_CODE", e.target.value)}
-                        >
-                          <option value="">Please Select</option>
-                          {capabilityOptions.map((item) => (
-                            <option key={item.id} value={item.id}>
-                              {item.label}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <input
-                          type="text"
-                          className={`form-control ${errors.CAPA_CODE ? "is-invalid" : ""}`}
-                          value={formData.CAPA_CODE}
-                          onChange={(e) => handleFieldChange("CAPA_CODE", e.target.value)}
-                          placeholder="Enter new capability code"
-                          maxLength="100"
-                        />
-                      )}
-                      {errors.CAPA_CODE && <div className="invalid-feedback">{errors.CAPA_CODE}</div>}
+                      {/* Capabilities Code — searchable + creatable, same
+                          pattern as KRA Master / Department Master. Always
+                          searchable now regardless of isEditing: selecting
+                          an existing code behaves like the old edit-mode
+                          <select>, typing a new one behaves like the old
+                          add-mode free-text <input>. */}
+                      <SDLDropdownSelect
+                        id="capaCode"
+                        label="Capabilities Code"
+                        options={capabilityOptions}
+                        value={formData.CAPA_CODE}
+                        onChange={(id) => handleFieldChange("CAPA_CODE", id)}
+                        invalid={!!errors.CAPA_CODE}
+                        errorMessage={errors.CAPA_CODE}
+                        allowAddNew
+                        onAddNew={handleAddNewCapabilityCode}
+                        onFilterChange={handleCapabilityCodeSearch}
+                        placeholder={isEditing ? "Please Select" : "Enter new capability code"}
+                      />
                     </div>
 
                     <div className="col-lg-6">
@@ -233,6 +271,28 @@ const Capabilities = () => {
                       Cancel
                     </button>
                   </div>
+
+                  {/* Inline preview table — only while there's an active
+                      Capabilities Code search and we're still in form
+                      mode. Disappears once the search is cleared or the
+                      form is reset/submitted (see resetForm). */}
+                  {codeSearchQuery.trim() && (
+                    <div className="table-responsive mt-2">
+                      {formFilteredData.length === 0 ? (
+                        <div className="p-3 text-center text-muted border rounded">
+                          No matching capabilities
+                        </div>
+                      ) : (
+                        <SDLDataTable
+                          data={formFilteredData}
+                          columns={columns}
+                          loading={false}
+                          emptyMessage="No matching capabilities"
+                          removableSort
+                        />
+                      )}
+                    </div>
+                  )}
                 </>
               ) : (
                 <>

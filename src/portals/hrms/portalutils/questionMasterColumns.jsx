@@ -10,7 +10,16 @@ export const questionMasterColumns = ({ handleEdit, handleDelete, deletingId }) 
   },
   {
     header: "Group",
-    body: (r) => r.QSGRP_DESC || r.GROUP_NAME || "",
+    body: (r) => r.GROUP_NAME || r.QSGRP_DESC || "",
+    style: { width: "200px" },
+  },
+  {
+    header: "Sub Group",
+    // Fixed: listData now outputs SUBGROUP_NAME (renamed from a QSGRP_DESC
+    // key that was colliding with the Group field's own name). QSSGRP_DESC
+    // / SUBGROUP_DESC are kept as fallbacks in case this column is ever
+    // reused against raw, un-normalized API rows.
+    body: (r) => r.SUBGROUP_NAME || r.QSSGRP_DESC || r.SUBGROUP_DESC || "",
     style: { width: "200px" },
   },
   {
