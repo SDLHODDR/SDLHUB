@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   getMasterTables,
   getMasterData,
@@ -26,6 +26,7 @@ const MasterData = () => {
   /* =========================
      EDIT
   ========================= */
+  const saveLockRef = useRef(false);
 
   const [editingId, setEditingId] = useState(null);
   const [editDescription, setEditDescription] = useState("");
@@ -33,6 +34,7 @@ const MasterData = () => {
   /* =========================
      ADD
   ========================= */
+  const DESCRIPTION_MAX_LENGTH = 100;
 
   const [isAdding, setIsAdding] = useState(false);
   const [newDescription, setNewDescription] = useState("");
@@ -202,12 +204,15 @@ const MasterData = () => {
   const handleSaveEdit = async (row) => {
     const description = editDescription.trim();
 
-    /* ----------------------------------------------
-       Validation
-    ---------------------------------------------- */
-
     if (!description) {
       notifyError("Description is required.");
+      return;
+    }
+
+    if (description.length > DESCRIPTION_MAX_LENGTH) {
+      notifyError(
+        `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters.`
+      );
       return;
     }
 
@@ -216,17 +221,14 @@ const MasterData = () => {
       return;
     }
 
-    /* ----------------------------------------------
-       Prevent duplicate submit
-    ---------------------------------------------- */
-
-    if (saving) {
+    if (saving || saveLockRef.current) {
       return;
     }
 
-    try {
-      setSaving(true);
+    saveLockRef.current = true;
+    setSaving(true);
 
+    try {
       const res = await saveMasterData({
         tabName: selectedMaster.tabName,
         id: row.id,
@@ -234,34 +236,25 @@ const MasterData = () => {
       });
 
       if (res?.status) {
-        /* ==========================================
-           CLOSE EDIT MODE
-        ========================================== */
-
         setEditingId(null);
         setEditDescription("");
 
-        /* ==========================================
-           RELOAD FROM DATABASE
-
-           Do NOT do:
-           setMasterData(prev => ...)
-
-           because the database is the source
-           of truth.
-        ========================================== */
-
         await loadMasterData(selectedMaster.tabName);
 
-        notifySuccess(res.message || "Master record updated successfully.");
+        notifySuccess(
+          res.message || "Master record updated successfully."
+        );
       } else {
         notifyError(res?.message || "Unable to update record.");
       }
     } catch (error) {
       console.error("Update master data error:", error);
 
-      notifyError(error?.message || "Unable to update record.");
+      notifyError(
+        error?.message || "Unable to update record."
+      );
     } finally {
+      saveLockRef.current = false;
       setSaving(false);
     }
   };
@@ -310,12 +303,15 @@ const MasterData = () => {
   const handleSaveAdd = async () => {
     const description = newDescription.trim();
 
-    /* ----------------------------------------------
-       Validation
-    ---------------------------------------------- */
-
     if (!description) {
       notifyError("Description is required.");
+      return;
+    }
+
+    if (description.length > DESCRIPTION_MAX_LENGTH) {
+      notifyError(
+        `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters.`
+      );
       return;
     }
 
@@ -324,17 +320,14 @@ const MasterData = () => {
       return;
     }
 
-    /* ----------------------------------------------
-       Prevent double click / duplicate request
-    ---------------------------------------------- */
-
-    if (saving) {
+    if (saving || saveLockRef.current) {
       return;
     }
 
-    try {
-      setSaving(true);
+    saveLockRef.current = true;
+    setSaving(true);
 
+    try {
       const res = await saveMasterData({
         tabName: selectedMaster.tabName,
         id: "",
@@ -342,39 +335,25 @@ const MasterData = () => {
       });
 
       if (res?.status) {
-        /* ==========================================
-           CLOSE ADD ROW
-        ========================================== */
-
         setIsAdding(false);
         setNewDescription("");
 
-        /* ==========================================
-           RELOAD FROM DATABASE
-
-           IMPORTANT:
-           We do NOT manually push the new row
-           into masterData.
-
-           This prevents duplicate UI records.
-        ========================================== */
-
         await loadMasterData(selectedMaster.tabName);
 
-        notifySuccess(res.message || "Master record added successfully.");
+        notifySuccess(
+          res.message || "Master record added successfully."
+        );
       } else {
-        /*
-         * 409 duplicate response from PHP
-         * will come here.
-         */
-
         notifyError(res?.message || "Unable to add record.");
       }
     } catch (error) {
       console.error("Add master data error:", error);
 
-      notifyError(error?.message || "Unable to add record.");
+      notifyError(
+        error?.message || "Unable to add record."
+      );
     } finally {
+      saveLockRef.current = false;
       setSaving(false);
     }
   };
@@ -559,14 +538,23 @@ const MasterData = () => {
                             type="text"
                             className="form-control form-control-sm"
                             value={newDescription}
-                            onChange={(event) =>
-                              setNewDescription(event.target.value)
-                            }
+                            onChange={(event) => {
+                              const value = event.target.value;
+
+                              if (value.length <= DESCRIPTION_MAX_LENGTH) {
+                                setNewDescription(value);
+                              }
+                            }}
                             onKeyDown={handleAddKeyDown}
                             placeholder="Enter description"
+                            maxLength={DESCRIPTION_MAX_LENGTH}
                             autoFocus
                             disabled={saving}
                           />
+
+                          <small className="text-muted">
+                            {newDescription.length}/{DESCRIPTION_MAX_LENGTH}
+                          </small>
                         </td>
 
                         <td className="text-center">
@@ -649,19 +637,29 @@ const MasterData = () => {
 
                             <td>
                               {isEditing ? (
+                                <>
                                 <input
                                   type="text"
                                   className="form-control form-control-sm"
                                   value={editDescription}
-                                  onChange={(event) =>
-                                    setEditDescription(event.target.value)
-                                  }
-                                  onKeyDown={(event) =>
-                                    handleEditKeyDown(event, row)
-                                  }
+                                  onChange={(event) => {
+                                    const value = event.target.value;
+
+                                    if (value.length <= DESCRIPTION_MAX_LENGTH) {
+                                      setEditDescription(value);
+                                    }
+                                  }}
+                                  onKeyDown={(event) => handleEditKeyDown(event, row)}
+                                  placeholder="Enter description"
+                                  maxLength={DESCRIPTION_MAX_LENGTH}
                                   autoFocus
                                   disabled={saving}
                                 />
+
+                                <small className="text-muted">
+                                  {editDescription.length}/{DESCRIPTION_MAX_LENGTH}
+                                </small>
+                                </>
                               ) : (
                                 row.description
                               )}
