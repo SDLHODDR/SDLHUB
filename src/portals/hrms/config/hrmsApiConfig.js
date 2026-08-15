@@ -17,6 +17,7 @@ export const HRMS_API = {
     DEPARTMENT_MASTER_GET: "/maintainance/policylist/getDepartmentMaster.php",
     DIVISION_MASTER_GET: "/maintainance/policylist/getDivisionMaster.php",
     POLICY_SAVE: "/maintainance/policylist/savePolicies.php",
+    POLICY_ASSOCIATIONS: "/maintainance/policylist/getPolicyAssociations.php",
     POLICY_PUBLISH: "/maintainance/policylist/getPolicyPublish.php",
     KRAACTIVITY_GET: "/maintainance/kraactivity/getKRAActivityList.php",
     KRAMASTER: "/maintainance/kraactivity/getKRAMaster.php",

@@ -9,6 +9,14 @@ export const getPolicyData = async (payload = {}) => {
   });
 };
 
+export const getPolicyAssociations = async (payload = {} ) => {
+  return hrmsRequest({
+    url: HRMS_API.MAINTAINANCE.POLICY_ASSOCIATIONS,
+    method: "POST",
+    data: payload,
+  });
+};
+
 export const getCompanyMaster = async (payload = {}) => {
   return hrmsRequest({
     url: HRMS_API.MAINTAINANCE.COMPANY_MASTER_GET,
