@@ -124,69 +124,7 @@ const ConferenceRoomAuthorization = () => {
     );
   }, [searchQuery, listData]);
 
-  // =========================
-  // RESET PAGE
-  // =========================
-//   useEffect(() => {
-//       setCurrentPage(1);
-//   }, [refreshKey, tabId]);
-
-//   const fetchAuthRequests = async () => {
-//     try {
-//         setLoading(true);
-//         setAuthData([]);
-//         setFilteredData([]);
-
-//         console.log("---------API Payload---------", {
-//             task_id: 357,
-//             //page: currentPage,
-//             //limit: rows,
-//         });
-
-//         const response = await getTaskTableData({
-//             task_id: 357,
-//             //page: currentPage,
-//             //limit: rows,
-//         });
-
-//         console.log("---------Response API:-----------", response);
-
-//         // adjust according to API structure
-//         const result = response || [];
-//         const total = response.length || 0;
-//         console.log("---------Result data-----------", result);
-//         const formatted = result.map((item, index) => {    
-//             const details = item.DETAILS || {};
-
-//             return {
-//                 id: item?.ID ?? item?.TRAN_CODE,
-//                 empName: item.CREATED_BY,
-//                 addedon: formatDate(item.CREATED_ON) || "-",
-//                 original: item,
-//                 details: details,
-//                 taskIdAuth: item?.ID || null,
-//                 room: details?.ROOM_LABEL || "-",
-//                 date: details?.ASON_DATE || "-",
-//                 duration: calculateDuration(details?.STARTTIME, details?.ENDTIME),
-//                 remarks: item.DETAILS.REMARKS || "-",
-//                 task: `(${item.TASK_DESC} - ${formatDate(details?.ASON_DATE) || "-"})`
-//             };
-//         });
-
-//         // DEBUG (optional)
-//         // console.log("IDS:", formatted.map((x) => x.id));
-//         // console.log("=====Console.log=========", formatted);
-
-//         setAuthData(formatted);
-//         setTotalRecords(total);
-//     } catch (error) {
-//         console.error("Auth API error:", error);
-//         setAuthData([]);
-//         setFilteredData([]);
-//     } finally {
-//         setLoading(false);
-//     }
-// };
+  
 
 // =========================
 // SYNC FILTERED DATA
@@ -279,22 +217,34 @@ const handleSearch = (value) => {
     const baseColumns = [
       { 
           field: "addedon", 
-          header: "Request On",
+          header: "Created On",
           body: (row) => (
-          <span className="request-date">
+            <span
+              className="request-date"
+              style={{
+              cursor: "pointer",
+              textDecoration: "none",
+              fontWeight: 500,
+              }}
+              onClick={() => handleRowClick(row)}
+          >
               {row.addedon}
           </span>
+          // <span className="request-date">
+          //     {row.addedon}
+          // </span>
           )
       },
+      
       {
           field: "empName",
-          header: "Request By",
+          header: "Created By",
           body: (row) => (
           <span
               className="text-primary"
               style={{
               cursor: "pointer",
-              textDecoration: "underline",
+              textDecoration: "none",
               fontWeight: 500,
               }}
               onClick={() => handleRowClick(row)}
@@ -304,24 +254,69 @@ const handleSearch = (value) => {
           ),
       },
       
-    
+      {
+          field: "empName",
+          header: "Booking For",
+          body: (row) => (
+          <span
+              className="text-primary"
+              style={{
+              cursor: "pointer",
+              textDecoration: "none",
+              fontWeight: 500,
+              }}
+              onClick={() => handleRowClick(row)}
+          >
+              {row.empName}
+          </span>
+          ),
+      },
     ];
 
     // Add columns based on tabId
     if (357) {
         return [
             ...baseColumns,
-            { field: "room", header: "Room" },
-            { field: "remarks", header: "Reason"}, 
+            // { field: "room", header: "Room" },
             { header: "Date",
-                body: (rowData) => {
-                  return (
-                    formatDashDate(rowData.date)
-                  )
-                }
-              },
+              body: (rowData) => {
+                return (
+                  <span
+                    className="request-date"
+                    style={{
+                    cursor: "pointer",
+                    textDecoration: "none",
+                    fontWeight: 500,
+                    }}
+                    onClick={() => handleRowClick(row)}
+                >
+                    {formatDashDate(rowData.date)}
+                </span>
+                  
+                )
+              }
+            },
             { field: "duration", header: "Duration" },
-            { field: "task", header: "Task" },
+            // { field: "remarks", header: "Reason"}, 
+            { header: "Reason",
+              body: (rowData) => {
+                return (
+                  <span
+                    className="text-primary"
+                    style={{
+                    cursor: "pointer",
+                    textDecoration: "none",
+                    fontWeight: 500,
+                    }}
+                    onClick={() => handleRowClick(row)}
+                >
+                    {rowData.remarks}
+                </span>
+                  
+                )
+              }
+            },
+            //{ field: "task", header: "Task" },
         ];
     }
 

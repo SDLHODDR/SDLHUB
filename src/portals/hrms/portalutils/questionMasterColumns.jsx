@@ -1,4 +1,6 @@
+import SDLActionButtons from "../../../components/SDLActionButtons";
 import { buildOptionsFromRow } from "./questionOptionsUtils";
+import { getQuestionMasterActions } from "./questionMasterActions";
 
 const serialBody = (rowData, options) => options.rowIndex + 1;
 
@@ -39,29 +41,37 @@ export const questionMasterColumns = ({ handleEdit, handleDelete, deletingId }) 
   {
     header: "Action",
     body: (r) => (
-      <div className="d-flex gap-2">
-        <button
-          type="button"
-          className="btn btn-sm btn-outline-primary"
-          onClick={() => handleEdit(r)}
-          aria-label="Edit Question"
-        >
-          <i className="ti ti-edit" />
-        </button>
-        <button
-          type="button"
-          className="btn btn-sm btn-outline-danger"
-          onClick={() => handleDelete(r)}
-          disabled={deletingId === r.ID}
-          aria-label="Delete Question"
-        >
-          {deletingId === r.ID ? (
-            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-          ) : (
-            <i className="ti ti-trash" />
-          )}
-        </button>
-      </div>
+      // <div className="d-flex gap-2">
+      //   <button
+      //     type="button"
+      //     className="btn btn-sm btn-outline-primary"
+      //     onClick={() => handleEdit(r)}
+      //     aria-label="Edit Question"
+      //   >
+      //     <i className="ti ti-edit" />
+      //   </button>
+      //   <button
+      //     type="button"
+      //     className="btn btn-sm btn-outline-danger"
+      //     onClick={() => handleDelete(r)}
+      //     disabled={deletingId === r.ID}
+      //     aria-label="Delete Question"
+      //   >
+      //     {deletingId === r.ID ? (
+      //       <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+      //     ) : (
+      //       <i className="ti ti-trash" />
+      //     )}
+      //   </button>
+      // </div>
+      <SDLActionButtons
+        row={r}
+        actions={getQuestionMasterActions({
+          handleEdit,
+          handleDelete,
+          deletingId,
+        })}
+      />
     ),
   },
 ];

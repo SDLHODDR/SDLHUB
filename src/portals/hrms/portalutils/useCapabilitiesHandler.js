@@ -67,13 +67,15 @@ export const useCapabilitiesHandler = ({
   }, [formData, validateForm, setIsSubmitting, dispatch, getCapabilitiesDataResponse, resetForm, setShowAll]);
 
   const handleEdit = useCallback((row) => {
-    setSelectedCapability(String(row.CAPA_ID ?? row.ID ?? row.id));
+    //console.log("=========Row========", row);
+    const capaCode = row.CAPA_CODE || row.CAPA_CODE_DISPLAY || "";
+    setSelectedCapability(capaCode);
     setIsEditing(true);
     setShowAll(false);
     setFormData({
       CAPA_ID: row.CAPA_ID ?? row.ID ?? row.id ?? "",
-      CAPA_CODE: row.CAPA_CODE || row.code || "",
-      CAPA_DESC: row.CAPA_DESC || row.description || row.DESCR || "",
+      CAPA_CODE: capaCode,
+      CAPA_DESC: row.CAPA_DESC || row.CAPA_DESC_DISPLAY || "",
     });
   }, [setSelectedCapability, setIsEditing, setShowAll, setFormData]);
 
