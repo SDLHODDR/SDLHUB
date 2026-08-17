@@ -263,7 +263,7 @@ const QuestionMaster = () => {
               <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
                 <div className="d-flex align-items-center gap-2 flex-wrap">
                   {showAll && (
-                    <div className="d-flex align-items-center" style={{ minWidth: "260px" }}>
+                    <div className="d-flex align-items-center" style={{ minWidth: "270px" }}>
                       <SDLSearch
                         value={search}
                         onChange={setSearch}
@@ -280,7 +280,7 @@ const QuestionMaster = () => {
                     kept as its own explicit sibling, matching this file's
                     original icon+label style. */}
                 <div className="d-flex align-items-center gap-2">
-                  <div style={{ minWidth: "260px" }}>
+                  <div style={{ minWidth: "270px" }}>
                     <SDLDropdownSelect
                       id="questionMasterSelect"
                       options={questionOptions}
@@ -381,7 +381,7 @@ const QuestionMaster = () => {
                       <textarea
                         className={`form-control ${errors.QUES_DESCR ? "is-invalid" : ""}`}
                         value={form.QUES_DESCR}
-                        maxLength={1000}
+                        maxLength={200}
                         rows={isTextType ? 4 : 8}
                         onChange={(e) => handleField("QUES_DESCR", e.target.value)}
                       />
@@ -406,7 +406,7 @@ const QuestionMaster = () => {
                             <input
                               className={`form-control ${errors[`OPTION_${idx}`] ? "is-invalid" : ""}`}
                               value={opt}
-                              maxLength={500}
+                              maxLength={100}
                               placeholder={`Option ${idx + 1}`}
                               onChange={(e) => handleOptionChange(idx, e.target.value)}
                             />

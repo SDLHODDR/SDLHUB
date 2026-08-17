@@ -115,7 +115,7 @@ const Organogram = () => {
         <div className="col-xl-12">
           <div className="card">
             <div className="card-header">
-              <div className="card-title">
+              <div className="card-title ms-auto" style={{ width: '270px' }}>
                 <Dropdown
                   value={selectedOrganogram}
                   options={orgonogramOptions}

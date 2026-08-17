@@ -1,9 +1,11 @@
 // import { useState, useEffect, useRef } from "react";
-import { useState } from "react";
-import { authLRData, rejectLRData } from "../services/leavesService";
+import { useState, useEffect } from "react";
+import { authLRData, rejectLRData, getAuthLRSwipperData } from "../services/leavesService";
 import { notifyError, notifySuccess } from "../../../services/alertService";
 import SDLFormField from "../../../components/SDLFormField"
 import SDLAuthorizationActionButtons from "../../../components/SDLAuthorizationActionButtons";
+import moment from "moment";
+import AuthModalLeavesList from "./AuthModalLeavesList";
 
 const LeavesAuthorizationModal = ({
   leaves,
@@ -11,6 +13,12 @@ const LeavesAuthorizationModal = ({
   onClose,
   onSuccess,
 }) => {
+  const [loading, setLoading] = useState(false);
+  /* ========================================= */
+  /* COMMON LEAVE DATA */
+  /* ========================================= */
+  const [leaveHistoryData, setLeaveHistoryData] = useState([]);
+
   const getByteLength = (str) => new TextEncoder().encode(str || "").length;
   const [formData, setFormData] = useState(() => ({
       ID: leaves.TRAN_CODE,
@@ -103,7 +111,44 @@ const LeavesAuthorizationModal = ({
     E: "End Of The Day",
   };
 
+  const fetchLeaveHistory = async () => {
+    try {
+      setLoading(true);
+
+      const empCodeLH = formData?.EMP_CODE;
+
+      const response =
+        await getAuthLRSwipperData({
+          SITE_CODE: "SDLHO",
+          PRD_CODE: moment().format("YYYYMM"), //"202507"
+          LEAVE_CODE: "",
+          PROC_GRP_FROM: "",
+          PROC_GRP_TO: "",
+          EMP_FROM: empCodeLH,
+          EMP_TO: empCodeLH,
+        });
+
+      setLeaveHistoryData(
+        response?.data || []
+      );
+
+      console.log("========LEAVE REGISTER========",response);
+    } catch (error) {
+      console.error("Error fetching leave history", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ========================================= */
+  /* FETCH LEAVE HISTORY */
+  /* ========================================= */
+  useEffect(() => {
+    fetchLeaveHistory();
+  }, [formData]);
+
   //console.log("---------****** FormData *********-------------", formData);
+  console.log("============== Leave Register resp =============", leaveHistoryData);
 
   return (
     <>
@@ -150,34 +195,60 @@ const LeavesAuthorizationModal = ({
             <form>
               {/* Body */}
               <div className="modal-body">
-                
-                <div className="row">
-                  <SDLFormField label="leave type" value={formData.LVE_CODE} />
-                  <SDLFormField label="total days" value={formData.TOTAL_DAYS} />
-                </div>
-                <div className="row">
-                  <SDLFormField label="leave starts on" value={formData.LVE_START_ON} />
-                  <SDLFormField label="leave ends on" value={formData.LVE_END_ON} />
-                </div>
-                <div className="row">
-                  <SDLFormField label="reason" value={formData.REASON} />
-                </div>
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="form-label">Auth Remarks:</label>
-                      <textarea
-                        className="form-control"
-                        name="AUTH_REMARKS"
-                        value={formData.AUTH_REMARKS || ""}
-                        onChange={handleChange}
-                      />
-                      <div className="char-counter">
-                        {getByteLength(formData.AUTH_REMARKS || "")} / 200
+                <ul className="nav nav-tabs nav-tabs-bottom border-bottom mb-3">
+                <li className="nav-item">
+                  <a className="nav-link active" href="#bottom-tab1" data-bs-toggle="tab">
+                    Leave Request
+                  </a>
+                </li>
+
+                <li className="nav-item">
+                  <a className="nav-link" href="#bottom-tab2" data-bs-toggle="tab" >
+                    Past History
+                  </a>
+                </li>
+              </ul>
+               <div className="tab-content">
+                {/* TAB 1 */}
+                <div className="tab-pane show active" id="bottom-tab1" >
+                  <div className="card border-0 shadow-sm">
+                    <div className="card-body py-3">
+                      <div className="row">
+                        <SDLFormField label="leave type" value={formData.LVE_CODE} />
+                        <SDLFormField label="total days" value={formData.TOTAL_DAYS} />
+                      </div>
+                      <div className="row">
+                        <SDLFormField label="leave starts on" value={formData.LVE_START_ON} />
+                        <SDLFormField label="leave ends on" value={formData.LVE_END_ON} />
+                      </div>
+                      <div className="row">
+                        <SDLFormField label="reason" value={formData.REASON} />
+                      </div>
+                      <div className="row">
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Auth Remarks:</label>
+                            <textarea
+                              className="form-control"
+                              name="AUTH_REMARKS"
+                              value={formData.AUTH_REMARKS || ""}
+                              onChange={handleChange}
+                            />
+                            <div className="char-counter">
+                              {getByteLength(formData.AUTH_REMARKS || "")} / 200
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+                 {/* TAB 2 */}
+                <div className="tab-pane" id="bottom-tab2">
+                  <AuthModalLeavesList dataSource={ leaveHistoryData } loading={loading} />
+                </div>
+               </div>
+                
               </div>
               {/* Footer */}
               <div className="modal-footer">
