@@ -276,7 +276,7 @@ const KRAActivity = () => {
               <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
                 <div className="d-flex align-items-center gap-2 flex-wrap">
                   {showAll && (
-                    <div className="d-flex align-items-center" style={{ minWidth: "260px" }}>
+                    <div className="d-flex align-items-center" style={{ minWidth: "270px" }}>
                       <SDLSearch
                         value={searchQuery}
                         onChange={setSearchQuery}
@@ -289,7 +289,7 @@ const KRAActivity = () => {
                 </div>
 
                 <div className="d-flex align-items-center gap-2">
-                  <div style={{ minWidth: "260px" }}>
+                  <div style={{ minWidth: "270px" }}>
                     <SDLDropdownSelect
                       id="kraActivitySelect"
                       options={activityOptions}

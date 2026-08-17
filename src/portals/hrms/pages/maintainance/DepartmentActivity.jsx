@@ -263,7 +263,7 @@ const DepartmentActivity = () => {
               <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
                 <div className="d-flex align-items-center gap-2 flex-wrap">
                   {showAll && (
-                    <div className="d-flex align-items-center" style={{ minWidth: "260px" }}>
+                    <div className="d-flex align-items-center" style={{ minWidth: "270px" }}>
                       <SDLSearch
                         value={searchQuery}
                         onChange={setSearchQuery}
@@ -279,7 +279,7 @@ const DepartmentActivity = () => {
                     pattern as KRAActivity's top selector — toggle button
                     kept as its own explicit sibling element. */}
                 <div className="d-flex align-items-center gap-2">
-                  <div style={{ minWidth: "240px" }}>
+                  <div style={{ minWidth: "270px" }}>
                     <SDLDropdownSelect
                       id="deptActivitySelect"
                       options={activityOptions}
@@ -304,8 +304,8 @@ const DepartmentActivity = () => {
 
               {!showAll ? (
                 <>
-                  <div className="row">
-                    <div className="col-lg-4 col-md-6">
+                  <div className="row mb-3">
+                    <div className="col-lg-3 col-md-6">
                       {/* (2) Department Master — searchable + creatable,
                           same pattern as Department Master in DepartmentActivity. */}
                       <SDLDropdownSelect
@@ -325,7 +325,7 @@ const DepartmentActivity = () => {
                       />
                     </div>
 
-                    <div className="col-lg-4 col-md-6">
+                    <div className="col-lg-3 col-md-3">
                       <div className="mb-3">
                         <label className="form-label">
                           Type
@@ -347,7 +347,7 @@ const DepartmentActivity = () => {
                       </div>
                     </div>
 
-                    <div className="col-lg-4 col-md-6">
+                    <div className="col-lg-3 col-md-6">
                       <div className="mb-3">
                         <label className="form-label">
                           Sequence
@@ -365,7 +365,7 @@ const DepartmentActivity = () => {
                       </div>
                     </div>
 
-                    <div className="col-lg-8">
+                    <div className="col-lg-3 col-md-6">
                       <div className="mb-3">
                         <label className="form-label">
                           Department Activity

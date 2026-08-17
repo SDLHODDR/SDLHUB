@@ -1,0 +1,204 @@
+/* ==========================================================================
+   sdl-select.css
+   Shared look-and-feel for SDLDropdownSelect, SDLActivitySelector, and
+   SDLTagSelect — styled to read like PrimeReact's Dropdown / MultiSelect.
+
+   v2 adds: click-to-open control (vs. type-ahead input), a dedicated
+   search-with-magnifier row inside the panel, checkbox option rows for
+   the multiselect, and rectangular (not pill) selected chips — matching
+   the Employee / Profile / Department reference screens.
+
+   Import once, e.g. in your app entry: import "./sdl-select.css";
+   ========================================================================== */
+
+:root {
+  --sdl-accent: #2c6e75;
+  --sdl-accent-hover: #245a60;
+  --sdl-accent-tint: #eaf2f2;       /* hover/selected background */
+  --sdl-accent-ring: rgba(44, 110, 117, 0.25);
+  --sdl-hover-accent: #f0ad4e;      /* orange left-accent on hover, per screenshots */
+
+  --sdl-border: #ced4da;
+  --sdl-border-hover: #9fb2b4;
+  --sdl-radius: 6px;
+
+  --sdl-text: #343a40;
+  --sdl-text-muted: #9ca3af;
+
+  --sdl-panel-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  --sdl-danger: #dc3545;
+  --sdl-danger-ring: rgba(220, 53, 69, 0.25);
+}
+
+/* ============================ v1: legacy type-ahead combobox ===========
+   Still used by SDLActivitySelector's native <select>. Kept for
+   backward-compat in case any page still renders the older
+   SDLDropdownSelect/SDLTagSelect variants.
+   ========================================================================== */
+
+.sdl-select-input {
+  width: 100%;
+  border: 1px solid var(--sdl-border);
+  border-radius: var(--sdl-radius);
+  padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  color: var(--sdl-text);
+  background-color: #fff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.sdl-select-input:hover:not(:disabled) { border-color: var(--sdl-border-hover); }
+.sdl-select-input:focus {
+  outline: none;
+  border-color: var(--sdl-accent);
+  box-shadow: 0 0 0 0.2rem var(--sdl-accent-ring);
+}
+.sdl-select-input:disabled { background-color: #f3f4f6; color: var(--sdl-text-muted); cursor: not-allowed; }
+
+.sdl-select-invalid { border-color: var(--sdl-danger) !important; }
+.sdl-select-invalid:focus { box-shadow: 0 0 0 0.2rem var(--sdl-danger-ring) !important; }
+
+.sdl-select-field { position: relative; }
+.sdl-select-chevron {
+  position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%);
+  font-size: 0.75rem; color: var(--sdl-text-muted); pointer-events: none;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+.sdl-select-field.sdl-open .sdl-select-chevron {
+  transform: translateY(-50%) rotate(180deg); color: var(--sdl-accent);
+}
+
+.sdl-native-select {
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  width: 100%; border: 1px solid var(--sdl-border); border-radius: var(--sdl-radius);
+  padding: 0.5rem 2.25rem 0.5rem 0.75rem; font-size: 0.875rem; color: var(--sdl-text);
+  background-color: #fff; transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.sdl-native-select:hover:not(:disabled) { border-color: var(--sdl-border-hover); }
+.sdl-native-select:focus {
+  outline: none; border-color: var(--sdl-accent); box-shadow: 0 0 0 0.2rem var(--sdl-accent-ring);
+}
+.sdl-native-select:disabled { background-color: #f3f4f6; color: var(--sdl-text-muted); cursor: not-allowed; }
+
+.sdl-toggle-btn {
+  border: 1px solid var(--sdl-border); border-radius: var(--sdl-radius); background: #fff;
+  color: var(--sdl-text); padding: 0.5rem 0.85rem; font-size: 0.875rem;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.sdl-toggle-btn:hover { background-color: var(--sdl-accent-tint); border-color: var(--sdl-accent); color: var(--sdl-accent-hover); }
+
+.sdl-invalid-feedback { display: block; margin-top: 0.25rem; font-size: 0.8rem; color: var(--sdl-danger); }
+
+/* ============================ v2: click-to-open control =================
+   The main "closed" box for both SDLDropdownSelect and SDLTagSelect.
+   Click anywhere on it to open the panel — it does not accept typed text
+   itself; search happens in a separate box inside the panel.
+   ========================================================================== */
+
+.sdl-select-control {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; border: 1px solid var(--sdl-border); border-radius: var(--sdl-radius);
+  padding: 0.55rem 0.85rem; font-size: 0.9rem; background: #fff; cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease; user-select: none;
+}
+.sdl-select-control:hover:not(.sdl-select-disabled) { border-color: var(--sdl-border-hover); }
+.sdl-select-control.sdl-open { border-color: var(--sdl-accent); box-shadow: 0 0 0 0.2rem var(--sdl-accent-ring); }
+.sdl-select-control.sdl-select-invalid { border-color: var(--sdl-danger); }
+.sdl-select-control.sdl-select-disabled { background: #f3f4f6; color: var(--sdl-text-muted); cursor: not-allowed; }
+
+.sdl-select-control .sdl-placeholder { color: var(--sdl-text-muted); }
+.sdl-select-control .sdl-value { color: var(--sdl-text); font-weight: 500; }
+
+.sdl-select-chevron-static { color: var(--sdl-text-muted); font-size: 0.75rem; margin-left: 0.5rem; flex-shrink: 0; }
+
+/* ---- floating panel (shared by both) ---- */
+.sdl-select-panel {
+  background: #fff; border: 1px solid #e5e7eb; border-radius: var(--sdl-radius);
+  box-shadow: var(--sdl-panel-shadow); overflow: hidden;
+}
+
+/* ---- dedicated search row with magnifier icon ---- */
+.sdl-select-search-row {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.6rem; border-bottom: 1px solid #eef0f1;
+}
+.sdl-select-search-box {
+  position: relative; flex: 1; display: flex; align-items: center;
+  border: 1px solid var(--sdl-border); border-radius: var(--sdl-radius);
+  padding: 0.35rem 0.5rem; background: #fff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.sdl-select-search-box:focus-within { border-color: var(--sdl-accent); box-shadow: 0 0 0 0.15rem var(--sdl-accent-ring); }
+.sdl-select-search-input { flex: 1; border: none; outline: none; font-size: 0.85rem; color: var(--sdl-text); background: transparent; padding: 0 0.25rem; min-width: 0; }
+.sdl-select-search-icon { color: var(--sdl-text-muted); font-size: 0.8rem; margin-left: 0.25rem; }
+.sdl-select-search-clear { border: none; background: none; color: var(--sdl-text-muted); font-size: 0.75rem; padding: 0 0.25rem; cursor: pointer; }
+.sdl-select-search-clear:hover { color: var(--sdl-danger); }
+
+/* ---- option list ---- */
+.sdl-select-list { max-height: 240px; overflow-y: auto; padding: 0.25rem; }
+.sdl-select-list::-webkit-scrollbar { width: 6px; }
+.sdl-select-list::-webkit-scrollbar-thumb { background: var(--sdl-hover-accent); border-radius: 4px; }
+.sdl-select-list::-webkit-scrollbar-track { background: transparent; }
+
+/* plain text row (single-select Dropdown), orange left-accent on hover */
+.sdl-select-option {
+  display: block; width: 100%; text-align: left; border: none; background: none;
+  padding: 0.6rem 0.85rem; font-size: 0.875rem; color: var(--sdl-text);
+  border-left: 3px solid transparent; cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+.sdl-select-option:hover,
+.sdl-select-option.sdl-select-option-active {
+  background: var(--sdl-accent-tint); border-left-color: var(--sdl-hover-accent);
+}
+
+.sdl-select-empty { padding: 0.6rem 0.85rem; font-size: 0.85rem; color: var(--sdl-text-muted); }
+
+.sdl-select-addnew {
+  display: flex; align-items: center; gap: 0.5rem; width: 100%; border: none; background: none;
+  text-align: left; padding: 0.6rem 0.85rem; border-radius: 4px; font-size: 0.875rem;
+  color: var(--sdl-accent); font-weight: 500; cursor: pointer; transition: background-color 0.12s ease;
+}
+.sdl-select-addnew:hover { background-color: var(--sdl-accent-tint); }
+.sdl-select-addnew:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* checkbox row (multiselect option), selected = tinted + accent text */
+.sdl-select-option-row {
+  display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.85rem;
+  border-radius: 4px; font-size: 0.875rem; color: var(--sdl-text);
+  cursor: pointer; transition: background-color 0.12s ease;
+}
+.sdl-select-option-row:hover { background: var(--sdl-accent-tint); }
+.sdl-select-option-row.sdl-selected { background: var(--sdl-accent-tint); font-weight: 500; color: var(--sdl-accent-hover); }
+
+input.sdl-checkbox { width: 16px; height: 16px; accent-color: var(--sdl-accent); cursor: pointer; flex-shrink: 0; }
+
+/* ---- rectangular selected chip (replaces the old pill token) ---- */
+.sdl-token-rect {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background-color: var(--sdl-accent); color: #fff; border-radius: 4px;
+  padding: 0.3rem 0.5rem 0.3rem 0.65rem; font-size: 0.8rem; font-weight: 500; line-height: 1.2;
+}
+.sdl-token-remove {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%; border: none;
+  background: rgba(255, 255, 255, 0.25); color: #fff; font-size: 0.65rem; line-height: 1;
+  cursor: pointer; transition: background-color 0.12s ease;
+}
+.sdl-token-remove:hover { background: rgba(255, 255, 255, 0.45); }
+
+/* ---- multiselect closed control (chips + placeholder + clear + chevron) ---- */
+.sdl-multi-control {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  width: 100%; min-height: 42px; border: 1px solid var(--sdl-border); border-radius: var(--sdl-radius);
+  background: #fff; padding: 0.4rem 0.6rem; cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.sdl-multi-control:hover:not(.sdl-select-disabled) { border-color: var(--sdl-border-hover); }
+.sdl-multi-control.sdl-open { border-color: var(--sdl-accent); box-shadow: 0 0 0 0.2rem var(--sdl-accent-ring); }
+.sdl-multi-control.sdl-select-invalid { border-color: var(--sdl-danger); }
+.sdl-multi-control.sdl-select-disabled { background: #f3f4f6; cursor: not-allowed; }
+
+.sdl-multi-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; flex: 1; }
+.sdl-multi-actions { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+.sdl-multi-clear { border: none; background: none; color: var(--sdl-text-muted); font-size: 0.8rem; cursor: pointer; padding: 0.15rem; }
+.sdl-multi-clear:hover { color: var(--sdl-danger); }

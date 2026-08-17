@@ -1,40 +1,37 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import "../../assets/sdldropselect.css";
 
 /**
- * Generic searchable / creatable combobox.
+ * Click-to-open searchable / creatable dropdown, styled after PrimeReact's
+ * Dropdown with a filter box (see the "Employee" / "Department" reference
+ * screens): the closed control just displays the selected label — it is
+ * NOT a text input. Opening it reveals a separate search box (with its own
+ * magnifier icon) inside the panel, and the option list below it.
  *
- * Deliberately NOT built on PrimeReact's Dropdown filter — that filter box
- * resets itself on selection/close and can't be set programmatically, which
- * made it impossible to guarantee:
- *   1. Selecting an option writes that option's label into the search box.
- *   2. Selecting an option (or typing) drives the caller's `onFilterChange`.
- *   3. A guaranteed "Add new" row appears whenever nothing matches.
+ * This replaces the earlier type-ahead-combobox version of this component
+ * (where the main box doubled as both value display and search input).
+ * That version is still supported visually via the legacy `.sdl-select-input`
+ * CSS classes if you have other pages still using it, but new usages should
+ * expect this click-to-open behavior.
  *
  * The option list is rendered through a React portal into document.body and
- * positioned via the input's screen coordinates (position: fixed), instead
- * of being a normal absolutely-positioned child of the form. A plain child
- * gets clipped by ANY ancestor with overflow:hidden/auto (card-body,
- * table-responsive, etc.) and can lose z-index stacking fights with
- * siblings — a portal sidesteps both, the same way PrimeReact's own overlay
- * panels work.
- *
- * Only `options` / `value` / `onChange` are expected to change per usage —
- * every caller normalizes its data to { id, label } before passing it in.
+ * positioned via the control's screen coordinates (position: fixed), so it
+ * always escapes ancestor overflow:hidden/auto clipping and z-index fights —
+ * same reasoning as before, just now anchored to a div instead of an input.
  *
  * Usage:
  *   <SDLDropdownSelect
- *     id="kraMaster"
- *     label="KRA Master"
- *     required
- *     options={masterOptions}          // [{ id, label }, ...]
- *     value={formData.KRA_ID}
+ *     id="employee"
+ *     label="Employee"
+ *     options={employeeOptions}        // [{ id, label }, ...]
+ *     value={formData.EMP_ID}
  *     onChange={(id, option) => { ... }}
- *     invalid={!!errors.KRA_ID}
- *     errorMessage={errors.KRA_ID}
+ *     invalid={!!errors.EMP_ID}
+ *     errorMessage={errors.EMP_ID}
  *     allowAddNew
- *     onAddNew={handleAddNewKRAMaster}
- *     onFilterChange={handleKRAMasterSearch}
+ *     onAddNew={handleAddNewEmployee}
+ *     onFilterChange={handleEmployeeSearch}
  *   />
  */
 const SDLDropdownSelect = ({
@@ -43,48 +40,36 @@ const SDLDropdownSelect = ({
   options = [],
   value,
   onChange, // (id, selectedOption) => void
-  placeholder = "Select",
+  placeholder = "Please Select",
+  searchPlaceholder = "Search...",
   disabled = false,
   invalid = false,
   errorMessage,
   required = false,
   allowAddNew = false,
   onAddNew, // async (typedText) => { id, label } | null
-  onFilterChange, // (text) => void  -- fired on every keystroke AND on selection
-  className = "",
+  onFilterChange, // (text) => void  -- fired on every search keystroke AND on selection
   wrapperClassName = "mb-3", // override to "" for compact/inline placements
 }) => {
-  const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
   const [adding, setAdding] = useState(false);
   const [menuPosition, setMenuPosition] = useState(null); // { top, left, width }
 
-  const wrapperRef = useRef(null); // label + input, stays in normal document flow
-  const inputRef = useRef(null);
+  const wrapperRef = useRef(null); // label + control, stays in normal document flow
+  const controlRef = useRef(null); // the clickable closed box
+  const searchInputRef = useRef(null);
   const menuRef = useRef(null); // portal content, lives in document.body
-  const optionsRef = useRef(options);
-  optionsRef.current = options;
 
-  // Sync displayed text FROM the parent's `value` — only when `value`
-  // itself changes (edit-mode load, form reset, etc.), never when the
-  // background `options` list happens to refresh. This is what stops a
-  // stray refetch from wiping out text the user is actively typing.
-  useEffect(() => {
-    if (!value) {
-      setQuery("");
-      return;
-    }
-    const match = optionsRef.current.find((opt) => String(opt.id) === String(value));
-    if (match) setQuery(match.label);
-  }, [value]);
+  const selectedOption = options.find((opt) => String(opt.id) === String(value));
 
-  // Compute the portal menu's screen position from the input's own
+  // Compute the portal menu's screen position from the control's own
   // bounding box. Re-run whenever the menu opens, and keep it in sync on
   // scroll/resize while open (capture:true so it catches scrolling inside
   // ANY inner scrollable ancestor, not just the window).
   const updateMenuPosition = useCallback(() => {
-    if (!inputRef.current) return;
-    const rect = inputRef.current.getBoundingClientRect();
+    if (!controlRef.current) return;
+    const rect = controlRef.current.getBoundingClientRect();
     setMenuPosition({
       top: rect.bottom, // position: fixed, so viewport-relative — no scrollY offset needed
       left: rect.left,
@@ -103,8 +88,8 @@ const SDLDropdownSelect = ({
     };
   }, [isOpen, updateMenuPosition]);
 
-  // Close the panel on outside click. Checks BOTH the input wrapper and the
-  // portal menu, since the menu lives in a separate DOM subtree under
+  // Close the panel on outside click. Checks BOTH the control wrapper and
+  // the portal menu, since the menu lives in a separate DOM subtree under
   // document.body and wouldn't be "contained" by wrapperRef.
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -118,47 +103,58 @@ const SDLDropdownSelect = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const filteredOptions = query.trim()
-    ? options.filter((opt) => opt.label.toLowerCase().includes(query.trim().toLowerCase()))
+  const handleToggle = useCallback(() => {
+    if (disabled) return;
+    setIsOpen((open) => !open);
+    setSearchText(""); // panel always opens with a fresh search box
+  }, [disabled]);
+
+  const filteredOptions = searchText.trim()
+    ? options.filter((opt) => opt.label.toLowerCase().includes(searchText.trim().toLowerCase()))
     : options;
 
-  const handleInputChange = useCallback(
+  const handleSearchChange = useCallback(
     (e) => {
       const text = e.target.value;
-      setQuery(text);
-      setIsOpen(true);
-      onFilterChange?.(text); // (1/2) every keystroke drives the caller's table filter
+      setSearchText(text);
+      onFilterChange?.(text); // drives the caller's table filter, keystroke by keystroke
     },
     [onFilterChange],
   );
 
+  const clearSearch = useCallback(() => {
+    setSearchText("");
+    onFilterChange?.("");
+    searchInputRef.current?.focus();
+  }, [onFilterChange]);
+
   const handleSelectOption = useCallback(
     (option) => {
-      setQuery(option.label); // (1) selection lands in the search box
       setIsOpen(false);
+      setSearchText("");
       onChange(option.id, option);
-      onFilterChange?.(option.label); // (2) selection also drives the table filter
+      onFilterChange?.(option.label); // selection also drives the table filter
     },
     [onChange, onFilterChange],
   );
 
   const handleAddNew = useCallback(async () => {
-    const typed = query.trim();
+    const typed = searchText.trim();
     if (!onAddNew || !typed || adding) return;
     try {
       setAdding(true);
       const newOption = await onAddNew(typed);
       if (newOption) {
-        handleSelectOption(newOption); // (3) new option behaves exactly like a normal selection
+        handleSelectOption(newOption); // new option behaves exactly like a normal selection
       }
     } catch (error) {
-      console.error("Error adding new KRA Master:", error);
+      console.error("Error adding new option:", error);
     } finally {
       setAdding(false);
     }
-  }, [onAddNew, adding, query, handleSelectOption]);
+  }, [onAddNew, adding, searchText, handleSelectOption]);
 
-  const showAddNewRow = allowAddNew && query.trim() && filteredOptions.length === 0;
+  const showAddNewRow = allowAddNew && searchText.trim() && filteredOptions.length === 0;
 
   return (
     <div className={wrapperClassName} ref={wrapperRef}>
@@ -169,19 +165,36 @@ const SDLDropdownSelect = ({
         </label>
       )}
 
-      <input
+      <div
         id={id}
-        ref={inputRef}
-        type="text"
-        autoComplete="off"
-        className={`form-control ${invalid ? "is-invalid" : ""} ${className}`}
-        placeholder={placeholder}
-        value={query}
-        disabled={disabled || adding}
-        onChange={handleInputChange}
-        onFocus={() => setIsOpen(true)}
-      />
-      {invalid && errorMessage && <div className="invalid-feedback">{errorMessage}</div>}
+        ref={controlRef}
+        role="button"
+        tabIndex={disabled ? -1 : 0}
+        className={[
+          "sdl-select-control",
+          isOpen ? "sdl-open" : "",
+          invalid ? "sdl-select-invalid" : "",
+          disabled ? "sdl-select-disabled" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        onClick={handleToggle}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleToggle();
+          } else if (e.key === "Escape") {
+            setIsOpen(false);
+          }
+        }}
+      >
+        <span className={selectedOption ? "sdl-value" : "sdl-placeholder"}>
+          {selectedOption ? selectedOption.label : placeholder}
+        </span>
+        <i className={`fas fa-chevron-${isOpen ? "up" : "down"} sdl-select-chevron-static`} />
+      </div>
+
+      {invalid && errorMessage && <div className="sdl-invalid-feedback">{errorMessage}</div>}
 
       {isOpen &&
         !disabled &&
@@ -189,53 +202,77 @@ const SDLDropdownSelect = ({
         createPortal(
           <div
             ref={menuRef}
-            className="dropdown-menu show shadow-sm"
+            className="sdl-select-panel"
             style={{
               position: "fixed",
               top: menuPosition.top,
               left: menuPosition.left,
               width: menuPosition.width,
-              maxHeight: "240px",
-              overflowY: "auto",
               // Higher than Bootstrap modals (1055) / PrimeReact overlays,
               // so it always wins regardless of what else is on screen.
               zIndex: 1080,
             }}
           >
-            {filteredOptions.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                className="dropdown-item"
-                // onMouseDown (not onClick) so the option is picked before
-                // the input's blur / outside-click handler can close the panel.
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  handleSelectOption(option);
-                }}
-              >
-                {option.label}
-              </button>
-            ))}
+            <div className="sdl-select-search-row">
+              <div className="sdl-select-search-box">
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  autoFocus
+                  autoComplete="off"
+                  className="sdl-select-search-input"
+                  placeholder={searchPlaceholder}
+                  value={searchText}
+                  onChange={handleSearchChange}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setIsOpen(false);
+                  }}
+                />
+                {searchText && (
+                  <button type="button" className="sdl-select-search-clear" onClick={clearSearch}>
+                    <i className="fas fa-times" />
+                  </button>
+                )}
+                <i className="fas fa-search sdl-select-search-icon" />
+              </div>
+            </div>
 
-            {!filteredOptions.length && !showAddNewRow && (
-              <span className="dropdown-item-text text-muted">No results found</span>
-            )}
+            <div className="sdl-select-list">
+              {filteredOptions.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className="sdl-select-option"
+                  // onMouseDown (not onClick) so the option is picked before
+                  // the search input's blur / outside-click handler can close the panel.
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSelectOption(option);
+                  }}
+                >
+                  {option.label}
+                </button>
+              ))}
 
-            {showAddNewRow && (
-              <button
-                type="button"
-                className="dropdown-item text-primary d-flex align-items-center gap-2"
-                disabled={adding}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  handleAddNew();
-                }}
-              >
-                <i className={`fas ${adding ? "fa-spinner fa-spin" : "fa-plus-circle"}`} />
-                {adding ? "Adding..." : `Add "${query.trim()}" as new KRA Master`}
-              </button>
-            )}
+              {!filteredOptions.length && !showAddNewRow && (
+                <div className="sdl-select-empty">No results found</div>
+              )}
+
+              {showAddNewRow && (
+                <button
+                  type="button"
+                  className="sdl-select-addnew"
+                  disabled={adding}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleAddNew();
+                  }}
+                >
+                  <i className={`fas ${adding ? "fa-spinner fa-spin" : "fa-plus-circle"}`} />
+                  {adding ? "Adding..." : `Add "${searchText.trim()}" as new option`}
+                </button>
+              )}
+            </div>
           </div>,
           document.body,
         )}
