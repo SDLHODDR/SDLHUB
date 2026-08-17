@@ -1,3 +1,6 @@
+import SDLActionButtons from "../../../components/SDLActionButtons";
+import { getCapabilitiesActions } from "./capabilitiesActions";
+
 export const capabilitiesColumns = ({ handleEdit }) => [
   {
     header: "#",
@@ -16,16 +19,12 @@ export const capabilitiesColumns = ({ handleEdit }) => [
   {
     header: "Action",
     body: (row) => (
-      <div className="d-flex gap-2">
-        <button
-          type="button"
-          className="btn btn-sm btn-outline-primary"
-          onClick={() => handleEdit(row)}
-          aria-label="Edit Capability"
-        >
-          <i className="ti ti-edit" />
-        </button>
-      </div>
+       <SDLActionButtons
+        row={row}
+        actions={getCapabilitiesActions({
+          handleEdit,
+        })}
+      />
     ),
     style: { width: "100px", textAlign: "center" },
   },

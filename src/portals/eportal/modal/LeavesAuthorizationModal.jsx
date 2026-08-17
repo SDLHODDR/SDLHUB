@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { authLRData, rejectLRData } from "../services/leavesService";
 import { notifyError, notifySuccess } from "../../../services/alertService";
+import SDLFormField from "../../../components/SDLFormField"
+import SDLAuthorizationActionButtons from "../../../components/SDLAuthorizationActionButtons";
 
 const LeavesAuthorizationModal = ({
   leaves,
@@ -148,69 +150,19 @@ const LeavesAuthorizationModal = ({
             <form>
               {/* Body */}
               <div className="modal-body">
-                {/* <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                       <label className="fw-semibold">CREATED BY :</label>
-                        <span className="ms-2">
-                        { formData.CREATED_BY || "" }
-                      </span>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">CREATED ON :</label>
-                       <span className="ms-2">
-                        { formData.CREATED_ON || "" }
-                      </span>
-                    </div>
-                  </div>
-                </div> */}
+                
                 <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">Leave Type :</label>
-                      <span className="ms-2">
-                        { formData.LVE_CODE || "" }
-                      </span>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">TOTAL DAYS :</label>
-                      <span className="ms-2">
-                        { formData.TOTAL_DAYS || "" }
-                      </span>
-                    </div>
-                  </div>
+                  <SDLFormField label="leave type" value={formData.LVE_CODE} />
+                  <SDLFormField label="total days" value={formData.TOTAL_DAYS} />
                 </div>
                 <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">Leave Starts On :</label>
-                      <span className="ms-2">
-                        { LeaveStartEndArr[formData.LVE_START_ON] || "-" }
-                      </span>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">Leave Ends On :</label>
-                       <span className="ms-2">
-                        { LeaveStartEndArr[formData.LVE_END_ON] || "-" }
-                      </span>
-                    </div>
-                  </div>
+                  <SDLFormField label="leave starts on" value={formData.LVE_START_ON} />
+                  <SDLFormField label="leave ends on" value={formData.LVE_END_ON} />
                 </div>
                 <div className="row">
-                   <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">Reason :</label>
-                       <span className="ms-2">
-                        { formData.REASON || "" }
-                      </span>
-                    </div>
-                  </div>
+                  <SDLFormField label="reason" value={formData.REASON} />
+                </div>
+                <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
                       <label className="form-label">Auth Remarks:</label>
@@ -229,23 +181,10 @@ const LeavesAuthorizationModal = ({
               </div>
               {/* Footer */}
               <div className="modal-footer">
-                <div className="d-flex gap-2">
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={handleAuthorize}
-                  >
-                    Authorize
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={handleReject}
-                  >
-                    Reject
-                  </button>
-                </div>
+                <SDLAuthorizationActionButtons
+                  onAuthorize={handleAuthorize}
+                  onReject={handleReject}
+                />
               </div>
             </form>
           </div>

@@ -8,6 +8,7 @@ import hrmsKRAActivityReducer from "./hrms/hrmsKRAActivitySlice";
 import hrmsQuestionMasterReducer from "./hrms/hrmsQuestionMasterSlice"; // <-- add this
 import hrmsCapabilitiesReducer from "./hrms/hrmsCapabilitiesSlice";
 import hrmsDeptActivitiesReducer from "./hrms/hrmsDeptActivitySlice";
+import hrmsPoliciesReducer from "./hrms/hrmsPolicySlice";
 
 export const store = configureStore({
   reducer: {
@@ -16,10 +17,12 @@ export const store = configureStore({
     eportalODData: ePortalOutdoorDutyReducer,
     eportalTBRData: ePortalTicketBookingReducer,
     eportalLRData: ePortalLeavesReducer,
+    
     hrmsKRAAcivityData: hrmsKRAActivityReducer,
     hrmsquestionMasterData: hrmsQuestionMasterReducer, // <-- key must match the selector exactly
     hrmscapabilitiesData: hrmsCapabilitiesReducer,
     hrmsdeptactivitiesData: hrmsDeptActivitiesReducer,
+    hrmspoliciesData: hrmsPoliciesReducer,
     // epp: eppReducer,
     // sfm: sfmReducer,
     // hrms: hrmsReducer,

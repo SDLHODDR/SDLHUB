@@ -1,7 +1,8 @@
 import { useCallback } from "react";
-import { savePolicy, publishPolicy } from "../services/policyService";
+import { savePolicy, publishPolicy, getPolicyAssociations } from "../services/policyService";
 import { notifySuccess, notifyError, confirmAction } from "../../../services/alertService";
 import { validateDocFile } from "./policyOptionsUtils";
+import { toDateInputValue } from "../../../utils/formatUtils";
 
 export const usePolicyHandler = ({
   formData,
@@ -94,6 +95,24 @@ export const usePolicyHandler = ({
     }
   }, [validateForm, buildFormPayload, setIsSubmitting, dispatch, getPolicyDataResponse, resetForm, setShowAll]);
 
+  // const handlePublish = useCallback(async (row) => {
+  //   const result = await confirmAction("Are you sure you want to Publish this policy?");
+  //   if (!result?.isConfirmed) return;
+
+  //   try {
+  //     const response = await publishPolicy({ ID: row.ID });
+  //     if (response?.status) {
+  //       notifySuccess(response?.message || "Policy published successfully.");
+  //       dispatch(getPolicyDataResponse());
+  //     } else {
+  //       notifyError(response?.message || "Unable to publish policy.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Publish Error:", error);
+  //     notifyError("Something went wrong while publishing policy.");
+  //   }
+  // }, [dispatch, getPolicyDataResponse]);
+
   const handlePublish = useCallback(async (row) => {
     const result = await confirmAction("Are you sure you want to Publish this policy?");
     if (!result?.isConfirmed) return;
@@ -103,6 +122,8 @@ export const usePolicyHandler = ({
       if (response?.status) {
         notifySuccess(response?.message || "Policy published successfully.");
         dispatch(getPolicyDataResponse());
+        resetForm();
+        setShowAll(true);
       } else {
         notifyError(response?.message || "Unable to publish policy.");
       }
@@ -110,26 +131,43 @@ export const usePolicyHandler = ({
       console.error("Publish Error:", error);
       notifyError("Something went wrong while publishing policy.");
     }
-  }, [dispatch, getPolicyDataResponse]);
+  }, [dispatch, getPolicyDataResponse, resetForm, setShowAll]);
 
-  const handleEdit = useCallback((row) => {
+  const handleEdit = useCallback(async (row) => {
     setSelectedPolicy(row.ID);
     setIsEditing(true);
     setShowAll(false);
     setFormData({
       ID: row.ID,
       COMP_NAME: row.COMP_NAME || "",
-      DEPT_ID: row.DEPT_ID_LIST || [],
-      DIVISION_ID: row.DIVISION_ID_LIST || [],
+      DEPT_ID: [],
+      DIVISION_ID: [],
       POLICY_NAME: row.POLICY_NAME || "",
-      START_DATE: row.START_DATE_RAW || "",
-      END_DATE: row.END_DATE_RAW || "",
+      START_DATE: toDateInputValue(row.START_DATE_RAW || ""),
+      END_DATE: toDateInputValue(row.END_DATE_RAW || ""),
       POLICY_DESC: row.POLICY_DESC || "",
       IS_MANDAT: row.IS_MANDAT === "Y",
       DOC_PATH: row.DOC_PATH || "",
       doc: null,
       STATUS: row.STATUS || "N",
     });
+    // Department/Division live in junction tables, not on the list row —
+    // fetch them only now, on edit, rather than joining on every list row.
+    try {
+      const response = await getPolicyAssociations({ ID: row.ID });
+      if (response?.status) {
+        setFormData((prev) => ({
+          ...prev,
+          DEPT_ID: response.data?.DEPT_ID || [],
+          DIVISION_ID: response.data?.DIVISION_ID || [],
+        }));
+      } else {
+        notifyError(response?.message || "Unable to load department/division for this policy.");
+      }
+    } catch (error) {
+      console.error("Fetch policy associations error:", error);
+      notifyError("Something went wrong while loading department/division.");
+    }
   }, [setSelectedPolicy, setIsEditing, setShowAll, setFormData]);
 
   return {

@@ -19,7 +19,28 @@ const OutdoorDutyModal = ({
     onSuccess,
 }) => {
     const { mode } = formSettings;
-    const MAX_POST_REMARKS_BYTES = 200;
+    const MAX_POST_REMARKS_BYTES = 3500;
+    // --- File upload config ---
+    const MAX_FILE_SIZE_MB = 10;
+    const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+    const ALLOWED_FILE_EXTENSIONS = [
+      "pdf", "doc", "docx", "xls", "xlsx",
+      "jpg", "jpeg", "png",
+      "mp4", "mov", "avi", "mkv",
+    ];
+    const ALLOWED_FILE_MIME_TYPES = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "image/jpeg",
+      "image/png",
+      "video/mp4",
+      "video/quicktime",
+      "video/x-msvideo",
+      "video/x-matroska",
+    ];
     //const [date, setDate] = useState(new Date());
     //const [startTime, setStartTime] = useState("");
     //const [endTime, setEndTime] = useState("");
@@ -27,6 +48,9 @@ const OutdoorDutyModal = ({
     const [gpData, setGPData] = useState({});
     const [formData, setFormData] = useState({});
     const { isOpen, modalDate } = modalState;
+    const [attachment, setAttachment] = useState(null); // File object
+    const [fileError, setFileError] = useState("");
+    const [existingAttachment, setExistingAttachment] = useState(null); // { name, url } from gpData, for edit mode
     // console.log(
     //     "===========Outdoor Duty Submitted 123=========",
     //     formSettings,
@@ -75,6 +99,9 @@ const OutdoorDutyModal = ({
         setGPData({});
         setIsSubmitting(false);
         setLoading(false);
+        setAttachment(null);         // add
+        setFileError("");            // add
+        setExistingAttachment(null); // add
     };
 
     const handleCloseModal = () => {
@@ -111,6 +138,40 @@ const OutdoorDutyModal = ({
       }));
     };
 
+    const buildSubmitPayload = (extraFields = {}) => {
+      console.log("[5] buildSubmitPayload — attachment at submit time:", attachment);
+      const { POST_REMARKS_DOC: _ignoredStale, ...cleanFormData } = formData;
+
+      // const basePayload = {
+      //   ...formData,
+      //   POST_REMARKS: stripHtmlToText(formData.POST_REMARKS) ?? "",
+      //   ...extraFields,
+      // };
+
+      const basePayload = {
+        ...cleanFormData,
+        POST_REMARKS: stripHtmlToText(formData.POST_REMARKS) ?? "",
+        ...extraFields,
+      };
+
+      // No file selected and nothing to remove → keep the existing JSON flow
+      if (!attachment) {
+        return basePayload;
+      }
+
+      // File present → switch to multipart
+      const fd = new FormData();
+      Object.entries(basePayload).forEach(([key, value]) => {
+        fd.append(key, value ?? "");
+      });
+      fd.append("POST_REMARKS_DOC", attachment, attachment.name); // matches PHP $_FILES key
+      // console.log("[8] FormData entries check:");
+      // for (const [key, value] of fd.entries()) {
+      //   console.log(" ", key, "=", value);
+      // }
+      return fd;
+    };
+
     const handleSave = async (e) => {
         e.preventDefault();
 
@@ -122,11 +183,14 @@ const OutdoorDutyModal = ({
         try {
             let isEditPM = modalState.mode === "edit";
             isEditPM = isPostRemarkNwMode ? isPostRemarkNwMode : isEditPM;
-            const payload = {
-                ...formData,
-                POST_REMARKS: stripHtmlToText(formData.POST_REMARKS) ?? "",
-                ...(isEditPM ? { editGpData: true } : { saveGpData: true }),
-            };
+            // const payload = {
+            //     ...formData,
+            //     POST_REMARKS: stripHtmlToText(formData.POST_REMARKS) ?? "",
+            //     ...(isEditPM ? { editGpData: true } : { saveGpData: true }),
+            // };
+            const payload = buildSubmitPayload(
+                isEditPM ? { editGpData: true } : { saveGpData: true }
+            );
             const apiCall = saveGPData;
             const response = await apiCall(payload);
             if (response?.status) {
@@ -162,12 +226,16 @@ const OutdoorDutyModal = ({
 
         try {
             const isEdit = modalState.mode === "edit";
-            const payload = {
-                ...formData,
-                POST_REMARKS: stripHtmlToText(formData.POST_REMARKS) ?? "",
+            // const payload = {
+            //     ...formData,
+            //     POST_REMARKS: stripHtmlToText(formData.POST_REMARKS) ?? "",
+            //     ...(isEdit ? { editGpData: true } : { saveGpData: true }),
+            //     withAuth: true,
+            // };
+            const payload = buildSubmitPayload({
                 ...(isEdit ? { editGpData: true } : { saveGpData: true }),
                 withAuth: true,
-            };
+            });
             const apiCall = saveGPDataAUTH;
             const response = await apiCall(payload);
             if (response?.status) {
@@ -274,6 +342,13 @@ const OutdoorDutyModal = ({
         if (gpFormData) {
             const initial = {};
 
+            if (gpFormDataHdn?.ATTACHMENT_NAME || gpData?.attachment_url) {
+                setExistingAttachment({
+                    name: gpFormDataHdn?.ATTACHMENT_NAME || "Attached file",
+                    url: gpData?.attachment_url,
+                });
+            }
+
             Object.values(gpFormData).forEach((field) => {
                 if (field?.name) {
                     initial[field.name] = field.value ?? "";
@@ -341,6 +416,76 @@ const OutdoorDutyModal = ({
     // ===========================
     const getByteLength = (str) => new TextEncoder().encode(str || "").length;
 
+    const getFileExtension = (filename = "") => filename.split(".").pop()?.toLowerCase() || "";
+    const formatFileSize = (bytes) => {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    };
+
+    const validateFile = (file) => {
+      if (!file) return "";
+
+      const ext = getFileExtension(file.name);
+
+      if (!ALLOWED_FILE_EXTENSIONS.includes(ext)) {
+        return `Unsupported file type ".${ext}". Allowed: ${ALLOWED_FILE_EXTENSIONS.join(", ")}`;
+      }
+
+      // Belt-and-braces: some browsers/OS report empty/odd MIME types for
+      // office docs, so we only hard-fail on MIME when it's present AND
+      // clearly not in our list AND the extension check already passed above.
+      if (file.type && !ALLOWED_FILE_MIME_TYPES.includes(file.type)) {
+        // Extension already validated above; don't double-block office files
+        // whose MIME type varies by OS. Only block obviously wrong types
+        // (e.g. an .exe renamed to .pdf would still fail extension check).
+      }
+
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        return `File is too large (${formatFileSize(file.size)}). Max allowed is ${MAX_FILE_SIZE_MB} MB.`;
+      }
+
+      if (file.size === 0) {
+        return "Selected file appears to be empty.";
+      }
+
+      return "";
+    };
+
+    const handleFileChange = (e) => {
+      const file = e.target.files?.[0] || null;
+      console.log("========[1] file picked from input:========", file);
+
+      if (!file) {
+        setAttachment(null);
+        setErrors((prev) => ({ ...prev, ATTACHMENT: "" }));
+        return;
+      }
+
+      const error = validateFile(file);
+      console.log("[2] validateFile result:", error || "no error - valid");
+
+      if (error) {
+        setErrors((prev) => ({ ...prev, ATTACHMENT: error }));
+        setAttachment(null);
+        e.target.value = "";
+        return;
+      }
+
+      setErrors((prev) => ({ ...prev, ATTACHMENT: "" }));
+      console.log("[3] setAttachment called with:", file.name);
+      setAttachment(file);
+      setExistingAttachment(null);
+    };
+
+    const handleRemoveFile = () => {
+      setAttachment(null);
+      setErrors((prev) => ({ ...prev, ATTACHMENT: "" }));
+      setExistingAttachment(null);
+      const input = document.getElementById("ATTACHMENT");
+      if (input) input.value = "";
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         let newValue = value;
@@ -384,13 +529,26 @@ const OutdoorDutyModal = ({
             newErrors.REMARKS = "Remarks is required";
         }
 
+        // if (isPostRemarkNwMode) {
+        //     const plainPostRemarks = stripHtmlToText(formData.POST_REMARKS).trim();
+        //     if (!plainPostRemarks) {
+        //         newErrors.POST_REMARKS = "Post Remarks is required";
+        //     } else if (getByteLength(plainPostRemarks) > MAX_POST_REMARKS_BYTES) {
+        //         newErrors.POST_REMARKS = `Post Remarks exceeds ${MAX_POST_REMARKS_BYTES} characters`;
+        //     }
+        // }
         if (isPostRemarkNwMode) {
-            const plainPostRemarks = stripHtmlToText(formData.POST_REMARKS).trim();
-            if (!plainPostRemarks) {
-                newErrors.POST_REMARKS = "Post Remarks is required";
-            } else if (getByteLength(plainPostRemarks) > MAX_POST_REMARKS_BYTES) {
-                newErrors.POST_REMARKS = `Post Remarks exceeds ${MAX_POST_REMARKS_BYTES} characters`;
-            }
+          const plainPostRemarks = stripHtmlToText(formData.POST_REMARKS).trim();
+          if (!plainPostRemarks) {
+              newErrors.POST_REMARKS = "Post Remarks is required";
+          } else if (getByteLength(plainPostRemarks) > MAX_POST_REMARKS_BYTES) {
+              newErrors.POST_REMARKS = `Post Remarks exceeds ${MAX_POST_REMARKS_BYTES} characters`;
+          }
+
+          // New: attachment required only when adding Post Remarks
+          if (!attachment && !existingAttachment) {
+              newErrors.ATTACHMENT = "Attachment is required when adding Post Remarks";
+          }
         }
 
         setErrors(newErrors);
@@ -525,7 +683,9 @@ const OutdoorDutyModal = ({
                         disabled={isPostRemarkNwMode}
                         placeholder="Enter outdoor duty purpose"
                       />
-                      <div className="char-counter">{getByteLength(formData.REMARKS || "")} / 200</div>
+                      {!isPostRemarkNwMode && (
+                        <div className="char-counter">{getByteLength(formData.REMARKS || "")} / 200</div>
+                      )}
                       {errors.REMARKS && (
                         <div className="invalid-feedback">{errors.REMARKS}</div>
                       )}
@@ -533,9 +693,85 @@ const OutdoorDutyModal = ({
                   </div>
                 </div>
 
-
-
                 {isPostRemarkNwMode && (
+                <div className="row">
+                  <div className="col-12">
+                    <div className="mb-3">
+                      <label className="form-label">Post Remarks</label>
+
+                      <SDLtextEditor
+                        key={postRemarksKey}
+                        value={formData.POST_REMARKS || ""}
+                        onChange={handlePostRemarksChange}
+                        disabled={isSubmitting}
+                        placeholder="Enter post remarks"
+                      />
+
+                      <div className="char-counter">
+                        {getByteLength(formData.POST_REMARKS || "")} / {MAX_POST_REMARKS_BYTES}
+                      </div>
+                      {errors.POST_REMARKS && (
+                        <div className="invalid-feedback d-block">{errors.POST_REMARKS}</div>
+                      )}
+                    </div>
+
+                    {/* Attachment — required alongside Post Remarks */}
+                    <div className="mb-3">
+                      <label className="form-label">
+                        Attachment
+                        <span className="text-danger ms-1">*</span>
+                      </label>
+
+                      <input
+                        type="file"
+                        id="ATTACHMENT"
+                        name="ATTACHMENT"
+                        className={`form-control ${errors.ATTACHMENT ? "is-invalid" : ""}`}
+                        accept={ALLOWED_FILE_EXTENSIONS.map((ext) => `.${ext}`).join(",")}
+                        onChange={handleFileChange}
+                        disabled={isSubmitting}
+                      />
+
+                      <div className="form-text">
+                        Allowed: PDF, DOC/DOCX, XLS/XLSX, JPG/PNG, MP4/MOV/AVI/MKV — max {MAX_FILE_SIZE_MB} MB.
+                      </div>
+
+                      {errors.ATTACHMENT && (
+                        <div className="invalid-feedback d-block">{errors.ATTACHMENT}</div>
+                      )}
+
+                      {attachment && !errors.ATTACHMENT && (
+                        <div className="d-flex align-items-center gap-2 mt-2 p-2 border rounded">
+                          <i className="ti ti-paperclip" />
+                          <span className="text-truncate" style={{ maxWidth: "300px" }}>
+                            {attachment.name}
+                          </span>
+                          <span className="text-muted small">({formatFileSize(attachment.size)})</span>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-danger ms-auto"
+                            onClick={handleRemoveFile}
+                            disabled={isSubmitting}
+                          >
+                            <i className="ti ti-x" />
+                          </button>
+                        </div>
+                      )}
+
+                      {existingAttachment && !attachment && (
+                        <div className="d-flex align-items-center gap-2 mt-2 p-2 border rounded bg-light">
+                          <i className="ti ti-paperclip" />
+                          <a href={existingAttachment.url} target="_blank" rel="noreferrer" className="text-truncate">
+                            {existingAttachment.name}
+                          </a>
+                          <span className="text-muted small ms-auto">(existing)</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+                {/* {isPostRemarkNwMode && (
                     <div className="row">
                   <div className="col-12">
                     <div className="mb-3">
@@ -543,14 +779,7 @@ const OutdoorDutyModal = ({
                         Post Remarks
                       </label>
 
-                      {/* <textarea
-                        className={`form-control ${errors.POST_REMARKS ? "is-invalid" : ""}`}
-                        name="POST_REMARKS"
-                        id="POST_REMARKS"
-                        value={formData.POST_REMARKS || ""}
-                        onChange={handleChange}
-                        placeholder="Enter outdoor duty purpose"
-                      /> */}
+                      
                         
                         <SDLtextEditor
                           key={postRemarksKey}
@@ -567,7 +796,7 @@ const OutdoorDutyModal = ({
                     </div>
                   </div>
                 </div>
-                )}
+                )} */}
               </div>
               <input
                   type="hidden"
@@ -587,7 +816,7 @@ const OutdoorDutyModal = ({
               <div className="modal-footer">
                 <div className="d-flex gap-2">
                   {mode === "create" && (
-                    <button type="submit" className="btn btn-primary" data-bs-dismiss="modal"
+                    <button type="submit" className="btn btn-primary me-2" data-bs-dismiss="modal"
                       onClick={handleSave} 
                       disabled={isSubmitting}
                     >

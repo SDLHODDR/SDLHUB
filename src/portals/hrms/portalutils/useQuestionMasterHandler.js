@@ -49,12 +49,24 @@ export const useQuestionMasterHandler = ({
   const validateForm = useCallback(() => {
     const newErrors = {};
     if (!form.QGRP_ID) newErrors.QGRP_ID = "Group required";
-    if (!form.QUES_DESCR || !form.QUES_DESCR.trim()) newErrors.QUES_DESCR = "Question required";
+    //if (!form.QUES_DESCR || !form.QUES_DESCR.trim()) newErrors.QUES_DESCR = "Question required";
+    const actDescRaw = String(form.QUES_DESCR ?? "").trim();
+    if (!actDescRaw) {
+      newErrors.QUES_DESCR = "Question is required";
+    } else if (actDescRaw.length > 1000) {
+      newErrors.QUES_DESCR = "Question must not exceed 1000 characters";
+    }
 
     if (ANSWER_TYPES_WITH_OPTIONS.includes(form.ANSWER_TYPE)) {
       if (!form.NO_OF_OPTIONS) newErrors.NO_OF_OPTIONS = "Number of options required";
       (form.OPTIONS || []).forEach((o, i) => {
-        if (!o || !o.trim()) newErrors[`OPTION_${i}`] = "Option required";
+        const optRaw = String(o ?? "").trim();
+        if (!optRaw) {
+          newErrors[`OPTION_${i}`] = "Option required";
+        } else if (optRaw.length > 500) {
+          newErrors[`OPTION_${i}`] = "Option must not exceed 500 characters";
+        }
+        //if (!o || !o.trim()) newErrors[`OPTION_${i}`] = "Option required";
       });
     }
 

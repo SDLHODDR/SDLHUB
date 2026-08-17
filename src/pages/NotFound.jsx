@@ -14,14 +14,14 @@ const NotFound = () => {
 
   return (
     <>
-      <div class="error-box">
-				<div class="error-img">
-                    <img src={IMAGES.ERROR_404} class="img-fluid" alt="Img"/>
+      <div className="error-box">
+				<div className="error-img">
+                    <img src={IMAGES.ERROR_404} classNameName="img-fluid" alt="Img"/>
                 </div>
-				<h3 class="h2 mb-3">Oops, something went wrong</h3>
+				<h3 className="h2 mb-3">Oops, something went wrong</h3>
 				<p>Error 404 Page not found. Sorry the page you looking for
                     doesn’t exist or has been moved</p>
-         <Link to={portalHome}  class="btn btn-primary">
+         <Link to={portalHome}  className="btn btn-primary">
             Go to Dashboard
           </Link>
 			</div>
