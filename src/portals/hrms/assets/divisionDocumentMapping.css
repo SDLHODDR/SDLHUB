@@ -1,0 +1,145 @@
+/* ==========================================================
+   DIVISION DOCUMENT MAPPING
+========================================================== */
+
+.ddm-card {
+  border: 1px solid #e2e6ea;
+  border-radius: 6px;
+  overflow: visible;
+}
+
+.ddm-card-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+  padding: 12px 18px;
+}
+
+.ddm-card-header h5 {
+  color: #263238;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+
+/* ==========================================================
+   LABELS
+========================================================== */
+
+.ddm-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #263238;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+
+/* ==========================================================
+   SHOW DATA
+========================================================== */
+
+.ddm-show-btn {
+  background: linear-gradient(
+    135deg,
+    #ff9800,
+    #fb8c00
+  );
+
+  border: none;
+  min-width: 90px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ddm-show-btn:hover,
+.ddm-show-btn:focus {
+  background: linear-gradient(
+    135deg,
+    #fb8c00,
+    #f57c00
+  );
+
+  border: none;
+}
+
+
+/* ==========================================================
+   DOCUMENT SECTION
+========================================================== */
+
+.ddm-document-section {
+  margin-top: 10px;
+  border-top: 1px solid #e5e5e5;
+  padding-top: 8px;
+}
+
+
+/* ==========================================================
+   DOCUMENT ROW
+========================================================== */
+
+.ddm-document-row {
+  min-height: 48px;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 5px 0;
+}
+
+.ddm-document-row:last-child {
+  border-bottom: none;
+}
+
+
+.ddm-document-label {
+  margin: 0;
+  color: #263238;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+
+/* ==========================================================
+   ACTIONS
+========================================================== */
+
+.ddm-actions {
+  margin-top: 22px;
+  padding-top: 15px;
+  border-top: 1px solid #eeeeee;
+}
+
+.ddm-actions .btn {
+  min-width: 72px;
+  font-size: 13px;
+}
+
+
+/* ==========================================================
+   REACT SELECT
+========================================================== */
+
+.ddm-card .css-13cymwt-control,
+.ddm-card .css-t3ipsp-control {
+  min-height: 38px;
+}
+
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media (max-width: 991px) {
+
+  .ddm-card-header {
+    padding: 10px 14px;
+  }
+
+  .ddm-document-row {
+    padding: 8px 0;
+  }
+
+  .ddm-document-label {
+    display: block;
+    margin-bottom: 5px;
+  }
+
+}

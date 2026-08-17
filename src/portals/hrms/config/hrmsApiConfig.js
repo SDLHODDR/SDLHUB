@@ -47,5 +47,8 @@ export const HRMS_API = {
 
     GET_ORGANOGRAM_DATA: "/masterdata/orgonogram/getOrgonogramData.php",
     GET_HRMS_CONFIGS: "/masterdata/orgonogram/getHRMSConfigData.php",
+
+    GET_DIVISION_DOC_MAPPING_DATA: "/masterdata/divisiondocmapping/getDivisionDocumentMapping.php",
+    SAVE_DIVISION_DOC_MAPPING: "/masterdata/divisiondocmapping/saveDivisionDocumentMapping.php",
   },
 };
