@@ -62,5 +62,7 @@ export const HRMS_API = {
     GET_ORGANOGRAM_LEVEL: "/masterdata/orgonogram/getHRMSOrgonogramLevelData.php",
     GET_ORGANOGRAM_DETAILS: "/masterdata/orgonogram/getHRMSOrgonogramDetailsData.php",
     SAVE_ORGANOGRAM: "/masterdata/orgonogram/saveOrganogramData.php",
+    GET_DIVISION_DOC_MAPPING_DATA: "/masterdata/divisiondocmapping/getDivisionDocumentMapping.php",
+    SAVE_DIVISION_DOC_MAPPING: "/masterdata/divisiondocmapping/saveDivisionDocumentMapping.php",
   },
 };
