@@ -15,6 +15,13 @@ export const HRMS_API = {
     QUESTION_SUBGROUPS: "/hrms/maintainance/question/getQuestionSubGroups.php",
 
     DEPARTMENT: "/department/getDepartments.php",
+    DEPT_DESIGNATION_GET: "/department/getDesignationMap.php",
+    DEPT_DESIGNATION_SAVE: "/department/saveDesignationMap.php",
+    DEPT_DESIGNATION_DELETE: "/department/deleteDesignationMap.php",
+    DESIGNATIONS_MASTER: "/department/getDesignations.php",
+
+    JOB_DESCRIPTION_LIST: "/maintainance/jobdescription/getJobDescriptions.php",
+    JOB_DESCRIPTION_SAVE: "/maintainance/jobdescription/saveJobDescription.php",
 
     GET_PROFILES: "/maintainance/profilemaintenance/getProfiles.php",
     GET_PROFILE_ACCESS: "/maintainance/profilemaintenance/getProfileAccess.php",
