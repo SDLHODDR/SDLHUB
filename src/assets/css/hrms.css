@@ -622,3 +622,18 @@ body.hrms-layout .hrms-mobile-sidebar .hrms-submenu li a {
         list-style-type: none !important;
     }
 }
+
+.sdl-activity-select {
+  width: 240px !important;
+  min-width: 240px !important;
+  max-width: 240px !important;
+  flex: 0 0 240px;   /* prevent flex container from stretching/shrinking it */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sdl-toggle-btn {
+  min-width: 120px;
+  justify-content: center;
+}

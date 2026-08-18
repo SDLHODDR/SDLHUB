@@ -84,6 +84,14 @@ export const rejectLRData = async (payload = {}) =>
     data: payload,
   });
 
+export const getAuthLRSwipperData = async (payload = {}) =>
+  eportalRequest({
+    url:  PORTALAPI.LEAVEREQUEST.LRSWIPEDATA,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });  
+
 export const deleteLRData = () => {};
 
 export const getTBRList = async (payload = {}) =>

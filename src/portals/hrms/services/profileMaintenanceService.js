@@ -18,6 +18,7 @@ export const getProfileAccess = (profileId) =>
 
 export const saveProfileAccess = ({
   profileId,
+  accessType,
   menuIds = [],
   subMenuIds = [],
   companyIds = [],
@@ -31,6 +32,7 @@ export const saveProfileAccess = ({
     method: "POST",
     data: {
       profileId,
+      accessType,
       menuIds,
       subMenuIds,
       companyIds,

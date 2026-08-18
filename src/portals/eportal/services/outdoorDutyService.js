@@ -69,6 +69,9 @@ export const saveGPData = (payload = {}) =>
     method: "POST",
     dedupe: true,
     data: payload,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   });
 
 export const saveGPDataAUTH = (payload = {}) => 

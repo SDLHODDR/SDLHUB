@@ -1,0 +1,75 @@
+export const formatDate = (dateStr) => {
+    if (!dateStr) return "-";
+    
+    const date = new Date(dateStr);
+    if (isNaN(date)) return "-";
+
+    return date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+    });
+};
+
+// Same parsing approach as formatDate() — reused here because it already
+// correctly handles whatever raw date format the API returns (confirmed
+// by formatDate's existing use in the table display). Output shape is
+// different: "YYYY-MM-DD", which is the only format <input type="date">
+// will accept.
+export const toDateInputValue = (dateStr) => {
+  if (!dateStr) return "";
+
+  const date = new Date(dateStr);
+  if (isNaN(date)) return "";
+
+  // Use local getters, not toISOString() — toISOString() converts to UTC
+  // first, which can silently shift the date by a day depending on the
+  // browser's timezone offset relative to midnight.
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+
+  return `${yyyy}-${mm}-${dd}`;
+};
+
+export const stripHtmlToText = (html) => {
+  if (!html) return "";
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return div.textContent || div.innerText || "";
+};
+
+export const normalizeRecords = (payload) => {
+  if (Array.isArray(payload)) return payload;
+
+  if (payload && typeof payload === "object") {
+    for (const key of ["data", "records", "result", "items", "list", "rows"]) {
+      if (Array.isArray(payload[key])) return payload[key];
+    }
+  }
+
+  return [];
+};
+
+export const getDisplayValue = (item, keys, fallback = "-") => {
+  if (!item || typeof item !== "object") return fallback;
+
+  for (const key of keys) {
+    const value = item[key];
+    if (value !== undefined && value !== null && value !== "") {
+      return value;
+    }
+  }
+
+  return fallback;
+};
+
+export const titleCase = (str = "") => {
+  return str
+    .toString()
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .map((word) => (word ? word.charAt(0).toUpperCase() + word.slice(1) : word))
+    .join(" ");
+};

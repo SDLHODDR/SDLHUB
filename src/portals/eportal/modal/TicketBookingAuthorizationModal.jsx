@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { authTBRData, rejectTBRData } from "../services/ticketbookingService";
 import { notifyError, notifySuccess } from "../../../services/alertService";
+import SDLFormField from "../../../components/SDLFormField"
+import SDLAuthorizationActionButtons from "../../../components/SDLAuthorizationActionButtons";
 
 const TicketBookingAuthorizationModal = ({
   ticketbooking,
@@ -143,74 +145,26 @@ const TicketBookingAuthorizationModal = ({
               {/* Body */}
               <div className="modal-body">
                 <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">Mode :</label>
-                      <span className="ms-2">{formData.TRVL_MODE || ""}</span>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">Remarks :</label>
-                      <span className="ms-2">{formData.REMARKS || ""}</span>
-                    </div>
-                  </div>
+                  <SDLFormField label="mode" value={formData.TRVL_MODE || ""} />
+                  <SDLFormField label="remarks" value={formData.REMARKS || ""} />
                 </div>
                 <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">From :</label>
-                      <span className="ms-2">{formData.TRVL_FROM_LOC || ""}</span>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">To :</label>
-                      <span className="ms-2">{formData.TRVL_TO_LOC || ""}</span>
-                    </div>
-                  </div>
+                  <SDLFormField label="from" value={formData.TRVL_FROM_LOC || ""} />
+                  <SDLFormField label="to" value={formData.TRVL_TO_LOC || ""} />
                 </div>
                  <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">
-                        Departure Time :
-                      </label>
-                      <span className="ms-2">
-                        {formData.TTNT_ARVL_TIME || ""}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">
-                        Arrival Time :
-                      </label>
-                      <span className="ms-2">
-                        {formData.TTNT_DEPR_TIME || ""}
-                      </span>
-                    </div>
-                  </div>
+                  <SDLFormField label="departure time" value={formData.TTNT_ARVL_TIME || ""} />
+                  <SDLFormField label="arrival time" value={formData.TTNT_DEPR_TIME || ""} />
                 </div>
                 <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">Flight/Train Name :</label>
-                      <span className="ms-2">
-                        {formData.TRVL_FT_NAME || ""} - <b>({formData.TRVL_CLASS || ""})</b>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="fw-semibold">
-                        Flight/Train Number :
-                      </label>
-                      <span className="ms-2">{formData.TRVL_FT_NO || ""}</span>
-                    </div>
-                  </div>
+                  <SDLFormField label="flight/train name"
+                    value={
+                     <>
+                      {formData.TRVL_FT_NAME || "-"} <b>({formData.TRVL_CLASS || "-"})</b>
+                     </>
+                  } />
+                  <SDLFormField label="flight/train number" value={formData.TRVL_FT_NO || ""} />
                 </div>
-               
                 <div className="row">
                   <div className="col-12">
                     <div className="form-group mb-3">
@@ -230,23 +184,11 @@ const TicketBookingAuthorizationModal = ({
               </div>
               {/* Footer */}
               <div className="modal-footer">
-                <div className="d-flex gap-2">
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={handleAuthorize}
-                  >
-                    Authorize
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={handleReject}
-                  >
-                    Reject
-                  </button>
-                </div>
+                <SDLAuthorizationActionButtons
+                  onAuthorize={handleAuthorize}
+                  onReject={handleReject}
+                />
+                
               </div>
             </form>
           </div>
