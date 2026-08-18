@@ -55,6 +55,8 @@ export const HRMS_API = {
     GET_DIVISION_DOC_MAPPING_DATA: "/masterdata/divisiondocmapping/getDivisionDocumentMapping.php",
     SAVE_DIVISION_DOC_MAPPING: "/masterdata/divisiondocmapping/saveDivisionDocumentMapping.php",
     
+    //--------------Organogram-------------------------------------------------------------
+    //------------- Tab1 - Organogram ----------------------------------------------------- 
     GET_FIN_ENTITY: "/masterdata/orgonogram/getHRMSFinEntityData.php",
     GET_DESIGNATION: "/masterdata/orgonogram/getHRMSDesignationData.php",
     GET_COMPANY: "/masterdata/orgonogram/getHRMSCompanyData.php",
@@ -65,5 +67,11 @@ export const HRMS_API = {
     GET_ORGANOGRAM_LEVEL: "/masterdata/orgonogram/getHRMSOrgonogramLevelData.php",
     GET_ORGANOGRAM_DETAILS: "/masterdata/orgonogram/getHRMSOrgonogramDetailsData.php",
     SAVE_ORGANOGRAM: "/masterdata/orgonogram/saveOrganogramData.php",
+    //------------- Tab2 - Locations ------------------------------------------------------
+    GET_ORGANOGRAM_LOCATIONS: "/masterdata/orgonogram/getOrganogramLocations.php",
+    GET_ORGANOGRAM_GEOLOCATIONS: "/masterdata/orgonogram/getOrganogramGeoLocations.php",
+    GET_ORGANOGRAM_EMPLOYEES: "/masterdata/orgonogram/getOrganogramEmployees.php",
+    SAVE_ORGANOGRAM_LOCATION: "/masterdata/orgonogram/saveOrganogramLocationData.php",
+    GET_ORGANOGRAM_DIVISION: "/masterdata/orgonogram/getOrganogramDivisions.php",
   },
 };
