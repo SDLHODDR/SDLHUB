@@ -212,11 +212,11 @@ const OrganogramTab = ({ organogramId }) => {
 
       {/* ACTIONS */}
       <div className="d-flex justify-content-end gap-2 mt-3">
-        <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={saving}>
-          Cancel
-        </button>
         <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}>
           {saving ? "Saving..." : "Save"}
+        </button>
+        <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={saving}>
+          Cancel
         </button>
       </div>
     </div>
