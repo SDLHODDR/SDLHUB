@@ -148,11 +148,11 @@ export const saveOrganogramLocation = async (payload = {}) => {
 // where hel.levl = ? and hd.divsn_id = ?
 // and to_date(?) between hgm.effec_from and nvl(effec_to, '01-Mar-3000')
 // NOTE: guessed endpoint path — replace with the real one.
-export const getGeoMappingOptions = (params) =>
+export const getGeoMappingOptions = async (payload = {}) =>
   hrmsRequest({
-    url: HRMS_API.MASTERDATA.GET_GEO_MAPPING_OPTIONS,
+    url: HRMS_API.MASTERDATA.GET_ORG_GEO_MAPPING_OPTIONS,
     method: "POST",
-    data: params, // { EMP_LEVEL, DIVSN_ID, EFFEC_FROM }
+    data: payload, // { EMP_LEVEL, DIVSN_ID, EFFEC_FROM }
   });
 
 // Reporting manager chain for a single org_loc row, mirrors the PHP block:

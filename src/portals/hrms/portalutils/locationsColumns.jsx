@@ -1,7 +1,7 @@
 import { Column } from "primereact/column";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
-import { parseOracleDate } from "./dateUtils";
+import { formatDate } from "../../../utils/formatUtils";
 
 const getGeoLocationDisplay = (row, organogramDetails) => {
   if (organogramDetails?.EMP_LEVEL === "15") {
@@ -36,7 +36,7 @@ export const getLocationsColumns = ({
     body: (row) => row.FROM_DATE || "",
     editor: (options) => (
       <Calendar
-        value={parseOracleDate(options.value) || (options.value instanceof Date ? options.value : null)}
+        value={formatDate(options.value) || (options.value instanceof Date ? options.value : null)}
         onChange={(e) => {
           options.editorCallback(e.value);
           options.rowData.__onFromDateChange?.(e.value);

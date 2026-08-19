@@ -5,7 +5,10 @@ import {
   getHrDivision,
   //getOrganogramGeoLocations,
   //getOrganogramEmployees,
+  getGeoMappingOptions,
+  getOrgLocReportingManager,
   saveOrganogramLocation,
+
 } from "../services/orgonogramService";
 import { notifyError, notifySuccess } from "../../../services/alertService";
 //import { formatDate } from "./locationsColumns";
@@ -14,6 +17,7 @@ import { notifyError, notifySuccess } from "../../../services/alertService";
 //   Array.isArray(list)
 //     ? list.map((item) => ({ label: item[labelKey] ?? "", value: item[valueKey] }))
 //     : [];
+
 
 // Builds a GEO_ID -> DIVSN_DESC map by fetching each unique division once.
 // Only called when EMP_LEVEL === '15' (matches the PHP condition).
@@ -38,15 +42,95 @@ const fetchDivisionMap = async (savedRows = []) => {
   return map;
 };
 
+
+
+/* ==========================================================
+    GEO MAPPING OPTIONS (EMP_LEVEL != 15)
+    Dedupe by DIVSN_ID + FROM_DATE, since EMP_LEVEL is constant
+    for the whole organogram but the date-range filter means two
+    rows with different FROM_DATE can return different options.
+========================================================== */
+const buildGeoMappingCacheKey = (divsnId, effecFrom) => `${divsnId}::${effecFrom}`;
+
+const fetchGeoMappingOptionsMap = async (empLevel, savedRows = []) => {
+  const uniqueCombos = new Map();
+  savedRows.forEach((row) => {
+    if (!row.GEO_ID) return; // DIVSN_ID for the query comes from organogramDetails, not per-row
+    const key = buildGeoMappingCacheKey(row.__divsnId, row.EFFEC_FROM);
+    if (!uniqueCombos.has(key)) {
+      uniqueCombos.set(key, { DIVSN_ID: row.__divsnId, EFFEC_FROM: row.EFFEC_FROM });
+    }
+  });
+  
+  const entries = Array.from(uniqueCombos.entries());
+  const results = await Promise.all(
+    entries.map(([, params]) =>
+      getGeoMappingOptions({ EMP_LEVEL: empLevel, ...params }).catch((error) => {
+        console.error("Load geo mapping options error:", params, error);
+        return null;
+      })
+    )
+  );
+
+  const map = {};
+  entries.forEach(([key], idx) => {
+    const rows = Array.isArray(results[idx]?.data) ? results[idx].data : [];
+    map[key] = rows.map((r) => ({
+      label: r.GEO_DETAILS ?? "",
+      value: r.GEO_ID,
+    }));
+  });
+  return map;
+};
+
+/* ==========================================================
+    REPORTING MANAGER
+    One call per LOC_ID (can't dedupe — each row has its own
+    reporting chain), returns the composed display string plus
+    a flag for whether an active reporting record exists.
+========================================================== */
+const fetchReportingMap = async (savedRows = []) => {
+  const rowsWithLocId = savedRows.filter((r) => r.ID);
+  if (!rowsWithLocId.length) return {};
+
+  const results = await Promise.all(
+    rowsWithLocId.map((row) =>
+      getOrgLocReportingManager({
+        LOC_ID: row.ID,
+        EMP_CODE: row.EMP_CODE,
+        EFFEC_FROM: row.EFFEC_FROM,
+      }).catch((error) => {
+        console.error("Load reporting manager error:", row.ID, error);
+        return null;
+      })
+    )
+  );
+
+  const map = {};
+  rowsWithLocId.forEach((row, idx) => {
+    const data = results[idx]?.data;
+    map[row.ID] = {
+      // Expected composed fields — adjust keys once you confirm the
+      // real response shape:
+      REPORT_TO_DISPLAY: data
+        ? `${data.PARENT_ORGID ?? ""} - ${data.DESIGNATION ?? ""} - ${data.MGR_NAME ?? ""} - ${data.MGR_CODE ?? ""}`
+        : "",
+      HAS_REPORTING: !!data?.REPORTING_ID,
+    };
+  });
+  return map;
+};
+
 /**
  * Positional mapping: getOrganogramLocations returns rows in the same
  * order as the position slots (no SNO/index field in the payload), so
  * savedRows[i] corresponds to position slot i+1.
  */
-const buildLocationRows = (posiCount, savedRows = [], divisionMap = {}) => {
+const buildLocationRows = (posiCount, savedRows = [], divisionMap = {}, reportingMap = {}, divsnId = null) => {
   const rows = [];
   for (let i = 0; i < posiCount; i += 1) {
     const saved = savedRows[i] || {};
+    const reporting = reportingMap[saved.ID] || {};
     rows.push({
       SNO: i + 1,
       LOC_ID: saved.ID ?? null,
@@ -54,13 +138,15 @@ const buildLocationRows = (posiCount, savedRows = [], divisionMap = {}) => {
       DIVSN_DESC: divisionMap[saved.GEO_ID] ?? "",
       LOC_LABEL: saved.LOC_LABEL ?? "",
       GEO_ID: saved.GEO_ID ?? "",
-      GEO_MAPPING_LABEL: "", // resolved once geo-mapping API is wired up
-      FROM_DATE: saved.EFFEC_FROM ?? "",       // prefilled
-      TO_DATE: "",                              // always blank per confirmed UI, ignoring saved.EFFEC_TO
+      EFFEC_FROM_RAW: saved.EFFEC_FROM ?? "", // kept for geo-mapping cache key lookups
+      GEO_MAPPING_LABEL: "",
+      __divsnId: divsnId,
+      FROM_DATE: saved.EFFEC_FROM ?? "",
+      TO_DATE: "",
       NM: saved.NM ?? "",
       EMP_CODE: saved.EMP_CODE ?? "",
-      REPORT_TO_DISPLAY: saved.REPORT_TO_DISPLAY ?? "",
-      HAS_REPORTING: !!saved.HAS_REPORTING,
+      REPORT_TO_DISPLAY: reporting.REPORT_TO_DISPLAY ?? "",
+      HAS_REPORTING: !!reporting.HAS_REPORTING,
       ALLOW_ID: saved.ALLOW_ID ?? null,
     });
   }
@@ -95,7 +181,7 @@ const useLocationsTabHandler = (organogramId) => {
   const [organogramDetails, setOrganogramDetails] = useState(null);
   const [locations, setLocations] = useState([]);
   const [rawLocationRows, setRawLocationRows] = useState([]); // source for derived options
-
+  const [geoMappingOptionsMap, setGeoMappingOptionsMap] = useState({});
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [loadingLocations, setLoadingLocations] = useState(false);
   const [savingRow, setSavingRow] = useState(false);
@@ -110,55 +196,69 @@ const useLocationsTabHandler = (organogramId) => {
     [rawLocationRows]
   );
 
+  /* ==========================================================
+    WIRE INTO THE MAIN LOAD EFFECT
+  ========================================================== */
+
   useEffect(() => {
     if (!organogramId) {
       setOrganogramDetails(null);
       setLocations([]);
       setRawLocationRows([]);
+      setGeoMappingOptionsMap({});
+      
       return;
     }
 
     const loadDetailsAndLocations = async () => {
       try {
-        setLoadingDetails(true);
-        setLoadingLocations(true);
+      setLoadingDetails(true);
+      setLoadingLocations(true);
 
-        const detailsRes = await getOrganogramDetails({ ID: organogramId });
-        if (!detailsRes?.status) {
-          notifyError(detailsRes?.message || "Unable to load organogram details.");
-          return;
-        }
-        setOrganogramDetails(detailsRes.data);
+      const detailsRes = await getOrganogramDetails({ ID: organogramId });
+      if (!detailsRes?.status) {
+        notifyError(detailsRes?.message || "Unable to load organogram details.");
+        return;
+      }
+      setOrganogramDetails(detailsRes.data);
 
-        const posiCount = Number(detailsRes.data?.POSI_COUNT) || 0;
+      const posiCount = Number(detailsRes.data?.POSI_COUNT) || 0;
+      const empLevel = detailsRes.data?.EMP_LEVEL;
+      const divsnId = detailsRes.data?.DIVSN_ID;
 
-        const locationsRes = await getOrganogramLocations({ ID: organogramId });
-       const savedRows = Array.isArray(locationsRes)
+      const locationsRes = await getOrganogramLocations({ ID: organogramId });
+      const savedRows = Array.isArray(locationsRes)
         ? locationsRes
         : Array.isArray(locationsRes?.data)
           ? locationsRes.data
           : [];
 
-        setRawLocationRows(savedRows);
-        // Only fetch division descriptions when EMP_LEVEL === '15',
-        // mirroring the PHP's conditional use of $divnm.
-        const divisionMap =
-          detailsRes.data?.EMP_LEVEL === "15"
-            ? await fetchDivisionMap(savedRows)
-            : {};
-            
-        setLocations(buildLocationRows(posiCount, savedRows, divisionMap));
-      } catch (error) {
-        console.error("Load location details error:", error);
-        notifyError(error?.message || "Unable to load location details.");
-      } finally {
-        setLoadingDetails(false);
-        setLoadingLocations(false);
-      }
-    };
+      setRawLocationRows(savedRows);
 
-    loadDetailsAndLocations();
-  }, [organogramId]);
+      // Tag each row with the organogram's DIVSN_ID so the geo-mapping
+      // cache key can be built without threading organogramDetails
+      // through every callback.
+      const savedRowsWithDivsn = savedRows.map((r) => ({ ...r, __divsnId: divsnId }));
+
+      const [divisionMap, geoMappingMap, reportingMap] = await Promise.all([
+        empLevel === "15" ? fetchDivisionMap(savedRows) : Promise.resolve({}),
+        empLevel !== "15" ? fetchGeoMappingOptionsMap(empLevel, savedRowsWithDivsn) : Promise.resolve({}),
+        fetchReportingMap(savedRows),
+      ]);
+
+      setGeoMappingOptionsMap(geoMappingMap);
+      setLocations(buildLocationRows(posiCount, savedRows, divisionMap, reportingMap, divsnId));
+    } catch (error) {
+      console.error("Load location details error:", error);
+      notifyError(error?.message || "Unable to load location details.");
+    } finally {
+      setLoadingDetails(false);
+      setLoadingLocations(false);
+    }
+  };
+
+  loadDetailsAndLocations();
+}, [organogramId]);
 
   const handleRowEditComplete = useCallback(async (e) => {
     const { newData, index } = e;
@@ -190,6 +290,18 @@ const useLocationsTabHandler = (organogramId) => {
       setSavingRow(false);
     }
   }, [organogramId]);
+
+  const getGeoMappingOptionsForRow = useCallback(
+  (row) => {
+    if (organogramDetails?.EMP_LEVEL === "15") {
+      // EMP_LEVEL 15 reuses the single division as its own "option"
+      return divisionOptionsForLevel15; // or reuse geoLocationOptions if you prefer a 1-item list
+    }
+    const key = buildGeoMappingCacheKey(row.__divsnId, row.EFFEC_FROM_RAW);
+    return geoMappingOptionsMap[key] || [];
+  },
+  [organogramDetails, geoMappingOptionsMap]
+);
 
   return {
     organogramDetails,
