@@ -25,8 +25,8 @@ export const hrmsRoutes = [
   { path: "hrms/maintainance/questionmaster", element: QuestionMaster },
   
     { path: "hrms/maintainance/department", element: Department },
-    { path: "hrms/maintainance/departmentdesignation", element: DepartmentDesignationMap },
-    { path: "hrms/maintainance/jobdescription", element: JobDescription },
+    { path: "hrms/maintainance/department-designation", element: DepartmentDesignationMap },
+    { path: "hrms/masterdata/jobdescription", element: JobDescription },
   { path: "hrms/maintainance/capabilities", element: Capabilities },
   { path: "hrms/maintainance/department-activity", element: DepartmentActivity },
   { path: "hrms/maintainance/policylist", element: PolicyList },
