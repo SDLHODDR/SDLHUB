@@ -165,3 +165,103 @@ export const getOrgLocReportingManager = (params) =>
     method: "POST",
     data: params, // { LOC_ID, EMP_CODE, EFFEC_FROM }
   });
+
+// Appraisal Level rows for a given organogram
+export const getOrganogramApprLevels = async (payload = {}) => {
+  return hrmsRequest({
+    url: HRMS_API.MASTERDATA.GET_ORGANOGRAM_APPR_LEVELS,
+    method: "POST",
+    data: payload, // { ID }
+  });
+};
+
+// Dropdown options for the appraiser (2nd col), derived from hierarchyArr
+export const getApprLevelOptions = async (payload = {}) => {
+  return hrmsRequest({
+    url: HRMS_API.MASTERDATA.GET_APPR_LEVEL_OPTIONS,
+    method: "POST",
+    data: payload, // { ID }
+  });
+};
+
+// Save a single row's content edit (appraiser + dates)
+export const saveApprLevel = async (payload = {}) => {
+  return hrmsRequest({
+    url: HRMS_API.MASTERDATA.SAVE_APPR_LEVEL,
+    method: "POST",
+    data: payload, // { ORG_ID, APPR_LEVEL, APPR_ORGID, EFFEC_FROM, EFFEC_TO }
+  });
+};
+
+// Persist new row sequence after drag-drop reorder
+export const saveApprLevelOrder = async (payload = {}) => {
+  return hrmsRequest({
+    url: HRMS_API.MASTERDATA.SAVE_APPR_LEVEL_ORDER,
+    method: "POST",
+    data: payload, // { ORG_ID, ROWS: [{ APPR_LEVEL, APPR_ORGID }] }
+  });
+};
+
+// Reporting history rows for a given org_loc_id — mirrors the "sdsdd" listing query
+export const getOrgLocReportingRows = async (payload = {}) => {
+  return hrmsRequest({
+    url: HRMS_API.MASTERDATA.GET_ORG_LOC_REPORTING_ROWS,
+    method: "POST",
+    data: payload, // { LOC_ID }
+  });
+};
+
+// All parent-location options — mirrors the hhhh/hhhl "descr" query
+// NOTE: legacy query has no WHERE clause — returns every org location
+// system-wide. Worth confirming whether it should be scoped by
+// company/division before going live; left unscoped here to match
+// the reference query exactly.
+export const getReportingParentOptions = async (payload = {}) => {
+  return hrmsRequest({
+    url: HRMS_API.MASTERDATA.GET_REPORTING_PARENT_OPTIONS,
+    method: "POST",
+    data: payload,
+  });
+};
+
+export const saveOrgLocReporting = async (payload = {}) => {
+  return hrmsRequest({
+    url: HRMS_API.MASTERDATA.SAVE_ORG_LOC_REPORTING,
+    method: "POST",
+    data: payload, // { ORG_LOC_ID, PARENT_ORGID, PARENT_LOCID, EFFEC_FROM, EFFEC_TO }
+  });
+};
+
+// Existing allowance rows for a loc_id
+export const getOrgLocAllowances = async (payload = {}) => {
+  return hrmsRequest({
+    url: HRMS_API.MASTERDATA.GET_ORG_LOC_ALLOWANCES,
+    method: "POST",
+    data: payload, // { LOC_ID, ORG_ID }
+  });
+};
+
+// Eligible-but-not-yet-assigned allowance options for the select
+export const getAllowanceOptions = async (payload = {}) => {
+  return hrmsRequest({
+    url: HRMS_API.MASTERDATA.GET_ALLOWANCE_OPTIONS,
+    method: "POST",
+    data: payload, // { LOC_ID }
+  });
+};
+
+export const saveAllowance = async (payload = {}) => {
+  return hrmsRequest({
+    url: HRMS_API.MASTERDATA.SAVE_ALLOWANCE,
+    method: "POST",
+    data: payload, // { ORG_LOC_ID, ORG_ID, ALLOW_ID, EFFEC_FROM }
+  });
+};
+
+export const deleteAllowance = async (payload = {}) => {
+  return hrmsRequest({
+    url: HRMS_API.MASTERDATA.DELETE_ALLOWANCE,
+    method: "POST",
+    data: payload, // { ID }
+  });
+};

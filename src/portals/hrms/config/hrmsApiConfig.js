@@ -83,6 +83,19 @@ export const HRMS_API = {
     GET_ORGANOGRAM_DIVISION: "/masterdata/orgonogram/getOrganogramDivisions.php",
     GET_ORG_GEO_MAPPING_OPTIONS: "/masterdata/orgonogram/getOrgGeoMapping.php",
     GET_ORG_LOC_REPORTING_MANAGER: "/masterdata/orgonogram/getOrgLocReportingMgr.php",
-    
+    //--------------Tab3 - Appraisal Level--------------------------------------------------
+    GET_ORGANOGRAM_APPR_LEVELS: "/masterdata/orgonogram/getApprLevels.php",
+    GET_APPR_LEVEL_OPTIONS: "/masterdata/orgonogram/getApprLevelsOptions.php",
+    SAVE_APPR_LEVEL: "/masterdata/orgonogram/saveAppraisalLevel.php",
+    SAVE_APPR_LEVEL_ORDER: "/masterdata/orgonogram/saveAppraisalLevelOrder.php",
+    //--------------Tab4 - Reproting--------------------------------------------------
+    GET_ORG_LOC_REPORTING_ROWS: "/masterdata/orgonogram/getOrgLOCReportingRows.php",
+    GET_REPORTING_PARENT_OPTIONS: "/masterdata/orgonogram/getReportingParentOptions.php",
+    SAVE_ORG_LOC_REPORTING: "/masterdata/orgonogram/saveOrgLocReporting.php",
+    //--------------Tab5 - Allowances--------------------------------------------------
+    GET_ORG_LOC_ALLOWANCES: "/masterdata/orgonogram/getOrgAllowances.php",
+    GET_ALLOWANCE_OPTIONS: "/masterdata/orgonogram/getOrgAllowanceOptions.php",
+    SAVE_ALLOWANCE: "/masterdata/orgonogram/saveOrgAllowance.php",
+    DELETE_ALLOWANCE: "/masterdata/orgonogram/deleteOrgAllowance.php",
   },
 };

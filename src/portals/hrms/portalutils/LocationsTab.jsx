@@ -1,48 +1,50 @@
+import { useState } from "react";
 import { DataTable } from "primereact/datatable";
 import useLocationsTabHandler from "./useLocationsTabHandler";
 import { getLocationsColumns, renderLocationsColumns } from "./locationsColumns";
 
-const LocationsTab = ({ organogramId }) => {
+const LocationsTab = ({ organogramId, onNavigateToTab }) => {
   const {
-    //organogramDetails,
+    organogramDetails,
     locations,
-    geoLocationOptions,
-    employeeOptions,
     loadingDetails,
     loadingLocations,
-    //loadingLookups,
     handleRowEditComplete,
-    handleDeleteRow,
+    handleRowEditCancel,
+    getGeoMappingOptionsForRow,
   } = useLocationsTabHandler(organogramId);
 
-  //const isLoading = loadingDetails || loadingLocations || loadingLookups;
+  const [editingRows, setEditingRows] = useState({});
+
   const isLoading = loadingDetails || loadingLocations;
 
   const columnDefs = getLocationsColumns({
-    geoLocationOptions,
-    employeeOptions,
+    organogramDetails,
+    getGeoMappingOptions: getGeoMappingOptionsForRow,
   });
-  const columns = renderLocationsColumns(columnDefs, { onDeleteRow: handleDeleteRow });
+
+  const columns = renderLocationsColumns(columnDefs, {
+    onShowAllowance: (allowId, locId) =>
+      onNavigateToTab?.("allowances", { LOC_ID: locId, ALLOW_ID: allowId }),
+    onShowReporting: (locId) =>
+      onNavigateToTab?.("reporting", { LOC_ID: locId }),
+  });
 
   return (
-    <div>
-      {/* Hidden context values — kept in state rather than DOM <input>s
-          since saves go through axios, not a native form POST. */}
-      {/* organogramDetails?.SFM_EMP_LEVEL / DIVSN_ID are read directly
-          from state in useLocationsTabHandler when saving a row. */}
-
-      <DataTable
-        value={locations}
-        loading={isLoading}
-        editMode="row"
-        dataKey="SNO"
-        onRowEditComplete={handleRowEditComplete}
-        size="small"
-        emptyMessage="No positions defined for this organogram."
-      >
-        {columns}
-      </DataTable>
-    </div>
+    <DataTable
+      value={locations}
+      loading={isLoading}
+      editMode="row"
+      dataKey="SNO"
+      editingRows={editingRows}
+      onRowEditChange={(e) => setEditingRows(e.data)}
+      onRowEditComplete={handleRowEditComplete}
+      onRowEditCancel={handleRowEditCancel}
+      size="small"
+      emptyMessage="No positions defined for this organogram."
+    >
+      {columns}
+    </DataTable>
   );
 };
 
