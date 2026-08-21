@@ -69,3 +69,8 @@
 body > .tooltip {
   z-index: 99999 !important;
 }
+
+/* Orange loader for SDLDataTable */
+.sdl-table-loader .spinner-border {
+  color: #ff9800 !important;
+}

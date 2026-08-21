@@ -11,7 +11,7 @@ export const leavesColumns = (handlers) => [
     
   },
   {
-    header: "From Dt",
+    header: "From Date",
     body: (rowData) => {
       return (
         formatDashDate(rowData.LVE_DATE_FR)
@@ -19,7 +19,7 @@ export const leavesColumns = (handlers) => [
     }
   },
   {
-    header: "To Dt",
+    header: "To Date",
     body: (rowData) => {
       return (
         formatDashDate(rowData.LVE_DATE_TO)
