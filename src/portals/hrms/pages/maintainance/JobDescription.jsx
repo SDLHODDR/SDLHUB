@@ -1,11 +1,9 @@
 import { useMemo, useState, useEffect, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 import Select from 'react-select'
-
 import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
 import { getPortalFromPath } from '../../../../config/portalConfig'
 import SDLSearch from '../../../../components/datatable/SDLSearch'
-
 import {
   getDepartmentMasterData,
   getDesignationsMaster
@@ -14,21 +12,37 @@ import { getMasterData } from '../../services/masterDataService'
 import {
   getJobDescriptions,
   getJobDescriptionById,
-  saveJobDescription,
-  getKRAList,
-  getQualificationList,
-  getSkillList,
-  getExpertiseLevelList,
-  getAllowanceList,
-  getFrequencyList,
-  getCTCHeadList,
-  getFormulaList,
-  getQuestionTemplateList,
-  getDivisionList,
-  getInductionList,
-  getOrganogramList
+  saveJobDescription
+  // getKRAList,
+  // getQualificationList,
+  // getSkillList,
+  // getExpertiseLevelList,
+  // getAllowanceList,
+  // getFrequencyList,
+  // getCTCHeadList,
+  // getFormulaList,
+  // getQuestionTemplateList,
+  // getDivisionList,
+  // getInductionList,
+  // getOrganogramList
 } from '../../services/jobDescriptionService'
 import { notifySuccess, notifyError } from '../../../../services/alertService'
+import { CKEditor } from '@ckeditor/ckeditor5-react'
+import {
+  ClassicEditor,
+  Essentials,
+  Paragraph,
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  Font,
+  Link,
+  Alignment,
+  List,
+  BlockQuote
+} from 'ckeditor5'
+import 'ckeditor5/ckeditor5.css'
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload
@@ -204,119 +218,25 @@ const JobDescription = () => {
   const [inductionList, setInductionList] = useState([])
   const [organogramList, setOrganogramList] = useState([])
 
-  // const loadData = useCallback(async () => {
-  //   try {
-  //     setLoading(true)
-  //     const [
-  //       jobsResponse,
-  //       departmentsResponse,
-  //       designationsResponse,
-  //       levelsResponse
-  //     ] = await Promise.all([
-  //       getJobDescriptions(),
-  //       getDepartmentMasterData(),
-  //       getDesignationsMaster(),
-  //       getMasterData('HR_ORG_LEVEL')
-  //     ])
-
-  //     setJobData(normalizeRecords(jobsResponse))
-  //     setDepartments(normalizeRecords(departmentsResponse))
-  //     setDesignations(normalizeRecords(designationsResponse))
-  //     setLevels(normalizeRecords(levelsResponse))
-  //   } catch (error) {
-  //     console.error('Error loading job descriptions page data:', error)
-  //     notifyError(error?.message || 'Unable to load job description data.')
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }, [])
-
   const loadData = useCallback(async () => {
     try {
       setLoading(true)
-
-      // const [
-      //   jobsResponse,
-      //   departmentsResponse,
-      //   designationsResponse,
-      //   levelsResponse,
-      //   mastersResponse
-      // ] = await Promise.all([
-      //   getJobDescriptions(),
-      //   getDepartmentMasterData(),
-      //   getDesignationsMaster(),
-      //   getMasterData('HR_ORG_LEVEL'),
-      //   getJobDescriptionMasters()
-      // ])
-
       const [
         jobsResponse,
         departmentsResponse,
         designationsResponse,
-        levelsResponse,
-        kraResponse,
-        qualificationResponse,
-        skillResponse,
-        expertiseResponse,
-        allowanceResponse,
-        frequencyResponse,
-        ctcHeadResponse,
-        formulaResponse,
-        questionTemplateResponse,
-        divisionResponse,
-        inductionResponse,
-        organogramResponse
+        levelsResponse
       ] = await Promise.all([
         getJobDescriptions(),
         getDepartmentMasterData(),
         getDesignationsMaster(),
-        getMasterData('HR_ORG_LEVEL'),
-        getKRAList(),
-        getQualificationList(),
-        getSkillList(),
-        getExpertiseLevelList(),
-        getAllowanceList(),
-        getFrequencyList(),
-        getCTCHeadList(),
-        getFormulaList(),
-        getQuestionTemplateList(),
-        getDivisionList(),
-        getInductionList(),
-        getOrganogramList()
+        getMasterData('HR_ORG_LEVEL')
       ])
 
       setJobData(normalizeRecords(jobsResponse))
       setDepartments(normalizeRecords(departmentsResponse))
       setDesignations(normalizeRecords(designationsResponse))
       setLevels(normalizeRecords(levelsResponse))
-
-      // setKraList(normalizeRecords(mastersResponse?.kra))
-      // setQualificationList(normalizeRecords(mastersResponse?.qualifications))
-      // setSkillList(normalizeRecords(mastersResponse?.skills))
-      // setSkillLevelList(normalizeRecords(mastersResponse?.skillLevels))
-      // setAllowanceList(normalizeRecords(mastersResponse?.allowances))
-      // setFrequencyList(normalizeRecords(mastersResponse?.frequencies))
-      // setCtcHeadList(normalizeRecords(mastersResponse?.ctcHeads))
-      // setFormulaList(normalizeRecords(mastersResponse?.formulas))
-      // setQuestionGroups(normalizeRecords(mastersResponse?.questionGroups))
-      // setQuestionSubGroups(normalizeRecords(mastersResponse?.questionSubGroups))
-      // setQuestionList(normalizeRecords(mastersResponse?.questions))
-      // setDepartmentReferenceList(normalizeRecords(mastersResponse?.departments))
-      // setDivisionList(normalizeRecords(mastersResponse?.divisions))
-      // setInductionList(normalizeRecords(mastersResponse?.inductions))
-      // setOrganogramList(normalizeRecords(mastersResponse?.organograms))
-      setKraList(normalizeRecords(kraResponse))
-      setQualificationList(normalizeRecords(qualificationResponse))
-      setSkillList(normalizeRecords(skillResponse))
-      setExpertiseLevelList(normalizeRecords(expertiseResponse))
-      setAllowanceList(normalizeRecords(allowanceResponse))
-      setFrequencyList(normalizeRecords(frequencyResponse))
-      setCtcHeadList(normalizeRecords(ctcHeadResponse))
-      setFormulaList(normalizeRecords(formulaResponse))
-      setQuestionTemplateList(normalizeRecords(questionTemplateResponse))
-      setDivisionList(normalizeRecords(divisionResponse))
-      setInductionList(normalizeRecords(inductionResponse))
-      setOrganogramList(normalizeRecords(organogramResponse))
     } catch (error) {
       console.error('Error loading job descriptions page data:', error)
       notifyError(error?.message || 'Unable to load job description data.')
@@ -324,6 +244,100 @@ const JobDescription = () => {
       setLoading(false)
     }
   }, [])
+
+  // const loadData = useCallback(async () => {
+  //   try {
+  //     setLoading(true)
+
+  //     // const [
+  //     //   jobsResponse,
+  //     //   departmentsResponse,
+  //     //   designationsResponse,
+  //     //   levelsResponse,
+  //     //   mastersResponse
+  //     // ] = await Promise.all([
+  //     //   getJobDescriptions(),
+  //     //   getDepartmentMasterData(),
+  //     //   getDesignationsMaster(),
+  //     //   getMasterData('HR_ORG_LEVEL'),
+  //     //   getJobDescriptionMasters()
+  //     // ])
+
+  //     const [
+  //       jobsResponse,
+  //       departmentsResponse,
+  //       designationsResponse,
+  //       levelsResponse,
+  //       kraResponse,
+  //       qualificationResponse,
+  //       skillResponse,
+  //       expertiseResponse,
+  //       allowanceResponse,
+  //       frequencyResponse,
+  //       ctcHeadResponse,
+  //       formulaResponse,
+  //       questionTemplateResponse,
+  //       divisionResponse,
+  //       inductionResponse,
+  //       organogramResponse
+  //     ] = await Promise.all([
+  //       getJobDescriptions(),
+  //       getDepartmentMasterData(),
+  //       getDesignationsMaster(),
+  //       getMasterData('HR_ORG_LEVEL'),
+  //       getKRAList(),
+  //       getQualificationList(),
+  //       getSkillList(),
+  //       getExpertiseLevelList(),
+  //       getAllowanceList(),
+  //       getFrequencyList(),
+  //       getCTCHeadList(),
+  //       getFormulaList(),
+  //       getQuestionTemplateList(),
+  //       getDivisionList(),
+  //       getInductionList(),
+  //       getOrganogramList()
+  //     ])
+
+  //     setJobData(normalizeRecords(jobsResponse))
+  //     setDepartments(normalizeRecords(departmentsResponse))
+  //     setDesignations(normalizeRecords(designationsResponse))
+  //     setLevels(normalizeRecords(levelsResponse))
+
+  //     // setKraList(normalizeRecords(mastersResponse?.kra))
+  //     // setQualificationList(normalizeRecords(mastersResponse?.qualifications))
+  //     // setSkillList(normalizeRecords(mastersResponse?.skills))
+  //     // setSkillLevelList(normalizeRecords(mastersResponse?.skillLevels))
+  //     // setAllowanceList(normalizeRecords(mastersResponse?.allowances))
+  //     // setFrequencyList(normalizeRecords(mastersResponse?.frequencies))
+  //     // setCtcHeadList(normalizeRecords(mastersResponse?.ctcHeads))
+  //     // setFormulaList(normalizeRecords(mastersResponse?.formulas))
+  //     // setQuestionGroups(normalizeRecords(mastersResponse?.questionGroups))
+  //     // setQuestionSubGroups(normalizeRecords(mastersResponse?.questionSubGroups))
+  //     // setQuestionList(normalizeRecords(mastersResponse?.questions))
+  //     // setDepartmentReferenceList(normalizeRecords(mastersResponse?.departments))
+  //     // setDivisionList(normalizeRecords(mastersResponse?.divisions))
+  //     // setInductionList(normalizeRecords(mastersResponse?.inductions))
+  //     // setOrganogramList(normalizeRecords(mastersResponse?.organograms))
+  //     setKraList(normalizeRecords(kraResponse))
+  //     setQualificationList(normalizeRecords(qualificationResponse))
+  //     setSkillList(normalizeRecords(skillResponse))
+  //     setExpertiseLevelList(normalizeRecords(expertiseResponse))
+  //     setAllowanceList(normalizeRecords(allowanceResponse))
+  //     setFrequencyList(normalizeRecords(frequencyResponse))
+  //     setCtcHeadList(normalizeRecords(ctcHeadResponse))
+  //     setFormulaList(normalizeRecords(formulaResponse))
+  //     setQuestionTemplateList(normalizeRecords(questionTemplateResponse))
+  //     setDivisionList(normalizeRecords(divisionResponse))
+  //     setInductionList(normalizeRecords(inductionResponse))
+  //     setOrganogramList(normalizeRecords(organogramResponse))
+  //   } catch (error) {
+  //     console.error('Error loading job descriptions page data:', error)
+  //     notifyError(error?.message || 'Unable to load job description data.')
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }, [])
 
   useEffect(() => {
     void loadData() // eslint-disable-line react-hooks/set-state-in-effect
@@ -386,10 +400,10 @@ const JobDescription = () => {
         //   String(index + 1)
         // ),
         value: getDisplayValue(
-  item,
-  ["DEPT_ID", "dept_id", "id"],
-  String(index + 1)
-),
+          item,
+          ['DEPT_ID', 'dept_id', 'id'],
+          String(index + 1)
+        ),
         label: getDisplayValue(
           item,
           ['DEPT_DESC', 'dept_desc', 'DEPT_NAME', 'name'],
@@ -550,17 +564,17 @@ const JobDescription = () => {
   }
 
   const startNewJob = () => {
-  resetForm();
+    resetForm()
 
-  setSelectedJobId("");
+    setSelectedJobId('')
 
-  setActiveTab("basic");
+    setActiveTab('basic')
 
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
-};
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }
 
   // const startEditJob = job => {
   //   setSelectedJobId(job.ID)
@@ -960,6 +974,14 @@ const JobDescription = () => {
 
   return (
     <>
+      <style>
+        {`
+        .ck-editor__editable {
+          min-height: 300px;
+          max-height: 500px;
+        }
+      `}
+      </style>
       {/* ============================
         PAGE HEADER
         ============================ */}
@@ -1418,16 +1440,54 @@ const JobDescription = () => {
                       <div>
                         <label style={jdStyles.label}>Responsibilities</label>
 
-                        <textarea
-                          className='form-control'
-                          rows={8}
-                          value={formData.RESPONSIBILITIES}
-                          onChange={e =>
+                        <CKEditor
+                          editor={ClassicEditor}
+                          data={formData.RESPONSIBILITIES || ''}
+                          config={{
+                            licenseKey: 'GPL',
+                            plugins: [
+                              Essentials,
+                              Paragraph,
+                              Bold,
+                              Italic,
+                              Underline,
+                              Strikethrough,
+                              Font,
+                              Link,
+                              Alignment,
+                              List,
+                              BlockQuote
+                            ],
+                            toolbar: [
+                              'undo',
+                              'redo',
+                              '|',
+                              'bold',
+                              'italic',
+                              'underline',
+                              'strikethrough',
+                              '|',
+                              'fontSize',
+                              'fontFamily',
+                              'fontColor',
+                              'fontBackgroundColor',
+                              '|',
+                              'link',
+                              '|',
+                              'alignment',
+                              '|',
+                              'bulletedList',
+                              'numberedList',
+                              '|',
+                              'blockQuote'
+                            ]
+                          }}
+                          onChange={(event, editor) => {
                             handleFieldChange(
                               'RESPONSIBILITIES',
-                              e.target.value
+                              editor.getData()
                             )
-                          }
+                          }}
                         />
                       </div>
                     )}
@@ -1435,50 +1495,29 @@ const JobDescription = () => {
                     {/* ==========================================
                       KRA
                       ========================================== */}
-                    {/*
-                    {activeTab === 'kra' && (
+                    {showAllTabs && activeTab === 'kra' && (
                       <div>
-                        <label style={jdStyles.label}>
-                          KRA
-                          <span style={jdStyles.required}>*</span>
-                        </label>
+                        <div className='mb-3'>
+                          <label className='form-label'>KRA*</label>
 
-                        <textarea
-                          className='form-control'
-                          rows={8}
-                          value={formData.KRA}
-                          onChange={e =>
-                            handleFieldChange('KRA', e.target.value)
-                          }
-                        />
+                          <Select
+                            options={kraOptions}
+                            value={
+                              kraOptions.find(
+                                option =>
+                                  String(option.value) === String(formData.KRA)
+                              ) || null
+                            }
+                            onChange={option =>
+                              handleFieldChange('KRA', option?.value || '')
+                            }
+                            isSearchable
+                            isClearable
+                            placeholder='Select KRA'
+                          />
+                        </div>
                       </div>
-                    )}*/}
-
-                    <div
-                      className={`tab-pane ${
-                        activeTab === 'kra' ? 'active' : ''
-                      }`}
-                    >
-                      <div className='mb-3'>
-                        <label className='form-label'>KRA*</label>
-
-                        <Select
-                          options={kraOptions}
-                          value={
-                            kraOptions.find(
-                              option =>
-                                String(option.value) === String(formData.KRA)
-                            ) || null
-                          }
-                          onChange={option =>
-                            handleFieldChange('KRA', option?.value || '')
-                          }
-                          isSearchable
-                          isClearable
-                          placeholder='Select KRA'
-                        />
-                      </div>
-                    </div>
+                    )}
 
                     {/* ==========================================
                       EDUCATION

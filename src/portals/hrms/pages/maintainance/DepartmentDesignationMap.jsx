@@ -297,11 +297,11 @@ const DepartmentDesignationMap = () => {
                     )}
 
                     <div className="text-end">
-                      <button className="btn btn-secondary me-2" onClick={cancelEdit} disabled={saving}>
-                        Cancel
-                      </button>
-                      <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+                      <button className="btn btn-primary me-2" onClick={handleSave} disabled={saving}>
                         {saving ? "Saving..." : "Save"}
+                      </button>
+                      <button className="btn btn-secondary" onClick={cancelEdit} disabled={saving}>
+                        Cancel
                       </button>
                     </div>
                   </div>
