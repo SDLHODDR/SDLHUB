@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
+import SDLCalendar from "../../../../components/calendar/SDLCalendar";
 
 import { getErrorLogs } from "../../services/logService";
 import { notifyError } from "../../../../services/alertService";
@@ -45,6 +46,78 @@ const ViewLog = () => {
   useEffect(() => {
     loadLogs(today);
   }, []);
+
+    /* ==========================================
+        DATE HELPERS
+  ========================================== */
+
+  /**
+   * JS Date -> YYYY-MM-DD
+   *
+   * Used when sending the selected date to API.
+   */
+  const formatDateForForm = (date) => {
+    if (
+      !date ||
+      !(date instanceof Date) ||
+      isNaN(date.getTime())
+    ) {
+      return "";
+    }
+
+    const year = date.getFullYear();
+
+    const month = String(
+      date.getMonth() + 1
+    ).padStart(2, "0");
+
+    const day = String(
+      date.getDate()
+    ).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  /**
+   * YYYY-MM-DD -> JS Date
+   *
+   * Used by SDLCalendar.
+   */
+  const formDateToJSDate = (value) => {
+    if (!value) {
+      return null;
+    }
+
+    const match = String(value).match(
+      /^(\d{4})-(\d{2})-(\d{2})$/
+    );
+
+    if (!match) {
+      return null;
+    }
+
+    const [, year, month, day] = match;
+
+    const date = new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day)
+    );
+
+    return isNaN(date.getTime())
+      ? null
+      : date;
+  };
+
+  /**
+   * SDLCalendar date change
+   */
+  const handleDateChange = (date) => {
+    const formattedDate =
+      formatDateForForm(date);
+
+    setSelectedDate(formattedDate);
+  };
 
   /* ==========================================
         LOAD LOGS
@@ -254,12 +327,11 @@ const ViewLog = () => {
             <div className="col-lg-3 col-md-4">
               <label className="form-label fw-semibold">Log Date</label>
 
-              <input
-                type="date"
-                className="form-control"
-                value={selectedDate}
-                max={today}
-                onChange={(e) => setSelectedDate(e.target.value)}
+               <SDLCalendar
+                value={formDateToJSDate(selectedDate)}
+                onChange={handleDateChange}
+                allowAllDates={true}
+                maxDate={new Date()}
               />
             </div>
 

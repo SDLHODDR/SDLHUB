@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
-import SDLSearch from "../../../../components/datatable/SDLSearch";
+import SDLSearch from "../../../../components/datatable/SDLSearch";``
+import SDLCalendar from "../../../../components/calendar/SDLCalendar";
 import {
   getItrDownloadReport,
   exportItrDownloadReport,
@@ -14,6 +15,7 @@ import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import Badge from "../Badge";
 
 import { getPortalFromPath } from "../../../../config/portalConfig";
+
 
 const ItrDownloadReport = () => {
   const [loading, setLoading] = useState(false);
@@ -77,6 +79,112 @@ const ItrDownloadReport = () => {
   useEffect(() => {
     loadReport();
   }, []);
+
+    /* =========================================================
+     FROM DATE CHANGE
+  ========================================================= */
+
+  const handleFromDateChange = (date) => {
+    const formattedDate =
+      formatDateForForm(date);
+
+    setFilters((prev) => {
+      const updated = {
+        ...prev,
+        from_date: formattedDate,
+      };
+
+      /*
+       * If From Date becomes greater than
+       * existing To Date, clear To Date.
+       */
+      if (
+        formattedDate &&
+        prev.to_date &&
+        formattedDate > prev.to_date
+      ) {
+        updated.to_date = "";
+      }
+
+      return updated;
+    });
+  };
+
+  /* =========================================================
+     TO DATE CHANGE
+  ========================================================= */
+
+  const handleToDateChange = (date) => {
+    const formattedDate =
+      formatDateForForm(date);
+
+    setFilters((prev) => ({
+      ...prev,
+      to_date: formattedDate,
+    }));
+  };
+
+  /* =========================================================
+     DATE HELPERS
+  ========================================================= */
+
+  /**
+   * JS Date -> YYYY-MM-DD
+   *
+   * Used for API filters.
+   */
+  const formatDateForForm = (date) => {
+    if (
+      !date ||
+      !(date instanceof Date) ||
+      isNaN(date.getTime())
+    ) {
+      return "";
+    }
+
+    const year = date.getFullYear();
+
+    const month = String(
+      date.getMonth() + 1
+    ).padStart(2, "0");
+
+    const day = String(
+      date.getDate()
+    ).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  /**
+   * YYYY-MM-DD -> JS Date
+   *
+   * Used by SDLCalendar.
+   */
+  const formDateToJSDate = (value) => {
+    if (!value) {
+      return null;
+    }
+
+    const match = String(value).match(
+      /^(\d{4})-(\d{2})-(\d{2})$/
+    );
+
+    if (!match) {
+      return null;
+    }
+
+    const [, year, month, day] = match;
+
+    const date = new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day)
+    );
+
+    return isNaN(date.getTime())
+      ? null
+      : date;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -375,28 +483,40 @@ const ItrDownloadReport = () => {
 
             {/* From Date */}
             <div className="col-12 col-sm-6 col-md-4 col-lg-2">
-              <label className="form-label">From Date</label>
+              <label className="form-label">
+                From Date
+              </label>
 
-              <input
-                type="date"
-                className="form-control"
-                name="from_date"
-                value={filters.from_date}
-                onChange={handleChange}
-                max={new Date().toISOString().split("T")[0]}
+              <SDLCalendar
+                value={formDateToJSDate(
+                  filters.from_date
+                )}
+                onChange={handleFromDateChange}
+                allowAllDates={true}
+                maxDate={new Date()}
               />
             </div>
 
             {/* To Date */}
             <div className="col-12 col-sm-6 col-md-4 col-lg-2">
-              <label className="form-label">To Date</label>
+              <label className="form-label">
+                To Date
+              </label>
 
-              <input
-                type="date"
-                className="form-control"
-                name="to_date"
-                value={filters.to_date}
-                onChange={handleChange}
+              <SDLCalendar
+                value={formDateToJSDate(
+                  filters.to_date
+                )}
+                onChange={handleToDateChange}
+                allowAllDates={true}
+                minDate={
+                  filters.from_date
+                    ? formDateToJSDate(
+                        filters.from_date
+                      )
+                    : undefined
+                }
+                maxDate={new Date()}
               />
             </div>
 

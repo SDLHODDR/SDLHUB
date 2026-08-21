@@ -3,22 +3,46 @@ import { useState, useMemo, useEffect } from "react";
 import { Calendar } from "primereact/calendar";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { getCalendarData } from "../../services/calendarService";
+import "./SDLCalendar.css";
 
-const SDLCalendar = ({ openModal }) => {
-  const [date, setDate] = useState(null);
+const SDLCalendar = ({
+  // Existing calendar-page usage
+  openModal,
+
+  // New controlled/form usage
+  value = null,
+  onChange,
+
+  // Calendar options
+  inline = false,
+  disabled = false,
+  minDate,
+  maxDate,
+
+  // NEW
+  allowAllDates = false,
+
+  className = "datepickers customdatePics",
+}) => {
+  const [internalDate, setInternalDate] = useState(null);
   const [holidays, setHolidays] = useState([]);
+
+  /*
+   * If value is supplied, SDLCalendar works as a controlled component.
+   * Otherwise it maintains its own internal date.
+   */
+  const selectedDate = value !== null ? value : internalDate;
 
   // Load calendar data
   useEffect(() => {
     const loadCalendar = async () => {
       try {
         const response = await getCalendarData();
-        console.log("Calendar Data:", response); // debug
 
-        const normalized = response?.data.map((item) => ({
+        const normalized = (response?.data || []).map((item) => ({
           date: new Date(item.date),
-          dateStr: item.date, // already YYYY-MM-DD
-          type: item.HOL_TYPE, // H, W, O
+          dateStr: item.date,
+          type: item.HOL_TYPE,
           descr: item.title,
           bgColor: item.HOL_TYPE_COLOR,
           textColor: item.HOL_TYPE_TEXT_COLOR,
@@ -34,38 +58,44 @@ const SDLCalendar = ({ openModal }) => {
   }, []);
 
   // Tooltip renderer
-  const renderTooltip = (text) => (props) => (
+  /*const renderTooltip = (text) => (props) => (
     <Tooltip id="tooltip-holiday" {...props}>
       {text}
     </Tooltip>
-  );
+  );*/
+
+  const renderTooltip = text => props => (
+  <Tooltip
+    id='tooltip-holiday'
+    {...props}
+    className='sdl-calendar-tooltip'
+  >
+    {text}
+  </Tooltip>
+)
 
   // O(1) lookup map
   const holidayMap = useMemo(() => {
     const map = {};
+
     holidays.forEach((h) => {
       map[h.dateStr] = h;
     });
+
     return map;
   }, [holidays]);
 
-  // Helper: date → key
+  // Helper: date → YYYY-MM-DD
   const getKey = (date) => {
     return `${date.year}-${String(date.month + 1).padStart(2, "0")}-${String(
       date.day
     ).padStart(2, "0")}`;
   };
 
-  // Disable logic (ONLY H & W)
-  // const isDisabledDate = (holiday) => {
-  //   return holiday?.type === "H" || holiday?.type === "W";
-  // };
-
   // Calendar cell renderer
   const dateTemplate = (date) => {
     const key = getKey(date);
     const holiday = holidayMap[key];
-    //const isDisabled = isDisabledDate(holiday);
 
     let tooltipText = null;
 
@@ -78,24 +108,24 @@ const SDLCalendar = ({ openModal }) => {
     }
 
     const today = new Date();
+
     const isToday =
       date.day === today.getDate() &&
       date.month === today.getMonth() &&
       date.year === today.getFullYear();
 
-    const classNameTxt = {
-      W: "bg-danger-transparent",
-      H: "bg-danger-transparent",
-      O: "bg-warning-transparent",
-    }[holiday?.type] || (isToday ? "bg-primary" : "bg-light");
+    const classNameTxt =
+      {
+        W: "bg-danger-transparent",
+        H: "bg-danger-transparent",
+        O: "bg-warning-transparent",
+      }[holiday?.type] || (isToday ? "bg-primary" : "bg-light");
 
-    //console.log("=======bgGolor and textColor ========", bgColor, textColor);
-    //let checkToday = (isToday) ? "" : classNameTxt;
-    
     const content = (
-      <span className={`badge ${classNameTxt}`}
+      <span
+        className={`badge ${classNameTxt}`}
         style={{
-          fontSize: "12px"
+          fontSize: "12px",
         }}
       >
         {date.day}
@@ -119,36 +149,65 @@ const SDLCalendar = ({ openModal }) => {
   const handleChange = (e) => {
     const selectedDate = e.value;
 
-    const key = `${selectedDate.getFullYear()}-${String(
-      selectedDate.getMonth() + 1
-    ).padStart(2, "0")}-${String(
-      selectedDate.getDate()
-    ).padStart(2, "0")}`;
+    if (!selectedDate) {
+      if (value === null) {
+        setInternalDate(null);
+      }
 
-    const holiday = holidayMap[key];
-
-    // block weekends & holidays
-    if (holiday && (holiday.type === "H" || holiday.type === "W")) {
+      onChange?.(null);
       return;
     }
 
-    setDate(selectedDate);
+    const key = `${selectedDate.getFullYear()}-${String(
+      selectedDate.getMonth() + 1
+    ).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
 
-    openModal({
-      mode: "create",
-      modalDate: selectedDate,
-    });
+    const holiday = holidayMap[key];
+
+    // Block weekends & holidays only when allowAllDates is false
+    if (
+      !allowAllDates &&
+      holiday &&
+      (holiday.type === "H" || holiday.type === "W")
+    ) {
+      return;
+    }
+
+    // Controlled component
+    if (value !== null) {
+      onChange?.(selectedDate);
+    } else {
+      // Existing standalone calendar usage
+      setInternalDate(selectedDate);
+
+      if (openModal) {
+        openModal({
+          mode: "create",
+          modalDate: selectedDate,
+        });
+      }
+
+      onChange?.(selectedDate);
+    }
   };
 
-  return (
+ return (
+  <div className="sdl-calendar-wrapper">
     <Calendar
-      className="datepickers customdatePics mb-4"
-      value={date}
+      className={className}
+      value={selectedDate}
       onChange={handleChange}
-      inline
+      inline={inline}
+      disabled={disabled}
+      minDate={minDate}
+      maxDate={maxDate}
+      dateFormat="dd-M-yy"
       dateTemplate={dateTemplate}
+      showIcon={!inline}
+      placeholder={!inline ? "dd-Mon-yyyy" : undefined}
     />
-  );
+  </div>
+);
 };
 
 export default SDLCalendar;
