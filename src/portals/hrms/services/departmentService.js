@@ -32,6 +32,29 @@ export const deleteDepartment = (payload) =>
     },
   });
 
+  export const getAccountCodes = () =>
+  request({
+    api: hrmsAPI,
+    url: HRMS_API.MAINTAINANCE.DEPARTMENT,
+    method: "GET",
+    params: {
+      // type: "accounts",
+            action: 'accounts'
+    },
+  });
+
+  export const getCostCenters = (acctCode) =>
+  request({
+    api: hrmsAPI,
+    url: HRMS_API.MAINTAINANCE.DEPARTMENT,
+    method: "GET",
+    params: {
+      // type: "costcenters",
+      // acct_code: acctCode,
+      action: 'costcenters',
+    },
+  });
+  
 // -------------------------
 // Department - Designation Map
 // -------------------------
@@ -65,25 +88,4 @@ export const getDesignationsMaster = (params = {}) =>
     url: HRMS_API.MAINTAINANCE.DESIGNATIONS_MASTER,
     method: "GET",
     params,
-  });
-
-  export const getAccountCodes = () =>
-  request({
-    api: hrmsAPI,
-    url: HRMS_API.MAINTAINANCE.DEPARTMENT,
-    method: "GET",
-    params: {
-      type: "accounts",
-    },
-  });
-
-  export const getCostCenters = (acctCode) =>
-  request({
-    api: hrmsAPI,
-    url: HRMS_API.MAINTAINANCE.DEPARTMENT,
-    method: "GET",
-    params: {
-      type: "costcenters",
-      acct_code: acctCode,
-    },
   });
