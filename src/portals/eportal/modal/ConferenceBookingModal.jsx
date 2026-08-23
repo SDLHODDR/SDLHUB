@@ -14,8 +14,9 @@ import AuthContext from "../../../auth/AuthContext";
 import Select from "react-select";
 import "../assets/css/conferencebookingmodal.css";
 
-import { CONFERENCE_MESSAGES } from "../constants/conferenceMessages";
+import SDLCalendar from "../../../components/calendar/SDLCalendar";
 
+import { CONFERENCE_MESSAGES } from "../constants/conferenceMessages";
 import { getAuthroizationTaskCount } from "../../../store/eportal/ePortalAuthorizationCountSlice";
 
 const DEFAULT_FORM_DATA = {
@@ -69,6 +70,28 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
 
     const date = new Date(dateStr);
     if (isNaN(date)) return "";
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const parseFormDate = (dateStr) => {
+    if (!dateStr) return null;
+
+    const [year, month, day] = dateStr.split("-").map(Number);
+
+    if (!year || !month || !day) {
+      return null;
+    }
+
+    return new Date(year, month - 1, day);
+  };
+
+  const formatDateForForm = (date) => {
+    if (!date) return "";
 
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -304,7 +327,6 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
             : CONFERENCE_MESSAGES.BOOKING_CREATED,
         );
 
-       
         await refreshTable();
         //refreshTable();
         onClose();
@@ -506,25 +528,34 @@ const ConferenceBookingModal = ({ booking, mode, onClose, refreshTable }) => {
               <div className="row mb-3">
                 <div className="col-md-4">
                   <label className="form-label">Date</label>
-                  <input
-                    type="date"
-                    //min={new Date().toISOString().split("T")[0]}
-                    min={
-                      isAddMode
-                        ? new Date().toISOString().split("T")[0]
-                        : undefined
-                    }
-                    className={`form-control ${errors.date ? "is-invalid" : ""}`}
-                    name="date"
-                    value={formData.date}
-                    onChange={handleChange}
+
+                  <SDLCalendar
+                    value={parseFormDate(formData.date)}
+                    onChange={(selectedDate) => {
+                      const formattedDate = formatDateForForm(selectedDate);
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        date: formattedDate,
+                      }));
+
+                      setErrors((prev) => ({
+                        ...prev,
+                        date: "",
+                      }));
+                    }}
+                    inline={false}
                     disabled={readOnly}
+                    minDate={isAddMode ? new Date() : undefined}
+                    className={`w-100 ${errors.date ? "p-invalid" : ""}`}
                   />
+
                   {errors.date && (
-                    <div className="invalid-feedback">{errors.date}</div>
+                    <div className="invalid-feedback d-block">
+                      {errors.date}
+                    </div>
                   )}
                 </div>
-
                 <div className="col-md-4">
                   <label className="form-label">From Time</label>
                   <select
