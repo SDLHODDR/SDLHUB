@@ -27,22 +27,22 @@ import {
   // getOrganogramList
 } from '../../services/jobDescriptionService'
 import { notifySuccess, notifyError } from '../../../../services/alertService'
-import { CKEditor } from '@ckeditor/ckeditor5-react'
-import {
-  ClassicEditor,
-  Essentials,
-  Paragraph,
-  Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  Font,
-  Link,
-  Alignment,
-  List,
-  BlockQuote
-} from 'ckeditor5'
-import 'ckeditor5/ckeditor5.css'
+// import { CKEditor } from '@ckeditor/ckeditor5-react'
+// import {
+//   ClassicEditor,
+//   Essentials,
+//   Paragraph,
+//   Bold,
+//   Italic,
+//   Underline,
+//   Strikethrough,
+//   Font,
+//   Link,
+//   Alignment,
+//   List,
+//   BlockQuote
+// } from 'ckeditor5'
+// import 'ckeditor5/ckeditor5.css'
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload
@@ -1440,7 +1440,7 @@ const JobDescription = () => {
                       <div>
                         <label style={jdStyles.label}>Responsibilities</label>
 
-                        <CKEditor
+                        {/* <CKEditor
                           editor={ClassicEditor}
                           data={formData.RESPONSIBILITIES || ''}
                           config={{
@@ -1488,7 +1488,7 @@ const JobDescription = () => {
                               editor.getData()
                             )
                           }}
-                        />
+                        /> */}
                       </div>
                     )}
 
