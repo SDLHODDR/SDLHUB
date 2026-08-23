@@ -12,6 +12,7 @@ import {
 import moment from "moment";
 // import SDLDatePicker from "../../../components/calendar/SDLDatePicker";
 import { notifyError, notifySuccess } from "../../../services/alertService";
+import { Calendar } from "primereact/calendar";
 
 const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
   const { modalPage, mode, modeLabel, form_header, form_text } = formSettings;
@@ -720,7 +721,7 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                   <div className="col-md-6">
                     <label>From Date</label>
 
-                    <input
+                    {/* <input
                       type="date"
                       className={`form-control ${errors.LVE_DATE_FR ? "is-invalid" : ""}`}
                       name="LVE_DATE_FR"
@@ -737,12 +738,38 @@ const LeavesModal = ({ formSettings, modalState, closeModal, onSuccess }) => {
                               .format("YYYY-MM-DD")
                       }
                       disabled={isCreateMode}
-                    />
-                    {/* )} */}
-                    {errors.LVE_DATE_FR && (
+                    /> */}
+                  
+                    {/* {errors.LVE_DATE_FR && (
                       <div className="invalid-feedback">
                         {errors.LVE_DATE_FR}
                       </div>
+                    )} */}
+                    <Calendar
+                      className={`w-100 ${errors.LVE_DATE_FR ? "p-invalid" : ""}`}
+                      inputClassName="form-control"
+                      name="LVE_DATE_FR"
+                      dateFormat="dd-M-yy"                 // renders 21-Aug-2026 inside the box
+                      value={formData.LVE_DATE_FR ? new Date(formData.LVE_DATE_FR) : null}
+                      onChange={(e) =>
+                        handleChange({
+                          target: {
+                            name: "LVE_DATE_FR",
+                            value: e.value ? moment(e.value).format("YYYY-MM-DD") : "",
+                          },
+                        })
+                      }
+                      minDate={moment().startOf("month").toDate()}
+                      maxDate={
+                        moment().month() === 11
+                          ? moment().endOf("month").toDate()
+                          : moment().add(1, "month").endOf("month").toDate()
+                      }
+                      disabled={isCreateMode}
+                      showIcon
+                    />
+                    {errors.LVE_DATE_FR && (
+                      <div className="invalid-feedback d-block">{errors.LVE_DATE_FR}</div>
                     )}
                   </div>
 

@@ -87,7 +87,7 @@ const SDLCalendar = ({ openModal }) => {
       W: "bg-danger-transparent",
       H: "bg-danger-transparent",
       O: "bg-warning-transparent",
-    }[holiday?.type] || (isToday ? "bg-primary" : "bg-light");
+    }[holiday?.type] || (isToday ? "bg-primary" : "bg-light123");
 
     //console.log("=======bgGolor and textColor ========", bgColor, textColor);
     //let checkToday = (isToday) ? "" : classNameTxt;
