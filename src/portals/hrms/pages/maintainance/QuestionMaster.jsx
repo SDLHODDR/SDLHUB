@@ -392,6 +392,32 @@ const QuestionMaster = () => {
                       <div className="col-lg-6">
                         <label className="form-label">Options</label>
                         {(form.OPTIONS || []).slice(0, optionCount || undefined).map((opt, idx) => (
+                          <div className="mb-2" key={idx}>
+                            <div className="input-group">
+                              {form.ANSWER_TYPE === "Radio" && (
+                                <span className="input-group-text">
+                                  <input
+                                    type="radio"
+                                    name="defaultOption"
+                                    checked={form.DEFAULT_OPTION === idx}
+                                    onChange={() => setForm((p) => ({ ...p, DEFAULT_OPTION: idx }))}
+                                  />
+                                </span>
+                              )}
+                              <input
+                                className={`form-control ${errors[`OPTION_${idx}`] ? "is-invalid" : ""}`}
+                                value={opt}
+                                maxLength={100}
+                                placeholder={`Option ${idx + 1}`}
+                                onChange={(e) => handleOptionChange(idx, e.target.value)}
+                              />
+                            </div>
+                            {errors[`OPTION_${idx}`] && (
+                              <div className="text-danger small mt-1">{errors[`OPTION_${idx}`]}</div>
+                            )}
+                          </div>
+                        ))}
+                        {/* {(form.OPTIONS || []).slice(0, optionCount || undefined).map((opt, idx) => (
                           <div className="input-group mb-2" key={idx}>
                             {form.ANSWER_TYPE === "Radio" && (
                               <span className="input-group-text">
@@ -414,7 +440,7 @@ const QuestionMaster = () => {
                               <div className="invalid-feedback">{errors[`OPTION_${idx}`]}</div>
                             )}
                           </div>
-                        ))}
+                        ))} */}
                       </div>
                     )}
                   </div>
