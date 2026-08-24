@@ -52,6 +52,11 @@ export const HRMS_API = {
     GET: "/dashboard.php",
   },
 
+  AUTHORIZATION: {
+    TASKDATA: "/getAuthorization.php", // GP Info Data
+    TASKTABLEDATA: "/getTable.php",
+  },
+
   MASTERDATA: {
     GET_MASTER_DATA: "/masterdata/master/getMasterData.php",
     GET_MASTER_TABLES: "/masterdata/master/getMasterTables.php",
