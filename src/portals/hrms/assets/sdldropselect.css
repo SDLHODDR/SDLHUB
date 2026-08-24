@@ -227,3 +227,19 @@ input.sdl-checkbox { width: 16px; height: 16px; accent-color: var(--sdl-accent);
   width: 0.875rem;
   height: 0.875rem;
 }
+
+/* In your global/module CSS */
+.sdl-datepicker .p-inputtext {
+  padding: 0.375rem 0.75rem;   /* matches Bootstrap .form-control */
+  height: calc(1.5em + 0.75rem + 2px); /* matches Bootstrap .form-control height */
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.375rem;
+}
+
+.sdl-datepicker .p-datepicker-trigger {
+  height: calc(1.5em + 1.0rem + 2px);
+  width: calc(1.5em + 0.75rem + 2px);
+  background-color:#FE8D1F;
+  border-color: #fe8d1f;
+}

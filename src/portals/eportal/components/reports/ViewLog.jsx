@@ -236,7 +236,8 @@ const ViewLog = () => {
 
   const actionBody = (rowData) => (
     <button
-      className="btn btn-primary btn-sm"
+      //className="btn btn-primary btn-sm"
+      className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
       title="View Details"
       onClick={() => setSelectedLog(rowData)}
       data-bs-toggle="modal"
