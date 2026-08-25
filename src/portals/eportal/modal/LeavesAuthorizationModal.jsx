@@ -105,10 +105,13 @@ const LeavesAuthorizationModal = ({
     }
   };
 
-  const LeaveStartEndArr = {
-    B: "Beginning Of The Day",
-    M: "Middle Of The Day",
-    E: "End Of The Day",
+  const LeaveStartEndArr = (code) => {
+    const result = {
+      "B": "Beginning of the Day",
+      "M": "Middle of the Day",
+      "E": "End of the Day",
+    };
+    return result[code] ?? code; // fallback to raw code if unmatched
   };
 
   const fetchLeaveHistory = async () => {
@@ -218,14 +221,14 @@ const LeavesAuthorizationModal = ({
                         <SDLFormField label="total days" value={formData.TOTAL_DAYS} />
                       </div>
                       <div className="row">
-                        <SDLFormField label="leave starts on" value={formData.LVE_START_ON} />
-                        <SDLFormField label="leave ends on" value={formData.LVE_END_ON} />
+                        <SDLFormField label="leave starts on" value={LeaveStartEndArr(formData.LVE_START_ON)} />
+                        <SDLFormField label="leave ends on" value={LeaveStartEndArr(formData.LVE_END_ON)} />
                       </div>
                       <div className="row">
-                        <SDLFormField label="reason" value={formData.REASON} />
+                        <SDLFormField label="reason" value={formData.REASON} colClass="col-md-12" />
                       </div>
                       <div className="row">
-                        <div className="col-md-6">
+                        <div className="col-md-12">
                           <div className="mb-3">
                             <label className="form-label">Auth Remarks:</label>
                             <textarea

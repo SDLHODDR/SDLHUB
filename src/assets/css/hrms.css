@@ -283,7 +283,8 @@ body.hrms-layout .hrms-mobile-sidebar {
 
     body.hrms-layout .hrms-mobile-sidebar .hrms-submenu li a {
         padding: 9px 15px 9px 42px;
-        color: #4b5563;
+        /* color: #4b5563; */
+        color: #000000;
         background: #ffffff;
         font-size: 13px;
     }

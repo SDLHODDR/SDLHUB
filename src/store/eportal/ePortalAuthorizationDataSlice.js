@@ -91,7 +91,7 @@ export const myActivitiesAuthSlice = createSlice({
         state.error = true;
         state.errorCode = action.payload?.errorCode;
         state.errorMessage = action.payload?.errorMessage;
-      });;
+      });
   },
 });
 

@@ -46152,3 +46152,37 @@ span.flatpickr-weekday {
 .auth-cnt {
   color:#000 !important;
 }
+
+.sdl-date-wrapper {
+  position: relative;
+}
+
+.sdl-date-native {
+  color: transparent; /* hide native "21-08-2026" text */
+  background: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.sdl-date-native::-webkit-datetime-edit,
+.sdl-date-native::-webkit-datetime-edit-fields-wrapper {
+  color: transparent;
+}
+
+.sdl-date-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 28px; /* leave space for the native calendar icon */
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
+  pointer-events: none; /* clicks pass through to the native input */
+  color: #212529;
+  font-size: inherit;
+}
+
+.sdl-date-overlay.text-muted {
+  color: #6c757d;
+}

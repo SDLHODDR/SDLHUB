@@ -85,7 +85,8 @@ const CompanyPolicies = () => {
                     title="View Policy"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn btn-icon btn-sm btn-primary"
+                    // className="btn btn-icon btn-sm btn-primary"
+                    className="btn btn-sm btn-outline-primary"
                 >
                     <i className="ti ti-eye"></i>
                 </a>

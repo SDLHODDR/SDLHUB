@@ -10,11 +10,14 @@ import { getPortalFromPath } from "../../../../config/portalConfig";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLTagSelect from "../../../../components/SDLTagSelect";
+import SDLDropdownSelect from "../../components/forms/SDLDropdownSelect";
+import { Calendar } from "primereact/calendar";
 
 import { normalizeRecords, getDisplayValue, formatDate } from "../../../../utils/formatUtils";
 import { policyColumns } from "../../portalutils/policyColumns";
 import { mapCompanyOptions, mapDepartmentOptions, mapDivisionOptions } from "../../portalutils/policyOptionsUtils";
 import { usePolicyHandler } from "../../portalutils/usePolicyHandler";
+import "../../assets/sdldropselect.css";
 
 const emptyForm = {
   ID: "",
@@ -67,6 +70,7 @@ const PolicyList = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState(emptyForm);
+  const isPublished = isEditing && formData.STATUS === "A";
 
   useEffect(() => {
     dispatch(getPolicyDataResponse());
@@ -209,6 +213,16 @@ const PolicyList = () => {
     [handleEdit],
   );
 
+  const policyOptions = useMemo(
+    () => listData.map((item) => ({ id: String(item.ID), label: item.POLICY_NAME })),
+    [listData],
+  );
+
+  const handleSelectPolicy = useCallback((id) => {
+    const policy = listData.find((item) => String(item.ID) === String(id));
+    if (policy) handleEdit(policy);
+  }, [listData, handleEdit]);
+
   return (
     <>
       <div className="page-header">
@@ -245,21 +259,34 @@ const PolicyList = () => {
                   )}
                 </div>
 
-                {/* Icon-only toggle, matching Capabilities page */}
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary d-flex align-items-center gap-2"
-                  onClick={handleToggleView}
-                  disabled={isSubmitting}
-                  style={{ minWidth: "15px" }}
-                >
-                  <i className={`fas ${showAll ? "fa-plus" : "fa-table"}`} />
-                </button>
+                <div className="d-flex align-items-center gap-2">
+                  <div style={{ minWidth: "270px" }}>
+                    <SDLDropdownSelect
+                      id="policySelect"
+                      options={policyOptions}
+                      value={selectedPolicy}
+                      onChange={handleSelectPolicy}
+                      placeholder="Select Policy Name"
+                      searchPlaceholder="Search policy names..."
+                      disabled={loading || isSubmitting}
+                      wrapperClassName=""
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
+                    onClick={handleToggleView}
+                    disabled={isSubmitting}
+                    style={{ minWidth: "15px" }}
+                  >
+                    <i className={`fas ${showAll ? "fa-plus" : "fa-table"}`} />
+                  </button>
+                </div>
               </div>
 
               {!showAll ? (
                 <>
-                  {isEditing && formData.STATUS === "A" && (
+                  {isPublished && (
                     <div className="alert alert-info">
                       This policy is already published and shown for reference only.
                     </div>
@@ -278,7 +305,7 @@ const PolicyList = () => {
                           className={`form-select ${errors.COMP_NAME ? "is-invalid" : ""}`}
                           value={formData.COMP_NAME}
                           onChange={(e) => handleFieldChange("COMP_NAME", e.target.value)}
-                          disabled={lookupsLoading}
+                          disabled={lookupsLoading || isPublished}
                         >
                           <option value="">Please Select</option>
                           {companyList.map((c) => (
@@ -299,7 +326,7 @@ const PolicyList = () => {
                           setFormData((prev) => ({ ...prev, DEPT_ID: newIds }))
                         }
                         placeholder="Select Department"
-                        disabled={lookupsLoading}
+                        disabled={lookupsLoading || isPublished}
                       />
                     </div>
 
@@ -313,7 +340,7 @@ const PolicyList = () => {
                           setFormData((prev) => ({ ...prev, DIVISION_ID: newIds }))
                         }
                         placeholder="Select Division"
-                        disabled={lookupsLoading}
+                        disabled={lookupsLoading || isPublished}
                       />
                     </div>
                   </div>
@@ -332,12 +359,13 @@ const PolicyList = () => {
                           value={formData.POLICY_NAME}
                           onChange={(e) => handleFieldChange("POLICY_NAME", e.target.value)}
                           maxLength={30}
+                          disabled={isPublished}
                         />
                         {errors.POLICY_NAME && <div className="invalid-feedback">{errors.POLICY_NAME}</div>}
                       </div>
                     </div>
 
-                    <div className="col-md-3">
+                    {/* <div className="col-md-3">
                       <div className="mb-3">
                         <label className="form-label">
                           Start Date<span className="text-danger ms-1">*</span>
@@ -350,9 +378,29 @@ const PolicyList = () => {
                         />
                         {errors.START_DATE && <div className="invalid-feedback">{errors.START_DATE}</div>}
                       </div>
-                    </div>
+                    </div> */}
 
                     <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">
+                          Start Date<span className="text-danger ms-1">*</span>
+                        </label>
+                        <Calendar
+                          value={formData.START_DATE ? new Date(formData.START_DATE) : null}
+                          onChange={(e) => {
+                            const iso = e.value ? e.value.toISOString().split("T")[0] : "";
+                            handleFieldChange("START_DATE", iso); // stored as YYYY-MM-DD
+                          }}
+                          dateFormat="dd-M-yy" // displays as 24-Aug-2026
+                          showIcon
+                          disabled={isPublished}
+                          className={`sdl-datepicker w-100 ${errors.START_DATE ? "p-invalid" : ""}`}
+                        />
+                        {errors.START_DATE && <div className="invalid-feedback d-block">{errors.START_DATE}</div>}
+                      </div>
+                    </div>
+
+                    {/* <div className="col-md-3">
                       <div className="mb-3">
                         <label className="form-label">
                           End Date<span className="text-danger ms-1">*</span>
@@ -365,6 +413,26 @@ const PolicyList = () => {
                         />
                         {errors.END_DATE && <div className="invalid-feedback">{errors.END_DATE}</div>}
                       </div>
+                    </div> */}
+
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">
+                          End Date<span className="text-danger ms-1">*</span>
+                        </label>
+                        <Calendar
+                          value={formData.END_DATE ? new Date(formData.END_DATE) : null}
+                          onChange={(e) => {
+                            const iso = e.value ? e.value.toISOString().split("T")[0] : "";
+                            handleFieldChange("END_DATE", iso); // stored as YYYY-MM-DD
+                          }}
+                          dateFormat="dd-M-yy" // displays as 24-Aug-2026
+                          showIcon
+                          disabled={isPublished}
+                          className={`sdl-datepicker w-100 ${errors.END_DATE ? "p-invalid" : ""}`}
+                        />
+                        {errors.END_DATE && <div className="invalid-feedback d-block">{errors.END_DATE}</div>}
+                      </div>
                     </div>
 
                     <div className="col-md-3">
@@ -376,6 +444,7 @@ const PolicyList = () => {
                           type="file"
                           className={`form-control ${errors.doc ? "is-invalid" : ""}`}
                           onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
+                          disabled={isPublished}
                         />
                         {errors.doc && <div className="invalid-feedback d-block">{errors.doc}</div>}
                         {formData.DOC_PATH && !formData.doc && (
@@ -395,7 +464,8 @@ const PolicyList = () => {
                           className={`form-control ${errors.POLICY_DESC ? "is-invalid" : ""}`}
                           value={formData.POLICY_DESC}
                           onChange={(e) => handleFieldChange("POLICY_DESC", e.target.value)}
-                          maxLength={300}
+                          maxLength={200}
+                          disabled={isPublished}
                         />
                         {errors.POLICY_DESC && <div className="invalid-feedback">{errors.POLICY_DESC}</div>}
                       </div>
@@ -409,6 +479,7 @@ const PolicyList = () => {
                           className="form-check-input"
                           checked={formData.IS_MANDAT}
                           onChange={(e) => handleFieldChange("IS_MANDAT", e.target.checked)}
+                          disabled={isPublished}
                         />
                         <label className="form-check-label" htmlFor="IS_MANDAT">
                           Is Mandatory to View
@@ -422,7 +493,7 @@ const PolicyList = () => {
                       type="button"
                       className="btn btn-primary me-2"
                       onClick={handleSave}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isPublished}
                     >
                       {isSubmitting ? "Processing..." : isEditing ? "Update" : "Save"}
                     </button>
