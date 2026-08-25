@@ -1,0 +1,70 @@
+/* ==========================================================
+   DEPARTMENT DESIGNATION MULTISELECT
+========================================================== */
+
+.department-designation-multiselect {
+  width: 100%;
+  min-height: 38px;
+}
+
+.department-designation-multiselect.p-multiselect {
+  align-items: flex-start;
+}
+
+/* Selected designation chips */
+.department-designation-multiselect .p-multiselect-label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  padding: 4px 42px 4px 8px;
+  min-height: 38px;
+  max-height: 82px;
+  overflow-y: auto;
+  align-content: flex-start;
+}
+
+/* Individual designation chip */
+.department-designation-multiselect .p-multiselect-token {
+  margin: 1px;
+  padding: 3px 7px;
+  background: #176b87;
+  color: #fff;
+  border-radius: 3px;
+  font-size: 12px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+/* Remove icon */
+.department-designation-multiselect .p-multiselect-token-icon {
+  margin-left: 5px;
+  color: #fff;
+  font-size: 11px;
+}
+
+/* Scrollbar */
+.department-designation-multiselect .p-multiselect-label::-webkit-scrollbar {
+  width: 5px;
+}
+
+.department-designation-multiselect .p-multiselect-label::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+}
+
+/* ==========================================================
+   MAPPED DESIGNATION TAGS - TABLE
+========================================================== */
+
+.department-designation-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 7px;
+  margin: 1px;
+  background: #176b87;
+  color: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 3px;
+  font-size: 12px;
+  line-height: 20px;
+  white-space: nowrap;
+}
