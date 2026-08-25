@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import "../portals/hrms/assets/sdldropselect.css";
+import "../portals/hrms/assets/css/sdldropselect.css";
 // Checkbox-driven multi-select, styled after PrimeReact's MultiSelect with
 // a filter box (see the "Profile" / "Department" reference screens):
 //   - Closed control shows rectangular chips for whatever's selected, plus

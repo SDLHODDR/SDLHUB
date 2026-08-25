@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import "../../assets/sdldropselect.css";
+import "../../assets/css/sdldropselect.css";
 
 /**
  * Click-to-open searchable / creatable dropdown, styled after PrimeReact's

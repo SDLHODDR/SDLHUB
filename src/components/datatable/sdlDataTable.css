@@ -106,3 +106,17 @@
     background: #ff9f43 !important;
     color: #fff !important;
 }
+
+/* =========================================================
+   SDLDataTable - Loading
+   Dream POS Theme
+   ========================================================= */
+
+.p-datatable-loading-overlay .p-progress-spinner-circle {
+    stroke: #ff9800 !important;
+}
+
+.p-datatable-loading-overlay .p-progress-spinner {
+    width: 2rem;
+    height: 2rem;
+}

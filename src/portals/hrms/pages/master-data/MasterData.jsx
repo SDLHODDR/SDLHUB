@@ -8,7 +8,7 @@ import BreadcrumbNav from "../../../eportal/components/breadcrumb-nav/Breadcrumb
 import { notifyError, notifySuccess } from "../../../../services/alertService";
 import { getPortalFromPath } from "../../../../config/portalConfig";
 
-import "../../assets/masterData.css";
+import "../../assets/css/masterData.css";
 
 const MasterData = () => {
   /* ==========================================================

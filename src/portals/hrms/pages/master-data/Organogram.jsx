@@ -21,7 +21,7 @@ import {
 } from "../../services/orgonogramService";
 
 import { getPortalFromPath } from "../../../../config/portalConfig";
-import "../../assets/profileMaintenance.css";
+import "../../assets/css/profileMaintenance.css";
 
 const Organogram = () => {
   /* ==========================================================
