@@ -311,8 +311,14 @@ CCTR_DESC:
       newErrors.DEPT_CODE = 'Department Code cannot exceed 5 characters'
     }
 
+    if (String(formData.SHORT_CODE).trim().length > 5) {
+      newErrors.SHORT_CODE = 'Short Code cannot exceed 5 characters'
+    }
+
     if (!formData.DEPT_DESC || String(formData.DEPT_DESC).trim() === '') {
       newErrors.DEPT_DESC = 'Department Description is required'
+    } else if (String(formData.DEPT_DESC).trim().length > 20) {
+      newErrors.DEPT_DESC = 'Department Description cannot exceed 20 characters'
     }
 
     setErrors(newErrors)
@@ -666,11 +672,11 @@ CCTR_DESC:
                       </div>
                     </div>
 
-                    {/* Account Description */}
+                    {/* Account Name */}
                     <div className='col-lg-4 col-md-4'>
                       <div className='mb-3'>
                         <label className='form-label'>
-                          Account Description
+                          Account Name
                         </label>
 
                         <select
@@ -687,7 +693,8 @@ CCTR_DESC:
                               key={item.ACCT_CODE || item.value}
                               value={item.ACCT_CODE || item.value}
                             >
-                              {item.DESCR || item.label || item.ACCT_CODE}
+                              {/* {item.DESCR || item.label || item.ACCT_CODE} */}
+                              {item.ACCT_CODE} - {item.DESCR}
                             </option>
                           ))}
                         </select>
@@ -730,7 +737,8 @@ CCTR_DESC:
                               key={item.CCTR_CODE || item.value}
                               value={item.CCTR_CODE || item.value}
                             >
-                              {item.DESCR || item.label || item.CCTR_CODE}
+                              {/* {item.DESCR || item.label || item.CCTR_CODE} */}
+                              {item.CCTR_CODE} - {item.DESCR}
                             </option>
                           ))}
                         </select>
