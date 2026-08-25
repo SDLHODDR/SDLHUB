@@ -14,7 +14,7 @@ import { notifyError, notifySuccess } from "../../../../services/alertService";
 
 import { getPortalFromPath } from "../../../../config/portalConfig";
 
-import "../../assets/divisionDocumentMapping.css";
+import "../../assets/css/divisionDocumentMapping.css";
 
 const DivisionDocumentMapping = () => {
   /* ==========================================================

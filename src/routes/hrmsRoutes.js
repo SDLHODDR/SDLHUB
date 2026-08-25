@@ -14,6 +14,8 @@ import PolicyList from "../portals/hrms/pages/maintainance/PolicyList";
 import Organogram from "../portals/hrms/pages/master-data/Organogram";
 import EmployeeAccess from "../portals/hrms/pages/maintainance/EmployeeAccess";
 
+import ViewLogs from "../portals/hrms/pages/reports/ViewLog";
+
 export const hrmsRoutes = [
   { path: "hrms/dashboard", element: HRMSDashboard,},
   { path: "hrms/masterdata/mastermaster", element: MasterData, },
@@ -24,13 +26,16 @@ export const hrmsRoutes = [
   { path: "hrms/maintainance/kra-activity", element: KRAActivity },
   { path: "hrms/maintainance/questionmaster", element: QuestionMaster },
   
-    { path: "hrms/maintainance/department", element: Department },
-    { path: "hrms/maintainance/department-designation", element: DepartmentDesignationMap },
-    { path: "hrms/masterdata/jobdescription", element: JobDescription },
+  { path: "hrms/maintainance/department", element: Department },
+  { path: "hrms/maintainance/department-designation", element: DepartmentDesignationMap },
+  { path: "hrms/masterdata/jobdescription", element: JobDescription },
   { path: "hrms/maintainance/capabilities", element: Capabilities },
   { path: "hrms/maintainance/department-activity", element: DepartmentActivity },
   { path: "hrms/maintainance/policylist", element: PolicyList },
 
   { path: "hrms/maintainance/employee-access", element: EmployeeAccess },
+
+  { path: "hrms/reports/view-logs", element: ViewLogs },
+
 
 ];

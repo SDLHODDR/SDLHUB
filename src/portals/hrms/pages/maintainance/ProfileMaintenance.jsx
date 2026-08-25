@@ -23,7 +23,7 @@ import {
 } from "../../../../services/alertService";
 
 import { getPortalFromPath } from "../../../../config/portalConfig";
-import "../../assets/profileMaintenance.css";
+import "../../assets/css/profileMaintenance.css";
 
 const ProfileMaintenance = () => {
   /* ==========================================================
