@@ -177,8 +177,11 @@ const OutdoorDuty = () => {
         <div className="card-body">
           <div className="row">
             {/* ================= LEFT SIDE OUTDOOR DUTY LIST ================= */}
-            <div className="col-xl-3 border-end">
-              <SDLCalendar openModal={openModal} />
+             <div className="col-xl-3 border-end">
+                <SDLCalendar
+                    mode="inline"
+                    openModal={openModal}
+                />
             </div>
             {/* ================= RIGHT SIDE PDF PREVIEW ================= */}
             <div className="col-xl-9 d-flex flex-column">
