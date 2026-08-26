@@ -1,7 +1,7 @@
 export const EPORTAL_API = {
   MENU: {
     GET_MENU: "/getMenu.php",
-  }, 
+  },
   PAYSLIPS: {
     GET_PAYSLIPS: "/payslips/getPayslips.php",
   },
@@ -28,6 +28,13 @@ export const EPORTAL_API = {
     AUTHCBRData: "/conference/authConferenceRooms.php",
     REJECTCBRData: "/conference/authConferenceRooms.php",
   },
+
+  CONFERENCE_ROOM_MAINTAINANCE: {
+    GET_CONFERENCE_ROOM_MAINTAINANCE: "/conferenceMaintenance/getConferenceRoomMaintenance.php",
+    SAVE_CONFERENCE_ROOM: "/conferenceMaintenance/saveConferenceRoom.php",
+    UPDATE_CONFERENCE_ROOM_STATUS: "/conferenceMaintenance/updateConferenceRoomStatus.php",
+  },
+
   PROFILE_MAINTENANCE: {
     ADD_PROFILE: "/profile/addProfile.php",
     GET_PROFILES: "/profile/getProfiles.php",
@@ -101,7 +108,7 @@ export const EPORTAL_API = {
     LRSWIPEDATA: "/leaverequest/lr_list_swipper_new.php"
   },
 
-  IT_RETURN:{
+  IT_RETURN: {
     GET_INCOME_DATA: "/itreturn/getItReturnData.php", // Get income Data
     GET_DEDUCTION_DATA: "/itreturn/getDeductionData.php", // Get deduction Data
     GET_FORM12B_DATA: "/itreturn/getForm12B.php", // Get form12 B Data
@@ -116,11 +123,11 @@ export const EPORTAL_API = {
     GET_EMPLOYEE_SUMMARY: "/itreturn/getEmployeeSummary.php", // Save employee summary
     GET_CONFIG: "/itreturn//getItReturnConfig.php" // get config params to set the window open for employees for duration
   },
-  DOWNLOAD_ITR:{
-    GET_EMPLOYEE_DROPDOWN: "/getEmployeeDropdown.php", 
+  DOWNLOAD_ITR: {
+    GET_EMPLOYEE_DROPDOWN: "/getEmployeeDropdown.php",
     DOWNLOAD_ITR_DOCUMENT: "/downloadDocuments.php", // Download ITR Docs   
     DOWNLOAD_ITR_DECLARAION: "/downloadDeclaration.php", // Download ITR Docs   
-  }, 
+  },
   ITR_DOWNLOAD_REPORT: {
     GET_REPORT: "/reports/getItrDownloadReport.php",
     EXPORT_REPORT: "/reports/exportItrDownloadReport.php",
@@ -128,13 +135,13 @@ export const EPORTAL_API = {
   POLICY_ENDORSEMENT: {
     GET_ENDORSEMENT_REPORT: "/reports/getPolicyEndorsementReport.php",
     GET_ACCEPTANCE_DETAILS: "/reports/getPolicyAcceptanceDetails.php",
-    EXPORT_ACCEPTANCE_REPORT: "/reports/exportPolicyAcceptanceReport.php", 
+    EXPORT_ACCEPTANCE_REPORT: "/reports/exportPolicyAcceptanceReport.php",
   },
   AUTHORIZATION: {
     TASKDATA: "/getAuthorization.php", // GP Info Data
     TASKTABLEDATA: "/getTable.php",
   },
-  LOGS:{
+  LOGS: {
     GET_ERROR_LOGS: "/reports/getErrorLogs.php",
   }
 }
