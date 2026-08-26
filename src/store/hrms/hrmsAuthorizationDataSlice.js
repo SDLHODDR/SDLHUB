@@ -3,6 +3,8 @@ import { fetchHRMSListAuthorizationData } from "../../services/authorizationServ
 
 const initialState = {
   data: [],           // this will hold the `tasks` array
+  exit_arr: [],
+  joining_arr:[],
   error: false,
   errorCode: "",
   errorMessage: "",
@@ -10,28 +12,22 @@ const initialState = {
   success: false,
   successMessage: "",
   status: false,
-  //authFor: "outdoorduty",
   // page: 1,
   // limit: 10,
 };
 
-export const getAuthTableDataResponse = createAsyncThunk(
+export const getHRMSAuthTableDataResponse = createAsyncThunk(
   "fetch/hrmsAuthDataTable",
   async (payload, { rejectWithValue }) => {
     try {
-      const response = await eportalAPI.post(
-      EPORTAL_API.AUTHORIZATION.TASKTABLEDATA, 
-      payload, 
-      {
-        withCredentials: true,
-      });
-
-      if (response.status !== 200) {
+      const response = await fetchHRMSListAuthorizationData(payload);
+      if (!response.status) {
         return rejectWithValue({
           errorCode: response.status,
-          errorMessage: response.statusText,
+          errorMessage: response.message,
         });
       }
+      
       
     return response.data; // { status: true, tasks: [...] }
     } catch (error) {
@@ -43,8 +39,8 @@ export const getAuthTableDataResponse = createAsyncThunk(
   },
 );
 
-export const myActivitiesAuthSlice = createSlice({
-  name: "eportalAuthData",
+export const hrmsAuthSlice = createSlice({
+  name: "hrmsAuthData",
   initialState,
   reducers: {
     closeError: (state) => {
@@ -59,32 +55,20 @@ export const myActivitiesAuthSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getAuthDataResponse.pending, (state) => {
+      .addCase(getHRMSAuthTableDataResponse.pending, (state) => {
         state.loading = true;
         state.error = false;
       })
-      .addCase(getAuthDataResponse.fulfilled, (state, action) => {
-        //console.log(action);
-        // state.data = action.payload.data;
-        // state.success = action.payload.data.success;
-        // state.page = action.payload.data.page;
-        // state.limit = action.payload.data.limit;
-        // state.totalRecords = action.payload.data.totalRecords;
-        // state.successMessage = "Data fetched successfully";
-        // state.status = "idle";
-        // state.authFor = "outdoorduty";
-
+      .addCase(getHRMSAuthTableDataResponse.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = action.payload.tasks || [];
-        state.page = action.payload.page;
-        state.limit = action.payload.limit;
-        state.totalRecords = action.payload.totalRecords;
+        state.data = action.payload.mytask || [];
+        state.exit_arr = action.payload.exit_task_ids || [];
+        state.joining_arr = action.payload.joining_taskarr || [];
         state.success = !!action.payload.status;
         state.successMessage = "Data fetched successfully";
         state.status = "idle";
-        //state.authFor = "outdoorduty";
       })
-      .addCase(getAuthDataResponse.rejected, (state, action) => {
+      .addCase(getHRMSAuthTableDataResponse.rejected, (state, action) => {
         state.loading = false;
         state.success = false;
         state.error = true;
@@ -94,5 +78,5 @@ export const myActivitiesAuthSlice = createSlice({
   },
 });
 
-export default myActivitiesAuthSlice.reducer;
-export const { closeError, closeSuccess } = myActivitiesAuthSlice.actions;
+export default hrmsAuthSlice.reducer;
+export const { closeError, closeSuccess } = hrmsAuthSlice.actions;
