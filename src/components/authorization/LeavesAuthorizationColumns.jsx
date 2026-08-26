@@ -5,57 +5,21 @@ export const LeaveStartEndArr = {
 };
 
 export const getLeavesAuthorizationColumns = (openModal, formatDashDate) => [
-  
   {
     header: "Created On",
-    body: (rowData) => {
-      return (
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            openModal(rowData);
-          }}
-          title="Created On"
-        >
-          {formatDashDate(rowData.CREATED_ON)}
-        </a>
-      );
-    },
+    body: (rowData) => formatDashDate(rowData.CREATED_ON),
   },
   {
     header: "Created By",
-    body: (rowData) => {
-      return (
-        <a  
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openModal(rowData);
-            }}
-            title="Created By"
-          >
-            {rowData.CREATED_BY}
-        </a>
-      );
-    },
+    body: (rowData) => rowData.CREATED_BY,
   },
   {
-    header: "Raised By",
-    body: (rowData) => {
-      return (
-        <a  
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openModal(rowData);
-            }}
-            title="Created By"
-          >
-            {rowData.REQUEST_FOR}
-        </a>
-      );
-    },
+    header: "From Date",
+    body: (rowData) => rowData.DETAILS.LVE_DATE_FR,
+  },
+  {
+    header: "To Date",
+    body: (rowData) => rowData.DETAILS.LVE_DATE_TO,
   },
   {
     field: "LVE_START_ON",
@@ -63,19 +27,7 @@ export const getLeavesAuthorizationColumns = (openModal, formatDashDate) => [
     sortable: true,
     body: (rowData) => {
       const startOn = LeaveStartEndArr[rowData?.LVE_START_ON] || rowData?.LVE_START_ON || "-";
-      return (
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            openModal(rowData);
-          }}
-          title="START"
-          style={{ whiteSpace: "nowrap" }}
-        >
-          <span style={{ fontSize: "0.8rem" }}>{startOn}</span>
-        </a>
-      );
+      return <span style={{ fontSize: "0.8rem", whiteSpace: "nowrap" }}>{startOn}</span>;
     },
   },
   {
@@ -84,54 +36,20 @@ export const getLeavesAuthorizationColumns = (openModal, formatDashDate) => [
     sortable: true,
     body: (rowData) => {
       const endOn = LeaveStartEndArr[rowData?.LVE_END_ON] || rowData?.LVE_END_ON || "-";
-      return (
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            openModal(rowData);
-          }}
-          title="END"
-          style={{ whiteSpace: "nowrap" }}
-        >
-          <span style={{ fontSize: "0.8rem" }}>{endOn}</span>
-        </a>
-      );
+      return <span style={{ fontSize: "0.8rem", whiteSpace: "nowrap" }}>{endOn}</span>;
     },
   },
   {
     field: "LVE_CODE",
     header: "Leave Type",
     sortable: true,
-    body: (rowData) => (
-      <a
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          openModal(rowData);
-        }}
-        title="From"
-      >
-        {rowData?.LVE_CODE || "-"}
-      </a>
-    ),
+    body: (rowData) => rowData?.LVE_CODE || "-",
   },
   {
     field: "TOTAL_DAYS",
     header: "No. of Days",
     sortable: true,
-    body: (rowData) => (
-      <a
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          openModal(rowData);
-        }}
-        title="Days"
-      >
-        {rowData?.TOTAL_DAYS || "-"}
-      </a>
-    ),
+    body: (rowData) => rowData?.TOTAL_DAYS || "-",
   },
   {
     field: "REMARKS",
@@ -142,16 +60,7 @@ export const getLeavesAuthorizationColumns = (openModal, formatDashDate) => [
       return (
         <div className="remarks-wrapper">
           <div className="remarks-main" title={text}>
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                openModal(rowData);
-              }}
-              title="Reason"
-            >
-              {trimmed}
-            </a>
+            {trimmed}
           </div>
         </div>
       );

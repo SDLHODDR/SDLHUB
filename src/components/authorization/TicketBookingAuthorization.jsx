@@ -46,7 +46,7 @@ const TicketBookingAuthorization = () => {
                 value={searchQuery}
                 onChange={setSearchQuery}
                 placeholder="Search Ticket bookings..."
-                style={{ width: "120px" }}
+                style={{ width: "270px" }}
               />
             </div>
           </div>
@@ -59,6 +59,7 @@ const TicketBookingAuthorization = () => {
               emptyMessage="No Tasks found"
               className="company-policies-grid"
               removableSort
+              onRowClick={(e) => openModal(e.data)}
             />
           </div>
         </div>
