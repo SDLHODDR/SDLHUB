@@ -440,8 +440,11 @@ const Leaves = () => {
                 LEFT CALENDAR
             ================================================== */}
 
-            <div className="col-xl-3 border-end">
-              <SDLCalendar openModal={openModal} />
+            <div className="col-xl-3 border-end leaves-calendar-column">
+                <SDLCalendar
+                    mode="inline"
+                    openModal={openModal}
+                />
             </div>
 
             {/* ==================================================

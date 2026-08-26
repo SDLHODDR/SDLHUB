@@ -16,6 +16,7 @@ import EmployeeAccess from "../portals/hrms/pages/maintainance/EmployeeAccess";
 
 import JoiningAuthorization from "../components/authorization/JoiningAuthorization";
 import ExitAuthorization from "../components/authorization/ExitAuthorization";
+import ViewLogs from "../portals/hrms/pages/reports/ViewLog";
 
 export const hrmsRoutes = [
   { path: "hrms/dashboard", element: HRMSDashboard,},
@@ -44,5 +45,5 @@ export const hrmsRoutes = [
   //{path: "hrms/taskauthorization/T/:tid", element: TenureChangeAuthorization,},
 	//{path: "hrms/taskauthorization/A/:tid", element: AppraisalAuthorization,},
 	// {path: "hrms/taskauthorization/349", element: EmployeeTransferAuthorization,},
-
+  { path: "hrms/reports/view-logs", element: ViewLogs },
 ];

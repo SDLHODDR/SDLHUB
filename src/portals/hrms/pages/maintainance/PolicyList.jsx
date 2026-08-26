@@ -17,7 +17,7 @@ import { normalizeRecords, getDisplayValue, formatDate } from "../../../../utils
 import { policyColumns } from "../../portalutils/policyColumns";
 import { mapCompanyOptions, mapDepartmentOptions, mapDivisionOptions } from "../../portalutils/policyOptionsUtils";
 import { usePolicyHandler } from "../../portalutils/usePolicyHandler";
-import "../../assets/sdldropselect.css";
+import "../../assets/css/sdldropselect.css";
 
 const emptyForm = {
   ID: "",

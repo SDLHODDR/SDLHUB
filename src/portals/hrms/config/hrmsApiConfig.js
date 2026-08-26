@@ -103,4 +103,8 @@ export const HRMS_API = {
     SAVE_ALLOWANCE: "/masterdata/orgonogram/saveOrgAllowance.php",
     DELETE_ALLOWANCE: "/masterdata/orgonogram/deleteOrgAllowance.php",
   },
+
+   LOGS:{
+    GET_ERROR_LOGS: "/reports/getErrorLogs.php",
+  }
 };
