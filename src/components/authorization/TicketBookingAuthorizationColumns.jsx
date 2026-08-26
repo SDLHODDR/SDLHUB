@@ -1,112 +1,29 @@
 export const getTicketBookingAuthorizationColumns = (openModal, formatDashDate) => [
   {
     header: "Created On",
-    body: (rowData) => (
-      <a
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          openModal(rowData);
-        }}
-        title="Added On"
-      >
-        {formatDashDate(rowData.CREATED_ON)}
-      </a>
-    ),
+    body: (rowData) => formatDashDate(rowData.CREATED_ON),
   },
   {
     header: "Created By",
-    body: (rowData) => {
-      const taskFor = rowData?.CREATED_BY || "-";
-      return (
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            openModal(rowData);
-          }}
-          title="Task For"
-        >
-          {taskFor}
-        </a>
-      );
-    },
+    body: (rowData) => rowData?.CREATED_BY || "-",
   },
   {
     header: "Travel Person",
-    body: (rowData) => {
-      const requestFor = rowData?.REQUEST_FOR || "-";
-      return (
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            openModal(rowData);
-          }}
-          title="Request For"
-        >
-          {requestFor}
-        </a>
-      );
-    },
+    body: (rowData) => rowData?.REQUEST_FOR || "-",
   },
-  
   {
-    field: "TRVL_DATE",
     header: "Travel Date",
-    sortable: true,
-    body: (rowData) => {
-      const trvlDate = formatDashDate(rowData?.TRVL_DATE) || "-";
-      return (
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            openModal(rowData);
-          }}
-          title="Request DATE"
-        >
-          {trvlDate}
-        </a>
-      );
-    },
+    body: (rowData) => formatDashDate(rowData.TRVL_DATE) || "-",
   },
   {
     header: "Travel From",
-    body: (rowData) => {
-      const fromLoc = rowData?.TRVL_FROM_LOC || "-";
-      return (
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            openModal(rowData);
-          }}
-          title="From"
-        >
-          {fromLoc}
-        </a>
-      );
-    },
+    body: (rowData) => formatDashDate(rowData?.TRVL_FROM_LOC) || "-",
   },
   {
     header: "Travel To",
-    body: (rowData) => {
-      const toLoc = rowData?.TRVL_TO_LOC || "-";
-      return (
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            openModal(rowData);
-          }}
-          title="To"
-        >
-          {toLoc}
-        </a>
-      );
-    },
+    body: (rowData) => formatDashDate(rowData?.TRVL_TO_LOC) || "-",
   },
+
   {
     field: "REMARKS",
     header: "REMARKS",
@@ -116,16 +33,7 @@ export const getTicketBookingAuthorizationColumns = (openModal, formatDashDate) 
       return (
         <div className="remarks-wrapper">
           <div className="remarks-main" title={text}>
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                openModal(rowData);
-              }}
-              title="Remarks"
-            >
-              {trimmed}
-            </a>
+            {trimmed}
           </div>
         </div>
       );

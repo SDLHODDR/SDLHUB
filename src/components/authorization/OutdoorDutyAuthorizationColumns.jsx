@@ -24,59 +24,19 @@ const handleRowClick = (e, rowData, openModal) => {
 export const getOutdoorDutyAuthorizationColumns = (openModal, formatDashDate) => [
   {
     header: "Created On",
-    body: (rowData) => (
-      <a
-        href="#"
-        onClick={(e) => handleRowClick(e, rowData, openModal)}
-        title="Created On"
-      >
-        {formatDashDate(rowData.CREATED_ON)}
-      </a>
-    ),
+    body: (rowData) => formatDashDate(rowData.CREATED_ON),
   },
   {
     header: "Created By",
-    body: (rowData) => {
-      const taskfor = rowData?.CREATED_BY || "-";
-      return (
-        <a
-          href="#"
-          onClick={(e) => handleRowClick(e, rowData, openModal)}
-          title="Created By"
-        >
-          {taskfor}
-        </a>
-      );
-    },
+    body: (rowData) => rowData?.CREATED_BY || "-",
   },
   {
     header: "Outdoor Date",
-    body: (rowData) => (
-      <a
-        href="#"
-        onClick={(e) => handleRowClick(e, rowData, openModal)}
-        title="Outdoor Date"
-      >
-        {formatDashDate(rowData.GPASS_DATE)}
-      </a>
-    ),
+    body: (rowData) => formatDashDate(rowData.GPASS_DATE) || "-",
   },
   {
-    field: "OUT_TYPE",
     header: "OUT TYPE",
-    sortable: true,
-    body: (rowData) => {
-      const code = rowData?.OUT_TYPE;
-      return (
-        <a
-          href="#"
-          onClick={(e) => handleRowClick(e, rowData, openModal)}
-          title="OUT TYPE"
-        >
-          {OUT_TYPE_LABELS[code] || code || "-"}
-        </a>
-      );
-    },
+    body: (rowData) => {OUT_TYPE_LABELS[rowData?.OUT_TYPE] || rowData?.OUT_TYPE || "-"},
   },
   {
     field: "REMARKS",
@@ -87,17 +47,10 @@ export const getOutdoorDutyAuthorizationColumns = (openModal, formatDashDate) =>
       return (
         <div className="remarks-wrapper">
           <div className="remarks-main" title={text}>
-            <a
-              href="#"
-              onClick={(e) => handleRowClick(e, rowData, openModal)}
-              title="Remarks"
-            >
-              {trimmed}
-            </a>
+            {trimmed}
           </div>
         </div>
       );
     },
-    style: { minWidth: "450px" },
   },
 ];

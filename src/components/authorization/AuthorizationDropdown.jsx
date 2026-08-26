@@ -1,5 +1,6 @@
 ﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 import Badge from "../../portals/eportal/components/Badge";
 
 const TASK_CONFIG = {
@@ -10,7 +11,7 @@ const TASK_CONFIG = {
 };
 
 const DEFAULT_TASK_CONFIG = {
-  icon: "ti-bell",
+  icon: "fas fa-tasks",
   badgeClass: "",
   active: false,
 };
@@ -41,7 +42,7 @@ const ActivityHeader = ({ open, onToggle }) => (
   </button>
 );
 
-const ActivityItem = ({ item }) => {
+const ActivityItem = ({ item, onNavigate }) => {
   const badgeClass = item.badgeClass
     ? `${item.badgeClass} badge-xs`
     : "text-gray";
@@ -49,16 +50,13 @@ const ActivityItem = ({ item }) => {
 
   return (
     <li>
-      <a href={item.href} className={itemClass}>
+      <Link to={item.href} className={itemClass} onClick={onNavigate}>
         <span className="d-flex align-items-center fw-medium">
           <i className={`ti ${item.icon} text-gray me-2`}></i>
           {item.label}
         </span>
-        <Badge
-          text={item.count}
-          className={`shadow-none ${badgeClass}`}
-        />
-      </a>
+        <Badge text={item.count} className={`shadow-none ${badgeClass}`} />
+      </Link>
     </li>
   );
 };
@@ -71,9 +69,7 @@ const AuthorizationDropdown = () => {
   const wrapperRef = useRef(null);
 
   const authState = useSelector((state) => state.eportalAuthCounts.data);
-
   const successCnt = useSelector((state) => state.eportalAuthCounts.success);
-
   const countTotalData = useSelector(
     (state) => state.eportalAuthCounts.subtotal,
   );
@@ -86,6 +82,11 @@ const AuthorizationDropdown = () => {
 
   const toggleActivities = useCallback(() => {
     setActivitiesOpen((prev) => !prev);
+  }, []);
+
+  // Close the dropdown after navigating to an activity
+  const handleItemNavigate = useCallback(() => {
+    setBellOpen(false);
   }, []);
 
   useEffect(() => {
@@ -114,25 +115,41 @@ const AuthorizationDropdown = () => {
     <div
       ref={wrapperRef}
       className="authorization-dropdown"
-      style={{
-        position: "relative",
-      }}
+      style={{ position: "relative", marginRight: "14px" }}
     >
       {/* Bell Button */}
-      <button
-        type="button"
-        className="nav-link btn btn-link p-0"
-        onClick={toggleBell}
+      <a
+        href="#"
+        role="button"
+        className="nav-link btn btn-link p-0 position-relative"
+        onClick={(e) => {
+          e.preventDefault();
+          toggleBell();
+        }}
       >
-        <i className="ti ti-bell"></i>
+        <i className="fas fa-tasks fs-22"></i>
 
-        {successCnt && (
-          <Badge
-            text={countTotalData}
-            className="badge-danger"
-          />
+        {successCnt > 0 && (
+          <span
+            className="badge rounded-pill bg-danger position-absolute"
+            style={{
+              top: "-10px",
+              right: "-15px",
+              fontSize: "10px",
+              minWidth: "18px",
+              height: "18px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "0 4px",
+              lineHeight: 1,
+              zIndex: 5,
+            }}
+          >
+            {countTotalData}
+          </span>
         )}
-      </button>
+      </a>
 
       {/* Dropdown */}
       {bellOpen && (
@@ -157,7 +174,11 @@ const AuthorizationDropdown = () => {
                 <li className="p-2 text-gray">No activities</li>
               ) : (
                 activities.map((item) => (
-                  <ActivityItem key={item.href} item={item} />
+                  <ActivityItem
+                    key={item.href}
+                    item={item}
+                    onNavigate={handleItemNavigate}
+                  />
                 ))
               )}
             </ul>
