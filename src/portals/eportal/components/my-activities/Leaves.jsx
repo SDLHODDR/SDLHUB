@@ -14,35 +14,22 @@ import SDLCalendar from "../../../../components/calendar/SDLCalendar";
 import LeavesModal from "../../modal/LeavesModal";
 import { leavesColumns } from "../../utils/columnHandlers/leavesColumns";
 
-import {
-  notifyError,
-} from "../../../../services/alertService";
+import { notifyError } from "../../../../services/alertService";
 
-import {
-  getLRDataDetails,
-} from "../../services/leavesService";
+import { getLRDataDetails } from "../../services/leavesService";
 
-import {
-  getPortalFromPath,
-} from "../../../../config/portalConfig";
-
+import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const Leaves = () => {
-
   const dispatch = useDispatch();
 
   /* ============================================================
      REDUX DATA
   ============================================================ */
 
-  const leavesData = useSelector(
-    (state) => state.eportalLRData.data
-  );
+  const leavesData = useSelector((state) => state.eportalLRData.data);
 
-  const loading = useSelector(
-    (state) => state.eportalLRData.loading
-  );
-
+  const loading = useSelector((state) => state.eportalLRData.loading);
 
   /* ============================================================
      LOCAL STATE
@@ -50,168 +37,100 @@ const Leaves = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const [statusFilter, setStatusFilter] =
-    useState("ALL");
+  const [statusFilter, setStatusFilter] = useState("ALL");
 
-  const [refreshKey, setRefreshKey] =
-    useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const [modalLoading, setModalLoading] =
-    useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
 
-
-  const [modalState, setModalState] =
-    useState({
-      isOpen: false,
-      mode: "create",
-      modalDate: null,
-      id: null,
-      isPostRemark: null,
-    });
-
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    mode: "create",
+    modalDate: null,
+    id: null,
+    isPostRemark: null,
+  });
 
   /* ============================================================
      PORTAL
   ============================================================ */
 
-  const portal = getPortalFromPath(
-    location.pathname
-  );
+  const portal = getPortalFromPath(location.pathname);
 
-  const portalHome =
-    `/${portal.key}/dashboard`;
-
+  const portalHome = `/${portal.key}/dashboard`;
 
   /* ============================================================
      FETCH LEAVE DATA
   ============================================================ */
 
   useEffect(() => {
-
-    dispatch(
-      getLeavesDataResponse()
-    );
-
-  }, [
-    dispatch,
-    refreshKey,
-  ]);
-
+    dispatch(getLeavesDataResponse());
+  }, [dispatch, refreshKey]);
 
   /* ============================================================
      NORMALIZE API DATA
   ============================================================ */
 
   const listData = useMemo(() => {
-
     try {
-
-      const data =
-        leavesData?.data || [];
+      const data = leavesData?.data || [];
 
       if (!Array.isArray(data)) {
         return [];
       }
 
-      return data.map(
-        (item, index) => {
+      return data.map((item, index) => {
+        const rawStatus = String(item?.status ?? "")
+          .trim()
+          .toUpperCase();
 
-          const rawStatus =
-            String(
-              item?.status ??
-              ""
-            )
-              .trim()
-              .toUpperCase();
+        const displayStatus = String(item?.STATUS ?? "").trim();
 
+        return {
+          ID: item?.ID ?? index,
 
-          const displayStatus =
-            String(
-              item?.STATUS ??
-              ""
-            )
-              .trim();
+          LVE_DATE_FR: item?.LVE_DATE_FR || "-",
 
+          LVE_DATE_TO: item?.LVE_DATE_TO || "-",
 
-          return {
+          LVE_CODE: item?.LVE_CODE || "-",
 
-            ID:
-              item?.ID ??
-              index,
+          NO_DAYS: item?.NO_DAYS || "-",
 
-            LVE_DATE_FR:
-              item?.LVE_DATE_FR ||
-              "-",
+          REMARKS: item?.REMARKS || "-",
 
-            LVE_DATE_TO:
-              item?.LVE_DATE_TO ||
-              "-",
+          /*
+           * Raw database status
+           *
+           * A = Approved
+           * N = Pending from Admin
+           * R = Rejected
+           * T = In Process
+           */
+          status: rawStatus || "-",
 
-            LVE_CODE:
-              item?.LVE_CODE ||
-              "-",
+          /*
+           * Human-readable status
+           */
+          statusText: displayStatus || "-",
 
-            NO_DAYS:
-              item?.NO_DAYS ||
-              "-",
+          STATUS: displayStatus || "-",
 
-            REMARKS:
-              item?.REMARKS ||
-              "-",
-
-            /*
-             * Raw database status
-             *
-             * A = Approved
-             * N = Pending from Admin
-             * R = Rejected
-             * T = In Process
-             */
-            status:
-              rawStatus || "-",
-
-            /*
-             * Human-readable status
-             */
-            statusText:
-              displayStatus ||
-              "-",
-
-            STATUS:
-              displayStatus ||
-              "-",
-
-            statusColor:
-              item?.statusColor ||
-              "secondary",
-
-          };
-
-        }
-      );
-
+          statusColor: item?.statusColor || "secondary",
+        };
+      });
     } catch (error) {
-
-      console.error(
-        "Error preparing leave data:",
-        error
-      );
+      console.error("Error preparing leave data:", error);
 
       return [];
-
     }
-
-  }, [
-    leavesData,
-  ]);
-
+  }, [leavesData]);
 
   /* ============================================================
      STATUS OPTIONS
   ============================================================ */
 
   const statusOptions = useMemo(() => {
-
     return [
       {
         value: "ALL",
@@ -238,461 +157,237 @@ const Leaves = () => {
         label: "In Process",
       },
     ];
-
   }, []);
-
 
   /* ============================================================
      SEARCH + STATUS FILTER
   ============================================================ */
 
   const filteredData = useMemo(() => {
-
-    let data = [
-      ...listData,
-    ];
-
+    let data = [...listData];
 
     /* ----------------------------------------------------------
        STATUS FILTER
     ---------------------------------------------------------- */
 
-    if (
-      statusFilter &&
-      statusFilter !== "ALL"
-    ) {
-
-      data = data.filter(
-        (item) => {
-
-          return (
-            String(
-              item?.status ??
-              ""
-            )
-              .trim()
-              .toUpperCase()
-            ===
-            String(
-              statusFilter
-            )
-              .trim()
-              .toUpperCase()
-          );
-
-        }
-      );
-
+    if (statusFilter && statusFilter !== "ALL") {
+      data = data.filter((item) => {
+        return (
+          String(item?.status ?? "")
+            .trim()
+            .toUpperCase() === String(statusFilter).trim().toUpperCase()
+        );
+      });
     }
-
 
     /* ----------------------------------------------------------
        SEARCH FILTER
     ---------------------------------------------------------- */
 
-    const query =
-      searchQuery
-        .trim()
-        .toLowerCase();
-
+    const query = searchQuery.trim().toLowerCase();
 
     if (!query) {
       return data;
     }
 
+    return data.filter((item) => {
+      const leaveCode = String(item?.LVE_CODE ?? "").toLowerCase();
 
-    return data.filter(
-      (item) => {
+      const remarks = String(item?.REMARKS ?? "").toLowerCase();
 
-        const leaveCode =
-          String(
-            item?.LVE_CODE ??
-            ""
-          )
-            .toLowerCase();
+      const status = String(item?.statusText ?? "").toLowerCase();
 
+      const fromDate = String(item?.LVE_DATE_FR ?? "").toLowerCase();
 
-        const remarks =
-          String(
-            item?.REMARKS ??
-            ""
-          )
-            .toLowerCase();
+      const toDate = String(item?.LVE_DATE_TO ?? "").toLowerCase();
 
-
-        const status =
-          String(
-            item?.statusText ??
-            ""
-          )
-            .toLowerCase();
-
-
-        const fromDate =
-          String(
-            item?.LVE_DATE_FR ??
-            ""
-          )
-            .toLowerCase();
-
-
-        const toDate =
-          String(
-            item?.LVE_DATE_TO ??
-            ""
-          )
-            .toLowerCase();
-
-
-        return (
-          leaveCode.includes(query) ||
-          remarks.includes(query) ||
-          status.includes(query) ||
-          fromDate.includes(query) ||
-          toDate.includes(query)
-        );
-
-      }
-    );
-
-  }, [
-    listData,
-    searchQuery,
-    statusFilter,
-  ]);
-
+      return (
+        leaveCode.includes(query) ||
+        remarks.includes(query) ||
+        status.includes(query) ||
+        fromDate.includes(query) ||
+        toDate.includes(query)
+      );
+    });
+  }, [listData, searchQuery, statusFilter]);
 
   /* ============================================================
      OPEN MODAL
   ============================================================ */
 
-  const openModal = (
-    config = {}
-  ) => {
-
+  const openModal = (config = {}) => {
     setModalLoading(true);
 
-
-    const formatLocalDateTime = (
-      date
-    ) => {
-
+    const formatLocalDateTime = (date) => {
       if (!date) {
         return null;
       }
 
+      const localDate = date instanceof Date ? date : new Date(date);
 
-      const localDate =
-        date instanceof Date
-          ? date
-          : new Date(date);
-
-
-      if (
-        Number.isNaN(
-          localDate.getTime()
-        )
-      ) {
+      if (Number.isNaN(localDate.getTime())) {
         return null;
       }
 
+      const pad = (n) => String(n).padStart(2, "0");
 
-      const pad = (n) =>
-        String(n).padStart(
-          2,
-          "0"
-        );
+      const year = localDate.getFullYear();
 
+      const month = pad(localDate.getMonth() + 1);
 
-      const year =
-        localDate.getFullYear();
+      const day = pad(localDate.getDate());
 
-      const month =
-        pad(
-          localDate.getMonth() + 1
-        );
+      const hours = pad(localDate.getHours());
 
-      const day =
-        pad(
-          localDate.getDate()
-        );
+      const minutes = pad(localDate.getMinutes());
 
-      const hours =
-        pad(
-          localDate.getHours()
-        );
+      const seconds = pad(localDate.getSeconds());
 
-      const minutes =
-        pad(
-          localDate.getMinutes()
-        );
-
-      const seconds =
-        pad(
-          localDate.getSeconds()
-        );
-
-
-      return (
-        `${year}-${month}-${day} ` +
-        `${hours}:${minutes}:${seconds}`
-      );
-
+      return `${year}-${month}-${day} ` + `${hours}:${minutes}:${seconds}`;
     };
 
-
     const fetchLRData = async () => {
-
       try {
-
         setModalLoading(true);
 
+        const modalDate = config?.modalDate || null;
 
-        const modalDate =
-          config?.modalDate ||
-          null;
+        const response = await getLRDataDetails({
+          id: modalDate,
 
+          ID: modalDate,
 
-        const response =
-          await getLRDataDetails({
+          getLrdata: false,
 
-            id:
-              modalDate,
+          checkModalDate: true,
 
-            ID:
-              modalDate,
+          ro: undefined,
 
-            getLrdata:
-              false,
+          modal_date: formatLocalDateTime(modalDate),
+        });
 
-            checkModalDate:
-              true,
+        console.log("Leave modal validation response:", response);
 
-            ro:
-              undefined,
+        const flag = response?.data?.pass?.flag;
 
-            modal_date:
-              formatLocalDateTime(
-                modalDate
-              ),
-
-          });
-
-
-        console.log(
-          "Leave modal validation response:",
-          response
-        );
-
-
-        const flag =
-          response?.data?.pass?.flag;
-
-
-        if (
-          flag === "Yes"
-        ) {
-
+        if (flag === "Yes") {
           setModalState({
-
             isOpen: true,
 
-            mode:
-              config?.mode ||
-              "create",
+            mode: config?.mode || "create",
 
-            modalDate:
-              modalDate,
+            modalDate: modalDate,
 
-            id:
-              config?.id ||
-              null,
+            id: config?.id || null,
 
-            isPostRemark:
-              config?.isPostRemark ||
-              null,
-
+            isPostRemark: config?.isPostRemark || null,
           });
-
-        }
-        else if (
-          flag === "No"
-        ) {
-
-          notifyError(
-            "You have already applied leave!"
-          );
-
+        } else if (flag === "No") {
+          notifyError("You have already applied leave!");
 
           setModalState({
-
             isOpen: false,
 
-            mode:
-              config?.mode ||
-              "create",
+            mode: config?.mode || "create",
 
-            modalDate:
-              modalDate,
+            modalDate: modalDate,
 
-            id:
-              config?.id ||
-              null,
+            id: config?.id || null,
 
-            isPostRemark:
-              config?.isPostRemark ||
-              null,
-
+            isPostRemark: config?.isPostRemark || null,
           });
-
-        }
-        else {
-
+        } else {
           /*
            * If API doesn't return the expected flag,
            * don't silently open the modal.
            */
-          notifyError(
-            "Unable to verify leave date."
-          );
+          notifyError("Unable to verify leave date.");
 
-          setModalState(
-            (prev) => ({
-              ...prev,
-              isOpen: false,
-            })
-          );
-
+          setModalState((prev) => ({
+            ...prev,
+            isOpen: false,
+          }));
         }
+      } catch (error) {
+        console.error("Error fetching Leave Request Data:", error);
 
-      }
-      catch (error) {
-
-        console.error(
-          "Error fetching Leave Request Data:",
-          error
-        );
-
-
-        notifyError(
-          "Unable to verify leave date."
-        );
-
-      }
-      finally {
+        notifyError("Unable to verify leave date.");
+      } finally {
         setModalLoading(false);
       }
-
     };
 
     fetchLRData();
-
   };
-
 
   /* ============================================================
      FORM SETTINGS
   ============================================================ */
 
   const formSettings = {
+    isOpen: false,
 
-    isOpen:
-      false,
+    modalPage: "Leave",
 
-    modalPage:
-      "Leave",
+    mode: "create",
 
-    mode:
-      "create",
+    modeLabel: "Add",
 
-    modeLabel:
-      "Add",
+    modalDate: null,
 
-    modalDate:
-      null,
+    form_header: "Leaves",
 
-    form_header:
-      "Leaves",
+    form_text: "Manage Your leaves",
 
-    form_text:
-      "Manage Your leaves",
+    showHeader: true,
 
-    showHeader:
-      true,
-
-    showLayout:
-      true,
-
+    showLayout: true,
   };
-
 
   /* ============================================================
      CLOSE MODAL
   ============================================================ */
 
   const closeModal = () => {
-
-    setModalState(
-      (prev) => ({
-        ...prev,
-        isOpen: false,
-      })
-    );
+    setModalState((prev) => ({
+      ...prev,
+      isOpen: false,
+    }));
 
     setModalLoading(false);
-
   };
-
 
   /* ============================================================
      SUCCESS AFTER SAVE
   ============================================================ */
 
   const handleSuccess = () => {
-
     /*
      * Refresh leave list
      */
-    dispatch(
-      getLeavesDataResponse()
-    );
-
+    dispatch(getLeavesDataResponse());
 
     /*
      * Refresh table
      */
-    setRefreshKey(
-      (prev) =>
-        prev + 1
-    );
-
+    setRefreshKey((prev) => prev + 1);
 
     /*
      * Refresh authorization count
      */
-    dispatch(
-      getAuthroizationTaskCount()
-    );
-
+    dispatch(getAuthroizationTaskCount());
   };
-
 
   /* ============================================================
      HANDLERS
   ============================================================ */
 
-  const handlers =
-    createLeavesHandlers({
-      handleSuccess,
-      openModal,
-    });
+  const handlers = createLeavesHandlers({
+    handleSuccess,
+    openModal,
+  });
 
-
-  const columns =
-    leavesColumns(
-      handlers
-    );
-
+  const columns = leavesColumns(handlers);
 
   /* ============================================================
      CLEAR FILTERS
@@ -700,12 +395,8 @@ const Leaves = () => {
 
   const clearFilters = () => {
     setSearchQuery("");
-    setStatusFilter(
-      "ALL"
-    );
-
+    setStatusFilter("ALL");
   };
-
 
   /* ============================================================
      JSX
@@ -713,25 +404,16 @@ const Leaves = () => {
 
   return (
     <>
-
       {/* ======================================================
           PAGE HEADER
       ====================================================== */}
 
       <div className="page-header">
-
         <div className="add-item d-flex">
-
           <div className="page-title">
-
-            <h4>
-              Leaves Request
-            </h4>
-
+            <h4>Leaves Request</h4>
           </div>
-
         </div>
-
 
         <BreadcrumbNav
           items={[
@@ -741,32 +423,28 @@ const Leaves = () => {
             },
 
             {
-              text:
-                "Leaves Request",
+              text: "Leaves Request",
             },
           ]}
         />
-
       </div>
-   
 
       {/* ======================================================
           MAIN CARD
       ====================================================== */}
 
       <div className="card">
-
         <div className="card-body">
-
           <div className="row">
-
-
             {/* ==================================================
                 LEFT CALENDAR
             ================================================== */}
 
-            <div className="col-xl-3 border-end">
-              <SDLCalendar openModal={openModal}/>
+            <div className="col-xl-3 border-end leaves-calendar-column">
+                <SDLCalendar
+                    mode="inline"
+                    openModal={openModal}
+                />
             </div>
 
             {/* ==================================================
@@ -774,107 +452,60 @@ const Leaves = () => {
             ================================================== */}
 
             <div className="col-xl-9 d-flex flex-column">
-
-              <h6 className="mb-3">
-                Leave Request Preview
-              </h6>
-
+              <h6 className="mb-3">Leave Request Preview</h6>
 
               <div className="position-relative flex-grow-1">
-
-
                 {/* =================================================
                     SEARCH + STATUS FILTER
                 ================================================= */}
 
                 <div className="row mb-3 align-items-center g-2">
-
-
                   {/* SEARCH */}
 
                   <div className="col-lg-5 col-md-6 col-12">
-
                     <SDLSearch
-                      value={
-                        searchQuery
-                      }
-                      onChange={
-                        setSearchQuery
-                      }
+                      value={searchQuery}
+                      onChange={setSearchQuery}
                       placeholder="Search Leaves..."
                       style={{
-                        width:
-                          "100%",
+                        width: "100%",
                       }}
                     />
-
                   </div>
-
 
                   {/* STATUS */}
 
                   <div className="col-lg-3 col-md-4 col-12">
-
                     <select
                       className="form-control"
-                      value={
-                        statusFilter
-                      }
-                      onChange={(
-                        e
-                      ) =>
-                        setStatusFilter(
-                          e.target
-                            .value
-                        )
-                      }
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
                     >
-
-                      {statusOptions.map(
-                        (option) => (
-
-                          <option
-                            key={
-                              option.value
-                            }
-                            value={
-                              option.value
-                            }
-                          >
-                            {
-                              option.label
-                            }
-                          </option>
-
-                        )
-                      )}
-
+                      {statusOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
                     </select>
-
                   </div>
-
 
                   {/* CLEAR */}
 
                   <div className="col-lg-2 col-md-2 col-12">
-
-                   <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    disabled={statusFilter === "ALL"}
-                    onClick={clearFilters}
-                  >
-                    <i className="ti ti-refresh me-1"></i>
-                    Reset
-                  </button>
-
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      disabled={statusFilter === "ALL"}
+                      onClick={clearFilters}
+                    >
+                      <i className="ti ti-refresh me-1"></i>
+                      Reset
+                    </button>
                   </div>
-
 
                   {/* RESULT COUNT */}
 
                   <div className="col-lg-2 col-md-12 col-12 text-lg-end">
-
                     {/*<small className="text-muted">
 
                       Showing{" "}
@@ -894,77 +525,44 @@ const Leaves = () => {
                       </strong>
 
                     </small> */}
-
                   </div>
-
                 </div>
-
 
                 {/* =================================================
                     TABLE
                 ================================================= */}
 
                 <SDLDataTable
-                  data={
-                    filteredData
-                  }
-                  columns={
-                    columns
-                  }
-                  loading={
-                    loading
-                  }
+                  data={filteredData}
+                  columns={columns}
+                  loading={loading}
                   emptyMessage={
-                    searchQuery ||
-                    statusFilter !==
-                      "ALL"
+                    searchQuery || statusFilter !== "ALL"
                       ? "No leave requests match the selected filter"
                       : "No leave requests found"
                   }
                   removableSort
                 />
-
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </div>
-
 
       {/* ======================================================
           LEAVE MODAL
       ====================================================== */}
 
       {modalState.isOpen && (
-
         <LeavesModal
-          formSettings={
-            formSettings
-          }
-
-          modalState={
-            modalState
-          }
-
-          closeModal={
-            closeModal
-          }
-
-          onSuccess={
-            handleSuccess
-          }
+          formSettings={formSettings}
+          modalState={modalState}
+          closeModal={closeModal}
+          onSuccess={handleSuccess}
         />
-
       )}
-
     </>
   );
-
 };
-
 
 export default Leaves;

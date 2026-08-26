@@ -74,3 +74,97 @@ body > .tooltip {
 .sdl-table-loader .spinner-border {
   color: #ff9800 !important;
 }
+
+/* =========================================================
+   SDL CALENDAR - INLINE MODE
+   ========================================================= */
+
+/*
+ * IMPORTANT:
+ * Inline calendar must NOT inherit the fixed height
+ * used by the normal date input.
+ */
+.sdl-calendar-inline-wrapper {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    overflow: visible !important;
+
+    display: block;
+}
+
+
+/*
+ * PrimeReact inline calendar
+ */
+.sdl-calendar-inline-wrapper .sdl-inline-calendar {
+    width: 100%;
+    height: auto !important;
+}
+
+
+/*
+ * PrimeReact inline datepicker panel
+ */
+.sdl-calendar-inline-wrapper
+.p-datepicker-inline {
+    width: 100% !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    overflow: visible !important;
+
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+
+/*
+ * Make the calendar table use available width
+ */
+.sdl-calendar-inline-wrapper
+.p-datepicker-inline table {
+    width: 100%;
+}
+
+
+/*
+ * Calendar cells
+ */
+.sdl-calendar-inline-wrapper
+.p-datepicker-inline table td {
+    padding: 0.2rem;
+}
+
+
+/*
+ * Date circles/badges
+ */
+.sdl-calendar-inline-wrapper
+.p-datepicker-inline table td > span {
+    width: 2rem;
+    height: 2rem;
+}
+
+
+/*
+ * Calendar header
+ */
+.sdl-calendar-inline-wrapper
+.p-datepicker-header {
+    width: 100%;
+}
+
+
+/*
+ * Make sure the calendar itself does not create
+ * an internal scrollbar.
+ */
+.sdl-calendar-inline-wrapper
+.p-datepicker {
+    overflow: visible !important;
+}
