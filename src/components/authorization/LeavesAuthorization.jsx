@@ -46,7 +46,7 @@ const LeavesAuthorization = () => {
                 value={searchQuery}
                 onChange={setSearchQuery}
                 placeholder="Search Leaves..."
-                style={{ width: "120px" }}
+                style={{ width: "270px" }}
               />
             </div>
           </div>
@@ -59,6 +59,7 @@ const LeavesAuthorization = () => {
               emptyMessage="No Tasks found"
               className="company-policies-grid"
               removableSort
+              onRowClick={(e) => openModal(e.data)}
             />
           </div>
         </div>

@@ -215,61 +215,17 @@ const handleSearch = (value) => {
   const getColumns = () => {
    
     const baseColumns = [
-      { 
-          field: "addedon", 
-          header: "Created On",
-          body: (row) => (
-            <span
-              className="request-date"
-              style={{
-              cursor: "pointer",
-              textDecoration: "none",
-              fontWeight: 500,
-              }}
-              onClick={() => handleRowClick(row)}
-          >
-              {row.addedon}
-          </span>
-          // <span className="request-date">
-          //     {row.addedon}
-          // </span>
-          )
-      },
-      
       {
-          field: "empName",
-          header: "Created By",
-          body: (row) => (
-          <span
-              className="text-primary"
-              style={{
-              cursor: "pointer",
-              textDecoration: "none",
-              fontWeight: 500,
-              }}
-              onClick={() => handleRowClick(row)}
-          >
-              {row.empName}
-          </span>
-          ),
+        header: "Created On",
+        body: (rowData) => {rowData.addedon}
       },
-      
       {
-          field: "empName",
-          header: "Booking For",
-          body: (row) => (
-          <span
-              className="text-primary"
-              style={{
-              cursor: "pointer",
-              textDecoration: "none",
-              fontWeight: 500,
-              }}
-              onClick={() => handleRowClick(row)}
-          >
-              {row.empName}
-          </span>
-          ),
+        header: "Created By",
+        body: (rowData) => rowData?.empName || "-",
+      },
+      {
+        header: "Booking For",
+        body: (rowData) => rowData?.empName || "-",
       },
     ];
 
@@ -278,44 +234,13 @@ const handleSearch = (value) => {
         return [
             ...baseColumns,
             // { field: "room", header: "Room" },
-            { header: "Date",
-              body: (rowData) => {
-                return (
-                  <span
-                    className="request-date"
-                    style={{
-                    cursor: "pointer",
-                    textDecoration: "none",
-                    fontWeight: 500,
-                    }}
-                    onClick={() => handleRowClick(row)}
-                >
-                    {formatDashDate(rowData.date)}
-                </span>
-                  
-                )
-              }
+            {
+              header: "Date",
+              body: (rowData) => {formatDashDate(rowData.date)}
             },
             { field: "duration", header: "Duration" },
-            // { field: "remarks", header: "Reason"}, 
-            { header: "Reason",
-              body: (rowData) => {
-                return (
-                  <span
-                    className="text-primary"
-                    style={{
-                    cursor: "pointer",
-                    textDecoration: "none",
-                    fontWeight: 500,
-                    }}
-                    onClick={() => handleRowClick(row)}
-                >
-                    {rowData.remarks}
-                </span>
-                  
-                )
-              }
-            },
+            { field: "remarks", header: "Reason"}, 
+            
             //{ field: "task", header: "Task" },
         ];
     }
@@ -355,7 +280,7 @@ const handleSearch = (value) => {
                 value={searchQuery}
                 onChange={handleSearch}
                 placeholder="Search Policies..."
-                style={{ width: "120px" }}
+                style={{ width: "270px" }}
               />
             </div>
           </div>
@@ -368,6 +293,7 @@ const handleSearch = (value) => {
               emptyMessage="No Tasks found"
               className="company-policies-grid"
               removableSort
+              onRowClick={(e) => handleRowClick(e.data)}
             />
           </div>
         </div>

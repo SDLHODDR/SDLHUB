@@ -107,3 +107,7 @@
     background: #ff9f43 !important;
     color: #fff !important;
 }
+
+.sdl-clickable-rows .p-datatable-tbody > tr {
+  cursor: pointer;
+}
