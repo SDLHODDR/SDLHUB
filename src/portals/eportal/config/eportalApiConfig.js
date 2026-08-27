@@ -24,6 +24,7 @@ export const EPORTAL_API = {
     CONFERENCE_ACTION: "/conference/conferenceAction.php",
     CONFERENCE_YEARLY: "/conference/getConferenceYearly.php",
     EXPORT_CONFERENCE_BOOKING_DATA: "conference/exportConferenceBookings.php",
+    GET_CONFERENCE_ROOM_AVAILABILITY: "/conference/getConferenceRoomAvailability.php",
 
     AUTHCBRData: "/conference/authConferenceRooms.php",
     REJECTCBRData: "/conference/authConferenceRooms.php",
