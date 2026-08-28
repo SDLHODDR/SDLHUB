@@ -44,17 +44,19 @@ const DivisionDocumentMapping = () => {
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedDivision, setSelectedDivision] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
-
-  /*
-   * SINGLE DESIGNATION
-   *
-   * Previously:
-   *
-   * const [selectedDesignations, setSelectedDesignations] = useState([]);
-   *
-   * Now:
-   */
   const [selectedDesignation, setSelectedDesignation] = useState(null);
+
+  /* ==========================================================
+     VALIDATION ERRORS
+  ========================================================== */
+
+  const [errors, setErrors] = useState({
+    company: "",
+    division: "",
+    department: "",
+    designation: "",
+    documents: {},
+  });
 
   /* ==========================================================
      DOCUMENT MAPPING
@@ -140,12 +142,19 @@ const DivisionDocumentMapping = () => {
       ...base,
       minHeight: "38px",
       height: "38px",
+
       borderColor: state.isFocused ? "#ff9800" : "#ced4da",
+
       boxShadow: state.isFocused
         ? "0 0 0 0.15rem rgba(255, 152, 0, 0.15)"
         : "none",
+
       fontSize: "13px",
       borderRadius: "4px",
+
+      "&:hover": {
+        borderColor: state.isFocused ? "#ff9800" : "#adb5bd",
+      },
     }),
 
     valueContainer: (base) => ({
@@ -178,13 +187,83 @@ const DivisionDocumentMapping = () => {
     option: (base, state) => ({
       ...base,
       fontSize: "13px",
+
       backgroundColor: state.isSelected
         ? "#ff9800"
         : state.isFocused
           ? "#fff3e0"
           : "#fff",
+
       color: state.isSelected ? "#fff" : "#212529",
     }),
+  };
+
+  /* ==========================================================
+     INVALID SELECT STYLES
+  ========================================================== */
+
+  const getSelectStyles = (hasError = false) => ({
+    ...selectStyles,
+
+    control: (base, state) => ({
+      ...selectStyles.control(base, state),
+
+      borderColor: hasError
+        ? "#dc3545"
+        : state.isFocused
+          ? "#ff9800"
+          : "#ced4da",
+
+      boxShadow: hasError
+        ? "0 0 0 0.15rem rgba(220, 53, 69, 0.10)"
+        : state.isFocused
+          ? "0 0 0 0.15rem rgba(255, 152, 0, 0.15)"
+          : "none",
+
+      "&:hover": {
+        borderColor: hasError
+          ? "#dc3545"
+          : state.isFocused
+            ? "#ff9800"
+            : "#adb5bd",
+      },
+    }),
+  });
+
+  /* ==========================================================
+     CLEAR FIELD ERROR
+  ========================================================== */
+
+  const clearError = (field) => {
+    setErrors((prev) => ({
+      ...prev,
+      [field]: "",
+    }));
+  };
+
+  /* ==========================================================
+     CLEAR DOCUMENT ERROR
+  ========================================================== */
+
+  const clearDocumentError = (documentId) => {
+    const id = String(documentId);
+
+    setErrors((prev) => {
+      if (!prev.documents?.[id]) {
+        return prev;
+      }
+
+      const updatedDocuments = {
+        ...prev.documents,
+      };
+
+      delete updatedDocuments[id];
+
+      return {
+        ...prev,
+        documents: updatedDocuments,
+      };
+    });
   };
 
   /* ==========================================================
@@ -239,6 +318,12 @@ const DivisionDocumentMapping = () => {
       setDocuments([]);
       setDocumentMappings({});
 
+      setErrors((prev) => ({
+        ...prev,
+        designation: "",
+        documents: {},
+      }));
+
       if (!selectedDivision?.value || !selectedDepartment?.value) {
         return;
       }
@@ -257,7 +342,9 @@ const DivisionDocumentMapping = () => {
         }
 
         setDesignations(
-          Array.isArray(res?.data?.designations) ? res.data.designations : [],
+          Array.isArray(res?.data?.designations)
+            ? res.data.designations
+            : [],
         );
       } catch (error) {
         console.error("Designation loading error:", error);
@@ -281,6 +368,13 @@ const DivisionDocumentMapping = () => {
     setShowData(false);
     setDocuments([]);
     setDocumentMappings({});
+
+    clearError("company");
+
+    setErrors((prev) => ({
+      ...prev,
+      documents: {},
+    }));
   };
 
   /* ==========================================================
@@ -298,6 +392,14 @@ const DivisionDocumentMapping = () => {
     setShowData(false);
     setDocuments([]);
     setDocumentMappings({});
+
+    setErrors({
+      company: errors.company,
+      division: "",
+      department: "",
+      designation: "",
+      documents: {},
+    });
   };
 
   /* ==========================================================
@@ -312,6 +414,13 @@ const DivisionDocumentMapping = () => {
     setShowData(false);
     setDocuments([]);
     setDocumentMappings({});
+
+    setErrors((prev) => ({
+      ...prev,
+      department: "",
+      designation: "",
+      documents: {},
+    }));
   };
 
   /* ==========================================================
@@ -324,6 +433,52 @@ const DivisionDocumentMapping = () => {
     setShowData(false);
     setDocuments([]);
     setDocumentMappings({});
+
+    setErrors((prev) => ({
+      ...prev,
+      designation: "",
+      documents: {},
+    }));
+  };
+
+  /* ==========================================================
+     VALIDATE FILTERS
+  ========================================================== */
+
+  const validateFilters = () => {
+    const newErrors = {
+      company: "",
+      division: "",
+      department: "",
+      designation: "",
+      documents: {},
+    };
+
+    let isValid = true;
+
+    if (!selectedCompany?.value) {
+      newErrors.company = "Please select Company.";
+      isValid = false;
+    }
+
+    if (!selectedDivision?.value) {
+      newErrors.division = "Please select Division.";
+      isValid = false;
+    }
+
+    if (!selectedDepartment?.value) {
+      newErrors.department = "Please select Department.";
+      isValid = false;
+    }
+
+    if (!selectedDesignation?.value) {
+      newErrors.designation = "Please select Designation.";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+
+    return isValid;
   };
 
   /* ==========================================================
@@ -331,23 +486,7 @@ const DivisionDocumentMapping = () => {
   ========================================================== */
 
   const handleShowData = async () => {
-    if (!selectedCompany?.value) {
-      notifyError("Please select Company.");
-      return;
-    }
-
-    if (!selectedDivision?.value) {
-      notifyError("Please select Division.");
-      return;
-    }
-
-    if (!selectedDepartment?.value) {
-      notifyError("Please select Department.");
-      return;
-    }
-
-    if (!selectedDesignation?.value) {
-      notifyError("Please select Designation.");
+    if (!validateFilters()) {
       return;
     }
 
@@ -402,6 +541,12 @@ const DivisionDocumentMapping = () => {
 
       setDocumentMappings(mappings);
 
+      /* Clear old document errors after fresh load */
+      setErrors((prev) => ({
+        ...prev,
+        documents: {},
+      }));
+
       setShowData(true);
     } catch (error) {
       console.error("Division document mapping data error:", error);
@@ -417,10 +562,42 @@ const DivisionDocumentMapping = () => {
   ========================================================== */
 
   const handleLocationChange = (documentId, value) => {
+    const id = String(documentId);
+
     setDocumentMappings((prev) => ({
       ...prev,
-      [String(documentId)]: value,
+      [id]: value,
     }));
+
+    /* Remove inline error as soon as user selects a value */
+    if (value?.value) {
+      clearDocumentError(id);
+    }
+  };
+
+  /* ==========================================================
+     VALIDATE DOCUMENT MAPPINGS
+  ========================================================== */
+
+  const validateDocumentMappings = () => {
+    const documentErrors = {};
+    let isValid = true;
+
+    documents.forEach((document) => {
+      const documentId = String(document.ID);
+
+      if (!documentMappings[documentId]?.value) {
+        documentErrors[documentId] = "Please select Organization Location.";
+        isValid = false;
+      }
+    });
+
+    setErrors((prev) => ({
+      ...prev,
+      documents: documentErrors,
+    }));
+
+    return isValid;
   };
 
   /* ==========================================================
@@ -429,55 +606,31 @@ const DivisionDocumentMapping = () => {
 
   const handleSave = async () => {
     /* ========================================================
-       VALIDATION
+       PREVENT DOUBLE SUBMIT
     ======================================================== */
 
-    if (!selectedCompany?.value) {
-      notifyError("Please select Company.");
+    if (saving) {
       return;
     }
 
-    if (!selectedDivision?.value) {
-      notifyError("Please select Division.");
+    /* ========================================================
+       VALIDATE FILTERS
+    ======================================================== */
+
+    if (!validateFilters()) {
       return;
     }
 
-    if (!selectedDepartment?.value) {
-      notifyError("Please select Department.");
-      return;
-    }
-
-    if (!selectedDesignation?.value) {
-      notifyError("Please select Designation.");
-      return;
-    }
+    /* ========================================================
+       VALIDATE DOCUMENT DATA
+    ======================================================== */
 
     if (!documents.length) {
       notifyError("No document data available to save.");
       return;
     }
 
-    /* ========================================================
-       VALIDATE ALL DOCUMENT MAPPINGS
-    ======================================================== */
-
-    const missingDocument = documents.find(
-      (document) => !documentMappings[String(document.ID)]?.value,
-    );
-
-    if (missingDocument) {
-      notifyError(
-        `Please select Organization Location for ${missingDocument.ID} - ${missingDocument.DESCRIPTION}.`,
-      );
-
-      return;
-    }
-
-    /* ========================================================
-       PREVENT DOUBLE SUBMIT
-    ======================================================== */
-
-    if (saving) {
+    if (!validateDocumentMappings()) {
       return;
     }
 
@@ -486,14 +639,6 @@ const DivisionDocumentMapping = () => {
 
       /* ======================================================
          CONVERT REACT-SELECT VALUES
-
-         Example:
-
-         {
-           "1": "35",
-           "2": "35",
-           "3": "36"
-         }
       ====================================================== */
 
       const mappings = {};
@@ -516,12 +661,7 @@ const DivisionDocumentMapping = () => {
         companyId: selectedCompany.value,
         divisionId: selectedDivision.value,
         departmentId: selectedDepartment.value,
-
-        /*
-         * SINGLE DESIGNATION
-         */
         designationId: String(selectedDesignation.value),
-
         documentMappings: mappings,
       });
 
@@ -570,6 +710,14 @@ const DivisionDocumentMapping = () => {
 
     setDocumentMappings({});
 
+    setErrors({
+      company: "",
+      division: "",
+      department: "",
+      designation: "",
+      documents: {},
+    });
+
     setShowData(false);
   };
 
@@ -607,11 +755,13 @@ const DivisionDocumentMapping = () => {
 
       <div className="card ddm-card">
         <div className="card-body">
+
           {/* ==================================================
               FILTER SECTION
           ================================================== */}
 
           <div className="row g-3">
+
             {/* COMPANY */}
 
             <div className="col-lg-3 col-md-6">
@@ -627,9 +777,15 @@ const DivisionDocumentMapping = () => {
                 placeholder="Please Select"
                 isClearable
                 isLoading={loadingInitial}
-                styles={selectStyles}
+                styles={getSelectStyles(!!errors.company)}
                 isDisabled={loadingInitial}
               />
+
+              {errors.company && (
+                <div className="ddm-validation-error">
+                  {errors.company}
+                </div>
+              )}
             </div>
 
             {/* DIVISION */}
@@ -647,9 +803,15 @@ const DivisionDocumentMapping = () => {
                 placeholder="Please Select"
                 isClearable
                 isLoading={loadingInitial}
-                styles={selectStyles}
+                styles={getSelectStyles(!!errors.division)}
                 isDisabled={loadingInitial}
               />
+
+              {errors.division && (
+                <div className="ddm-validation-error">
+                  {errors.division}
+                </div>
+              )}
             </div>
 
             {/* DEPARTMENT */}
@@ -667,9 +829,15 @@ const DivisionDocumentMapping = () => {
                 placeholder="Please Select"
                 isClearable
                 isLoading={loadingInitial}
-                styles={selectStyles}
+                styles={getSelectStyles(!!errors.department)}
                 isDisabled={loadingInitial || !selectedDivision}
               />
+
+              {errors.department && (
+                <div className="ddm-validation-error">
+                  {errors.department}
+                </div>
+              )}
             </div>
 
             {/* DESIGNATION */}
@@ -683,13 +851,7 @@ const DivisionDocumentMapping = () => {
               <Select
                 value={selectedDesignation}
                 options={designationOptions}
-                onChange={(value) => {
-                  setSelectedDesignation(value);
-
-                  setShowData(false);
-                  setDocuments([]);
-                  setDocumentMappings({});
-                }}
+                onChange={handleDesignationChange}
                 placeholder={
                   loadingDesignations ? "Loading..." : "Please Select"
                 }
@@ -700,8 +862,14 @@ const DivisionDocumentMapping = () => {
                   !selectedDepartment
                 }
                 isClearable
-                styles={selectStyles}
+                styles={getSelectStyles(!!errors.designation)}
               />
+
+              {errors.designation && (
+                <div className="ddm-validation-error">
+                  {errors.designation}
+                </div>
+              )}
             </div>
           </div>
 
@@ -714,7 +882,11 @@ const DivisionDocumentMapping = () => {
               type="button"
               className="btn btn-sm btn-primary ddm-show-btn"
               onClick={handleShowData}
-              disabled={loadingData || loadingInitial || loadingDesignations}
+              disabled={
+                loadingData ||
+                loadingInitial ||
+                loadingDesignations
+              }
             >
               {loadingData ? (
                 <>
@@ -722,6 +894,7 @@ const DivisionDocumentMapping = () => {
                     className="spinner-border spinner-border-sm me-1"
                     role="status"
                   />
+
                   Loading...
                 </>
               ) : (
@@ -737,6 +910,7 @@ const DivisionDocumentMapping = () => {
           {showData && (
             <>
               <div className="ddm-document-section">
+
                 {documents.length === 0 ? (
                   <div className="text-center text-muted py-4">
                     No document types found.
@@ -745,11 +919,15 @@ const DivisionDocumentMapping = () => {
                   documents.map((document) => {
                     const documentId = String(document.ID);
 
+                    const documentError =
+                      errors.documents?.[documentId];
+
                     return (
                       <div
-                        className="row align-items-center ddm-document-row"
+                        className="row align-items-start ddm-document-row"
                         key={documentId}
                       >
+
                         {/* DOCUMENT */}
 
                         <div className="col-lg-4 col-md-5">
@@ -761,16 +939,32 @@ const DivisionDocumentMapping = () => {
                         {/* ORGANIZATION LOCATION */}
 
                         <div className="col-lg-8 col-md-7">
+
                           <Select
-                            value={documentMappings[documentId] || null}
+                            value={
+                              documentMappings[documentId] || null
+                            }
                             options={orgLocationOptions}
                             onChange={(value) =>
-                              handleLocationChange(documentId, value)
+                              handleLocationChange(
+                                documentId,
+                                value,
+                              )
                             }
                             placeholder="Please Select"
                             isClearable
-                            styles={selectStyles}
+                            styles={getSelectStyles(
+                              !!documentError,
+                            )}
                           />
+
+                          {/* INLINE VALIDATION */}
+
+                          {documentError && (
+                            <div className="ddm-validation-error">
+                              {documentError}
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
@@ -783,9 +977,10 @@ const DivisionDocumentMapping = () => {
               ================================================== */}
 
               <div className="text-center ddm-actions">
+
                 <button
                   type="button"
-                  className="btn btn-primary me-2"
+                  className="btn btn-primary me-3"
                   onClick={handleSave}
                   disabled={saving}
                 >
@@ -795,6 +990,7 @@ const DivisionDocumentMapping = () => {
                         className="spinner-border spinner-border-sm me-1"
                         role="status"
                       />
+
                       Saving...
                     </>
                   ) : (
@@ -810,6 +1006,7 @@ const DivisionDocumentMapping = () => {
                 >
                   Cancel
                 </button>
+
               </div>
             </>
           )}

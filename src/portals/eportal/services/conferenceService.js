@@ -146,3 +146,27 @@ export const exportToExcelCBRData = async (ids = []) => {
     throw err;
   }
 };*/
+
+/* ==================================
+   GET CONFERENCE ROOM AVAILABILITY
+  =================================== */
+  export const getConferenceRoomAvailability = ({
+    roomId,
+    date,
+    transactionId = "",
+  } = {}) =>
+  eportalRequest({
+    url: EPORTAL_API.CONFERENCE_ROOM.GET_CONFERENCE_ROOM_AVAILABILITY,
+    method: "GET",
+    dedupe: true,
+    params: {
+      roomId,
+      date,
+      transactionId,
+    },
+    fallback: {
+      status: false,
+      bookings: [],
+      message: "Unable to check room availability.",
+    },
+  });
