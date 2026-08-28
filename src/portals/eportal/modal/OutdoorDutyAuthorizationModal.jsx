@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { getGpAttdData, authGPData, rejectGPData } from "../services/outdoorDutyService";
 import { notifyError, notifySuccess } from "../../../services/alertService";
+import SDLAuthorizationActionButtons from "../../../components/SDLAuthorizationActionButtons";
+
+const FILE_BASE_URL = import.meta.env.VITE_FILE_BASE_URL || "";
 
 const OutdoorDutyAuthorizationModal = ({
   outddorduty,
@@ -18,13 +22,23 @@ const OutdoorDutyAuthorizationModal = ({
     "": "-",
   };
 
-  //const [formData, setFormData] = useState({});
+  const location = useLocation();
+  const segments = location.pathname.split("/").filter(Boolean);
+  const currentTaskId = segments[segments.length - 1]; // "21" or "349"
+  const isPostRemarksView = currentTaskId === "21"; // read-only view mode
+
   const [loading, setLoading] = useState(true);
   const [gpAttdData, setGPAttdData] = useState({});
 
   const getByteLength = (str) => new TextEncoder().encode(str || "").length;
-  
-  console.log("===========outdoorDuty=============", outddorduty);
+  const FILE_BASE_URL = import.meta.env.VITE_DOWNLOAD_URL || "";
+
+  const buildFileUrl = (path) => {
+  if (!path) return "";
+  if (/^https?:\/\//i.test(path)) return path; // already a full URL, don't double-prefix
+  // FILE_BASE_URL already ends with "/", so just strip any leading "/" from path to avoid "//"
+  return `${FILE_BASE_URL}${String(path).replace(/^\/+/, "")}`;
+};
 
   const [formData, setFormData] = useState(() => ({
     ID: outddorduty.TRAN_CODE,
@@ -32,52 +46,52 @@ const OutdoorDutyAuthorizationModal = ({
     TRAN_CODE: outddorduty.TRAN_CODE,
     OUT_TYPE: outddorduty.OUT_TYPE,
     empName: outddorduty.REQUEST_FOR,
-    empCode: outddorduty.DETAILS.EMP_CODE,
+    empCode: outddorduty.DETAILS?.EMP_CODE,
     TabId: outddorduty.TASK_ID,
     REMARKS: outddorduty.REMARKS,
+    POST_REMARKS: outddorduty.POST_REMARKS,
     GPASS_DATE: outddorduty.GPASS_DATE,
+    ATTACHMENT_URL: buildFileUrl(outddorduty.POST_REMARKS_DOC),
   }));
 
   const fetchGPAttdData = async (frmDt) => {
-    console.log("++++++++++++=======FormData=======++++++++", frmDt);
     try {
-        setLoading(true);
-        const response = await getGpAttdData({
-            emp_code: frmDt?.DETAILS?.EMP_CODE || null,
-            gpass_date: frmDt.GPASS_DATE || null,
-            out_type: frmDt.OUT_TYPE || null,
-            getGpAttddata: true,
-        });
-        if (response.status) {
-            // Expecting FORM API response (not list)
-
-            setGPAttdData(response.data || {});
-        } else {
-          notifyError(response?.message || `Unable to fetch Emp Attendance.`);
-        }
+      setLoading(true);
+      const response = await getGpAttdData({
+        emp_code: frmDt?.DETAILS?.EMP_CODE || null,
+        gpass_date: frmDt.GPASS_DATE || null,
+        out_type: frmDt.OUT_TYPE || null,
+        getGpAttddata: true,
+      });
+      if (response.status) {
+        setGPAttdData(response.data || {});
+      } else {
+        notifyError(response?.message || `Unable to fetch Emp Attendance.`);
+      }
     } catch (error) {
-        console.error("Error fetching data:", error);
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // ===========================
-  // Fetch Attendance Data
-  // ===========================
   useEffect(() => {
-    console.log("++++++++++++=======outddorduty useeffect=======++++++++", outddorduty);
+    // Skip the attendance fetch entirely in the read-only Post Remarks view
+    if (!isPostRemarksView) {
       fetchGPAttdData(outddorduty);
-  }, [outddorduty]);
+    } else {
+      setLoading(false);
+    }
+  }, [outddorduty, isPostRemarksView]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     let newValue = value;
 
     if (["REMARKS", "POST_REMARKS", "AUTH_REMARKS"].includes(name)) {
-      const encoder = new TextEncoder();
-      let bytes = encoder.encode(newValue);
-
+      const bytes = new TextEncoder().encode(newValue);
       if (bytes.length > 200) {
-        newValue = newValue.slice(0, 200); // simple cut
+        newValue = newValue.slice(0, 200);
       }
     }
 
@@ -89,23 +103,20 @@ const OutdoorDutyAuthorizationModal = ({
 
   const handleReject = async () => {
     try {
-      const latestData = formData;
-
-      //console.log("---------Reject request -------", latestData);
       const response = await rejectGPData({
-        ...latestData,
+        ...formData,
         authForm: true,
         flag: "R",
       });
 
       if (!response?.status) {
         notifyError("Error Occurred");
-        return; // keep modal open so user can retry
+        return;
       }
 
       onClose?.();
       notifySuccess("Request rejected successfully");
-      onSuccess?.(); // only refetch on actual success
+      onSuccess?.();
     } catch (err) {
       console.error(err);
     }
@@ -113,10 +124,8 @@ const OutdoorDutyAuthorizationModal = ({
 
   const handleAuthorize = async () => {
     try {
-      const latestData = formData;
-      //console.log("---------Authorize request -------", latestData);
       const response = await authGPData({
-        ...latestData,
+        ...formData,
         authForm: true,
         flag: "A",
       });
@@ -127,14 +136,13 @@ const OutdoorDutyAuthorizationModal = ({
       }
       onClose?.();
       notifySuccess("Request authorized successfully");
-      onSuccess?.(); // only refetch on actual success
+      onSuccess?.();
     } catch (err) {
       console.error(err);
       notifyError("Something went wrong");
     }
   };
 
-  console.log("==============gpAttdData=============", gpAttdData);
   return (
     <>
       <div
@@ -142,27 +150,17 @@ const OutdoorDutyAuthorizationModal = ({
         tabIndex="-1"
         aria-hidden={!isOpen}
         role="dialog"
-        style={{
-          backgroundColor: "rgba(0,0,0,0.5)",
-        }}
+        style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
       >
         <div className="modal-dialog modal-dialog-centered modal-lg">
           <div className="modal-content">
-            {/* Header */}
             <div className="modal-header">
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "10px" }}
-              >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <h4 className="modal-title">
                   <div>
                     OutDoor Duty Request for &nbsp;
-                    <span className="fw-semibold">
-                      {formData.empName ?? ""}
-                    </span>
-                    <span
-                      className="text-muted ms-2"
-                      style={{ fontSize: "14px" }}
-                    >
+                    <span className="fw-semibold">{formData.empName ?? ""}</span>
+                    <span className="text-muted ms-2" style={{ fontSize: "14px" }}>
                       ({formData.GPASS_DATE || ""})
                     </span>
                   </div>
@@ -179,91 +177,124 @@ const OutdoorDutyAuthorizationModal = ({
             </div>
 
             <form>
-              {/* Body */}
               <div className="modal-body">
-                {/* {loading && (
-                  <div className="p-4 text-center">
-                    <div className="spinner-border text-warning"></div>
-                  </div>
-                )} */}
                 <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
                       <label className="fw-semibold">Out Type :</label>
-                      <span className="ms-2">
-                        {" "}
-                        {OUT_TYPE_LABELS[formData.OUT_TYPE || ""]}{" "}
-                      </span>
+                      <span className="ms-2">{OUT_TYPE_LABELS[formData.OUT_TYPE || ""]}</span>
                     </div>
                   </div>
-                  
                 </div>
+
                 <div className="row">
-                  
                   <div className="col-md-12">
                     <div className="mb-3">
-                      <label className="form-label fw-semibold">
-                        Remarks :
-                      </label>
+                      <label className="form-label fw-semibold">Remarks :</label>
                       <span className="ms-2">{formData.REMARKS || ""}</span>
                     </div>
                   </div>
                 </div>
-                <div className="row">
-                  <div className="col-12">
-                    <div className="form-group mb-3">
-                      <label className="form-label">Auth Remarks:</label>
-                      <textarea
-                        className="form-control"
-                        name="AUTH_REMARKS"
-                        value={formData.AUTH_REMARKS || ""}
-                        onChange={handleChange}
-                      />
-                      <div className="char-counter">
-                        {getByteLength(formData.AUTH_REMARKS || "")} / 200
+
+                {/* Post Remarks + Attachment: only in the /21 read-only view */}
+                {isPostRemarksView && (
+                  <>
+                    {formData.POST_REMARKS && (
+                      <div className="row">
+                        <div className="col-md-12">
+                          <div className="mb-3">
+                            <label className="form-label fw-semibold">Post Remarks :</label>
+                            <span className="ms-2">{formData.POST_REMARKS}</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-                
-                {
-                  gpAttdData && (
+                    )}
+
+                    {formData.ATTACHMENT_URL && (
+                      <div className="row">
+                        <div className="col-md-12">
+                          <div className="mb-3">
+                            <label className="form-label fw-semibold">Attachment :</label>
+                            <span className="ms-2 d-inline-flex gap-3 align-items-center">
+                              <a
+                                href={formData.ATTACHMENT_URL}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="ti ti-eye me-1" />
+                                View
+                              </a>
+                              {/* <a href={formData.ATTACHMENT_URL} download>
+                                <i className="ti ti-download me-1" />
+                                Download
+                              </a> */}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* Auth Remarks + attendance info: only in the /349 action view */}
+                {!isPostRemarksView && (
+                  <>
                     <div className="row">
                       <div className="col-12">
                         <div className="form-group mb-3">
-                          <label className="form-label">{gpAttdData.keyRt}:</label>
-                          <span className="ms-2">{gpAttdData.valRt || ""}</span>
+                          <label className="form-label">Auth Remarks:</label>
+                          <textarea
+                            className="form-control"
+                            name="AUTH_REMARKS"
+                            value={formData.AUTH_REMARKS || ""}
+                            onChange={handleChange}
+                          />
+                          <div className="char-counter">
+                            {getByteLength(formData.AUTH_REMARKS || "")} / 200
+                          </div>
                         </div>
                       </div>
                     </div>
+
+                    {gpAttdData?.keyRt && (
+                      <div className="row">
+                        <div className="col-12">
+                          <div className="form-group mb-3">
+                            <label className="form-label">{gpAttdData.keyRt}:</label>
+                            <span className="ms-2">{gpAttdData.valRt || ""}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
-              {/* Footer */}
-              <div className="modal-footer">
-                <div className="d-flex gap-2">
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={handleAuthorize}
-                  >
-                    Authorize
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={handleReject}
-                  >
-                    Reject
-                  </button>
+              {/* Authorize / Reject: only in the /349 action view */}
+              {/* {!isPostRemarksView && (
+                <div className="modal-footer">
+                  <SDLAuthorizationActionButtons
+                  onAuthorize={handleAuthorize}
+                  onReject={handleReject}
+                />
                 </div>
+              )} */}
+              <div className="modal-footer">
+                {isPostRemarksView ? (
+                  <button type="button" className="btn btn-secondary" onClick={onClose}>
+                    Close Task
+                  </button>
+                ) : (
+                  <SDLAuthorizationActionButtons
+                    onAuthorize={handleAuthorize}
+                    onReject={handleReject}
+                  />
+                )}
               </div>
             </form>
           </div>
         </div>
       </div>
-      {/* /Add Outdoor Duty */}
     </>
   );
 };

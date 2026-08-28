@@ -8,9 +8,6 @@ export const renderOutdoorDutyActions = (
     resendAuth,
     updateRemarks,
     closeTicketGP,
-    viewGP,
-    editGP,
-    deleteGP
   }
 ) => {
   

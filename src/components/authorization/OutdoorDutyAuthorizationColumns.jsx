@@ -10,14 +10,11 @@ export const OUT_TYPE_LABELS = {
 };
 
 // Shared guard — used by every clickable cell instead of calling openModal directly
-const handleRowClick = (e, rowData, openModal) => {
-  e.preventDefault();
-
+export const handleRowClick = (e, rowData, openModal) => {
   if (rowData?.REQUEST_TYPE && rowData.REQUEST_TYPE.trim() === "POSTREMARKS") {
     notifyWarning("Kindly submit your Post Remarks in Outdoor Duty page", "Action Required");
     return;
   }
-
   openModal(rowData);
 };
 
@@ -36,7 +33,7 @@ export const getOutdoorDutyAuthorizationColumns = (openModal, formatDashDate) =>
   },
   {
     header: "OUT TYPE",
-    body: (rowData) => {OUT_TYPE_LABELS[rowData?.OUT_TYPE] || rowData?.OUT_TYPE || "-"},
+    body: (rowData) => OUT_TYPE_LABELS[rowData?.OUT_TYPE] || rowData?.OUT_TYPE || "-",
   },
   {
     field: "REMARKS",
