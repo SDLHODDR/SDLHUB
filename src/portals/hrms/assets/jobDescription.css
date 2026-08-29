@@ -1,0 +1,85 @@
+/* ==========================================
+   JOB DESCRIPTION
+========================================== */
+
+.job-description {
+  overflow-x: hidden;
+}
+
+/* ==========================================
+   TABS
+========================================== */
+
+.job-description .profile-tabs {
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 0 !important;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.job-description .profile-tabs .nav-item {
+  margin-bottom: 0;
+}
+
+.job-description .profile-tabs .nav-link {
+  white-space: nowrap;
+  border: none;
+  background: transparent;
+  color: #2f3542;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 0;
+  position: relative;
+}
+
+.job-description .profile-tabs .nav-link:hover {
+  color: #ff9800;
+  border-color: transparent;
+}
+
+.job-description .profile-tabs .nav-link.active {
+  color: #ff9800;
+  background: transparent;
+  border-color: transparent;
+}
+
+/* Orange line below active tab */
+.job-description .profile-tabs .nav-link.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: #ff9800;
+}
+
+/* ==========================================
+   TAB CONTENT
+========================================== */
+
+.job-description .job-description-tab-content {
+  padding: 20px 16px 12px;
+  border: 1px solid #e1e5eb;
+  border-top: none;
+}
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 768px) {
+  .job-description .profile-tabs {
+    flex-wrap: wrap;
+  }
+
+  .job-description .profile-tabs .nav-item {
+    width: auto;
+  }
+
+  .job-description .profile-tabs .nav-link {
+    padding: 9px 10px;
+    font-size: 13px;
+  }
+}
