@@ -303,7 +303,8 @@ const ConferenceRoom = () => {
   const actionBody = (row) => (
     <button
       type="button"
-      className="btn btn-icon btn-sm btn-primary"
+      // className="btn btn-icon btn-sm btn-primary"
+      className="btn btn-sm btn-outline-primary"
       onClick={() => openModal(row)}
       title="View"
     >

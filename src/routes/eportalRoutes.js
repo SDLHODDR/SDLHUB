@@ -25,41 +25,45 @@ import TicketBookingAuthorization from "../components/authorization/TicketBookin
 import LeavesAuthorization from "../components/authorization/LeavesAuthorization";
 import ConferenceRoomAuthorization from "../components/authorization/ConferenceRooAuthorization";
 
+import ConferenceRoomMaintenance from "../portals/eportal/components/maintenance/ConferenceRoomMaintenance";
+
 import MyProfile from "../pages/MyProfile";
 
 export const eportalRoutes = [
-  {path: "eportal/dashboard",  element: Dashboard,},
+	{ path: "eportal/dashboard", element: Dashboard, },
 
-  // My Activities
-	{path: "eportal/ticket-booking-req",  element: TicketBooking,},
-	{path: "eportal/gatepass",  element: OutdoorDuty,},
-	{path: "eportal/leave",    element: Leave,},
-	{path: "eportal/conference-room",    element: ConferenceRoom,},
-	{path: "eportal/it-return",    element: ItReturn,},
-	{path: "eportal/download-itr",    element: DownloadITRDocs,},
+	// My Activities
+	{ path: "eportal/ticket-booking-req", element: TicketBooking, },
+	{ path: "eportal/gatepass", element: OutdoorDuty, },
+	{ path: "eportal/leave", element: Leave, },
+	{ path: "eportal/conference-room", element: ConferenceRoom, },
+	{ path: "eportal/it-return", element: ItReturn, },
+	{ path: "eportal/download-itr", element: DownloadITRDocs, },
 
-  // Policies & Documents
-	{path: "eportal/my-documents", element: MyDocuments,},
-	{path: "eportal/company-policies", element: CompanyPolicies,},
-	{path: "eportal/policies", element: Policies,},
-	{path: "eportal/holiday-calendar", element: HolidayCalendar,},
+	// Policies & Documents
+	{ path: "eportal/my-documents", element: MyDocuments, },
+	{ path: "eportal/policies", element: Policies, },
+	{ path: "eportal/holiday-calendar", element: HolidayCalendar, },
 
-  // Maintenance
-	{path: "eportal/profile-maintenance", element: ProfileMaintenance,},
-	{path: "eportal/employee-access", element: EmployeeAccess,},
+	// Maintenance
+	{ path: "eportal/profile-maintenance", element: ProfileMaintenance, },
+	{ path: "eportal/company-policies", element: CompanyPolicies, },
+	{ path: "eportal/employee-access", element: EmployeeAccess, },
+	{ path: "eportal/conference-room-maintenance", element: ConferenceRoomMaintenance, },
 
-  // Reports
-	{path: "eportal/attendance-info", element: DailyAttendanceInfo,},
-	{path: "eportal/itr-report", element: ItrDownloadReport,},
-	{path: "eportal/policy-endorsement-report", element: PolicyEndorsementReport,},
-	{path: "eportal/view-logs", element: ViewLogs,},
+	// Reports
+	{ path: "eportal/attendance-info", element: DailyAttendanceInfo, },
+	{ path: "eportal/itr-report", element: ItrDownloadReport, },
+	{ path: "eportal/policy-endorsement-report", element: PolicyEndorsementReport, },
+	{ path: "eportal/view-logs", element: ViewLogs, },
 
-  // Profile
-	{path: "eportal/my-profile",    element: MyProfile,},
+	// Profile
+	{ path: "eportal/my-profile", element: MyProfile, },
 
-  // Authorization
-	{path: "eportal/taskauthorization/109", element: LeavesAuthorization,},
-	{path: "eportal/taskauthorization/346", element: TicketBookingAuthorization,},
-	{path: "eportal/taskauthorization/349", element: OutdoorDutyAuthorization,},
-	{path: "eportal/taskauthorization/357", element: ConferenceRoomAuthorization,},
+	// Authorization
+	{ path: "eportal/taskauthorization/109", element: LeavesAuthorization, },
+	{ path: "eportal/taskauthorization/346", element: TicketBookingAuthorization, },
+	{ path: "eportal/taskauthorization/349", element: OutdoorDutyAuthorization, },
+	{ path: "eportal/taskauthorization/21", element: OutdoorDutyAuthorization, },
+	{ path: "eportal/taskauthorization/357", element: ConferenceRoomAuthorization, },
 ];

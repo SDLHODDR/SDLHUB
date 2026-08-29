@@ -19,7 +19,7 @@ export const getOutdoorDutyActions = ({
     className: "btn-outline-primary",
     show: (row) => {
       const status = row.status?.trim()?.toUpperCase();
-      return !row.postremarks && ["A", "T"].includes(status) && !!row.outType;
+      return !row.postremarks && ["A", "T"].includes(status) && row.dateTimePass <= 0 && !!row.outType;
     },
     onClick: (row) => updateRemarks(row),
   },

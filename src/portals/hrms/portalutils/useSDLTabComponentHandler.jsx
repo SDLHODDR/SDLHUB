@@ -2,67 +2,69 @@ import { useMemo, useState, useCallback, useEffect } from "react";
 import OrganogramTab from "./OrganogramTab";
 import LocationsTab from "./LocationsTab";
 import AppraisalLevelsTab from "./AppraisalLevelsTab";
+import ReportingTab from "./ReportingTab";
+import AllowancesTab from "./AllowancesTab";
 
-/**
- * Handler hook for SDLTabsComponent usage in Organogram.
- * Owns: tab definitions (dynamic based on selection), active tab state,
- * and tab -> content mapping.
- */
 const useSDLTabComponentHandler = (organogramId) => {
-  /* ==========================================================
-      TAB DEFINITIONS (dynamic — Locations & Appraisal Levels
-      only appear once an organogram is selected)
-  ========================================================== */
   const tabs = useMemo(() => {
     const base = [{ key: "organogram", label: "Organogram" }];
-
     if (organogramId) {
       base.push(
         { key: "locations", label: "Locations" },
-        { key: "appraisalLevels", label: "Appraisal Levels" }
+        { key: "appraisalLevels", label: "Appraisal Levels" },
+        { key: "reporting", label: "Reporting" },
+        { key: "allowances", label: "Allowances" }
       );
     }
-
     return base;
   }, [organogramId]);
 
-  /* ==========================================================
-      ACTIVE TAB STATE
-  ========================================================== */
   const [selectedTab, setSelectedTab] = useState("organogram");
+  // Carries context (e.g. LOC_ID) when a tab switch is triggered
+  // programmatically from a row action rather than a tab click.
+  const [tabContext, setTabContext] = useState(null);
 
-  const handleTabChange = useCallback((tabKey) => setSelectedTab(tabKey), []);
+  const handleTabChange = useCallback((tabKey, context = null) => {
+    setSelectedTab(tabKey);
+    setTabContext(context);
+  }, []);
 
-  // If organogramId is cleared (dropdown reset), fall back to the
-  // "Organogram" tab since Locations/Appraisal Levels no longer exist.
   useEffect(() => {
     if (!organogramId && selectedTab !== "organogram") {
       setSelectedTab("organogram");
+      setTabContext(null);
     }
   }, [organogramId, selectedTab]);
 
-  /* ==========================================================
-      TAB CONTENT
-  ========================================================== */
   const tabContent = useMemo(() => {
     switch (selectedTab) {
       case "organogram":
         return <OrganogramTab organogramId={organogramId} />;
       case "locations":
-        return <LocationsTab organogramId={organogramId} />;
+        return (
+          <LocationsTab
+            organogramId={organogramId}
+            onNavigateToTab={handleTabChange}
+          />
+        );
       case "appraisalLevels":
         return <AppraisalLevelsTab organogramId={organogramId} />;
+      case "reporting":
+        return <ReportingTab organogramId={organogramId} locId={tabContext?.LOC_ID} />;
+      case "allowances":
+        return (
+          <AllowancesTab
+            organogramId={organogramId}
+            locId={tabContext?.LOC_ID}
+            allowId={tabContext?.ALLOW_ID}
+          />
+        );
       default:
         return null;
     }
-  }, [selectedTab, organogramId]);
+  }, [selectedTab, organogramId, tabContext, handleTabChange]);
 
-  return {
-    tabs,
-    selectedTab,
-    handleTabChange,
-    tabContent,
-  };
+  return { tabs, selectedTab, handleTabChange, tabContent };
 };
 
 export default useSDLTabComponentHandler;

@@ -38,13 +38,21 @@ export const useQuestionMasterHandler = ({
     setErrors((e) => ({ ...e, [name]: "" }));
   }, [setForm, setErrors]);
 
+  // const handleOptionChange = useCallback((index, value) => {
+  //   setForm((p) => {
+  //     const opts = [...(p.OPTIONS || [])];
+  //     opts[index] = value;
+  //     return { ...p, OPTIONS: opts };
+  //   });
+  // }, [setForm]);
   const handleOptionChange = useCallback((index, value) => {
-    setForm((p) => {
-      const opts = [...(p.OPTIONS || [])];
-      opts[index] = value;
-      return { ...p, OPTIONS: opts };
-    });
-  }, [setForm]);
+  setForm((p) => {
+    const opts = [...(p.OPTIONS || [])];
+    opts[index] = value;
+    return { ...p, OPTIONS: opts };
+  });
+  setErrors((e) => ({ ...e, [`OPTION_${index}`]: "" }));
+}, [setForm, setErrors]);
 
   const validateForm = useCallback(() => {
     const newErrors = {};

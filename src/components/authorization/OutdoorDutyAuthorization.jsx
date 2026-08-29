@@ -5,7 +5,7 @@ import "../../portals/eportal/assets/css/companyPolicies.css";
 import OutdoorDutyAuthorizationModal from "../../portals/eportal/modal/OutdoorDutyAuthorizationModal";
 import { formatDashDate } from "../../portals/eportal/utils/formatUtils";
 import { useOutdoorDutyAuthorizationHandler } from "./useOutdoorDutyAuthorizationHandler";
-import { getOutdoorDutyAuthorizationColumns } from "./OutdoorDutyAuthorizationColumns";
+import { getOutdoorDutyAuthorizationColumns, handleRowClick } from "./OutdoorDutyAuthorizationColumns";
 
 const OutdoorDutyAuthorization = () => {
   const {
@@ -46,12 +46,13 @@ const OutdoorDutyAuthorization = () => {
                 value={searchQuery}
                 onChange={setSearchQuery}
                 placeholder="Search Outduties..."
-                style={{ width: "120px" }}
+                style={{ width: "270px" }}
               />
             </div>
           </div>
 
           <div className="company-policies-table">
+            
             <SDLDataTable
               data={filteredData}
               columns={columns}
@@ -59,6 +60,7 @@ const OutdoorDutyAuthorization = () => {
               emptyMessage="No Tasks found"
               className="company-policies-grid"
               removableSort
+              onRowClick={(e) => handleRowClick(e.originalEvent, e.data, openModal)}
             />
           </div>
         </div>

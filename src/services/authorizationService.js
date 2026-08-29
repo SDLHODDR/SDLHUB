@@ -2,6 +2,8 @@ import { eportalAPI } from "./api";
 import { PORTALAPI } from "./apiConfig";
 import { eportalRequest } from "./request"; // central handler
 import { EPORTAL_API } from "../portals/eportal/config/eportalApiConfig";
+import { hrmsRequest } from "./request";
+import { HRMS_API } from "../portals/hrms/config/hrmsApiConfig";
 
 //const csrfToken = sessionStorage.getItem("csrf_token");
 const csrfToken = localStorage.getItem("csrf_token");
@@ -32,6 +34,20 @@ export const fetchAuthorizationData = () =>
     },
   });
 
+export const fetchHRMSAuthorizationData = async () => {
+  return hrmsRequest({
+    url: HRMS_API.AUTHORIZATION.TASKDATA,
+    method: "GET",
+  });
+};
+
+export const fetchHRMSListAuthorizationData = async (payload = {}) => {
+  return hrmsRequest({
+    url: HRMS_API.AUTHORIZATION.TASKTABLEDATA,
+    method: "POST",
+    data: payload,
+  });
+}
 
 export const getTaskTabsData = async () => {
   try {

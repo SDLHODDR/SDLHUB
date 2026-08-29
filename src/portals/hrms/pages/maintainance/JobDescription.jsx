@@ -1613,7 +1613,7 @@ const JobDescription = () => {
                               minHeight: '300px'
                             }
                           }}
-                        />
+                        /> 
                       </div>
                     )}
 

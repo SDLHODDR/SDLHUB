@@ -202,3 +202,44 @@ input.sdl-checkbox { width: 16px; height: 16px; accent-color: var(--sdl-accent);
 .sdl-multi-actions { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
 .sdl-multi-clear { border: none; background: none; color: var(--sdl-text-muted); font-size: 0.8rem; cursor: pointer; padding: 0.15rem; }
 .sdl-multi-clear:hover { color: var(--sdl-danger); }
+
+/* locationsTab.css */
+.sdl-locations-calendar .p-inputtext {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.813rem;
+  height: 2rem;
+}
+
+.sdl-locations-calendar .p-datepicker-trigger {
+  width: 2rem;
+  height: 2rem;
+  background-color: var(--sdl-accent-orange, #ff9800);
+  border-color: var(--sdl-accent-orange, #ff9800);
+}
+
+.sdl-locations-calendar .p-datepicker-trigger:hover {
+  background-color: var(--sdl-accent-orange-dark, #ff9800);
+  border-color: var(--sdl-accent-orange-dark, #ff9800);
+}
+
+.sdl-locations-calendar .p-datepicker-trigger .p-icon,
+.sdl-locations-calendar .p-datepicker-trigger svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* In your global/module CSS */
+.sdl-datepicker .p-inputtext {
+  padding: 0.375rem 0.75rem;   /* matches Bootstrap .form-control */
+  height: calc(1.5em + 0.75rem + 2px); /* matches Bootstrap .form-control height */
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.375rem;
+}
+
+.sdl-datepicker .p-datepicker-trigger {
+  height: calc(1.5em + 1.0rem + 2px);
+  width: calc(1.5em + 0.75rem + 2px);
+  background-color:#FE8D1F;
+  border-color: #fe8d1f;
+}

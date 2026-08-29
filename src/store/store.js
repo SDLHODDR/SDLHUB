@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import ePortalAuthorizationCountReducer from "./eportal/ePortalAuthorizationCountSlice";
 import ePortalAuthorizationDataReducer from "./eportal/ePortalAuthorizationDataSlice";
+import hrmsAuthorizationDataReducer from "./hrms/hrmsAuthorizationDataSlice";
 import ePortalOutdoorDutyReducer from "./eportal/ePortalOutdoorDutySlice";
 import ePortalTicketBookingReducer from "./eportal/ePortalTicketBookingSlice";
 import ePortalLeavesReducer from "./eportal/ePortalLeavesSlice";
@@ -9,6 +10,7 @@ import hrmsQuestionMasterReducer from "./hrms/hrmsQuestionMasterSlice"; // <-- a
 import hrmsCapabilitiesReducer from "./hrms/hrmsCapabilitiesSlice";
 import hrmsDeptActivitiesReducer from "./hrms/hrmsDeptActivitySlice";
 import hrmsPoliciesReducer from "./hrms/hrmsPolicySlice";
+import hrmsAuthorizationCountReducer from "./hrms/hrmsAuthorizationCountSlice";
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +20,8 @@ export const store = configureStore({
     eportalTBRData: ePortalTicketBookingReducer,
     eportalLRData: ePortalLeavesReducer,
     
+    hrmsAuthCounts: hrmsAuthorizationCountReducer,
+    hrmsAuthData: hrmsAuthorizationDataReducer,
     hrmsKRAAcivityData: hrmsKRAActivityReducer,
     hrmsquestionMasterData: hrmsQuestionMasterReducer, // <-- key must match the selector exactly
     hrmscapabilitiesData: hrmsCapabilitiesReducer,

@@ -1,154 +1,439 @@
 // SDLCalendar.jsx
+
 import { useState, useMemo, useEffect } from "react";
 import { Calendar } from "primereact/calendar";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
+
 import { getCalendarData } from "../../services/calendarService";
 
-const SDLCalendar = ({ openModal }) => {
-  const [date, setDate] = useState(null);
-  const [holidays, setHolidays] = useState([]);
+import "./SDLCalendar.css";
 
-  // Load calendar data
-  useEffect(() => {
-    const loadCalendar = async () => {
-      try {
-        const response = await getCalendarData();
-        console.log("Calendar Data:", response); // debug
+const SDLCalendar = ({
+  // Existing standalone callback
+  openModal,
 
-        const normalized = response?.data.map((item) => ({
-          date: new Date(item.date),
-          dateStr: item.date, // already YYYY-MM-DD
-          type: item.HOL_TYPE, // H, W, O
-          descr: item.title,
-          bgColor: item.HOL_TYPE_COLOR,
-          textColor: item.HOL_TYPE_TEXT_COLOR,
-        }));
+  // Controlled usage
+  value = null,
+  onChange,
 
-        setHolidays(normalized);
-      } catch (err) {
-        console.error("Calendar load error:", err);
-      }
+  // Calendar mode
+  mode = "picker",
+
+  // Backward compatibility
+  inline = false,
+
+  // Calendar options
+  disabled = false,
+  minDate,
+  maxDate,
+  allowAllDates = false,
+
+  className = "datepickers customdatePics",
+}) => {
+
+    /* =========================================================
+       INTERNAL STATE
+    ========================================================= */
+
+    const [internalDate, setInternalDate] = useState(null);
+
+    const [holidays, setHolidays] = useState([]);
+
+    /* =========================================================
+       DETERMINE DISPLAY MODE
+    ========================================================= */
+
+    const isInline =
+        mode === "inline" || inline === true;
+
+    /* =========================================================
+       CONTROLLED / UNCONTROLLED
+    ========================================================= */
+
+    const isControlled = value !== null;
+
+    const selectedDate = isControlled
+        ? value
+        : internalDate;
+
+    /* =========================================================
+       LOAD CALENDAR DATA
+    ========================================================= */
+
+    useEffect(() => {
+
+        let mounted = true;
+
+        const loadCalendar = async () => {
+
+            try {
+
+                const response = await getCalendarData();
+
+                if (!mounted) {
+                    return;
+                }
+
+                const calendarData =
+                    Array.isArray(response?.data)
+                        ? response.data
+                        : [];
+
+                const normalized = calendarData
+                    .filter((item) => item?.date)
+                    .map((item) => {
+
+                        const dateObj =
+                            new Date(item.date);
+
+                        return {
+                            date: dateObj,
+
+                            dateStr: item.date
+                                ? String(item.date).substring(0, 10)
+                                : "",
+
+                            type: item.HOL_TYPE,
+
+                            descr: item.title,
+
+                            bgColor:
+                                item.HOL_TYPE_COLOR,
+
+                            textColor:
+                                item.HOL_TYPE_TEXT_COLOR,
+                        };
+                    });
+
+                setHolidays(normalized);
+
+            } catch (error) {
+
+                console.error(
+                    "SDLCalendar load error:",
+                    error
+                );
+
+                if (mounted) {
+                    setHolidays([]);
+                }
+            }
+        };
+
+        loadCalendar();
+
+        return () => {
+            mounted = false;
+        };
+
+    }, []);
+
+    /* =========================================================
+       TOOLTIP
+    ========================================================= */
+
+    const renderTooltip = (text) => (props) => (
+
+        <Tooltip
+            id="tooltip-holiday"
+            {...props}
+            className="sdl-calendar-tooltip"
+        >
+            {text}
+        </Tooltip>
+
+    );
+
+    /* =========================================================
+       HOLIDAY MAP
+    ========================================================= */
+
+    const holidayMap = useMemo(() => {
+
+        const map = {};
+
+        holidays.forEach((holiday) => {
+
+            if (holiday?.dateStr) {
+
+                map[holiday.dateStr] =
+                    holiday;
+            }
+
+        });
+
+        return map;
+
+    }, [holidays]);
+
+    /* =========================================================
+       PRIMEREACT DATE -> YYYY-MM-DD
+    ========================================================= */
+
+    const getDateKey = (date) => {
+
+        if (!date) {
+            return "";
+        }
+
+        return `${date.year}-${String(
+            date.month + 1
+        ).padStart(2, "0")}-${String(
+            date.day
+        ).padStart(2, "0")}`;
     };
 
-    loadCalendar();
-  }, []);
+    /* =========================================================
+       JS DATE -> YYYY-MM-DD
+    ========================================================= */
 
-  // Tooltip renderer
-  const renderTooltip = (text) => (props) => (
-    <Tooltip id="tooltip-holiday" {...props}>
-      {text}
-    </Tooltip>
-  );
+    const formatDateKey = (date) => {
 
-  // O(1) lookup map
-  const holidayMap = useMemo(() => {
-    const map = {};
-    holidays.forEach((h) => {
-      map[h.dateStr] = h;
-    });
-    return map;
-  }, [holidays]);
+        if (
+            !(date instanceof Date) ||
+            Number.isNaN(date.getTime())
+        ) {
+            return "";
+        }
 
-  // Helper: date → key
-  const getKey = (date) => {
-    return `${date.year}-${String(date.month + 1).padStart(2, "0")}-${String(
-      date.day
-    ).padStart(2, "0")}`;
-  };
+        return `${date.getFullYear()}-${String(
+            date.getMonth() + 1
+        ).padStart(2, "0")}-${String(
+            date.getDate()
+        ).padStart(2, "0")}`;
+    };
 
-  // Disable logic (ONLY H & W)
-  // const isDisabledDate = (holiday) => {
-  //   return holiday?.type === "H" || holiday?.type === "W";
-  // };
+    /* =========================================================
+       CALENDAR CELL
+    ========================================================= */
 
-  // Calendar cell renderer
-  const dateTemplate = (date) => {
-    const key = getKey(date);
-    const holiday = holidayMap[key];
-    //const isDisabled = isDisabledDate(holiday);
+    const dateTemplate = (date) => {
 
-    let tooltipText = null;
+        const key = getDateKey(date);
 
-    if (holiday?.type === "W") {
-      tooltipText = `Weekend: ${holiday.descr}`;
-    } else if (holiday?.type === "H") {
-      tooltipText = `Holiday: ${holiday.descr}`;
-    } else if (holiday?.type === "O") {
-      tooltipText = `Optional Holiday: ${holiday.descr}`;
-    }
+        const holiday = holidayMap[key];
 
-    const today = new Date();
-    const isToday =
-      date.day === today.getDate() &&
-      date.month === today.getMonth() &&
-      date.year === today.getFullYear();
+        let tooltipText = null;
 
-    const classNameTxt = {
-      W: "bg-danger-transparent",
-      H: "bg-danger-transparent",
-      O: "bg-warning-transparent",
-    }[holiday?.type] || (isToday ? "bg-primary" : "bg-light");
+        if (holiday?.type === "W") {
 
-    //console.log("=======bgGolor and textColor ========", bgColor, textColor);
-    //let checkToday = (isToday) ? "" : classNameTxt;
-    
-    const content = (
-      <span className={`badge ${classNameTxt}`}
-        style={{
-          fontSize: "12px"
-        }}
-      >
-        {date.day}
-      </span>
+            tooltipText =
+                `Weekend: ${holiday.descr || ""}`;
+
+        } else if (holiday?.type === "H") {
+
+            tooltipText =
+                `Holiday: ${holiday.descr || ""}`;
+
+        } else if (holiday?.type === "O") {
+
+            tooltipText =
+                `Optional Holiday: ${holiday.descr || ""}`;
+        }
+
+        const today = new Date();
+
+        const isToday =
+            date.day === today.getDate() &&
+            date.month === today.getMonth() &&
+            date.year === today.getFullYear();
+
+        const classNameTxt =
+            {
+                W: "bg-danger-transparent",
+                H: "bg-danger-transparent",
+                O: "bg-warning-transparent",
+            }[holiday?.type] ||
+            (isToday
+                ? "bg-primary"
+                : "bg-light");
+
+        const content = (
+
+            <span
+                className={`badge ${classNameTxt}`}
+                style={{
+                    fontSize: "12px",
+                }}
+            >
+                {date.day}
+            </span>
+
+        );
+
+        if (!tooltipText) {
+            return content;
+        }
+
+        return (
+
+            <OverlayTrigger
+                placement="top"
+                overlay={renderTooltip(
+                    tooltipText
+                )}
+                container={document.body}
+            >
+
+                <span
+                    style={{
+                        display: "inline-block",
+                    }}
+                >
+                    {content}
+                </span>
+
+            </OverlayTrigger>
+
+        );
+    };
+
+    /* =========================================================
+       HANDLE DATE SELECTION
+    ========================================================= */
+
+    const handleChange = (event) => {
+
+        const selected = event?.value;
+
+        /* -----------------------------------------------------
+           CLEAR DATE
+        ----------------------------------------------------- */
+
+        if (!selected) {
+
+            if (!isControlled) {
+                setInternalDate(null);
+            }
+
+            if (
+                typeof onChange === "function"
+            ) {
+                onChange(null);
+            }
+
+            return;
+        }
+
+        /* -----------------------------------------------------
+           VALIDATE DATE
+        ----------------------------------------------------- */
+
+        if (
+            !(selected instanceof Date) ||
+            Number.isNaN(selected.getTime())
+        ) {
+
+            console.error(
+                "SDLCalendar received invalid date:",
+                selected
+            );
+
+            return;
+        }
+
+        const key =
+            formatDateKey(selected);
+
+        const holiday =
+            holidayMap[key];
+
+        /* -----------------------------------------------------
+           BLOCK WEEKENDS / HOLIDAYS
+        ----------------------------------------------------- */
+
+        if (
+            !allowAllDates &&
+            holiday &&
+            (
+                holiday.type === "H" ||
+                holiday.type === "W"
+            )
+        ) {
+            return;
+        }
+
+        /* -----------------------------------------------------
+           UPDATE INTERNAL DATE
+        ----------------------------------------------------- */
+
+        if (!isControlled) {
+
+            setInternalDate(selected);
+
+        }
+
+        /* -----------------------------------------------------
+           CONTROLLED CHANGE
+        ----------------------------------------------------- */
+
+        if (
+            typeof onChange === "function"
+        ) {
+
+            onChange(selected);
+
+        }
+
+        /* -----------------------------------------------------
+           OPEN MODAL
+           
+           This is important for Leaves.
+           
+           Whether calendar is inline or popup,
+           standalone usage can open the modal.
+        ----------------------------------------------------- */
+
+        if (
+            typeof openModal === "function"
+        ) {
+
+            openModal({
+                mode: "create",
+                modalDate: selected,
+            });
+
+        }
+
+    };
+
+    /* =========================================================
+       RENDER
+    ========================================================= */
+
+   return (
+            <div
+                className={
+                    isInline
+                        ? "sdl-calendar-wrapper sdl-calendar-inline-wrapper"
+                        : "sdl-calendar-wrapper"
+                }
+            >
+
+            <Calendar
+                className={
+                    isInline
+                        ? "sdl-inline-calendar"
+                        : className
+                }
+                value={selectedDate}
+                onChange={handleChange}
+                inline={isInline}
+                disabled={disabled}
+                minDate={minDate}
+                maxDate={maxDate}
+                dateFormat="dd-M-yy"
+                dateTemplate={dateTemplate}
+                showIcon={!isInline}
+                placeholder={
+                    !isInline
+                        ? "dd-Mon-yyyy"
+                        : undefined
+                }
+            />
+        </div>
+
     );
-
-    if (!tooltipText) return content;
-
-    return (
-      <OverlayTrigger
-        placement="top"
-        overlay={renderTooltip(tooltipText)}
-        container={document.body}
-      >
-        <span style={{ display: "inline-block" }}>{content}</span>
-      </OverlayTrigger>
-    );
-  };
-
-  // Handle selection
-  const handleChange = (e) => {
-    const selectedDate = e.value;
-
-    const key = `${selectedDate.getFullYear()}-${String(
-      selectedDate.getMonth() + 1
-    ).padStart(2, "0")}-${String(
-      selectedDate.getDate()
-    ).padStart(2, "0")}`;
-
-    const holiday = holidayMap[key];
-
-    // block weekends & holidays
-    if (holiday && (holiday.type === "H" || holiday.type === "W")) {
-      return;
-    }
-
-    setDate(selectedDate);
-
-    openModal({
-      mode: "create",
-      modalDate: selectedDate,
-    });
-  };
-
-  return (
-    <Calendar
-      className="datepickers customdatePics mb-4"
-      value={date}
-      onChange={handleChange}
-      inline
-      dateTemplate={dateTemplate}
-    />
-  );
 };
 
 export default SDLCalendar;

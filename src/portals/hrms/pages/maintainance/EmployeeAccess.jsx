@@ -23,7 +23,7 @@ import {
 
 import { getPortalFromPath } from "../../../../config/portalConfig";
 
-import "../../assets/employeeAccess.css";
+import "../../assets/css/employeeAccess.css";
 
 const EmployeeAccess = () => {
   /* ==========================================================

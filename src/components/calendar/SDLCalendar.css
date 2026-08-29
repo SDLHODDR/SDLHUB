@@ -1,0 +1,170 @@
+/* =========================================================
+   SDLCalendar - Date Picker Trigger
+   Restore black & white calendar icon
+   ========================================================= */
+
+.sdl-calendar-wrapper button.p-datepicker-trigger {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #dee2e6 !important;
+  border-left: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* Calendar icon */
+.sdl-calendar-wrapper button.p-datepicker-trigger .pi,
+.sdl-calendar-wrapper button.p-datepicker-trigger .pi-calendar {
+  color: #000000 !important;
+}
+
+/* Hover / focus / active */
+.sdl-calendar-wrapper button.p-datepicker-trigger:hover,
+.sdl-calendar-wrapper button.p-datepicker-trigger:focus,
+.sdl-calendar-wrapper button.p-datepicker-trigger:active {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-color: #dee2e6 !important;
+  box-shadow: none !important;
+}
+
+.sdl-calendar-wrapper button.p-datepicker-trigger:hover .pi,
+.sdl-calendar-wrapper button.p-datepicker-trigger:focus .pi,
+.sdl-calendar-wrapper button.p-datepicker-trigger:active .pi {
+  color: #000000 !important;
+}
+
+/* Match SDLCalendar height with other form inputs */
+.sdl-calendar-wrapper .p-calendar {
+  height: 40px;
+}
+
+.sdl-calendar-wrapper .p-calendar .p-inputtext {
+  height: 40px !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 14px;
+}
+
+/* Calendar icon button */
+.sdl-calendar-wrapper .p-calendar .p-datepicker-trigger {
+  height: 40px !important;
+  width: 48px;
+  padding: 0 !important;
+}
+
+/* SDLCalendar.css */
+
+/* Holiday / weekend tooltip must appear above PrimeReact calendar */
+.sdl-calendar-tooltip {
+  z-index: 99999 !important;
+}
+
+.sdl-calendar-tooltip .tooltip-inner {
+  z-index: 99999 !important;
+}
+
+/* Bootstrap tooltip itself */
+body > .tooltip {
+  z-index: 99999 !important;
+}
+
+/* Orange loader for SDLDataTable */
+.sdl-table-loader .spinner-border {
+  color: #ff9800 !important;
+}
+
+/* =========================================================
+   SDL CALENDAR - INLINE MODE
+   ========================================================= */
+
+/*
+ * IMPORTANT:
+ * Inline calendar must NOT inherit the fixed height
+ * used by the normal date input.
+ */
+.sdl-calendar-inline-wrapper {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    overflow: visible !important;
+
+    display: block;
+}
+
+
+/*
+ * PrimeReact inline calendar
+ */
+.sdl-calendar-inline-wrapper .sdl-inline-calendar {
+    width: 100%;
+    height: auto !important;
+}
+
+
+/*
+ * PrimeReact inline datepicker panel
+ */
+.sdl-calendar-inline-wrapper
+.p-datepicker-inline {
+    width: 100% !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    overflow: visible !important;
+
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+
+/*
+ * Make the calendar table use available width
+ */
+.sdl-calendar-inline-wrapper
+.p-datepicker-inline table {
+    width: 100%;
+}
+
+
+/*
+ * Calendar cells
+ */
+.sdl-calendar-inline-wrapper
+.p-datepicker-inline table td {
+    padding: 0.2rem;
+}
+
+
+/*
+ * Date circles/badges
+ */
+.sdl-calendar-inline-wrapper
+.p-datepicker-inline table td > span {
+    width: 2rem;
+    height: 2rem;
+}
+
+
+/*
+ * Calendar header
+ */
+.sdl-calendar-inline-wrapper
+.p-datepicker-header {
+    width: 100%;
+}
+
+
+/*
+ * Make sure the calendar itself does not create
+ * an internal scrollbar.
+ */
+.sdl-calendar-inline-wrapper
+.p-datepicker {
+    overflow: visible !important;
+}

@@ -39,22 +39,22 @@ export const outdoorDutyColumns = (handlers) => {
         );
       },
     },
-    {
-      field: "authremarks",
-      header: "Auth Remarks",
-      body: (rowData) => {
-        const text =
-          rowData?.status === "R" && rowData?.authremarks ? rowData.authremarks : "-";
-        const trimmed = text.length > 15 ? `${text.substring(0, 15)}...` : text;
-        return (
-          <div className="remarks-wrapper">
-            <IconWithTooltip text={rowData.authremarks}>
-              <span className="text-danger small ms-1">{trimmed}</span>
-            </IconWithTooltip>
-          </div>
-        );
-      },
-    },
+    // {
+    //   field: "authremarks",
+    //   header: "Auth Remarks",
+    //   body: (rowData) => {
+    //     const text =
+    //       rowData?.status === "R" && rowData?.authremarks ? rowData.authremarks : "-";
+    //     const trimmed = text.length > 15 ? `${text.substring(0, 15)}...` : text;
+    //     return (
+    //       <div className="remarks-wrapper">
+    //         <IconWithTooltip text={rowData.authremarks}>
+    //           <span className="text-danger small ms-1">{trimmed}</span>
+    //         </IconWithTooltip>
+    //       </div>
+    //     );
+    //   },
+    // },
     {
       field: "statusText",
       header: "Status",

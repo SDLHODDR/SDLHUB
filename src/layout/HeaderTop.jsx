@@ -4,8 +4,10 @@ import { useEffect, useState, useContext } from "react";
 import AuthContext from "../auth/AuthContext";
 
 import AuthorizationDropdown from "../components/authorization/AuthorizationDropdown";
+import AuthorizationHRMSDropdown from "../components/authorization/AuthorizationHRMSDropdown";
 import { useDispatch, useSelector } from "react-redux";
 import { getAuthroizationTaskCount } from "../store/eportal/ePortalAuthorizationCountSlice";
+import { getHRMSAuthroizationTaskCount } from "../store/hrms/hrmsAuthorizationCountSlice";
 import { PORTALS, getPortalFromPath } from "../config/portalConfig";
 import PortalSwitcher from "../components/portal-switcher/PortalSwitcher";
 
@@ -22,16 +24,36 @@ const HeaderTop = () => {
   const [headerImage, setHeaderImage] = useState("");
 
   const successCnt = useSelector((state) => state.eportalAuthCounts.success);
+  const hrmsSuccessCnt = useSelector((state) => state.hrmsAuthCounts.success);
+
   //const countData = useSelector((state) => state.eportalAuthCounts.data);
   //const countTotalData = useSelector((state) => state.eportalAuthCounts.subtotal);
   const dispatch = useDispatch();
 
   //console.log("==========SuccessCNT============", successCnt);
+  console.log("==========hrmsSuccessCnt============", hrmsSuccessCnt);
   //console.log("==========countTotalData============", countTotalData);
 
+  // useEffect(() => {
+  //   dispatch(getAuthroizationTaskCount());
+  // }, [dispatch]);
+
+  console.log("============ActivePortal============", activePortal);
+
   useEffect(() => {
-    dispatch(getAuthroizationTaskCount());
-  }, [dispatch]);
+    switch (activePortal.key) {
+      case "eportal":
+        dispatch(getAuthroizationTaskCount());
+        break;
+
+      case "hrms":
+        dispatch(getHRMSAuthroizationTaskCount());
+        break;
+
+      default:
+        break;
+    }
+  }, [dispatch, activePortal]);
 
   useEffect(() => {
     if (user?.profile_image) {
@@ -138,6 +160,23 @@ const HeaderTop = () => {
     }
   };
 
+  const authorizationConfig = {
+    eportal: {
+      success: successCnt,
+      Component: AuthorizationDropdown,
+    },
+    hrms: {
+      success: hrmsSuccessCnt,
+      Component: AuthorizationHRMSDropdown,
+    },
+  };
+
+  const config = authorizationConfig[activePortal.key];
+
+  const AuthorizationComponent = config?.Component;
+  const showAuthorization = config?.success;
+
+
   //console.log("========AuthBellCount========", authBellCount);
 
   return (
@@ -212,7 +251,9 @@ const HeaderTop = () => {
               </span>
             </Link>
 
-            {successCnt && <AuthorizationDropdown />}
+            {showAuthorization && AuthorizationComponent && (
+              <AuthorizationComponent />
+            )}
 
             <div className="dropdown-menu dropdown-menu-right">
               <Link to="#" className="dropdown-item">
@@ -261,8 +302,10 @@ const HeaderTop = () => {
           <span className="welcome-user">{user?.name || "Guest User"}</span>
 
           {/* {successCnt && <AuthorizationDropdown />} */}
-                			<li className="nav-item nav-item-box">
-          {successCnt && <AuthorizationDropdown />}
+          <li className="nav-item nav-item-box">
+            {showAuthorization && AuthorizationComponent && (
+              <AuthorizationComponent />
+            )}
           </li>
           {/*
       			<li className="nav-item nav-item-box">
@@ -332,9 +375,9 @@ const HeaderTop = () => {
         </ul>
 
         {/* Mobile Notification + Dropdown */}
-        {successCnt && (
+        {showAuthorization && AuthorizationComponent && (
           <div className="mobile-notification d-flex align-items-center d-lg-none">
-            <AuthorizationDropdown />
+            <AuthorizationComponent />
           </div>
         )}
 

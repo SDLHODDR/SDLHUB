@@ -21,7 +21,7 @@ const OutdoorDutyModal = ({
     const { mode } = formSettings;
     const MAX_POST_REMARKS_BYTES = 3500;
     // --- File upload config ---
-    const MAX_FILE_SIZE_MB = 10;
+    const MAX_FILE_SIZE_MB = 1;
     const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
     const ALLOWED_FILE_EXTENSIONS = [
       "pdf", "doc", "docx", "xls", "xlsx",
