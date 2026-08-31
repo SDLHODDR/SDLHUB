@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
-
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 
@@ -40,6 +39,12 @@ const ConferenceRoom = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   /* =========================================================
+     STATUS FILTER
+  ========================================================= */
+
+  const [statusFilter, setStatusFilter] = useState("ALL");
+
+  /* =========================================================
      SERVER-SIDE PAGINATION
   ========================================================= */
 
@@ -64,7 +69,8 @@ const ConferenceRoom = () => {
    * This date will be passed to ConferenceBookingModal
    * when creating a new booking.
    */
-  const [selectedCalendarDate, setSelectedCalendarDate] = useState(null);
+  const [selectedCalendarDate, setSelectedCalendarDate] =
+    useState(null);
 
   /* =========================================================
      DATE HELPER
@@ -73,7 +79,8 @@ const ConferenceRoom = () => {
   const formatDateForForm = useCallback((date) => {
     if (!date) return "";
 
-    const selectedDate = date instanceof Date ? date : new Date(date);
+    const selectedDate =
+      date instanceof Date ? date : new Date(date);
 
     if (Number.isNaN(selectedDate.getTime())) {
       return "";
@@ -81,9 +88,13 @@ const ConferenceRoom = () => {
 
     const year = selectedDate.getFullYear();
 
-    const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+    const month = String(
+      selectedDate.getMonth() + 1
+    ).padStart(2, "0");
 
-    const day = String(selectedDate.getDate()).padStart(2, "0");
+    const day = String(
+      selectedDate.getDate()
+    ).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
   }, []);
@@ -109,8 +120,8 @@ const ConferenceRoom = () => {
   }, []);
 
   /* =========================================================
-   OPEN ADD BOOKING FROM CALENDAR
-========================================================= */
+     OPEN ADD BOOKING FROM CALENDAR
+  ========================================================= */
 
   const openAddBookingModal = useCallback((config = {}) => {
     /*
@@ -120,12 +131,18 @@ const ConferenceRoom = () => {
     const selectedDate = config?.modalDate || null;
 
     if (!selectedDate) {
-      console.warn("Conference calendar: selected date not found", config);
+      console.warn(
+        "Conference calendar: selected date not found",
+        config
+      );
 
       return;
     }
 
-    console.log("Conference calendar selected date:", selectedDate);
+    console.log(
+      "Conference calendar selected date:",
+      selectedDate
+    );
 
     /*
      * Store selected date
@@ -157,38 +174,53 @@ const ConferenceRoom = () => {
      FETCH DATA
   ========================================================= */
 
-  const fetchData = useCallback(async (page = 1, limit = 10) => {
-    setLoading(true);
+  const fetchData = useCallback(
+    async (page = 1, limit = 10) => {
+      setLoading(true);
 
-    try {
-      const res = await getConferenceRooms({
-        page,
-        limit,
-      });
+      try {
+        const res = await getConferenceRooms({
+          page,
+          limit,
+        });
 
-      if (res?.status) {
-        const responseData = res?.data || {};
+        if (res?.status) {
+          const responseData = res?.data || {};
 
-        const fetchedBookings = responseData?.data || [];
+          const fetchedBookings =
+            responseData?.data || [];
 
-        setBookings(Array.isArray(fetchedBookings) ? fetchedBookings : []);
+          setBookings(
+            Array.isArray(fetchedBookings)
+              ? fetchedBookings
+              : []
+          );
 
-        setTotalRecords(Number(responseData?.totalRecords || 0));
+          setTotalRecords(
+            Number(responseData?.totalRecords || 0)
+          );
 
-        setCurrentPage(Number(responseData?.page || page));
-      } else {
+          setCurrentPage(
+            Number(responseData?.page || page)
+          );
+        } else {
+          setBookings([]);
+          setTotalRecords(0);
+        }
+      } catch (err) {
+        console.error(
+          "Conference rooms load failed:",
+          err
+        );
+
         setBookings([]);
         setTotalRecords(0);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Conference rooms load failed:", err);
-
-      setBookings([]);
-      setTotalRecords(0);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   /* =========================================================
      INITIAL LOAD
@@ -213,7 +245,8 @@ const ConferenceRoom = () => {
   ========================================================= */
 
   const handlePageChange = (event) => {
-    const newPage = Math.floor(event.first / event.rows) + 1;
+    const newPage =
+      Math.floor(event.first / event.rows) + 1;
 
     const newRows = event.rows;
 
@@ -224,27 +257,35 @@ const ConferenceRoom = () => {
   };
 
   /* =========================================================
-   SORT HELPERS
-========================================================= */
+     SORT HELPERS
+  ========================================================= */
 
   const parseDateValue = (value) => {
     if (!value) return 0;
 
     const text = String(value).trim();
 
-    // YYYY-MM-DD / YYYY-MM-DD HH:mm:ss
+    /*
+     * YYYY-MM-DD / YYYY-MM-DD HH:mm:ss
+     */
     if (/^\d{4}-\d{2}-\d{2}/.test(text)) {
-      const timestamp = new Date(text.replace(" ", "T")).getTime();
+      const timestamp = new Date(
+        text.replace(" ", "T")
+      ).getTime();
 
       if (!Number.isNaN(timestamp)) {
         return timestamp;
       }
     }
 
-    // DD-MMM-YYYY
-    // Example: 29-Aug-2026
+    /*
+     * DD-MMM-YYYY
+     *
+     * Example:
+     * 29-Aug-2026
+     */
     const match = text.match(
-      /^(\d{1,2})[-\/](Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-\/](\d{4})$/i,
+      /^(\d{1,2})[-\/](Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-\/](\d{4})$/i
     );
 
     if (match) {
@@ -264,142 +305,290 @@ const ConferenceRoom = () => {
       };
 
       const day = Number(match[1]);
-      const month = months[match[2].toLowerCase()];
+      const month =
+        months[match[2].toLowerCase()];
       const year = Number(match[3]);
 
-      return new Date(year, month, day).getTime();
+      return new Date(
+        year,
+        month,
+        day
+      ).getTime();
     }
 
-    // DD/MM/YYYY or DD-MM-YYYY
-    const numericDate = text.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+    /*
+     * DD/MM/YYYY or DD-MM-YYYY
+     */
+    const numericDate = text.match(
+      /^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/
+    );
 
     if (numericDate) {
       const day = Number(numericDate[1]);
-      const month = Number(numericDate[2]) - 1;
+      const month =
+        Number(numericDate[2]) - 1;
       const year = Number(numericDate[3]);
 
-      return new Date(year, month, day).getTime();
+      return new Date(
+        year,
+        month,
+        day
+      ).getTime();
     }
 
-    // Last fallback
+    /*
+     * Last fallback
+     */
     const timestamp = new Date(text).getTime();
 
-    return Number.isNaN(timestamp) ? 0 : timestamp;
+    return Number.isNaN(timestamp)
+      ? 0
+      : timestamp;
   };
 
   const compareValues = (a, b, field) => {
     const valueA = a?.[field];
     const valueB = b?.[field];
 
-    // Empty values should go last
-    if (valueA === null || valueA === undefined || valueA === "") {
+    /*
+     * Empty values should go last
+     */
+    if (
+      valueA === null ||
+      valueA === undefined ||
+      valueA === ""
+    ) {
       return 1;
     }
 
-    if (valueB === null || valueB === undefined || valueB === "") {
+    if (
+      valueB === null ||
+      valueB === undefined ||
+      valueB === ""
+    ) {
       return -1;
     }
 
-    // Date fields
-    if (field === "DT" || field === "CHG_ON") {
-      return parseDateValue(valueA) - parseDateValue(valueB);
+    /*
+     * Date fields
+     */
+    if (
+      field === "DT" ||
+      field === "CHG_ON"
+    ) {
+      return (
+        parseDateValue(valueA) -
+        parseDateValue(valueB)
+      );
     }
 
-    // Numeric fields
-    if (typeof valueA === "number" || typeof valueB === "number") {
-      return Number(valueA) - Number(valueB);
+    /*
+     * Numeric fields
+     */
+    if (
+      typeof valueA === "number" ||
+      typeof valueB === "number"
+    ) {
+      return (
+        Number(valueA) -
+        Number(valueB)
+      );
     }
 
-    // Text fields
+    /*
+     * Text fields
+     */
     return String(valueA)
       .trim()
       .toLowerCase()
-      .localeCompare(String(valueB).trim().toLowerCase(), undefined, {
-        numeric: true,
-        sensitivity: "base",
-      });
+      .localeCompare(
+        String(valueB)
+          .trim()
+          .toLowerCase(),
+        undefined,
+        {
+          numeric: true,
+          sensitivity: "base",
+        }
+      );
   };
 
   /* =========================================================
-     SEARCH
+     SORTING
   ========================================================= */
 
-  /* =========================================================
-   SORTING
-========================================================= */
+  const [sortField, setSortField] =
+    useState(null);
 
-  const [sortField, setSortField] = useState(null);
-  const [sortOrder, setSortOrder] = useState(1);
+  const [sortOrder, setSortOrder] =
+    useState(1);
 
   /* =========================================================
-   SEARCH + SORT
-========================================================= */
+     STATUS OPTIONS
+  ========================================================= */
+
+  const statusOptions = useMemo(() => {
+    return [
+      {
+        value: "ALL",
+        label: "All Status",
+      },
+      {
+        value: "A",
+        label: "Confirmed",
+      },
+      {
+        value: "R",
+        label: "Rejected",
+      },
+      {
+        value: "D",
+        label: "Booking Deleted",
+      },
+      {
+        value: "N",
+        label: "Planned",
+      },
+      {
+        value: "X",
+        label: "Booking Cancelled",
+      },
+      {
+        value: "T",
+        label: "Confirmation Pending",
+      },
+    ];
+  }, []);
+
+  /* =========================================================
+     SEARCH + STATUS FILTER + SORT
+  ========================================================= */
 
   const filteredData = useMemo(() => {
     let data = [...bookings];
 
-    /* -------------------------
-     SEARCH
-  ------------------------- */
+    /* ---------------------------------------------------------
+       STATUS FILTER
+    --------------------------------------------------------- */
+
+    if (
+      statusFilter &&
+      statusFilter !== "ALL"
+    ) {
+      data = data.filter((item) => {
+        return (
+          String(item?.STATUS ?? "")
+            .trim()
+            .toUpperCase() ===
+          String(statusFilter)
+            .trim()
+            .toUpperCase()
+        );
+      });
+    }
+
+    /* ---------------------------------------------------------
+       SEARCH FILTER
+    --------------------------------------------------------- */
 
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
+      const query =
+        searchQuery.toLowerCase().trim();
 
       data = data.filter(
         (item) =>
-          String(item?.ROOM_LABEL || "")
+          String(
+            item?.ROOM_LABEL || ""
+          )
             .toLowerCase()
             .includes(query) ||
           String(item?.DT || "")
             .toLowerCase()
             .includes(query) ||
-          String(item?.BOOK_BY_NAME || "")
+          String(
+            item?.BOOK_BY_NAME || ""
+          )
             .toLowerCase()
             .includes(query) ||
           String(item?.REMARKS || "")
             .toLowerCase()
-            .includes(query),
+            .includes(query) ||
+          String(item?.STATUS || "")
+            .toLowerCase()
+            .includes(query)
       );
     }
 
-    /* -------------------------
-     SORT
-  ------------------------- */
+    /* ---------------------------------------------------------
+       SORT
+    --------------------------------------------------------- */
 
     if (sortField) {
       data.sort((a, b) => {
-        const result = compareValues(a, b, sortField);
+        const result = compareValues(
+          a,
+          b,
+          sortField
+        );
 
         return result * sortOrder;
       });
     }
 
     return data;
-  }, [bookings, searchQuery, sortField, sortOrder]);
+  }, [
+    bookings,
+    searchQuery,
+    statusFilter,
+    sortField,
+    sortOrder,
+  ]);
+
+  /* =========================================================
+     CLEAR FILTERS
+  ========================================================= */
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("ALL");
+  };
+
   /* =========================================================
      DURATION FORMATTER
   ========================================================= */
 
-  const calculateDuration = (start, end) => {
+  const calculateDuration = (
+    start,
+    end
+  ) => {
     if (!start || !end) {
       return "-";
     }
 
-    const [sh, sm] = start.split(":").map(Number);
+    const [sh, sm] = start
+      .split(":")
+      .map(Number);
 
-    const [eh, em] = end.split(":").map(Number);
+    const [eh, em] = end
+      .split(":")
+      .map(Number);
 
-    const startMinutes = sh * 60 + sm;
+    const startMinutes =
+      sh * 60 + sm;
 
-    const endMinutes = eh * 60 + em;
+    const endMinutes =
+      eh * 60 + em;
 
-    let diff = endMinutes - startMinutes;
+    let diff =
+      endMinutes - startMinutes;
 
     if (diff < 0) {
       diff += 24 * 60;
     }
 
-    const hours = Math.floor(diff / 60);
+    const hours = Math.floor(
+      diff / 60
+    );
 
     const minutes = diff % 60;
 
@@ -421,25 +610,60 @@ const ConferenceRoom = () => {
   const getStatusBadge = (status) => {
     switch (status) {
       case "A":
-        return <Badge text="Confirmed" className="bg-success" />;
+        return (
+          <Badge
+            text="Confirmed"
+            className="bg-success"
+          />
+        );
 
       case "R":
-        return <Badge text="Rejected" className="bg-danger" />;
+        return (
+          <Badge
+            text="Rejected"
+            className="bg-danger"
+          />
+        );
 
       case "D":
-        return <Badge text="Booking Deleted" className="bg-danger" />;
+        return (
+          <Badge
+            text="Booking Deleted"
+            className="bg-danger"
+          />
+        );
 
       case "N":
-        return <Badge text="Planned" className="bg-warning" />;
+        return (
+          <Badge
+            text="Planned"
+            className="bg-warning"
+          />
+        );
 
       case "X":
-        return <Badge text="Booking Cancelled" className="bg-secondary" />;
+        return (
+          <Badge
+            text="Booking Cancelled"
+            className="bg-secondary"
+          />
+        );
 
       case "T":
-        return <Badge text="Confirmation Pending" className="bg-blue" />;
+        return (
+          <Badge
+            text="Confirmation Pending"
+            className="bg-blue"
+          />
+        );
 
       default:
-        return <Badge text={status} className="bg-light text-dark" />;
+        return (
+          <Badge
+            text={status}
+            className="bg-light text-dark"
+          />
+        );
     }
   };
 
@@ -447,8 +671,15 @@ const ConferenceRoom = () => {
      SERIAL NUMBER
   ========================================================= */
 
-  const serialBody = (rowData, options) => {
-    return (currentPage - 1) * rows + options.rowIndex + 1;
+  const serialBody = (
+    rowData,
+    options
+  ) => {
+    return (
+      (currentPage - 1) * rows +
+      options.rowIndex +
+      1
+    );
   };
 
   /* =========================================================
@@ -465,7 +696,12 @@ const ConferenceRoom = () => {
       }}
       container={document.body}
     >
-      <span>{calculateDuration(row.STARTTIME, row.ENDTIME)}</span>
+      <span>
+        {calculateDuration(
+          row.STARTTIME,
+          row.ENDTIME
+        )}
+      </span>
     </OverlayTrigger>
   );
 
@@ -474,11 +710,17 @@ const ConferenceRoom = () => {
   ========================================================= */
 
   const reasonBody = (row) => {
-    const text = row.REMARKS || "-";
+    const text =
+      row.REMARKS || "-";
 
     return (
       <span title={text}>
-        {text.length > 25 ? `${text.substring(0, 25)}...` : text}
+        {text.length > 25
+          ? `${text.substring(
+              0,
+              25
+            )}...`
+          : text}
       </span>
     );
   };
@@ -488,7 +730,9 @@ const ConferenceRoom = () => {
   ========================================================= */
 
   const statusBody = (row) => {
-    return getStatusBadge(row.STATUS);
+    return getStatusBadge(
+      row.STATUS
+    );
   };
 
   /* =========================================================
@@ -507,8 +751,8 @@ const ConferenceRoom = () => {
   );
 
   /* =========================================================
-   SORT HANDLER
-========================================================= */
+     SORT HANDLER
+  ========================================================= */
 
   const handleSort = (event) => {
     setSortField(event.sortField);
@@ -528,7 +772,9 @@ const ConferenceRoom = () => {
       <div className="page-header">
         <div className="add-item d-flex">
           <div className="page-title">
-            <h4>Conference Room</h4>
+            <h4>
+              Conference Room
+            </h4>
           </div>
         </div>
 
@@ -552,22 +798,28 @@ const ConferenceRoom = () => {
       <div className="card">
         <div className="card-body">
           <div className="row">
+
             {/* =================================================
                 LEFT CALENDAR
             ================================================= */}
 
             <div className="col-xl-3 border-end conference-calendar-column">
               <div className="mb-3">
-                <h6 className="mb-1">Select Booking Date</h6>
+                <h6 className="mb-1">
+                  Select Booking Date
+                </h6>
 
                 <small className="text-muted">
-                  Select a date to create a conference booking
+                  Select a date to create a
+                  conference booking
                 </small>
               </div>
 
               <SDLCalendar
                 mode="inline"
-                openModal={openAddBookingModal}
+                openModal={
+                  openAddBookingModal
+                }
                 minDate={new Date()}
               />
             </div>
@@ -577,26 +829,35 @@ const ConferenceRoom = () => {
             ================================================= */}
 
             <div className="col-xl-9 d-flex flex-column">
+
               {/* =================================================
                   TITLE + ACTION BUTTONS
               ================================================= */}
 
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                  <h6 className="mb-1">Conference Room Bookings</h6>
+                  <h6 className="mb-1">
+                    Conference Room Bookings
+                  </h6>
 
                   <small className="text-muted">
-                    View and manage conference room bookings
+                    View and manage conference
+                    room bookings
                   </small>
                 </div>
 
                 <div className="d-flex gap-2">
+
                   {/* TIMELINE */}
 
                   <button
                     type="button"
                     className="btn btn-info d-flex align-items-center gap-2"
-                    onClick={() => setShowScheduler((prev) => !prev)}
+                    onClick={() =>
+                      setShowScheduler(
+                        (prev) => !prev
+                      )
+                    }
                   >
                     <i className="fas fa-calendar-alt"></i>
                     Timeline View
@@ -607,7 +868,11 @@ const ConferenceRoom = () => {
                   <button
                     type="button"
                     className="btn btn-outline-secondary d-flex align-items-center gap-2"
-                    onClick={() => setShowAllBookings(true)}
+                    onClick={() =>
+                      setShowAllBookings(
+                        true
+                      )
+                    }
                   >
                     <i className="fas fa-table"></i>
                     View All
@@ -621,18 +886,24 @@ const ConferenceRoom = () => {
 
               {showScheduler && (
                 <div className="mb-3">
-                  <ConferenceScheduler bookings={bookings} />
+                  <ConferenceScheduler
+                    bookings={bookings}
+                  />
                 </div>
               )}
 
               {/* =================================================
-                  SEARCH
+                  SEARCH + STATUS FILTER
               ================================================= */}
 
-              <div className="row mb-3">
-                <div className="col-lg-5 col-md-6 col-sm-7">
+              <div className="row mb-3 align-items-center g-2">
+
+                {/* SEARCH */}
+
+                <div className="col-lg-5 col-md-6 col-12">
                   <div className="search-set">
                     <div className="search-input position-relative">
+
                       <span className="btn-searchset">
                         <i className="ti ti-search"></i>
                       </span>
@@ -641,12 +912,96 @@ const ConferenceRoom = () => {
                         type="text"
                         className="form-control"
                         placeholder="Search Room / Date / Employee..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        value={
+                          searchQuery
+                        }
+                        onChange={(e) =>
+                          setSearchQuery(
+                            e.target.value
+                          )
+                        }
                       />
+
                     </div>
                   </div>
                 </div>
+
+                {/* STATUS */}
+
+                <div className="col-lg-3 col-md-4 col-12">
+                  <select
+                    className="form-control"
+                    value={
+                      statusFilter
+                    }
+                    onChange={(e) =>
+                      setStatusFilter(
+                        e.target.value
+                      )
+                    }
+                  >
+                    {statusOptions.map(
+                      (option) => (
+                        <option
+                          key={
+                            option.value
+                          }
+                          value={
+                            option.value
+                          }
+                        >
+                          {
+                            option.label
+                          }
+                        </option>
+                      )
+                    )}
+                  </select>
+                </div>
+
+                {/* RESET */}
+
+                <div className="col-lg-2 col-md-2 col-12">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    disabled={
+                      !searchQuery &&
+                      statusFilter ===
+                        "ALL"
+                    }
+                    onClick={
+                      clearFilters
+                    }
+                  >
+                    <i className="ti ti-refresh me-1"></i>
+                    Reset
+                  </button>
+                </div>
+
+                {/* RESULT COUNT */}
+
+                <div className="col-lg-2 col-md-12 col-12 text-lg-end">
+                  {/*
+
+                  <small className="text-muted">
+                    Showing{" "}
+                    <strong>
+                      {
+                        filteredData.length
+                      }
+                    </strong>{" "}
+                    of{" "}
+                    <strong>
+                      {
+                        totalRecords
+                      }
+                    </strong>
+                  </small>
+
+                  */}
+                </div>
+
               </div>
 
               {/* =================================================
@@ -657,25 +1012,56 @@ const ConferenceRoom = () => {
                 <div className="p-4 text-center">
                   <div className="spinner-border text-warning"></div>
                 </div>
-              ) : filteredData.length === 0 ? (
+              ) : filteredData.length ===
+                0 ? (
                 <div className="p-4 text-center text-muted">
-                  No bookings found
+                  {searchQuery ||
+                  statusFilter !==
+                    "ALL"
+                    ? "No conference room bookings match the selected filter"
+                    : "No conference room bookings found"}
                 </div>
               ) : (
                 <DataTable
-                  value={filteredData}
-                  loading={loading}
+                  value={
+                    filteredData
+                  }
+                  loading={
+                    loading
+                  }
                   paginator
                   lazy
-                  first={(currentPage - 1) * rows}
+                  first={
+                    (currentPage -
+                      1) *
+                    rows
+                  }
                   rows={rows}
-                  totalRecords={totalRecords}
-                  rowsPerPageOptions={[10, 25, 50, 100]}
-                  onPage={handlePageChange}
+                  totalRecords={
+                    totalRecords
+                  }
+                  rowsPerPageOptions={[
+                    10,
+                    25,
+                    50,
+                    100,
+                  ]}
+                  onPage={
+                    handlePageChange
+                  }
+
                   /* SORTING */
-                  sortField={sortField}
-                  sortOrder={sortOrder}
-                  onSort={handleSort}
+
+                  sortField={
+                    sortField
+                  }
+                  sortOrder={
+                    sortOrder
+                  }
+                  onSort={
+                    handleSort
+                  }
+
                   stripedRows
                   showGridlines
                   removableSort
@@ -686,60 +1072,98 @@ const ConferenceRoom = () => {
                   className="p-datatable-sm"
                   dataKey="ID"
                 >
+
                   {/* SERIAL */}
 
                   <Column
                     header="#"
-                    body={serialBody}
+                    body={
+                      serialBody
+                    }
                     style={{
-                      width: "70px",
+                      width:
+                        "70px",
                     }}
                   />
 
                   {/* ROOM */}
 
-                  <Column field="ROOM_LABEL" header="Room" sortable />
+                  <Column
+                    field="ROOM_LABEL"
+                    header="Room"
+                    sortable
+                  />
 
                   {/* DATE */}
 
-                  <Column field="DT" header="Date" sortable />
+                  <Column
+                    field="DT"
+                    header="Date"
+                    sortable
+                  />
 
                   {/* DURATION */}
 
-                  <Column header="Duration" body={durationBody} />
+                  <Column
+                    header="Duration"
+                    body={
+                      durationBody
+                    }
+                  />
 
                   {/* BOOKED BY */}
 
-                  <Column field="BOOK_BY_NAME" header="Booked By" sortable />
+                  <Column
+                    field="BOOK_BY_NAME"
+                    header="Booked By"
+                    sortable
+                  />
 
                   {/* REQUESTED ON */}
 
-                  <Column field="CHG_ON" header="Requested On" sortable />
+                  <Column
+                    field="CHG_ON"
+                    header="Requested On"
+                    sortable
+                  />
 
                   {/* REASON */}
 
                   <Column
                     field="REMARKS"
                     header="Reason"
-                    body={reasonBody}
+                    body={
+                      reasonBody
+                    }
                     sortable
                   />
 
                   {/* STATUS */}
 
-                  <Column header="Status" body={statusBody} />
+                  <Column
+                    field="STATUS"
+                    header="Status"
+                    body={
+                      statusBody
+                    }
+                  />
 
                   {/* ACTION */}
 
                   <Column
                     header="Action"
-                    body={actionBody}
+                    body={
+                      actionBody
+                    }
                     style={{
-                      width: "90px",
+                      width:
+                        "90px",
                     }}
                   />
+
                 </DataTable>
               )}
+
             </div>
           </div>
         </div>
@@ -751,14 +1175,30 @@ const ConferenceRoom = () => {
 
       {showModal && (
         <ConferenceBookingModal
-          booking={selectedBooking}
-          mode={selectedBooking?.ID ? "view" : "add"}
+          booking={
+            selectedBooking
+          }
+          mode={
+            selectedBooking?.ID
+              ? "view"
+              : "add"
+          }
+
           /*
            * Date selected from left calendar.
            */
-          selectedDate={selectedCalendarDate}
-          onClose={closeModal}
-          refreshTable={refreshTable}
+
+          selectedDate={
+            selectedCalendarDate
+          }
+
+          onClose={
+            closeModal
+          }
+
+          refreshTable={
+            refreshTable
+          }
         />
       )}
 
@@ -769,7 +1209,11 @@ const ConferenceRoom = () => {
       {showAllBookings && (
         <ConferenceYearlyBookings
           bookings={bookings}
-          onClose={() => setShowAllBookings(false)}
+          onClose={() =>
+            setShowAllBookings(
+              false
+            )
+          }
         />
       )}
     </>

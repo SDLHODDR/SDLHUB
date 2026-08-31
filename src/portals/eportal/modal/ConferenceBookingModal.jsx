@@ -1200,7 +1200,7 @@ const ConferenceBookingModal = ({
                     className="btn btn-primary me-2"
                     onClick={(e) => handleAddBooking(e, false)}
                   >
-                    {loading ? "Saving..." : "Save Booking"}
+                    {loading ? "Saving..." : "Save"}
                   </button>
 
                   <button
@@ -1209,7 +1209,7 @@ const ConferenceBookingModal = ({
                     className="btn btn-success"
                     onClick={(e) => handleAddBooking(e, true)}
                   >
-                    {loading ? "Saving..." : "Save & Send for Confirmation"}
+                    {loading ? "Saving..." : "Save & Send for Auth"}
                   </button>
                 </>
               )}
@@ -1235,7 +1235,7 @@ const ConferenceBookingModal = ({
                     className="btn btn-info"
                     onClick={handleSendForConfirmation}
                   >
-                    Send For Confirmation
+                    Send For Auth
                   </button>
                 </>
               )}
@@ -1256,7 +1256,7 @@ const ConferenceBookingModal = ({
                   }}
                   onClick={handleCancelBooking}
                 >
-                  Cancel Booking
+                  Cancel
                 </button>
               )}
             </div>
