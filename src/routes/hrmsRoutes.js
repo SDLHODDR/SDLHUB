@@ -12,6 +12,7 @@ import DepartmentDesignationMap from "../portals/hrms/pages/maintainance/Departm
 import JobDescription from "../portals/hrms/pages/maintainance/JobDescription";
 import PolicyList from "../portals/hrms/pages/maintainance/PolicyList";
 import Organogram from "../portals/hrms/pages/master-data/Organogram";
+import OrganogramV3 from "../portals/hrms/pages/master-data/OrganogramV3";
 import EmployeeAccess from "../portals/hrms/pages/maintainance/EmployeeAccess";
 
 import JoiningAuthorization from "../components/authorization/JoiningAuthorization";
@@ -23,6 +24,7 @@ export const hrmsRoutes = [
   { path: "hrms/masterdata/mastermaster", element: MasterData, },
   { path: "hrms/masterdata/organogram", element: Organogram, },
   { path: "hrms/masterdata/division-doc-mapping", element: DivisionDocMapping, },
+  { path: "hrms/masterdata/organogram-v3", element: OrganogramV3, },
 
   { path: "hrms/maintainance/profilemaintenance", element: ProfileMaintenance, },
   { path: "hrms/maintainance/kra-activity", element: KRAActivity },

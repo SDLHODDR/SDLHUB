@@ -155,7 +155,7 @@ const Leaves = () => {
       {
         value: "T",
         label: "In Process",
-      },
+      }
     ];
   }, []);
 

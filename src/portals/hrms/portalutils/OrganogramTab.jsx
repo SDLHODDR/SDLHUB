@@ -1,6 +1,6 @@
 import useOrganogramFormHandler from "./useOrganogramFormHandler";
 
-const OrganogramTab = ({ organogramId }) => {
+const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
   const {
     formData,
     errors,
@@ -20,7 +20,7 @@ const OrganogramTab = ({ organogramId }) => {
     loadingMasters,
     loadingDesignations,
     loadingJdLabels,
-  } = useOrganogramFormHandler(organogramId);
+  } = useOrganogramFormHandler(organogramId, onOrganogramSaved);
 
   return (
     <div>
@@ -186,11 +186,25 @@ const OrganogramTab = ({ organogramId }) => {
         <div className="col-lg-4 col-md-6">
           <div className="mb-3">
             <label className="form-label">Position Count</label>
-            <input
+            {/* <input
               type="text"
               className={`form-control ${errors.POSITION_COUNT ? "is-invalid" : ""}`}
               value={formData.POSITION_COUNT}
               onChange={(e) => handleFieldChange("POSITION_COUNT", e.target.value)}
+              maxLength={3}
+            /> */}
+            <input 
+              type="number" 
+              className={`form-control ${errors.POSITION_COUNT ? 'is-invalid' : ''}`} 
+              value={formData.POSITION_COUNT} 
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === '' || (/^\d+$/.test(val) && val.length <= 3)) {
+                  handleFieldChange('POSITION_COUNT', val);
+                }
+              }} 
+              maxLength={3} 
+              inputMode="numeric"
             />
             {errors.POSITION_COUNT && <div className="invalid-feedback">{errors.POSITION_COUNT}</div>}
           </div>
@@ -199,11 +213,18 @@ const OrganogramTab = ({ organogramId }) => {
         <div className="col-lg-4 col-md-6">
           <div className="mb-3">
             <label className="form-label">Position Occupied</label>
-            <input
-              type="text"
-              className={`form-control ${errors.POSITION_OCCUPIED ? "is-invalid" : ""}`}
-              value={formData.POSITION_OCCUPIED}
-              onChange={(e) => handleFieldChange("POSITION_OCCUPIED", e.target.value)}
+            <input 
+              type="number" 
+              className={`form-control ${errors.POSITION_OCCUPIED ? 'is-invalid' : ''}`} 
+              value={formData.POSITION_OCCUPIED} 
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === '' || (/^\d+$/.test(val) && val.length <= 3)) {
+                  handleFieldChange('POSITION_OCCUPIED', val);
+                }
+              }} 
+              maxLength={3} 
+              inputMode="numeric"
             />
             {errors.POSITION_OCCUPIED && <div className="invalid-feedback">{errors.POSITION_OCCUPIED}</div>}
           </div>

@@ -1,29 +1,30 @@
 import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getTicketBookingDataResponse } from "../../../../store/eportal/ePortalTicketBookingSlice";
-import { createTicketBookingHandlers } from "../../utils/ticketBookingHandlers"; // adjust path
+import { createTicketBookingHandlers } from "../../utils/ticketBookingHandlers";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import SDLCalendar from "../../../../components/calendar/SDLCalendar";
 import TicketBookingModal from "../../modal/TicketBookingModal";
 import { ticketBookingColumns } from "../../utils/columnHandlers/ticketBookingColumns";
-//import Swal from "sweetalert2";
 import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
 import { notifyWarning } from "../../../../services/alertService";
 import { getPortalFromPath } from "../../../../config/portalConfig";
+import "../../assets/css/companyPolicies.css";
 
 const TicketBooking = () => {
   const dispatch = useDispatch();
   const [modalLoading, setModalLoading] = useState(false);
   const ticketBookingData = useSelector((state) => state.eportalTBRData.data);
   const loading = useSelector((state) => state.eportalTBRData.loading);
+
+  const [statusFilter, setStatusFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
 
-  	// Get current portal dynamically
-	const portal = getPortalFromPath(location.pathname);
-	const portalHome = `/${portal.key}/dashboard`;
+  const portal = getPortalFromPath(location.pathname);
+  const portalHome = `/${portal.key}/dashboard`;
 
   useEffect(() => {
     dispatch(getTicketBookingDataResponse());
@@ -34,13 +35,12 @@ const TicketBooking = () => {
       return (ticketBookingData || []).map((item, index) => ({
         id: item.id || index,
         person_name: item.person_name || "-",
-        //trvl_mode: item.trvl_mode || "-",
+        trvl_mode: item.trvl_mode || "-", // uncommented — needed for search filter below
         trvl_date: item.trvl_date || "-",
         trvl_from_location: item.trvl_from_location || "-",
         trvl_to_loc: item.trvl_to_loc || "-",
         trvl_ft_name: item.trvl_ft_name || "-",
         trvl_ft_no: item.trvl_ft_no || "-",
-        //ttnt_depr_time: item.ttnt_depr_time || "-",
         statusText: item.approval || "-",
         remarks: item.remarks || "-",
         statusColor: item.statusColor || "-",
@@ -52,20 +52,32 @@ const TicketBooking = () => {
     }
   }, [ticketBookingData]);
 
-  /* ================= SEARCH FILTER ================= */
+  /* ================= FILTERS (status + search, independent of each other) ================= */
   const filteredData = useMemo(() => {
-    if (!searchQuery.trim()) return listData;
+    let data = [...listData];
 
+    // STATUS FILTER — runs regardless of whether a search query exists
+    if (statusFilter && statusFilter !== "ALL") {
+      data = data.filter(
+        (item) =>
+          String(item?.status ?? "").trim().toUpperCase() ===
+          String(statusFilter).trim().toUpperCase(),
+      );
+    }
+
+    // SEARCH FILTER
     const query = searchQuery.trim().toLowerCase();
+    if (!query) {
+      return data;
+    }
 
-    return listData.filter(
+    return data.filter(
       (item) =>
         item.person_name?.toLowerCase().includes(query) ||
         item.trvl_mode?.toLowerCase().includes(query) ||
         item.remarks?.toLowerCase().includes(query),
     );
-
-  }, [searchQuery, listData]);
+  }, [searchQuery, statusFilter, listData]);
 
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -79,20 +91,18 @@ const TicketBooking = () => {
       const currentDate = new Date();
       const modalDate = new Date(config.modalDate);
 
-      // Remove time portion for accurate day comparison
       currentDate.setHours(0, 0, 0, 0);
       modalDate.setHours(0, 0, 0, 0);
 
-      // No Math.abs() — we want to know direction, not just distance
       const diffTime = modalDate - currentDate;
       const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
-      //console.log("==========diffDays========", diffDays);
-
       if (diffDays < 0) {
         setModalLoading(false);
-        // modalDate is before today → block it
-        notifyWarning("It is not permitted to raise a Ticket Booking request for past dates", "Not Permitted");
+        notifyWarning(
+          "It is not permitted to raise a Ticket Booking request for past dates",
+          "Not Permitted",
+        );
         return;
       }
     }
@@ -130,19 +140,38 @@ const TicketBooking = () => {
 
   const handleSuccess = () => {
     dispatch(getTicketBookingDataResponse());
-    // refresh GenericDataTable (Add/Edit/Delete flow)
     setRefreshKey((prev) => prev + 1);
-    // refresh Authorization table (if passed)
     dispatch(getAuthroizationTaskCount());
   };
 
-  // Build handlers (sendAuth, resendAuth, updateRemarks, closeTicketTB, viewTB, editTB, deleteTB)
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("ALL");
+  };
+
+  /* ============================================================
+     STATUS OPTIONS — one entry per real status code seen in the API data
+     (A, N, R, T, X). Removed the duplicate "Pending from Admin" (N) —
+     if that's meant to be a distinct status, it needs its own code
+     from the backend first.
+  ============================================================ */
+  const statusOptions = useMemo(
+    () => [
+      { value: "ALL", label: "All Status" },
+      { value: "A", label: "Approved" },
+      { value: "N", label: "Not Sent for Auth" },
+      { value: "R", label: "Rejected" },
+      { value: "T", label: "In Process" },
+      { value: "X", label: "Cancelled" },
+    ],
+    [],
+  );
+
   const handlers = createTicketBookingHandlers({ handleSuccess });
   const columns = ticketBookingColumns(handlers);
 
   return (
     <>
-      {/* ================= PAGE HEADER ================= */}
       <div className="page-header">
         <div className="add-item d-flex">
           <div className="page-title">
@@ -157,28 +186,23 @@ const TicketBooking = () => {
           ]}
         />
       </div>
-      {/* ================= MAIN CARD ================= */}
-      {loading || modalLoading && (
+
+      {(loading || modalLoading) && (
         <div className="p-4 text-center">
           <div className="spinner-border text-warning"></div>
         </div>
       )}
-      {/* ================= MAIN CARD ================= */}
+
       <div className="card">
         <div className="card-body">
           <div className="row">
-            {/* ================= LEFT SIDE OUTDOOR DUTY LIST ================= */}
-             <div className="col-xl-3 border-end">
-                <SDLCalendar
-                    mode="inline"
-                    openModal={openModal}
-                />
+            <div className="col-xl-3 border-end">
+              <SDLCalendar mode="inline" openModal={openModal} />
             </div>
-            {/* ================= RIGHT SIDE PDF PREVIEW ================= */}
+
             <div className="col-xl-9 d-flex flex-column">
               <h6 className="mb-3">Ticket Booking Preview</h6>
               <div className="position-relative flex-grow-1">
-                {/* ================= SEARCH ================= */}
                 <div className="row mb-3">
                   <div className="col-lg-4 col-md-6 col-12">
                     <SDLSearch
@@ -188,13 +212,57 @@ const TicketBooking = () => {
                       style={{ width: "270px" }}
                     />
                   </div>
+
+                  {/* STATUS — dark styled dropdown */}
+                  {/* <div className="col-lg-3 col-md-4 col-12">
+                    <select
+                      className="form-select bg-dark text-white border-secondary"
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                    >
+                      {statusOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div> */}
+                  <div className="col-lg-3 col-md-4 col-12">
+                    <select
+                      className="form-select sdl-dark-select"
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                    >
+                      {statusOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="col-lg-2 col-md-2 col-12">
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      disabled={statusFilter === "ALL" && !searchQuery}
+                      onClick={clearFilters}
+                    >
+                      <i className="ti ti-refresh me-1"></i>
+                      Reset
+                    </button>
+                  </div>
                 </div>
-                {/* ================= TABLE ================= */}
+
                 <SDLDataTable
                   data={filteredData}
                   columns={columns}
                   loading={loading}
-                  emptyMessage="No ticket booking found"
+                  emptyMessage={
+                    searchQuery || statusFilter !== "ALL"
+                      ? "No ticket booking requests match the selected filter"
+                      : "No ticket booking requests found"
+                  }
                   removableSort
                 />
               </div>
@@ -202,7 +270,7 @@ const TicketBooking = () => {
           </div>
         </div>
       </div>
-      {/* ================= MODAL ================= */}
+
       {modalState.isOpen && (
         <TicketBookingModal
           formSettings={formSettings}
