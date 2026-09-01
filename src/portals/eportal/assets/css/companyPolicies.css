@@ -122,6 +122,36 @@
     gap: 12px;
 }
 
+
+.sdl-dark-select {
+  background-color: #1a2233; /* dark navy to match your screenshot */
+  color: #fff;
+  border: 1px solid #495057;
+}
+
+.sdl-dark-select:focus {
+  background-color: #1a2233;
+  color: #fff;
+  border-color: #6c757d;
+  box-shadow: none;
+}
+
+/* Options need their own explicit background+color —
+   they don't inherit reliably across browsers since the
+   popup list is rendered outside the normal box model */
+.sdl-dark-select option {
+  background-color: #fff;
+  color: #212529;
+}
+
+/* Optional: style the hovered/selected option to match your dark theme
+   instead of the browser's default blue highlight */
+.sdl-dark-select option:checked,
+.sdl-dark-select option:hover {
+  background-color: #1a2233;
+  color: #fff;
+}
+
 /* ==========================================
    TABLET
 ========================================== */
@@ -173,6 +203,8 @@
     .company-policies-grid .p-datatable-table {
         min-width: 700px;
     }
+
+    
 }
 
 /* ==========================================

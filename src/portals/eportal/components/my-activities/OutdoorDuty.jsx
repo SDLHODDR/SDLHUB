@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getOutdoorDutyDataResponse } from "../../../../store/eportal/ePortalOutdoorDutySlice";
-import { createOutdoorDutyHandlers } from "../../utils/outdoorDutyHandlers"; // adjust path
+import { createOutdoorDutyHandlers } from "../../utils/outdoorDutyHandlers";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
@@ -14,22 +14,19 @@ import { getPortalFromPath } from "../../../../config/portalConfig";
 
 const OutdoorDuty = () => {
   const dispatch = useDispatch();
-  //const [listData, setListData] = useState([]);
   const [modalLoading, setModalLoading] = useState(false);
   const outdoorDutydata = useSelector((state) => state.eportalODData.data);
-  const odLoading = useSelector((state) => state.eportalODData.loading); // if your slice tracks this
+  const odLoading = useSelector((state) => state.eportalODData.loading);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Get current portal dynamically
-	const portal = getPortalFromPath(location.pathname);
-	const portalHome = `/${portal.key}/dashboard`;
+  const portal = getPortalFromPath(location.pathname);
+  const portalHome = `/${portal.key}/dashboard`;
 
   useEffect(() => {
     dispatch(getOutdoorDutyDataResponse());
   }, [dispatch, refreshKey]);
-
-  //console.log("=====================OD Data SLice odLoading================", odLoading);
 
   const listData = useMemo(() => {
     try {
@@ -44,28 +41,60 @@ const OutdoorDuty = () => {
         status: item.status || "-",
         dateTimePass: item.dateTimePass || "_",
         postremarks: item.postremarks,
-        authremarks: item.authremarks || "_"
+        authremarks: item.authremarks || "_",
       }));
     } catch (error) {
       console.error(error);
       return [];
     }
   }, [outdoorDutydata]);
-  //console.log("=====", outdoorDutydata);
 
+  /* ============================================================
+     STATUS OPTIONS — derived dynamically from actual data so we
+     never hardcode codes we haven't verified against the API.
+     Falls back to a normal placeholder list once data is loaded.
+  ============================================================ */
+  const statusOptions = useMemo(() => {
+    const seen = new Map();
 
-  /* ================= SEARCH FILTER ================= */
+    listData.forEach((item) => {
+      if (item.status && item.status !== "-" && !seen.has(item.status)) {
+        seen.set(item.status, item.statusText || item.status);
+      }
+    });
+
+    return [
+      { value: "ALL", label: "All Status" },
+      ...Array.from(seen.entries()).map(([value, label]) => ({
+        value,
+        label,
+      })),
+    ];
+  }, [listData]);
+
+  /* ================= FILTERS (status + search, independent) ================= */
   const filteredData = useMemo(() => {
-    if (!searchQuery.trim()) return listData;
+    let data = [...listData];
+
+    if (statusFilter && statusFilter !== "ALL") {
+      data = data.filter(
+        (item) =>
+          String(item?.status ?? "").trim().toUpperCase() ===
+          String(statusFilter).trim().toUpperCase(),
+      );
+    }
 
     const query = searchQuery.trim().toLowerCase();
+    if (!query) {
+      return data;
+    }
 
-    return listData.filter(
+    return data.filter(
       (item) =>
         item.outType.toLowerCase().includes(query) ||
         item.remarks.toLowerCase().includes(query),
     );
-  }, [searchQuery, listData]);
+  }, [searchQuery, statusFilter, listData]);
 
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -75,12 +104,10 @@ const OutdoorDuty = () => {
 
   const openModal = (config = {}) => {
     setModalLoading(true);
-    //console.log("=======config========", config);
     if (config.modalDate) {
       const currentDate = new Date();
       const modalDate = new Date(config.modalDate);
 
-      // Remove time portion for accurate day comparison
       currentDate.setHours(0, 0, 0, 0);
       modalDate.setHours(0, 0, 0, 0);
 
@@ -94,17 +121,14 @@ const OutdoorDuty = () => {
       }
     }
 
-    //console.log("========== config postRemarks ================", config);
     setModalState({
       isOpen: true,
       mode: config.mode || "create",
       modalDate: config.modalDate || null,
       id: config.id || null,
       isPostRemark: config.isPostRemark || null,
-      //modalData: config.data || null
     });
 
-    //console.log("=======modalState========", modalState);
     setModalLoading(false);
   };
 
@@ -129,14 +153,14 @@ const OutdoorDuty = () => {
   };
 
   const handleSuccess = () => {
-    // console.log(
-    //   "----------------OutdoorDuty.jsx: handleSuccess called----------------",
-    // );
     dispatch(getOutdoorDutyDataResponse());
-    // refresh GenericDataTable (Add/Edit/Delete flow)
     setRefreshKey((prev) => prev + 1);
-    // refresh Authorization table (if passed)
     dispatch(getAuthroizationTaskCount());
+  };
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("ALL");
   };
 
   const handlers = createOutdoorDutyHandlers({
@@ -145,13 +169,8 @@ const OutdoorDuty = () => {
   });
   const columns = outdoorDutyColumns(handlers);
 
-  //console.log("==============ListData===========", listData);
-  //console.log("==============Data===========", filteredData);
-
   return (
     <>
-      {/* ================= PAGE HEADER ================= */}
-
       <div className="page-header">
         <div className="add-item d-flex">
           <div className="page-title">
@@ -167,28 +186,22 @@ const OutdoorDuty = () => {
         />
       </div>
 
-      {/* ================= MAIN CARD ================= */}
-      {odLoading || modalLoading && (
+      {(odLoading || modalLoading) && (
         <div className="p-4 text-center">
           <div className="spinner-border text-warning"></div>
         </div>
       )}
+
       <div className="card">
         <div className="card-body">
           <div className="row">
-            {/* ================= LEFT SIDE OUTDOOR DUTY LIST ================= */}
-             <div className="col-xl-3 border-end">
-                <SDLCalendar
-                    mode="inline"
-                    openModal={openModal}
-                />
+            <div className="col-xl-3 border-end">
+              <SDLCalendar mode="inline" openModal={openModal} />
             </div>
-            {/* ================= RIGHT SIDE PDF PREVIEW ================= */}
+
             <div className="col-xl-9 d-flex flex-column">
               <h6 className="mb-3">Outdoor Duty Preview</h6>
               <div className="position-relative flex-grow-1">
-                {/* ================= SEARCH ================= */}
-
                 <div className="row mb-3">
                   <div className="col-lg-4 col-md-6 col-12">
                     <SDLSearch
@@ -198,30 +211,53 @@ const OutdoorDuty = () => {
                       style={{ width: "270px" }}
                     />
                   </div>
+
+                  {/* STATUS */}
+                  <div className="col-lg-3 col-md-4 col-12">
+                    <select
+                      className="form-select sdl-dark-select"
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                    >
+                      {statusOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* CLEAR */}
+                  <div className="col-lg-2 col-md-2 col-12">
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      disabled={statusFilter === "ALL" && !searchQuery}
+                      onClick={clearFilters}
+                    >
+                      <i className="ti ti-refresh me-1"></i>
+                      Reset
+                    </button>
+                  </div>
                 </div>
-                {/* {loading ? (
-                  <div className="p-4 text-center">
-                    <div className="spinner-border text-warning"></div>
-                  </div>
-                ) : filteredData.length === 0 ? (
-                  <div className="p-4 text-center text-muted">
-                    No requests found
-                  </div>
-                ) : ( */}
-                  <SDLDataTable
-                    data={filteredData}
-                    columns={columns}
-                    loading={odLoading}
-                    emptyMessage="No outdoor duties found"
-                    removableSort
-                  />
-                {/*  )} */}
+
+                <SDLDataTable
+                  data={filteredData}
+                  columns={columns}
+                  loading={odLoading}
+                  emptyMessage={
+                    searchQuery || statusFilter !== "ALL"
+                      ? "No outdoor duty requests match the selected filter"
+                      : "No outdoor duties found"
+                  }
+                  removableSort
+                />
               </div>
             </div>
           </div>
         </div>
       </div>
-      {/* ================= MODAL ================= */}
+
       {modalState.isOpen && (
         <OutdoorDutyModal
           formSettings={formSettings}

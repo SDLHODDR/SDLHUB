@@ -302,6 +302,9 @@ const HeaderTop = () => {
           <span className="welcome-user">{user?.name || "Guest User"}</span>
 
           {/* {successCnt && <AuthorizationDropdown />} */}
+          <li className="nav=item nav-item-box">
+            <i className="ti ti-bell fs-22"></i>
+          </li>
           <li className="nav-item nav-item-box">
             {showAuthorization && AuthorizationComponent && (
               <AuthorizationComponent />

@@ -1,6 +1,6 @@
 import Swal from "sweetalert2";
 
-export const notifySuccess = (message) => {
+export const notifySuccess = (message, options = {}) => {
   Swal.fire({
     icon: "success",
     title: "Success",
@@ -11,10 +11,13 @@ export const notifySuccess = (message) => {
     customClass: {
       popup: "dreampos-popup",
     },
+    didClose: () => {
+      options.onClose?.();
+    },
   });
 };
 
-export const notifyError = (message) => {
+export const notifyError = (message, options = {}) => {
   Swal.fire({
     icon: "error",
     title: "Error",
@@ -25,6 +28,9 @@ export const notifyError = (message) => {
       confirmButton: "dreampos-btn-danger",
     },
     buttonsStyling: false,
+    didClose: () => {
+      options.onClose?.();
+    }
   });
 };
 

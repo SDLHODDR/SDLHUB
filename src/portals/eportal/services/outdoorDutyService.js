@@ -90,6 +90,14 @@ export const authGPData = async (payload = {}) =>
     data: payload,
   });
 
+export const closeTaskData = async (payload = {}) =>
+  eportalRequest({
+    url: PORTALAPI.GATEPASS.CLOSETASKGPData,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });
+
 export const rejectGPData = (payload = {}) =>
   eportalRequest({
     url: PORTALAPI.GATEPASS.REJECTGPData,

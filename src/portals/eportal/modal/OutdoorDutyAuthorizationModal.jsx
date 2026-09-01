@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { getGpAttdData, authGPData, rejectGPData } from "../services/outdoorDutyService";
+import { getGpAttdData, authGPData, rejectGPData, closeTaskData } from "../services/outdoorDutyService";
 import { notifyError, notifySuccess } from "../../../services/alertService";
 import SDLAuthorizationActionButtons from "../../../components/SDLAuthorizationActionButtons";
 
@@ -143,6 +143,28 @@ const OutdoorDutyAuthorizationModal = ({
     }
   };
 
+  const handleCloseTask = async () => {
+    try {
+      const response = await closeTaskData({
+        ...formData,
+        closeTask: true,
+      });
+
+      if (!response?.status) {
+        notifyError("Error Occurred!");
+        return;
+      }
+      onClose?.();
+      notifySuccess("Request closed successfully");
+      onSuccess?.();
+    } catch (err) {
+      console.error(err);
+      notifyError("Something went wrong");
+    }
+  };
+
+  console.log("===================AuthRemarks===================", formData);
+
   return (
     <>
       <div
@@ -158,7 +180,10 @@ const OutdoorDutyAuthorizationModal = ({
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <h4 className="modal-title">
                   <div>
-                    OutDoor Duty Request for &nbsp;
+                    {formData.TabId == 21
+                      ? "Post Remarks Review Request for "
+                      : "OutDoor Duty Request for "}
+                    &nbsp;
                     <span className="fw-semibold">{formData.empName ?? ""}</span>
                     <span className="text-muted ms-2" style={{ fontSize: "14px" }}>
                       ({formData.GPASS_DATE || ""})
@@ -281,8 +306,13 @@ const OutdoorDutyAuthorizationModal = ({
               )} */}
               <div className="modal-footer">
                 {isPostRemarksView ? (
-                  <button type="button" className="btn btn-secondary" onClick={onClose}>
-                    Close Task
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={handleCloseTask} 
+                    disabled={!formData.POST_REMARKS?.trim()}
+                  >
+                    Close Ticket
                   </button>
                 ) : (
                   <SDLAuthorizationActionButtons
