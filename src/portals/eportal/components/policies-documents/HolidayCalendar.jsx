@@ -88,51 +88,58 @@ const HolidayCalendar = () => {
     </>
   );
 
-  const dateBody = (row) =>
-    new Date(row.date).toLocaleDateString("en-IN", {
-      day: "2-digit",
+  const dateBody = (row) => {
+    const date = new Date(row.date);
+
+    const day = String(date.getDate()).padStart(2, "0");
+
+    const month = date.toLocaleString("en-IN", {
       month: "short",
-      year: "numeric",
     });
 
+    const year = date.getFullYear();
+
+    return `${day}-${month}-${year}`;
+  };
+
   const columns = [
-  {
-    header: "#",
-    body: serialBody,
-    style: {
-      width: "70px",
-      textAlign: "center",
+    {
+      header: "#",
+      body: serialBody,
+      style: {
+        width: "70px",
+        textAlign: "center",
+      },
     },
-  },
-  {
-    field: "title",
-    header: "Holiday",
-    body: holidayBody,
-    sortable: true,
-    style: {
-      minWidth: "260px",
+    {
+      field: "title",
+      header: "Holiday",
+      body: holidayBody,
+      sortable: true,
+      style: {
+        minWidth: "260px",
+      },
     },
-  },
-  {
-    field: "day",
-    header: "Day",
-    sortable: true,
-    style: {
-      width: "140px",
-      textAlign: "center",
+    {
+      field: "day",
+      header: "Day",
+      sortable: true,
+      style: {
+        width: "140px",
+        textAlign: "center",
+      },
     },
-  },
-  {
-    field: "date",
-    header: "Date",
-    body: dateBody,
-    sortable: true,
-    style: {
-      width: "160px",
-      textAlign: "center",
+    {
+      field: "date",
+      header: "Date",
+      body: dateBody,
+      sortable: true,
+      style: {
+        width: "160px",
+        textAlign: "center",
+      },
     },
-  },
-];
+  ];
 
   return (
     <>
@@ -146,12 +153,11 @@ const HolidayCalendar = () => {
         </div>
 
         <BreadcrumbNav
-        items={[
+          items={[
             { text: "Home", link: portalHome },
             { text: "Holiday Calendar" },
-        ]}
+          ]}
         />
-
       </div>
 
       {/* YEAR NAVIGATION */}
@@ -221,13 +227,13 @@ const HolidayCalendar = () => {
               ) : (
                 <div className="holiday-calendar-table">
                   <SDLDataTable
-                      data={filteredData}
-                      columns={columns}
-                      loading={loading}
-                      emptyMessage="No holidays found"
-                      className="holiday-calendar-grid"
-                      removableSort
-                      tableStyle={{ minWidth: "650px" }}
+                    data={filteredData}
+                    columns={columns}
+                    loading={loading}
+                    emptyMessage="No holidays found"
+                    className="holiday-calendar-grid"
+                    removableSort
+                    tableStyle={{ minWidth: "650px" }}
                   />
                 </div>
               )}
