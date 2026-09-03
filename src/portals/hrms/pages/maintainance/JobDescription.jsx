@@ -22,7 +22,6 @@ import {
   getExpenseTypeList,
   getFrequencyList,
   getCTCHeadList,
-  // getFormulaList
   getQuestionTemplateList,
   getQuestionGroupList,
   getDivisionList,
@@ -33,6 +32,7 @@ import { notifySuccess, notifyError } from '../../../../services/alertService'
 import SDLtextEditor from '../../../../components/editor/SDLtextEditor'
 import '../../assets/jobDescription.css'
 import { MultiSelect } from 'primereact/multiselect'
+import JDDataTable from '../../components/data-table/JDDataTable'
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload
@@ -108,47 +108,33 @@ const INITIAL_FORM_DATA = {
   REPT_JDID: '',
 
   RESPONSIBILITIES: '',
-  KRA: [],
+  RESPONSIBILITIES_LIST: [],
 
-  // EDUCATION: {
-  //   QUALIFICATION: '',
-  //   COMMENTS: ''
-  // },
+  KRA: [],
+  KRA_LIST: [],
+
   EDUCATION: {
     QUA_ID: '',
     COMMENTS: ''
   },
+  EDUCATION_LIST: [],
 
   SKILLS: [],
-  // ALLOWANCES: [],
-  ALLOWANCES: [
-    {
-      listing: '',
-      amount: '',
-      frequency: '',
-      expenseType: '',
-      fromDate: null,
-      toDate: ''
-    }
-  ],
+  SKILLS_LIST: [],
+
+  ALLOWANCES: [],
+  ALLOWANCES_LIST: [],
+
   CTC_HEADS: [],
+  CTC_HEADS_LIST: [],
 
-  QUESTION_TEMPLATE: [],
-  DEPT_REFERENCES: [],
-  DIVISION_MAPPING: [],
-
-  // INDUCTION: {
-  //   INDUCTION: '',
-  //   ORGANOGRAM: '',
-  //   SEQUENCE: ''
-  // },
   INDUCTION: {
     INDUC_ID: '',
     ORG_ID: '',
     ORG_LOC_ID: '',
     DISP_SEQ: ''
   },
-
+  INDUCTION_LIST: [],
   UPLOAD_DOC: null
 }
 
@@ -189,6 +175,34 @@ const JobDescription = () => {
   const [inductionList, setInductionList] = useState([])
   const [inductionDataList, setInductionDataList] = useState([])
   const [organogramList, setOrganogramList] = useState([])
+  const [responsibilitiesList, setResponsibilitiesList] = useState([])
+  const [editingResponsibilityId, setEditingResponsibilityId] = useState(null)
+  const [savingResponsibility, setSavingResponsibility] = useState(false)
+  const [editingSkillId, setEditingSkillId] = useState(null)
+  const [skillForm, setSkillForm] = useState({
+    ID: '',
+    code: '',
+    details: '',
+    level: ''
+  })
+  const [editingEducationId, setEditingEducationId] = useState(null)
+  const [editingAllowanceId, setEditingAllowanceId] = useState(null)
+  const [allowanceForm, setAllowanceForm] = useState({
+    listing: '',
+    amount: '',
+    frequency: '',
+    expenseType: '',
+    fromDate: '',
+    toDate: ''
+  })
+  const [ctcForm, setCtcForm] = useState({
+    head: '',
+    formula: '',
+    value: '',
+    from: '',
+    to: ''
+  })
+  const [editingCtcId, setEditingCtcId] = useState(null)
 
   const loadData = useCallback(async () => {
     try {
@@ -212,7 +226,6 @@ const JobDescription = () => {
         divisionResponse,
         inductionResponse,
         organogramResponse
-        // formulaResponse
       ] = await Promise.all([
         getJobDescriptions(),
         getDepartmentMasterData(),
@@ -232,11 +245,8 @@ const JobDescription = () => {
         getDivisionList(),
         getInductionList(),
         getOrganogramList()
-        // getFormulaList()
       ])
 
-      console.log('INDUCTION MASTER:', inductionList)
-      console.log('ORGANOGRAM MASTER:', organogramList)
       setJobData(normalizeRecords(jobsResponse))
       setDepartments(normalizeRecords(departmentsResponse))
       setDesignations(normalizeRecords(designationsResponse))
@@ -255,7 +265,6 @@ const JobDescription = () => {
       setDivisionList(normalizeRecords(divisionResponse))
       setInductionList(normalizeRecords(inductionResponse))
       setOrganogramList(normalizeRecords(organogramResponse))
-      // setFormulaList(normalizeRecords(formulaResponse))
     } catch (error) {
       console.error('Error loading job descriptions page data:', error)
       notifyError(error?.message || 'Unable to load job description data.')
@@ -273,6 +282,12 @@ const JobDescription = () => {
       ID: item.ID ?? item.id ?? index + 1,
       SH_DESC: getDisplayValue(item, ['SH_DESC', 'sh_desc', 'label'], ''),
       DESCR: getDisplayValue(item, ['DESCR', 'descr', 'description'], ''),
+      DEPT_CODE: getDisplayValue(item, ['DEPT_CODE', 'dept_code'], ''),
+      DIVISION_NAMES: getDisplayValue(
+        item,
+        ['DIVISION_NAMES', 'division_names'],
+        ''
+      ),
       DEPT_ID: item.DEPT_ID ?? item.dept_id ?? '',
       DEPT_NAME: getDisplayValue(
         item,
@@ -415,9 +430,8 @@ const JobDescription = () => {
     () =>
       skillList.map(item => ({
         value: item.CAPA_ID ?? item.capa_id,
-        label: `${item.CAPA_CODE ?? item.capa_code} - ${
-          item.CAPA_DESC ?? item.capa_desc
-        }`
+        label: item.CAPA_CODE ?? item.capa_code ?? '',
+        description: item.CAPA_DESC ?? item.capa_desc ?? ''
       })),
     [skillList]
   )
@@ -458,26 +472,17 @@ const JobDescription = () => {
     [frequencyList]
   )
 
-  const ctcHeadOptions = useMemo(
-    () =>
-      ctcHeadList.map(item => ({
-        value: item.AD_ID ?? item.ad_id,
-        label:
-          item.DESCR ??
-          item.descr ??
-          `${item.AD_CODE ?? item.ad_code ?? ''} (${
-            item.SH_DESCR ?? item.sh_descr ?? ''
-          })`
-      })),
-    [ctcHeadList]
-  )
-
   const formulaOptions = [
     { value: 'F', label: 'Fixed' },
     { value: 'C', label: '% of CTC' },
     { value: 'B', label: '% of Basic' },
     { value: 'V', label: 'Variable' }
   ]
+
+  const ctcHeadOptions = ctcHeadList.map(item => ({
+    value: item.AD_ID ?? item.ad_id,
+    label: item.AD_DESC ?? item.AD_CODE ?? item.DESCR ?? item.AD_ID
+  }))
 
   const questionGroupOptions = useMemo(
     () =>
@@ -571,17 +576,6 @@ const JobDescription = () => {
       })),
     [inductionList]
   )
-
-  //   const organogramOptions = useMemo(
-  //   () =>
-  //     normalizeRecords(organogramList)
-  //       .map(item => ({
-  //         value: item.ORG_ID ?? item.org_id ?? '',
-  //         label: item.LABEL ?? item.label ?? ''
-  //       }))
-  //       .filter(item => item.value && item.label),
-  //   [organogramList]
-  // )
 
   const organogramOptions = useMemo(() => {
     const divisionMap = new Map(
@@ -697,17 +691,56 @@ const JobDescription = () => {
       // First select the job
       setSelectedJobId(job.ID)
 
+      setSkillForm({
+        ID: '',
+        code: '',
+        details: '',
+        level: ''
+      })
+
+      setEditingSkillId(null)
+
+      setAllowanceForm({
+        listing: '',
+        amount: '',
+        frequency: '',
+        expenseType: '',
+        fromDate: '',
+        toDate: ''
+      })
+
+      setEditingAllowanceId(null)
+
+      setCtcForm({
+        head: '',
+        formula: '',
+        value: '',
+        from: '',
+        to: ''
+      })
+
+      setEditingCtcId(null)
+
       // Fetch complete job description details from DB
       const response = await getJobDescriptionById(job.ID)
 
       const selectedJob =
         response?.data?.jobDescription || response?.jobDescription || null
 
+        console.log('ALLOWANCES FROM API:', selectedJob?.ALLOWANCES_LIST)
+
       if (!selectedJob) {
         notifyError('Unable to fetch job description details.')
         return
       }
 
+      setResponsibilitiesList(
+        Array.isArray(selectedJob.RESPONSIBILITIES_LIST)
+          ? selectedJob.RESPONSIBILITIES_LIST
+          : []
+      )
+
+      setEditingResponsibilityId(null)
       setInductionDataList(selectedJob.INDUCTION_LIST || [])
 
       // Put DB values into form
@@ -749,63 +782,65 @@ const JobDescription = () => {
               ...INITIAL_FORM_DATA.EDUCATION
             },
 
-        SKILLS: Array.isArray(selectedJob.SKILLS_LIST)
-          ? selectedJob.SKILLS_LIST.map(item => ({
-              code: item.CAPA_ID ?? item.capa_id ?? '',
-              details: item.CAPA_DESC ?? item.capa_desc ?? '',
-              level: item.CAPALVL_ID ?? item.capalvl_id ?? ''
+        EDUCATION_LIST: Array.isArray(selectedJob.EDUCATION_LIST)
+          ? selectedJob.EDUCATION_LIST
+          : [],
+
+        SKILLS: [],
+
+        SKILLS_LIST: Array.isArray(selectedJob.SKILLS_LIST)
+          ? selectedJob.SKILLS_LIST
+          : [],
+
+        // ALLOWANCES: [],
+        ALLOWANCES: {
+  listing: '',
+  allowAmount: '',
+  frequency: '',
+  appliedLocation: '',
+  from: '',
+  to: ''
+},
+
+
+        ALLOWANCES_LIST: Array.isArray(selectedJob.ALLOWANCES_LIST)
+          ? selectedJob.ALLOWANCES_LIST
+          : [],
+
+        CTC_HEADS: Array.isArray(selectedJob.CTC_HEADS_LIST)
+          ? selectedJob.CTC_HEADS_LIST.map(ctc => ({
+              ID: ctc.ID ?? '',
+              head: ctc.AD_ID ?? ctc.ad_id ?? '',
+              headLabel: ctc.AD_CODE ?? ctc.ad_code ?? '',
+              key: ctc.KEY ?? ctc.key ?? '',
+              formula: ctc.TEMPVAL ?? ctc.tempval ?? '',
+              value: ctc.VAL ?? ctc.val ?? '',
+              from: ctc.EFFEC_FROM ?? ctc.effec_from ?? '',
+              to: ctc.EFFEC_TO ?? ctc.effec_to ?? ''
             }))
           : [],
 
-        ALLOWANCES: Array.isArray(selectedJob.ALLOWANCES_LIST)
-          ? selectedJob.ALLOWANCES_LIST.map(item => ({
-              listing: item.ALLOW_ID ?? item.allow_id ?? '',
-              amount: item.ALLOW_AMOUNT ?? item.allow_amount ?? '',
-              // frequency: item.EXP_TYPE ?? item.exp_type ?? '',
-              frequency: item.ADD_INFO ?? item.add_info ?? '',
-              expenseType: item.EXP_TYPE ?? item.exp_type ?? '',
-              fromDate: item.FROMDT ? new Date(item.FROMDT) : null,
-              toDate: item.TODT ? new Date(item.TODT) : null
+        CTC_HEADS_LIST: Array.isArray(selectedJob.CTC_HEADS_LIST)
+          ? selectedJob.CTC_HEADS_LIST.map(ctc => ({
+              ID: ctc.ID ?? '',
+              CTC_HEAD: ctc.AD_CODE ?? ctc.AD_ID ?? '',
+              KEY: ctc.KEY ?? '',
+              VAL: ctc.VAL ?? '',
+              EFFEC_FROM: ctc.EFFEC_FROM ?? '',
+              EFFEC_TO: ctc.EFFEC_TO ?? ''
             }))
-          : [
-              {
-                listing: '',
-                amount: '',
-                frequency: '',
-                expenseType: '',
-                fromDate: '',
-                toDate: ''
-              }
-            ],
+          : [],
 
-        CTC_HEADS: (selectedJob.CTC_HEADS_LIST || []).map(ctc => ({
-          head: ctc.AD_ID ?? '',
-          formula: ctc.KEY ?? '',
-          value: ctc.VAL ?? '',
-          from: ctc.EFFEC_FROM ?? '',
-          to: ctc.EFFEC_TO ?? ''
-        })),
+        RESPONSIBILITIES_LIST: Array.isArray(selectedJob.RESPONSIBILITIES_LIST)
+          ? selectedJob.RESPONSIBILITIES_LIST
+          : [],
 
         KRA: Array.isArray(selectedJob.KRA_LIST)
           ? selectedJob.KRA_LIST.map(item => item.KRA_ID)
           : [],
 
-        QUESTION_TEMPLATE: Array.isArray(selectedJob.QUESTION_TEMPLATE_LIST)
-          ? selectedJob.QUESTION_TEMPLATE_LIST.map(item => ({
-              ID: item.ID ?? '',
-              JD_ID: item.JD_ID ?? '',
-              QGRP_ID: item.QGRP_ID ?? '',
-              QGRP_DESC: item.QGRP_DESC ?? '',
-              QGRP_TYPE: item.QGRP_TYPE ?? '',
-              QSGRP_ID: item.QSGRP_ID ?? '',
-              QSGRP_DESC: item.QSGRP_DESC ?? '',
-              QUESTION_ID: item.QUESTION_ID ?? '',
-              QUESTION: item.QUESTION ?? '',
-              RATING_TYPE: item.RATING_TYPE ?? '',
-              DISP_SEQ: item.DISP_SEQ ?? '',
-              EFF_FROM: item.EFF_FROM ?? '',
-              EFF_TO: item.EFF_TO ?? ''
-            }))
+        KRA_LIST: Array.isArray(selectedJob.KRA_LIST)
+          ? selectedJob.KRA_LIST
           : [],
 
         DEPT_REFERENCES: Array.isArray(selectedJob.DEPT_REFERENCE_LIST)
@@ -815,11 +850,18 @@ const JobDescription = () => {
             }))
           : [],
 
-        // DIVISION_MAPPING: selectedJob.DIVISION_MAPPING_LIST || []
+        DEPT_REFERENCE_LIST: Array.isArray(selectedJob.DEPT_REFERENCE_LIST)
+          ? selectedJob.DEPT_REFERENCE_LIST
+          : [],
+
         DIVISION_MAPPING: Array.isArray(selectedJob.DIVISION_MAPPING_LIST)
           ? selectedJob.DIVISION_MAPPING_LIST.map(
               item => item.DIVSN_ID ?? item.divsn_id ?? item.value
             )
+          : [],
+
+        DIVISION_MAPPING_LIST: Array.isArray(selectedJob.DIVISION_MAPPING_LIST)
+          ? selectedJob.DIVISION_MAPPING_LIST
           : [],
 
         INDUCTION: selectedJob.INDUCTION_LIST?.[0]
@@ -831,7 +873,11 @@ const JobDescription = () => {
             }
           : {
               ...INITIAL_FORM_DATA.INDUCTION
-            }
+            },
+
+        INDUCTION_LIST: Array.isArray(selectedJob.INDUCTION_LIST)
+          ? selectedJob.INDUCTION_LIST
+          : []
       })
 
       // Always open Basic Details first
@@ -976,6 +1022,14 @@ const JobDescription = () => {
 
   const handleSave = async event => {
     event.preventDefault && event.preventDefault()
+
+    // If a responsibility is currently being edited,
+    // save only that responsibility.
+    if (editingResponsibilityId !== null) {
+      await handleSaveResponsibility()
+      return
+    }
+
     if (!validateForm()) return
 
     setSaving(true)
@@ -1005,20 +1059,19 @@ const JobDescription = () => {
         kra: formData.KRA,
         education: JSON.stringify(formData.EDUCATION || {}),
         skills: JSON.stringify(formData.SKILLS || []),
-        allowances: JSON.stringify(formData.ALLOWANCES || []),
+        // allowances: JSON.stringify(formData.ALLOWANCES || []),
+        allowances: JSON.stringify(formData.ALLOWANCES_LIST || []),
         ctc_heads: JSON.stringify(formData.CTC_HEADS || []),
         question_template: formData.QUESTION_TEMPLATE,
         dept_references: JSON.stringify(formData.DEPT_REFERENCES || []),
-        // division_mapping: formData.DIVISION_MAPPING,
         division_mapping: JSON.stringify(formData.DIVISION_MAPPING || []),
         induction: JSON.stringify(formData.INDUCTION || {})
       }
 
       console.log(
-        'DEPARTMENT REFERENCES BEING SAVED:',
-        formData.DEPT_REFERENCES
-      )
-      console.log('SAVE PAYLOAD DEPT REFERENCES:', payload.dept_references)
+  'ALLOWANCES BEING SENT:',
+  formData.ALLOWANCES
+)
 
       const response = await saveJobDescription(payload)
 
@@ -1039,6 +1092,377 @@ const JobDescription = () => {
     } finally {
       setSaving(false)
     }
+  }
+
+  const handleEditResponsibility = item => {
+    setEditingResponsibilityId(item.ID)
+
+    handleFieldChange('RESPONSIBILITIES', item.DESCR || '')
+  }
+
+  const handleCancelResponsibility = () => {
+    setEditingResponsibilityId(null)
+
+    handleFieldChange('RESPONSIBILITIES', '')
+  }
+
+  const handleSaveResponsibility = async () => {
+    if (!selectedJobId) {
+      notifyError('Please select a Job Description first.')
+      return
+    }
+
+    const description = (formData.RESPONSIBILITIES || '').trim()
+
+    if (!description) {
+      notifyError('Please enter a responsibility.')
+      return
+    }
+
+    setSavingResponsibility(true)
+
+    try {
+      const payload = {
+        action: 'save_responsibility',
+        jd_id: selectedJobId,
+        responsibility_id: editingResponsibilityId || '',
+        description
+      }
+
+      const response = await saveJobDescription(payload)
+
+      if (response?.status) {
+        notifySuccess(response?.message || 'Responsibility saved successfully.')
+
+        const refreshed = await getJobDescriptionById(selectedJobId)
+
+        const updatedJob =
+          refreshed?.data?.jobDescription || refreshed?.jobDescription || null
+
+        setResponsibilitiesList(
+          Array.isArray(updatedJob?.RESPONSIBILITIES_LIST)
+            ? updatedJob.RESPONSIBILITIES_LIST
+            : []
+        )
+
+        setEditingResponsibilityId(null)
+
+        handleFieldChange('RESPONSIBILITIES', '')
+      } else {
+        notifyError(response?.message || 'Unable to save responsibility.')
+      }
+    } catch (error) {
+      console.error('Save responsibility error:', error)
+
+      notifyError(error?.message || 'Unable to save responsibility.')
+    } finally {
+      setSavingResponsibility(false)
+    }
+  }
+
+  const handleDeleteResponsibility = async item => {
+    if (!selectedJobId || !item?.ID) {
+      return
+    }
+
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this responsibility?'
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      const response = await saveJobDescription({
+        action: 'delete_responsibility',
+        jd_id: selectedJobId,
+        responsibility_id: item.ID
+      })
+
+      if (response?.status) {
+        notifySuccess(
+          response?.message || 'Responsibility deleted successfully.'
+        )
+
+        setResponsibilitiesList(prev =>
+          prev.filter(row => String(row.ID) !== String(item.ID))
+        )
+
+        if (String(editingResponsibilityId) === String(item.ID)) {
+          handleCancelResponsibility()
+        }
+      } else {
+        notifyError(response?.message || 'Unable to delete responsibility.')
+      }
+    } catch (error) {
+      console.error('Delete responsibility error:', error)
+
+      notifyError(error?.message || 'Unable to delete responsibility.')
+    }
+  }
+
+  const handleEditEducation = item => {
+    setEditingEducationId(item.ID)
+
+    setFormData(prev => ({
+      ...prev,
+      EDUCATION: {
+        QUA_ID: item.QUA_ID ?? '',
+        COMMENTS: item.COMMENTS ?? ''
+      }
+    }))
+  }
+
+  const handleEditSkill = item => {
+    setSkillForm({
+      ID: item.ID ?? '',
+      code: item.CAPA_ID ?? item.capa_id ?? '',
+      details: item.CAPA_DESC ?? item.capa_desc ?? '',
+      level: item.CAPALVL_ID ?? item.capalvl_id ?? ''
+    })
+  }
+
+  const handleDeleteKRA = async item => {
+    if (!selectedJobId || !item?.ID) return
+
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this KRA?'
+    )
+
+    if (!confirmed) return
+
+    try {
+      const response = await saveJobDescription({
+        action: 'delete_kra',
+        jd_id: selectedJobId,
+        kra_id: item.ID
+      })
+
+      if (response?.status) {
+        notifySuccess(response?.message || 'KRA deleted successfully.')
+
+        setFormData(prev => ({
+          ...prev,
+          KRA_LIST: (prev.KRA_LIST || []).filter(
+            row => String(row.ID) !== String(item.ID)
+          ),
+          KRA: (prev.KRA || []).filter(id => String(id) !== String(item.KRA_ID))
+        }))
+      } else {
+        notifyError(response?.message || 'Unable to delete KRA.')
+      }
+    } catch (error) {
+      console.error('Delete KRA error:', error)
+      notifyError(error?.message || 'Unable to delete KRA.')
+    }
+  }
+
+  const handleDeleteEducation = async item => {
+    if (!selectedJobId || !item?.ID) return
+
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this education record?'
+    )
+
+    if (!confirmed) return
+
+    try {
+      const response = await saveJobDescription({
+        action: 'delete_education',
+        jd_id: selectedJobId,
+        education_id: item.ID
+      })
+
+      if (response?.status) {
+        notifySuccess(response?.message || 'Education deleted successfully.')
+
+        setFormData(prev => ({
+          ...prev,
+          EDUCATION_LIST: (prev.EDUCATION_LIST || []).filter(
+            row => String(row.ID) !== String(item.ID)
+          )
+        }))
+
+        if (String(editingEducationId) === String(item.ID)) {
+          setEditingEducationId(null)
+
+          setFormData(prev => ({
+            ...prev,
+            EDUCATION: {
+              QUA_ID: '',
+              COMMENTS: ''
+            }
+          }))
+        }
+      } else {
+        notifyError(response?.message || 'Unable to delete education.')
+      }
+    } catch (error) {
+      console.error('Delete education error:', error)
+      notifyError(error?.message || 'Unable to delete education.')
+    }
+  }
+
+  const handleDeleteSkill = async item => {
+    if (!selectedJobId || !item?.ID) return
+
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this skill?'
+    )
+
+    if (!confirmed) return
+
+    try {
+      const response = await saveJobDescription({
+        action: 'delete_skill',
+        jd_id: selectedJobId,
+        skill_id: item.ID
+      })
+
+      if (response?.status) {
+        notifySuccess(response?.message || 'Skill deleted successfully.')
+
+        setFormData(prev => ({
+          ...prev,
+          SKILLS_LIST: (prev.SKILLS_LIST || []).filter(
+            row => String(row.ID) !== String(item.ID)
+          )
+        }))
+
+        if (String(editingSkillId) === String(item.ID)) {
+          setEditingSkillId(null)
+
+          setSkillForm({
+            ID: '',
+            code: '',
+            details: '',
+            level: ''
+          })
+        }
+      } else {
+        notifyError(response?.message || 'Unable to delete skill.')
+      }
+    } catch (error) {
+      console.error('Delete skill error:', error)
+      notifyError(error?.message || 'Unable to delete skill.')
+    }
+  }
+
+  const handleDeleteAllowance = async item => {
+    if (!selectedJobId || !item?.ID) return
+
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this allowance?'
+    )
+
+    if (!confirmed) return
+
+    try {
+      const response = await saveJobDescription({
+        action: 'delete_allowance',
+        jd_id: selectedJobId,
+        allowance_id: item.ID
+      })
+
+      if (response?.status) {
+        notifySuccess(response?.message || 'Allowance deleted successfully.')
+
+        setFormData(prev => ({
+          ...prev,
+          ALLOWANCES_LIST: (prev.ALLOWANCES_LIST || []).filter(
+            row => String(row.ID) !== String(item.ID)
+          )
+        }))
+      } else {
+        notifyError(response?.message || 'Unable to delete allowance.')
+      }
+    } catch (error) {
+      console.error('Delete allowance error:', error)
+      notifyError(error?.message || 'Unable to delete allowance.')
+    }
+  }
+
+  const handleDeleteCTCHead = async item => {
+    if (!selectedJobId || !item?.ID) return
+
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this CTC head?'
+    )
+
+    if (!confirmed) return
+
+    try {
+      const response = await saveJobDescription({
+        action: 'delete_ctc_head',
+        jd_id: selectedJobId,
+        ctc_head_id: item.ID
+      })
+
+      if (response?.status) {
+        notifySuccess(response?.message || 'CTC head deleted successfully.')
+
+        setFormData(prev => ({
+          ...prev,
+          CTC_HEADS_LIST: (prev.CTC_HEADS_LIST || []).filter(
+            row => String(row.ID) !== String(item.ID)
+          )
+        }))
+      } else {
+        notifyError(response?.message || 'Unable to delete CTC head.')
+      }
+    } catch (error) {
+      console.error('Delete CTC head error:', error)
+      notifyError(error?.message || 'Unable to delete CTC head.')
+    }
+  }
+
+  const handleDeleteInduction = async item => {
+    if (!selectedJobId || !item?.ID) return
+
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this induction record?'
+    )
+
+    if (!confirmed) return
+
+    try {
+      const response = await saveJobDescription({
+        action: 'delete_induction',
+        jd_id: selectedJobId,
+        induction_id: item.ID
+      })
+
+      if (response?.status) {
+        notifySuccess(response?.message || 'Induction deleted successfully.')
+
+        setFormData(prev => ({
+          ...prev,
+          INDUCTION_LIST: (prev.INDUCTION_LIST || []).filter(
+            row => String(row.ID) !== String(item.ID)
+          )
+        }))
+      } else {
+        notifyError(response?.message || 'Unable to delete induction.')
+      }
+    } catch (error) {
+      console.error('Delete induction error:', error)
+      notifyError(error?.message || 'Unable to delete induction.')
+    }
+  }
+
+  const getCTCHeadLabel = item => {
+    const description = item?.AD_DESC ?? item?.DESCR ?? ''
+
+    const cleanedDescription = description
+      .replace(/^(Monthly|Daily)\s*-\s*/i, '')
+      .trim()
+
+    const code = item?.AD_CODE ?? ''
+
+    return code
+      ? `${cleanedDescription} (${code})`
+      : cleanedDescription || item?.AD_ID || '-'
   }
 
   // const showForm = isCreatingNew || Boolean(selectedJobId);
@@ -1146,60 +1570,64 @@ const JobDescription = () => {
                 JOB DESCRIPTION SELECT
                 ============================ */}
               <div className='row align-items-end mb-3'>
-                <div className='col-lg-6 col-md-8'>
+                <div className='col-12'>
                   <label style={jdStyles.label}>Job Description</label>
 
-                  <Select
-                    options={jobList.map(item => ({
-                      value: item.ID,
-                      label: `${item.ID} - ${item.SH_DESC}${
-                        item.DEPT_NAME
-                          ? ` (${item.DEPT_NAME}${
-                              item.DESIG_NAME ? ` - ${item.DESIG_NAME}` : ''
-                            })`
-                          : ''
-                      }`
-                    }))}
-                    value={
-                      selectedJobId
-                        ? jobList
-                            .map(item => ({
-                              value: item.ID,
-                              label: `${item.ID} - ${item.SH_DESC}${
-                                item.DEPT_NAME
-                                  ? ` (${item.DEPT_NAME}${
-                                      item.DESIG_NAME
-                                        ? ` - ${item.DESIG_NAME}`
-                                        : ''
-                                    })`
-                                  : ''
-                              }`
-                            }))
-                            .find(
-                              option =>
-                                String(option.value) === String(selectedJobId)
-                            ) || null
-                        : null
-                    }
-                    onChange={option => {
-                      if (!option) {
-                        resetForm()
-                        return
-                      }
+                  <div className='d-flex justify-content-end'>
+                    <div style={{ width: '50%' }}>
+                      <Select
+                        options={jobList
+                          .map(item => ({
+                            value: item.ID,
+                            label: `${item.ID} - ${item.SH_DESC}${
+                              item.DIVISION_NAMES
+                                ? ` (${item.DIVISION_NAMES})`
+                                : ''
+                            }`
+                          }))
+                          .sort((a, b) => Number(a.value) - Number(b.value))}
+                        value={
+                          selectedJobId
+                            ? jobList
+                                .map(item => ({
+                                  value: item.ID,
+                                  label: `${item.ID} - ${item.SH_DESC}${
+                                    item.DIVISION_NAMES
+                                      ? ` (${item.DIVISION_NAMES})`
+                                      : ''
+                                  }`
+                                }))
+                                .sort(
+                                  (a, b) => Number(a.value) - Number(b.value)
+                                )
+                                .find(
+                                  option =>
+                                    String(option.value) ===
+                                    String(selectedJobId)
+                                ) || null
+                            : null
+                        }
+                        onChange={option => {
+                          if (!option) {
+                            resetForm()
+                            return
+                          }
 
-                      const selectedJob = jobList.find(
-                        item => String(item.ID) === String(option.value)
-                      )
+                          const selectedJob = jobList.find(
+                            item => String(item.ID) === String(option.value)
+                          )
 
-                      if (selectedJob) {
-                        startEditJob(selectedJob)
-                      }
-                    }}
-                    placeholder='Select Job Description'
-                    isSearchable
-                    isClearable
-                    isLoading={loading}
-                  />
+                          if (selectedJob) {
+                            startEditJob(selectedJob)
+                          }
+                        }}
+                        placeholder='Select Job Description'
+                        isSearchable
+                        isClearable
+                        isLoading={loading}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1220,41 +1648,7 @@ const JobDescription = () => {
                           className={`nav-link ${
                             activeTab === key ? 'active' : ''
                           }`}
-                          // onClick={() => setActiveTab(key)}
-                          onClick={() => {
-                            setActiveTab(key)
-
-                            if (
-                              key === 'skills' &&
-                              !(formData.SKILLS || []).length
-                            ) {
-                              setFormData(prev => ({
-                                ...prev,
-                                SKILLS: [
-                                  {
-                                    code: '',
-                                    details: '',
-                                    level: ''
-                                  }
-                                ]
-                              }))
-                            }
-
-                            if (
-                              key === 'allowances' &&
-                              !(formData.ALLOWANCES || []).length
-                            ) {
-                              setFormData(prev => ({
-                                ...prev,
-                                ALLOWANCES: [
-                                  {
-                                    listing: '',
-                                    appliedLocation: ''
-                                  }
-                                ]
-                              }))
-                            }
-                          }}
+                          onClick={() => setActiveTab(key)}
                         >
                           {label}
                         </button>
@@ -1269,297 +1663,338 @@ const JobDescription = () => {
                     {/* ==========================================
                       BASIC DETAILS
                       ========================================== */}
+
                     {activeTab === 'basic' && (
                       <div className='row'>
-                        {/* JD LABEL */}
-                        <div className='col-lg-4 col-md-6 mb-3'>
-                          <label style={jdStyles.label}>
-                            JD Label
-                            <span style={jdStyles.required}>*</span>
-                          </label>
+                        {/* ================= LEFT SIDE ================= */}
+                        <div className='col-lg-9'>
+                          <div className='row'>
+                            {/* JD LABEL */}
+                            <div className='col-lg-6 col-md-6 mb-3'>
+                              <label style={jdStyles.label}>
+                                JD Label
+                                <span style={jdStyles.required}>*</span>
+                              </label>
 
-                          <input
-                            type='text'
-                            className={`form-control ${
-                              errors.SH_DESC ? 'is-invalid' : ''
-                            }`}
-                            value={formData.SH_DESC}
-                            onChange={e =>
-                              handleFieldChange('SH_DESC', e.target.value)
-                            }
-                            maxLength={100}
-                          />
+                              <input
+                                type='text'
+                                className={`form-control ${
+                                  errors.SH_DESC ? 'is-invalid' : ''
+                                }`}
+                                value={formData.SH_DESC}
+                                onChange={e =>
+                                  handleFieldChange('SH_DESC', e.target.value)
+                                }
+                                maxLength={100}
+                              />
 
-                          {errors.SH_DESC && (
-                            <div className='invalid-feedback'>
-                              {errors.SH_DESC}
+                              {errors.SH_DESC && (
+                                <div className='invalid-feedback'>
+                                  {errors.SH_DESC}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
 
-                        {/* DEPARTMENT */}
-                        <div className='col-lg-4 col-md-6 mb-3'>
-                          <label style={jdStyles.label}>
-                            Department
-                            <span style={jdStyles.required}>*</span>
-                          </label>
+                            {/* DEPARTMENT */}
+                            <div className='col-lg-6 col-md-6 mb-3'>
+                              <label style={jdStyles.label}>
+                                Department
+                                <span style={jdStyles.required}>*</span>
+                              </label>
 
-                          <Select
-                            options={departmentOptions}
-                            value={
-                              departmentOptions.find(
-                                o =>
-                                  String(o.value) === String(formData.DEPT_ID)
-                              ) || null
-                            }
-                            onChange={option =>
-                              handleFieldChange('DEPT_ID', option?.value || '')
-                            }
-                            isSearchable
-                            isClearable
-                            placeholder='Select Department'
-                          />
+                              <Select
+                                options={departmentOptions}
+                                value={
+                                  departmentOptions.find(
+                                    o =>
+                                      String(o.value) ===
+                                      String(formData.DEPT_ID)
+                                  ) || null
+                                }
+                                onChange={option =>
+                                  handleFieldChange(
+                                    'DEPT_ID',
+                                    option?.value || ''
+                                  )
+                                }
+                                isSearchable
+                                isClearable
+                                placeholder='Select Department'
+                              />
 
-                          {errors.DEPT_ID && (
-                            <div className='text-danger small mt-1'>
-                              {errors.DEPT_ID}
+                              {errors.DEPT_ID && (
+                                <div className='text-danger small mt-1'>
+                                  {errors.DEPT_ID}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
 
-                        {/* DESIGNATION */}
-                        <div className='col-lg-4 col-md-6 mb-3'>
-                          <label style={jdStyles.label}>
-                            Designation
-                            <span style={jdStyles.required}>*</span>
-                          </label>
+                            {/* DESIGNATION */}
+                            <div className='col-lg-6 col-md-6 mb-3'>
+                              <label style={jdStyles.label}>
+                                Designation
+                                <span style={jdStyles.required}>*</span>
+                              </label>
 
-                          <Select
-                            options={designationOptions}
-                            value={
-                              designationOptions.find(
-                                o =>
-                                  String(o.value) === String(formData.DESIG_ID)
-                              ) || null
-                            }
-                            onChange={option =>
-                              handleFieldChange('DESIG_ID', option?.value || '')
-                            }
-                            isSearchable
-                            isClearable
-                            placeholder='Select Designation'
-                          />
+                              <Select
+                                options={designationOptions}
+                                value={
+                                  designationOptions.find(
+                                    o =>
+                                      String(o.value) ===
+                                      String(formData.DESIG_ID)
+                                  ) || null
+                                }
+                                onChange={option =>
+                                  handleFieldChange(
+                                    'DESIG_ID',
+                                    option?.value || ''
+                                  )
+                                }
+                                isSearchable
+                                isClearable
+                                placeholder='Select Designation'
+                              />
 
-                          {errors.DESIG_ID && (
-                            <div className='text-danger small mt-1'>
-                              {errors.DESIG_ID}
+                              {errors.DESIG_ID && (
+                                <div className='text-danger small mt-1'>
+                                  {errors.DESIG_ID}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
 
-                        {/* EMPLOYEE LEVEL */}
-                        <div className='col-lg-4 col-md-6 mb-3'>
-                          <label style={jdStyles.label}>
-                            Employee Level
-                            <span style={jdStyles.required}>*</span>
-                          </label>
+                            {/* EMPLOYEE LEVEL */}
+                            <div className='col-lg-6 col-md-6 mb-3'>
+                              <label style={jdStyles.label}>
+                                Employee Level
+                                <span style={jdStyles.required}>*</span>
+                              </label>
 
-                          <Select
-                            options={levelOptions}
-                            value={
-                              levelOptions.find(
-                                o => String(o.value) === String(formData.LVL_ID)
-                              ) || null
-                            }
-                            onChange={option =>
-                              handleFieldChange('LVL_ID', option?.value || '')
-                            }
-                            isSearchable
-                            isClearable
-                            placeholder='Select Employee Level'
-                          />
+                              <Select
+                                options={levelOptions}
+                                value={
+                                  levelOptions.find(
+                                    o =>
+                                      String(o.value) ===
+                                      String(formData.LVL_ID)
+                                  ) || null
+                                }
+                                onChange={option =>
+                                  handleFieldChange(
+                                    'LVL_ID',
+                                    option?.value || ''
+                                  )
+                                }
+                                isSearchable
+                                isClearable
+                                placeholder='Select Employee Level'
+                              />
 
-                          {errors.LVL_ID && (
-                            <div className='text-danger small mt-1'>
-                              {errors.LVL_ID}
+                              {errors.LVL_ID && (
+                                <div className='text-danger small mt-1'>
+                                  {errors.LVL_ID}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
 
-                        {/* MIN EXPERIENCE */}
-                        <div className='col-lg-3 col-md-6 mb-3'>
-                          <label style={jdStyles.label}>
-                            Minimum Experience
-                            <span style={jdStyles.required}>*</span>
-                          </label>
+                            {/* MIN EXPERIENCE */}
+                            <div className='col-lg-3 col-md-6 mb-3'>
+                              <label style={jdStyles.label}>
+                                Minimum Experience
+                                <span style={jdStyles.required}>*</span>
+                              </label>
 
-                          <input
-                            type='number'
-                            className='form-control'
-                            value={formData.MIN_EXP}
-                            onChange={e =>
-                              handleFieldChange('MIN_EXP', e.target.value)
-                            }
-                            min={0}
-                          />
-                        </div>
-
-                        {/* MAX EXPERIENCE */}
-                        <div className='col-lg-3 col-md-6 mb-3'>
-                          <label style={jdStyles.label}>
-                            Maximum Experience
-                            <span style={jdStyles.required}>*</span>
-                          </label>
-
-                          <input
-                            type='number'
-                            className='form-control'
-                            value={formData.MAX_EXP}
-                            onChange={e =>
-                              handleFieldChange('MAX_EXP', e.target.value)
-                            }
-                            min={0}
-                          />
-                        </div>
-
-                        {/* MIN AGE */}
-                        <div className='col-lg-3 col-md-6 mb-3'>
-                          <label style={jdStyles.label}>
-                            Minimum Age
-                            <span style={jdStyles.required}>*</span>
-                          </label>
-
-                          <input
-                            type='number'
-                            className='form-control'
-                            value={formData.MIN_AGE}
-                            onChange={e =>
-                              handleFieldChange('MIN_AGE', e.target.value)
-                            }
-                            min={0}
-                          />
-                        </div>
-
-                        {/* MAX AGE */}
-                        <div className='col-lg-3 col-md-6 mb-3'>
-                          <label style={jdStyles.label}>
-                            Maximum Age
-                            <span style={jdStyles.required}>*</span>
-                          </label>
-
-                          <input
-                            type='number'
-                            className='form-control'
-                            value={formData.MAX_AGE}
-                            onChange={e =>
-                              handleFieldChange('MAX_AGE', e.target.value)
-                            }
-                            min={0}
-                          />
-                        </div>
-
-                        {/* MIN CTC */}
-                        <div className='col-lg-3 col-md-6 mb-3'>
-                          <label style={jdStyles.label}>
-                            Minimum CTC
-                            <span style={jdStyles.required}>*</span>
-                          </label>
-
-                          <input
-                            type='number'
-                            className='form-control'
-                            value={formData.MIN_SAL}
-                            onChange={e =>
-                              handleFieldChange('MIN_SAL', e.target.value)
-                            }
-                            min={0}
-                          />
-                        </div>
-
-                        {/* MAX CTC */}
-                        <div className='col-lg-3 col-md-6 mb-3'>
-                          <label style={jdStyles.label}>
-                            Maximum CTC
-                            <span style={jdStyles.required}>*</span>
-                          </label>
-
-                          <input
-                            type='number'
-                            className='form-control'
-                            value={formData.MAX_SAL}
-                            onChange={e =>
-                              handleFieldChange('MAX_SAL', e.target.value)
-                            }
-                            min={0}
-                          />
-                        </div>
-
-                        {/* MIN QUALIFICATION */}
-                        <div className='col-lg-3 col-md-6 mb-3'>
-                          <label style={jdStyles.label}>
-                            Minimum Qualification
-                            <span style={jdStyles.required}>*</span>
-                          </label>
-
-                          <Select
-                            // options={qualificationOptions}
-                            options={educationLevelOptions}
-                            value={
-                              // qualificationOptions.find(
-                              educationLevelOptions.find(
-                                o =>
-                                  String(o.value) === String(formData.MIN_QUAL)
-                              ) || null
-                            }
-                            onChange={option =>
-                              handleFieldChange('MIN_QUAL', option?.value || '')
-                            }
-                            isSearchable
-                            isClearable
-                            placeholder='Select Minimum Qualification'
-                          />
-
-                          {errors.MIN_QUAL && (
-                            <div className='text-danger small mt-1'>
-                              {errors.MIN_QUAL}
+                              <input
+                                type='number'
+                                className='form-control'
+                                value={formData.MIN_EXP}
+                                onChange={e =>
+                                  handleFieldChange('MIN_EXP', e.target.value)
+                                }
+                                min={0}
+                              />
                             </div>
-                          )}
-                        </div>
 
-                        {/* MAX QUALIFICATION */}
-                        <div className='col-lg-3 col-md-6 mb-3'>
-                          <label style={jdStyles.label}>
-                            Maximum Qualification
-                            <span style={jdStyles.required}>*</span>
-                          </label>
+                            {/* MAX EXPERIENCE */}
+                            <div className='col-lg-3 col-md-6 mb-3'>
+                              <label style={jdStyles.label}>
+                                Maximum Experience
+                                <span style={jdStyles.required}>*</span>
+                              </label>
 
-                          <Select
-                            // options={qualificationOptions}
-                            options={educationLevelOptions}
-                            value={
-                              // qualificationOptions.find(
-                              educationLevelOptions.find(
-                                o =>
-                                  String(o.value) === String(formData.MAX_QUAL)
-                              ) || null
-                            }
-                            onChange={option =>
-                              handleFieldChange('MAX_QUAL', option?.value || '')
-                            }
-                            isSearchable
-                            isClearable
-                            placeholder='Select Maximum Qualification'
-                          />
-
-                          {errors.MAX_QUAL && (
-                            <div className='text-danger small mt-1'>
-                              {errors.MAX_QUAL}
+                              <input
+                                type='number'
+                                className='form-control'
+                                value={formData.MAX_EXP}
+                                onChange={e =>
+                                  handleFieldChange('MAX_EXP', e.target.value)
+                                }
+                                min={0}
+                              />
                             </div>
-                          )}
+
+                            {/* MIN AGE */}
+                            <div className='col-lg-3 col-md-6 mb-3'>
+                              <label style={jdStyles.label}>
+                                Minimum Age
+                                <span style={jdStyles.required}>*</span>
+                              </label>
+
+                              <input
+                                type='number'
+                                className='form-control'
+                                value={formData.MIN_AGE}
+                                onChange={e =>
+                                  handleFieldChange('MIN_AGE', e.target.value)
+                                }
+                                min={0}
+                              />
+                            </div>
+
+                            {/* MAX AGE */}
+                            <div className='col-lg-3 col-md-6 mb-3'>
+                              <label style={jdStyles.label}>
+                                Maximum Age
+                                <span style={jdStyles.required}>*</span>
+                              </label>
+
+                              <input
+                                type='number'
+                                className='form-control'
+                                value={formData.MAX_AGE}
+                                onChange={e =>
+                                  handleFieldChange('MAX_AGE', e.target.value)
+                                }
+                                min={0}
+                              />
+                            </div>
+
+                            {/* MIN CTC */}
+                            <div className='col-lg-3 col-md-6 mb-3'>
+                              <label style={jdStyles.label}>
+                                Minimum CTC
+                                <span style={jdStyles.required}>*</span>
+                              </label>
+
+                              <input
+                                type='number'
+                                className='form-control'
+                                value={formData.MIN_SAL}
+                                onChange={e =>
+                                  handleFieldChange('MIN_SAL', e.target.value)
+                                }
+                                min={0}
+                              />
+                            </div>
+
+                            {/* MAX CTC */}
+                            <div className='col-lg-3 col-md-6 mb-3'>
+                              <label style={jdStyles.label}>
+                                Maximum CTC
+                                <span style={jdStyles.required}>*</span>
+                              </label>
+
+                              <input
+                                type='number'
+                                className='form-control'
+                                value={formData.MAX_SAL}
+                                onChange={e =>
+                                  handleFieldChange('MAX_SAL', e.target.value)
+                                }
+                                min={0}
+                              />
+                            </div>
+
+                            {/* MIN QUALIFICATION */}
+                            <div className='col-lg-3 col-md-6 mb-3'>
+                              <label style={jdStyles.label}>
+                                Minimum Qualification
+                                <span style={jdStyles.required}>*</span>
+                              </label>
+
+                              <Select
+                                options={educationLevelOptions}
+                                value={
+                                  educationLevelOptions.find(
+                                    o =>
+                                      String(o.value) ===
+                                      String(formData.MIN_QUAL)
+                                  ) || null
+                                }
+                                onChange={option =>
+                                  handleFieldChange(
+                                    'MIN_QUAL',
+                                    option?.value || ''
+                                  )
+                                }
+                                isSearchable
+                                isClearable
+                                placeholder='Select Minimum Qualification'
+                              />
+
+                              {errors.MIN_QUAL && (
+                                <div className='text-danger small mt-1'>
+                                  {errors.MIN_QUAL}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* MAX QUALIFICATION */}
+                            <div className='col-lg-3 col-md-6 mb-3'>
+                              <label style={jdStyles.label}>
+                                Maximum Qualification
+                                <span style={jdStyles.required}>*</span>
+                              </label>
+
+                              <Select
+                                options={educationLevelOptions}
+                                value={
+                                  educationLevelOptions.find(
+                                    o =>
+                                      String(o.value) ===
+                                      String(formData.MAX_QUAL)
+                                  ) || null
+                                }
+                                onChange={option =>
+                                  handleFieldChange(
+                                    'MAX_QUAL',
+                                    option?.value || ''
+                                  )
+                                }
+                                isSearchable
+                                isClearable
+                                placeholder='Select Maximum Qualification'
+                              />
+
+                              {errors.MAX_QUAL && (
+                                <div className='text-danger small mt-1'>
+                                  {errors.MAX_QUAL}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* UPLOAD DOCUMENT */}
+                            <div className='col-lg-6 col-md-6 mb-3'>
+                              <label style={jdStyles.label}>
+                                Upload Document
+                              </label>
+
+                              <input
+                                type='file'
+                                className='form-control'
+                                onChange={e =>
+                                  handleFieldChange(
+                                    'UPLOAD_DOC',
+                                    e.target.files?.[0] || null
+                                  )
+                                }
+                              />
+                            </div>
+                          </div>
                         </div>
 
-                        {/* SHORT DESCRIPTION */}
-                        <div className='col-lg-8 mb-3'>
+                        {/* ================= RIGHT SIDE ================= */}
+                        <div className='col-lg-3'>
                           <label style={jdStyles.label}>
                             Short Desc About Role
                             <span style={jdStyles.required}>*</span>
@@ -1567,28 +2002,21 @@ const JobDescription = () => {
 
                           <textarea
                             className='form-control'
-                            rows={8}
+                            style={{
+                              height: '305px',
+                              resize: 'vertical'
+                            }}
                             value={formData.DESCR}
                             onChange={e =>
                               handleFieldChange('DESCR', e.target.value)
                             }
                           />
-                        </div>
 
-                        {/* UPLOAD DOCUMENT */}
-                        <div className='col-lg-4 mb-3'>
-                          <label style={jdStyles.label}>Upload Document</label>
-
-                          <input
-                            type='file'
-                            className='form-control'
-                            onChange={e =>
-                              handleFieldChange(
-                                'UPLOAD_DOC',
-                                e.target.files?.[0] || null
-                              )
-                            }
-                          />
+                          {errors.DESCR && (
+                            <div className='text-danger small mt-1'>
+                              {errors.DESCR}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -1596,9 +2024,11 @@ const JobDescription = () => {
                     {/* ==========================================
                       RESPONSIBILITIES
                       ========================================== */}
+
                     {showAllTabs && activeTab === 'responsibilities' && (
                       <div>
                         <label style={jdStyles.label}>Responsibilities</label>
+
                         <SDLtextEditor
                           value={formData.RESPONSIBILITIES || ''}
                           onChange={e =>
@@ -1613,17 +2043,144 @@ const JobDescription = () => {
                               minHeight: '300px'
                             }
                           }}
-                        /> 
+                        />
+
+                        {/* Responsibilities table */}
+                        {formData.RESPONSIBILITIES_LIST?.length > 0 && (
+                          <div
+                            style={{
+                              width: '100%',
+                              overflowX: 'hidden',
+                              marginTop: '16px'
+                            }}
+                          >
+                            <table
+                              className='table table-bordered'
+                              style={{
+                                width: '100%',
+                                tableLayout: 'fixed',
+                                marginBottom: 0
+                              }}
+                            >
+                              <thead>
+                                <tr>
+                                  <th
+                                    style={{
+                                      width: '60px',
+                                      textAlign: 'center'
+                                    }}
+                                  >
+                                    No.
+                                  </th>
+
+                                  <th
+                                    style={{
+                                      width: 'auto'
+                                    }}
+                                  >
+                                    Description
+                                  </th>
+
+                                  <th
+                                    style={{
+                                      width: '80px',
+                                      textAlign: 'center'
+                                    }}
+                                  >
+                                    Edit
+                                  </th>
+
+                                  <th
+                                    style={{
+                                      width: '90px',
+                                      textAlign: 'center'
+                                    }}
+                                  >
+                                    Delete
+                                  </th>
+                                </tr>
+                              </thead>
+
+                              <tbody>
+                                {formData.RESPONSIBILITIES_LIST.map(
+                                  (item, index) => (
+                                    <tr key={item.ID}>
+                                      <td
+                                        style={{
+                                          textAlign: 'center',
+                                          verticalAlign: 'middle'
+                                        }}
+                                      >
+                                        {index + 1}
+                                      </td>
+
+                                      <td
+                                        style={{
+                                          whiteSpace: 'normal',
+                                          overflowWrap: 'anywhere',
+                                          wordBreak: 'break-word',
+                                          verticalAlign: 'top'
+                                        }}
+                                      >
+                                        <div
+                                          dangerouslySetInnerHTML={{
+                                            __html: item.DESCR || ''
+                                          }}
+                                        />
+                                      </td>
+
+                                      <td
+                                        style={{
+                                          textAlign: 'center',
+                                          verticalAlign: 'middle'
+                                        }}
+                                      >
+                                        <button
+                                          type='button'
+                                          className='btn btn-warning btn-sm'
+                                          onClick={() =>
+                                            handleEditResponsibility(item)
+                                          }
+                                        >
+                                          Edit
+                                        </button>
+                                      </td>
+
+                                      <td
+                                        style={{
+                                          textAlign: 'center',
+                                          verticalAlign: 'middle'
+                                        }}
+                                      >
+                                        <button
+                                          type='button'
+                                          className='btn btn-danger btn-sm'
+                                          onClick={() =>
+                                            handleDeleteResponsibility(item.ID)
+                                          }
+                                        >
+                                          Delete
+                                        </button>
+                                      </td>
+                                    </tr>
+                                  )
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
                       </div>
                     )}
 
                     {/* ==========================================
                       KRA
                       ========================================== */}
+
                     {showAllTabs && activeTab === 'kra' && (
                       <div>
                         <div className='mb-3'>
                           <label className='form-label'>KRA*</label>
+
                           <MultiSelect
                             value={formData.KRA || []}
                             options={kraOptions}
@@ -1640,6 +2197,34 @@ const JobDescription = () => {
                             emptyFilterMessage='No KRA found'
                           />
                         </div>
+
+                        <JDDataTable
+                          data={formData.KRA_LIST || []}
+                          columns={[
+                            {
+                              key: 'NO',
+                              label: 'No.',
+                              width: '60px',
+                              align: 'center',
+                              render: (_, index) => index + 1
+                            },
+                            {
+                              key: 'KRA_DESC',
+                              label: 'Description',
+                              render: item =>
+                                item.KRA_DESC ??
+                                item.kra_desc ??
+                                kraOptions.find(
+                                  option =>
+                                    String(option.value) ===
+                                    String(item.KRA_ID ?? item.kra_id)
+                                )?.label ??
+                                '-'
+                            }
+                          ]}
+                          showDelete
+                          // onDelete={handleDeleteKRA}
+                        />
                       </div>
                     )}
 
@@ -1647,59 +2232,95 @@ const JobDescription = () => {
                       EDUCATION
                       ========================================== */}
                     {showAllTabs && activeTab === 'education' && (
-                      <div className='row'>
-                        <div className='col-lg-6 mb-3'>
-                          <label style={jdStyles.label}>
-                            Qualification
-                            <span style={jdStyles.required}>*</span>
-                          </label>
+                      <>
+                        <div className='row'>
+                          <div className='col-lg-6 mb-3'>
+                            <label style={jdStyles.label}>
+                              Qualification
+                              <span style={jdStyles.required}>*</span>
+                            </label>
 
-                          <Select
-                            options={qualificationOptions}
-                            value={
-                              qualificationOptions.find(
-                                option =>
-                                  String(option.value) ===
-                                  String(formData.EDUCATION?.QUA_ID)
-                              ) || null
-                            }
-                            onChange={option =>
-                              setFormData(prev => ({
-                                ...prev,
-                                EDUCATION: {
-                                  ...prev.EDUCATION,
-                                  QUA_ID: option?.value || ''
-                                }
-                              }))
-                            }
-                            isSearchable
-                            isClearable
-                            placeholder='Select Qualification'
-                          />
+                            <Select
+                              options={qualificationOptions}
+                              value={
+                                qualificationOptions.find(
+                                  option =>
+                                    String(option.value) ===
+                                    String(formData.EDUCATION?.QUA_ID)
+                                ) || null
+                              }
+                              onChange={option =>
+                                setFormData(prev => ({
+                                  ...prev,
+                                  EDUCATION: {
+                                    ...prev.EDUCATION,
+                                    QUA_ID: option?.value || ''
+                                  }
+                                }))
+                              }
+                              isSearchable
+                              isClearable
+                              placeholder='Select Qualification'
+                            />
+                          </div>
+
+                          <div className='col-lg-6 mb-3'>
+                            <label style={jdStyles.label}>
+                              Comments
+                              <span style={jdStyles.required}>*</span>
+                            </label>
+
+                            <input
+                              type='text'
+                              className='form-control'
+                              value={formData.EDUCATION?.COMMENTS || ''}
+                              onChange={e =>
+                                setFormData(prev => ({
+                                  ...prev,
+                                  EDUCATION: {
+                                    ...prev.EDUCATION,
+                                    COMMENTS: e.target.value
+                                  }
+                                }))
+                              }
+                            />
+                          </div>
                         </div>
 
-                        <div className='col-lg-6 mb-3'>
-                          <label style={jdStyles.label}>
-                            Comments
-                            <span style={jdStyles.required}>*</span>
-                          </label>
-
-                          <input
-                            type='text'
-                            className='form-control'
-                            value={formData.EDUCATION?.COMMENTS || ''}
-                            onChange={e =>
-                              setFormData(prev => ({
-                                ...prev,
-                                EDUCATION: {
-                                  ...prev.EDUCATION,
-                                  COMMENTS: e.target.value
-                                }
-                              }))
+                        <JDDataTable
+                          data={formData.EDUCATION_LIST || []}
+                          columns={[
+                            {
+                              key: 'NO',
+                              label: 'No.',
+                              width: '60px',
+                              align: 'center',
+                              render: (_, index) => index + 1
+                            },
+                            {
+                              key: 'QUA_DESC',
+                              label: 'Qualification',
+                              render: item =>
+                                item.QUA_DESC ??
+                                item.qua_desc ??
+                                qualificationOptions.find(
+                                  option =>
+                                    String(option.value) ===
+                                    String(item.QUA_ID ?? item.qua_id)
+                                )?.label ??
+                                '-'
+                            },
+                            {
+                              key: 'COMMENTS',
+                              label: 'Comments'
                             }
-                          />
-                        </div>
-                      </div>
+                          ]}
+                          showEdit
+                          showDelete
+                          // onEdit={handleEditEducation}
+                          // onDelete={handleDeleteEducation}
+                        />
+                      </>
                     )}
 
                     {/* ==========================================
@@ -1708,105 +2329,114 @@ const JobDescription = () => {
 
                     {showAllTabs && activeTab === 'skills' && (
                       <div>
-                        <label style={jdStyles.label}>Skills</label>
-
-                        {(formData.SKILLS || []).map((skill, idx) => (
-                          <div className='row align-items-end mb-2' key={idx}>
-                            {/* Skill */}
-                            <div className='col-md-3'>
-                              <Select
-                                options={skillOptions}
-                                value={
-                                  skillOptions.find(
-                                    option =>
-                                      String(option.value) ===
-                                      String(skill.code)
-                                  ) || null
-                                }
-                                onChange={option =>
-                                  updateArrayField(
-                                    'SKILLS',
-                                    idx,
-                                    'code',
-                                    option?.value || ''
-                                  )
-                                }
-                                isSearchable
-                                isClearable
-                                placeholder='Select Skill'
-                              />
-                            </div>
-
-                            {/* Skill Details */}
-                            <div className='col-md-5'>
-                              <input
-                                className='form-control'
-                                placeholder='Skill Details'
-                                value={skill.details || ''}
-                                onChange={e =>
-                                  updateArrayField(
-                                    'SKILLS',
-                                    idx,
-                                    'details',
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-
-                            {/* Expertise Level */}
-                            <div className='col-md-3'>
-                              <Select
-                                options={skillLevelOptions}
-                                value={
-                                  skillLevelOptions.find(
-                                    option =>
-                                      String(option.value) ===
-                                      String(skill.level)
-                                  ) || null
-                                }
-                                onChange={option =>
-                                  updateArrayField(
-                                    'SKILLS',
-                                    idx,
-                                    'level',
-                                    option?.value || ''
-                                  )
-                                }
-                                isSearchable
-                                isClearable
-                                placeholder='Expertise Level'
-                              />
-                            </div>
-
-                            {/* Remove */}
-                            <div className='col-md-1'>
-                              <button
-                                type='button'
-                                className='btn btn-sm btn-danger'
-                                onClick={() => removeArrayItem('SKILLS', idx)}
-                              >
-                                ×
-                              </button>
-                            </div>
+                        <div className='row align-items-end'>
+                          <div className='col-md-3 mb-3'>
+                            <label style={jdStyles.label}>
+                              Skill Code<span style={jdStyles.required}>*</span>
+                            </label>
+                            <Select
+                              options={skillOptions}
+                              value={
+                                skillOptions.find(
+                                  option =>
+                                    String(option.value) ===
+                                    String(skillForm.code)
+                                ) || null
+                              }
+                              onChange={option => {
+                                setSkillForm(prev => ({
+                                  ...prev,
+                                  code: option?.value || '',
+                                  details: option?.description || ''
+                                }))
+                              }}
+                              isSearchable
+                              isClearable
+                              placeholder='Select Skill'
+                            />
                           </div>
-                        ))}
 
-                        <div className='d-flex justify-content-end mt-3'>
-                          <button
-                            type='button'
-                            className='btn btn-sm btn-outline-primary mt-2'
-                            onClick={() =>
-                              addArrayItem('SKILLS', {
-                                code: '',
-                                details: '',
-                                level: ''
-                              })
-                            }
-                          >
-                            Add Skill
-                          </button>
+                          <div className='col-md-5 mb-3'>
+                            <label style={jdStyles.label}>
+                              Skill Details
+                              <span style={jdStyles.required}>*</span>
+                            </label>
+
+                            <input
+                              className='form-control'
+                              value={skillForm.details}
+                              onChange={e =>
+                                setSkillForm(prev => ({
+                                  ...prev,
+                                  details: e.target.value
+                                }))
+                              }
+                              placeholder='Skill Details'
+                            />
+                          </div>
+
+                          <div className='col-md-3 mb-3'>
+                            <label style={jdStyles.label}>
+                              Expertise Level
+                              <span style={jdStyles.required}>*</span>
+                            </label>
+
+                            <Select
+                              options={skillLevelOptions}
+                              value={
+                                skillLevelOptions.find(
+                                  option =>
+                                    String(option.value) ===
+                                    String(skillForm.level)
+                                ) || null
+                              }
+                              onChange={option =>
+                                setSkillForm(prev => ({
+                                  ...prev,
+                                  level: option?.value || ''
+                                }))
+                              }
+                              isSearchable
+                              isClearable
+                              placeholder='Expertise Level'
+                            />
+                          </div>
                         </div>
+
+                        <JDDataTable
+                          data={formData.SKILLS_LIST || []}
+                          columns={[
+                            {
+                              key: 'NO',
+                              label: 'No.',
+                              width: '50px',
+                              align: 'center',
+                              render: (_, index) => index + 1
+                            },
+                            {
+                              key: 'CAPA_CODE',
+                              label: 'Skill',
+                              render: item =>
+                                item.CAPA_CODE ?? item.capa_code ?? '-'
+                            },
+                            {
+                              key: 'CAPA_DESC',
+                              label: 'Description',
+                              render: item =>
+                                item.CAPA_DESC ?? item.capa_desc ?? '-'
+                            },
+                            {
+                              key: 'CAPALVL_DESC',
+                              label: 'Expertise Level',
+                              render: item =>
+                                item.CAPALVL_DESC ?? item.capalvl_desc ?? '-'
+                            }
+                          ]}
+                          showEdit
+                          showDelete
+                          onEdit={handleEditSkill}
+                          onDelete={handleDeleteSkill}
+                        />
                       </div>
                     )}
 
@@ -1816,201 +2446,169 @@ const JobDescription = () => {
 
                     {showAllTabs && activeTab === 'allowances' && (
                       <div>
-                        <label style={jdStyles.label}>
-                          Allowances / Reimbursements
-                        </label>
+                        <div className='row align-items-end'>
+                          <div className='col-md-6 mb-3'>
+                            <label style={jdStyles.label}>
+                              Allowance<span style={jdStyles.required}>*</span>
+                            </label>
 
-                        {(formData.ALLOWANCES || []).map((item, idx) => (
-                          <div className='row align-items-end mb-3' key={idx}>
-                            {/* Allowance */}
-                            <div className='col-lg-3 col-md-6 mb-2'>
-                              <label style={jdStyles.label}>
-                                Allowance
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-
-                              <Select
-                                options={allowanceOptions}
-                                value={
-                                  allowanceOptions.find(
-                                    option =>
-                                      String(option.value) ===
-                                      String(item.listing)
-                                  ) || null
-                                }
-                                onChange={option =>
-                                  updateArrayField(
-                                    'ALLOWANCES',
-                                    idx,
-                                    'listing',
-                                    option?.value || ''
-                                  )
-                                }
-                                isSearchable
-                                isClearable
-                                placeholder='Select Allowance'
-                              />
-                            </div>
-
-                            {/* Amount */}
-                            <div className='col-lg-2 col-md-6 mb-2'>
-                              <label style={jdStyles.label}>
-                                Amount
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-
-                              <input
-                                type='number'
-                                className='form-control'
-                                placeholder='Enter Amount'
-                                value={item.amount || ''}
-                                onChange={e =>
-                                  updateArrayField(
-                                    'ALLOWANCES',
-                                    idx,
-                                    'amount',
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-
-                            {/* Frequency */}
-                            <div className='col-lg-3 col-md-6 mb-2'>
-                              <label style={jdStyles.label}>
-                                Frequency
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-
-                              <Select
-                                options={frequencyOptions}
-                                value={
-                                  frequencyOptions.find(
-                                    option =>
-                                      String(option.value) ===
-                                      String(item.frequency)
-                                  ) || null
-                                }
-                                onChange={option =>
-                                  updateArrayField(
-                                    'ALLOWANCES',
-                                    idx,
-                                    'frequency',
-                                    option?.value || ''
-                                  )
-                                }
-                                isSearchable
-                                isClearable
-                                placeholder='Select Frequency'
-                              />
-                            </div>
-
-                            {/* Expense Type */}
-                            <div className='col-lg-3 col-md-6 mb-2'>
-                              <label style={jdStyles.label}>
-                                Expense Type
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-
-                              <Select
-                                options={expenseTypeOptions}
-                                value={
-                                  expenseTypeOptions.find(
-                                    option =>
-                                      String(option.value) ===
-                                      String(item.expenseType)
-                                  ) || null
-                                }
-                                onChange={option =>
-                                  updateArrayField(
-                                    'ALLOWANCES',
-                                    idx,
-                                    'expenseType',
-                                    option?.value || ''
-                                  )
-                                }
-                                isSearchable
-                                isClearable
-                                placeholder='Select Expense Type'
-                              />
-                            </div>
-
-                            {/* Remove */}
-                            <div className='col-lg-1 col-md-6 mb-3'>
-                              <button
-                                type='button'
-                                className='btn btn-sm btn-danger'
-                                onClick={() =>
-                                  removeArrayItem('ALLOWANCES', idx)
-                                }
-                              >
-                                ×
-                              </button>
-                            </div>
-
-                            {/* From Date */}
-                            <div className='col-lg-5 col-md-6 mb-2'>
-                              <label style={jdStyles.label}>
-                                From Date
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-
-                              <input
-                                type='date'
-                                className='form-control'
-                                value={item.fromDate || ''}
-                                onChange={e =>
-                                  updateArrayField(
-                                    'ALLOWANCES',
-                                    idx,
-                                    'fromDate',
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-
-                            {/* To Date */}
-                            <div className='col-lg-5 col-md-6 mb-2'>
-                              <label style={jdStyles.label}>
-                                To Date
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-
-                              <input
-                                type='date'
-                                className='form-control'
-                                value={item.toDate || ''}
-                                onChange={e =>
-                                  updateArrayField(
-                                    'ALLOWANCES',
-                                    idx,
-                                    'toDate',
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
+                            <Select
+                              options={allowanceOptions}
+                              value={
+                                allowanceOptions.find(
+                                  option =>
+                                    String(option.value) ===
+                                    String(allowanceForm.listing)
+                                ) || null
+                              }
+                              onChange={option =>
+                                setAllowanceForm(prev => ({
+                                  ...prev,
+                                  listing: option?.value || ''
+                                }))
+                              }
+                              isSearchable
+                              isClearable
+                              placeholder='Select Allowance'
+                            />
                           </div>
-                        ))}
 
-                        {/* Add Row */}
-                        <button
-                          type='button'
-                          className='btn btn-sm btn-outline-primary mt-2'
-                          onClick={() =>
-                            addArrayItem('ALLOWANCES', {
-                              listing: '',
-                              amount: '',
-                              frequency: '',
-                              expenseType: '',
-                              fromDate: null,
-                              toDate: ''
-                            })
-                          }
-                        >
-                          Add Row
-                        </button>
+                          <div className='col-md-6 mb-3'>
+                            <label style={jdStyles.label}>
+                              Amount<span style={jdStyles.required}>*</span>
+                            </label>
+
+                            <input
+                              type='number'
+                              className='form-control'
+                              value={allowanceForm.amount}
+                              onChange={e =>
+                                setAllowanceForm(prev => ({
+                                  ...prev,
+                                  amount: e.target.value
+                                }))
+                              }
+                            />
+                          </div>
+
+                          <div className='col-md-4 mb-3'>
+                            <label style={jdStyles.label}>
+                              Frequency<span style={jdStyles.required}>*</span>
+                            </label>
+
+                            <Select
+                              options={frequencyList.map(item => ({
+                                value:
+                                  item.value ?? item.FREQUENCY ?? item.EXP_TYPE,
+                                label:
+                                  item.label ?? item.FREQUENCY ?? item.EXP_TYPE
+                              }))}
+                              value={null}
+                              onChange={option =>
+                                setAllowanceForm(prev => ({
+                                  ...prev,
+                                  frequency: option?.value || ''
+                                }))
+                              }
+                              isSearchable
+                              isClearable
+                              placeholder='Select Frequency'
+                            />
+                          </div>
+
+                          <div className='col-md-4 mb-3'>
+                            <label style={jdStyles.label}>
+                              Exp Type<span style={jdStyles.required}>*</span>
+                            </label>
+
+                            <input
+                              className='form-control'
+                              value={allowanceForm.expenseType}
+                              onChange={e =>
+                                setAllowanceForm(prev => ({
+                                  ...prev,
+                                  expenseType: e.target.value
+                                }))
+                              }
+                            />
+                          </div>
+
+                          <div className='col-md-2 mb-3'>
+                            <label style={jdStyles.label}>
+                              From Date<span style={jdStyles.required}>*</span>
+                            </label>
+
+                            <input
+                              type='date'
+                              className='form-control'
+                              value={allowanceForm.fromDate}
+                              onChange={e =>
+                                setAllowanceForm(prev => ({
+                                  ...prev,
+                                  fromDate: e.target.value
+                                }))
+                              }
+                            />
+                          </div>
+
+                          <div className='col-md-2 mb-3'>
+                            <label style={jdStyles.label}>To Date</label>
+
+                            <input
+                              type='date'
+                              className='form-control'
+                              value={allowanceForm.toDate}
+                              onChange={e =>
+                                setAllowanceForm(prev => ({
+                                  ...prev,
+                                  toDate: e.target.value
+                                }))
+                              }
+                            />
+                          </div>
+                        </div>
+
+                        <JDDataTable
+                          data={formData.ALLOWANCES_LIST || []}
+                          columns={[
+                            {
+                              key: 'NO',
+                              label: 'No.',
+                              width: '50px',
+                              align: 'center',
+                              render: (_, index) => index + 1
+                            },
+                            {
+                              key: 'ALLOW_DESC',
+                              label: 'Allowance',
+                              render: item =>
+                                item.ALLOW_DESC ?? item.allow_desc ?? '-'
+                            },
+                            {
+                              key: 'ALLOW_AMOUNT',
+                              label: 'Amount',
+                              align: 'center'
+                            },
+                            {
+                              key: 'ADD_INFO',
+                              label: 'Frequency'
+                            },
+                            {
+                              key: 'EXP_TYPE',
+                              label: 'Exp Type'
+                            },
+                            {
+                              key: 'FROMDT',
+                              label: 'From Date'
+                            },
+                            {
+                              key: 'TODT',
+                              label: 'To Date'
+                            }
+                          ]}
+                          showDelete
+                          onDelete={handleDeleteAllowance}
+                        />
                       </div>
                     )}
 
@@ -2019,161 +2617,181 @@ const JobDescription = () => {
                       ========================================== */}
                     {showAllTabs && activeTab === 'ctc' && (
                       <div>
-                        <label style={jdStyles.label}>CTC Heads</label>
+                        <div className='row align-items-end'>
+                          <div className='col-md-4 mb-3'>
+                            <label style={jdStyles.label}>
+                              CTC Head<span style={jdStyles.required}>*</span>
+                            </label>
 
-                        {(formData.CTC_HEADS || []).map((item, idx) => (
-                          <div className='row align-items-end mb-4' key={idx}>
-                            {/* CTC HEAD */}
-                            <div className='col-md-3'>
-                              <label style={jdStyles.label}>
-                                CTC Head
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-                              <Select
-                                options={ctcHeadOptions}
-                                value={
-                                  ctcHeadOptions.find(
-                                    option =>
-                                      String(option.value) === String(item.head)
-                                  ) || null
-                                }
-                                onChange={option =>
-                                  updateArrayField(
-                                    'CTC_HEADS',
-                                    idx,
-                                    'head',
-                                    option?.value || ''
-                                  )
-                                }
-                                isSearchable
-                                isClearable
-                                placeholder='Select CTC Head'
-                              />
-                            </div>
-
-                            {/* FORMULA */}
-                            <div className='col-md-2'>
-                              <label style={jdStyles.label}>
-                                Formula
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-                              <Select
-                                options={formulaOptions}
-                                value={
-                                  formulaOptions.find(
+                            <Select
+                              options={ctcHeadList.map(item => ({
+                                value: item.AD_ID ?? item.ad_id,
+                                label: getCTCHeadLabel(item)
+                              }))}
+                              value={
+                                ctcHeadList
+                                  .map(item => ({
+                                    value: item.AD_ID ?? item.ad_id,
+                                    label: getCTCHeadLabel(item)
+                                  }))
+                                  .find(
                                     option =>
                                       String(option.value) ===
-                                      String(item.formula)
+                                      String(ctcForm.head)
                                   ) || null
-                                }
-                                onChange={option =>
-                                  updateArrayField(
-                                    'CTC_HEADS',
-                                    idx,
-                                    'formula',
-                                    option?.value || ''
-                                  )
-                                }
-                                isSearchable
-                                isClearable
-                                placeholder='Select Formula'
-                              />
-                            </div>
-
-                            {/* VALUE */}
-                            <div className='col-md-2'>
-                              <label style={jdStyles.label}>
-                                Value
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-                              <input
-                                type='number'
-                                className='form-control'
-                                placeholder='Value'
-                                value={item.value || ''}
-                                onChange={e =>
-                                  updateArrayField(
-                                    'CTC_HEADS',
-                                    idx,
-                                    'value',
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-
-                            {/* EFFECTIVE FROM */}
-                            <div className='col-md-2'>
-                              <label style={jdStyles.label}>
-                                Effective From
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-                              <input
-                                type='date'
-                                className='form-control'
-                                value={item.from || ''}
-                                onChange={e =>
-                                  updateArrayField(
-                                    'CTC_HEADS',
-                                    idx,
-                                    'from',
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-
-                            {/* EFFECTIVE TO */}
-                            <div className='col-md-2'>
-                              <label style={jdStyles.label}>
-                                Effective To
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-                              <input
-                                type='date'
-                                className='form-control'
-                                value={item.to || ''}
-                                onChange={e =>
-                                  updateArrayField(
-                                    'CTC_HEADS',
-                                    idx,
-                                    'to',
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-
-                            {/* REMOVE */}
-                            <div className='col-md-1'>
-                              <button
-                                type='button'
-                                className='btn btn-sm btn-danger'
-                                onClick={() =>
-                                  removeArrayItem('CTC_HEADS', idx)
-                                }
-                              >
-                                ×
-                              </button>
-                            </div>
+                              }
+                              onChange={option =>
+                                setCtcForm(prev => ({
+                                  ...prev,
+                                  head: option?.value || ''
+                                }))
+                              }
+                              isSearchable
+                              isClearable
+                              placeholder='Select CTC Head'
+                            />
                           </div>
-                        ))}
 
-                        <button
-                          type='button'
-                          className='btn btn-sm btn-outline-primary mt-2'
-                          onClick={() =>
-                            addArrayItem('CTC_HEADS', {
-                              head: '',
-                              formula: '',
-                              value: '',
-                              from: '',
-                              to: ''
-                            })
-                          }
-                        >
-                          Add CTC Head
-                        </button>
+                          <div className='col-md-3 mb-3'>
+                            <label style={jdStyles.label}>
+                              Formula<span style={jdStyles.required}>*</span>
+                            </label>
+
+                            <Select
+                              options={formulaOptions}
+                              value={
+                                formulaOptions.find(
+                                  option =>
+                                    String(option.value) ===
+                                    String(ctcForm.formula)
+                                ) || null
+                              }
+                              onChange={option =>
+                                updateArrayField(
+                                  'CTC_HEADS',
+                                  idx,
+                                  'formula',
+                                  option?.value || ''
+                                )
+                              }
+                              isSearchable
+                              isClearable
+                              placeholder='Select Formula'
+                            />
+                          </div>
+
+                          <div className='col-md-2 mb-3'>
+                            <label style={jdStyles.label}>
+                              Value<span style={jdStyles.required}>*</span>
+                            </label>
+
+                            <input
+                              className='form-control'
+                              value={ctcForm.value}
+                              onChange={e =>
+                                setCtcForm(prev => ({
+                                  ...prev,
+                                  value: e.target.value
+                                }))
+                              }
+                            />
+                          </div>
+
+                          <div className='col-md-2 mb-3'>
+                            <label style={jdStyles.label}>
+                              Effective From
+                              <span style={jdStyles.required}>*</span>
+                            </label>
+
+                            <input
+                              type='date'
+                              className='form-control'
+                              value={ctcForm.from}
+                              onChange={e =>
+                                setCtcForm(prev => ({
+                                  ...prev,
+                                  from: e.target.value
+                                }))
+                              }
+                            />
+                          </div>
+
+                          <div className='col-md-1 mb-3'>
+                            <label style={jdStyles.label}>Effective To</label>
+
+                            <input
+                              type='date'
+                              className='form-control'
+                              value={ctcForm.to}
+                              onChange={e =>
+                                setCtcForm(prev => ({
+                                  ...prev,
+                                  to: e.target.value
+                                }))
+                              }
+                            />
+                          </div>
+                        </div>
+
+                        <JDDataTable
+                          data={formData.CTC_HEADS || []}
+                          columns={[
+                            {
+                              key: 'NO',
+                              label: 'No.',
+                              width: '50px',
+                              align: 'center',
+                              render: (_, index) => index + 1
+                            },
+                            {
+                              key: 'head',
+                              label: 'CTC Head',
+                              render: item => {
+                                const option = ctcHeadList.find(
+                                  option =>
+                                    String(option.AD_ID ?? option.ad_id) ===
+                                    String(item.head)
+                                )
+
+                                return option ? getCTCHeadLabel(option) : '-'
+                              }
+                            },
+
+                            {
+                              key: 'formula',
+                              label: 'Key',
+                              render: item => {
+                                const formulaValue = item.formula ?? ''
+
+                                const option = formulaOptions.find(
+                                  option =>
+                                    String(option.value) ===
+                                    String(formulaValue)
+                                )
+
+                                return option?.label ?? formulaValue ?? '-'
+                              }
+                            },
+
+                            {
+                              key: 'value',
+                              label: 'Value',
+                              align: 'center'
+                            },
+
+                            {
+                              key: 'from',
+                              label: 'Effective From'
+                            },
+
+                            {
+                              key: 'to',
+                              label: 'Effective To'
+                            }
+                          ]}
+                          showDelete
+                          onDelete={handleDeleteCTCHead}
+                        />
                       </div>
                     )}
 
@@ -2313,20 +2931,10 @@ const JobDescription = () => {
                                         </td>
 
                                         {/* GROUP */}
-
                                         <td>{subGroupName || '-'}</td>
 
                                         {/* QUESTION */}
                                         <td>{questionText || '-'}</td>
-
-                                        {/* OPTIONS */}
-                                        {/* <td>
-                                          {question.OPTIONS?.length > 0
-                                            ? question.OPTIONS.map(
-                                                option => option.OPTS_TEXT
-                                              ).join(', ')
-                                            : '-'}
-                                        </td> */}
 
                                         {/* OPTIONS */}
                                         <td>
@@ -2462,8 +3070,6 @@ const JobDescription = () => {
 
                         <div className='row'>
                           {departmentOptions.map(dept => {
-                            //         console.log('departmentOptions:', departmentOptions)
-                            // console.log('DEPT_REFERENCES:', formData.DEPT_REFERENCES)
                             const isChecked = (
                               formData.DEPT_REFERENCES || []
                             ).some(
@@ -2550,19 +3156,10 @@ const JobDescription = () => {
                       ========================================== */}
                     {showAllTabs && activeTab === 'induction' && (
                       <div>
-                        {/* JD LABEL */}
-                        <div className='mb-4'>
-                          <strong>JD Label: </strong>
-                          {formData.SH_DESC || '-'}
-                        </div>
-
                         <div className='row'>
                           {/* INDUCTION */}
                           <div className='col-lg-4 mb-3'>
-                            <label style={jdStyles.label}>
-                              Induction
-                              {/* <span style={jdStyles.required}>*</span> */}
-                            </label>
+                            <label style={jdStyles.label}>Induction</label>
 
                             <Select
                               options={inductionOptions}
@@ -2643,68 +3240,48 @@ const JobDescription = () => {
                           </div>
                         </div>
 
-                        {/* INDUCTION TABLE */}
-                        <div className='table-responsive mt-4'>
-                          <table className='table table-bordered table-hover'>
-                            <thead>
-                              <tr>
-                                <th>Induction</th>
-                                <th>Organogram</th>
-                                <th>Sequence</th>
-                                <th>Delete</th>
-                              </tr>
-                            </thead>
-
-                            <tbody>
-                              {inductionDataList.length > 0 ? (
-                                inductionDataList.map((item, index) => (
-                                  <tr key={item.ID ?? index}>
-                                    <td>
-                                      {item.INDUC_DESC ||
-                                        inductionOptions.find(
-                                          option =>
-                                            String(option.value) ===
-                                            String(item.INDUC_ID)
-                                        )?.label ||
-                                        '-'}
-                                    </td>
-
-                                    <td>
-                                      {item.ORG_LABEL ||
-                                        organogramOptions.find(
-                                          option =>
-                                            String(option.value) ===
-                                            String(item.ORG_ID)
-                                        )?.label ||
-                                        '-'}
-                                    </td>
-
-                                    <td>{item.DISP_SEQ || '-'}</td>
-
-                                    <td>
-                                      <button
-                                        type='button'
-                                        className='btn btn-sm btn-danger'
-                                        onClick={() => {
-                                          // Delete handling can be added with the backend
-                                          // delete API when we implement it.
-                                        }}
-                                      >
-                                        Delete
-                                      </button>
-                                    </td>
-                                  </tr>
-                                ))
-                              ) : (
-                                <tr>
-                                  <td colSpan='4' className='text-center'>
-                                    No data found
-                                  </td>
-                                </tr>
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
+                        <JDDataTable
+                          data={formData.INDUCTION_LIST || []}
+                          columns={[
+                            {
+                              key: 'NO',
+                              label: 'No.',
+                              width: '60px',
+                              align: 'center',
+                              render: (_, index) => index + 1
+                            },
+                            {
+                              key: 'INDUC_DESC',
+                              label: 'Induction',
+                              render: item =>
+                                item.INDUC_DESC ??
+                                inductionOptions.find(
+                                  option =>
+                                    String(option.value) ===
+                                    String(item.INDUC_ID)
+                                )?.label ??
+                                '-'
+                            },
+                            {
+                              key: 'ORG_LABEL',
+                              label: 'Organogram',
+                              render: item =>
+                                item.ORG_LABEL ??
+                                organogramOptions.find(
+                                  option =>
+                                    String(option.value) === String(item.ORG_ID)
+                                )?.label ??
+                                '-'
+                            },
+                            {
+                              key: 'DISP_SEQ',
+                              label: 'Sequence',
+                              align: 'center'
+                            }
+                          ]}
+                          showDelete
+                          // onDelete={handleDeleteInduction}
+                        />
                       </div>
                     )}
                   </div>
