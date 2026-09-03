@@ -22,6 +22,7 @@ import {
   getExpenseTypeList,
   getFrequencyList,
   getCTCHeadList,
+  // getFormulaList
   getQuestionTemplateList,
   getQuestionGroupList,
   getDivisionList,
@@ -247,6 +248,8 @@ const JobDescription = () => {
         getOrganogramList()
       ])
 
+      console.log('INDUCTION MASTER:', inductionList)
+      console.log('ORGANOGRAM MASTER:', organogramList)
       setJobData(normalizeRecords(jobsResponse))
       setDepartments(normalizeRecords(departmentsResponse))
       setDesignations(normalizeRecords(designationsResponse))
@@ -2028,7 +2031,6 @@ const JobDescription = () => {
                     {showAllTabs && activeTab === 'responsibilities' && (
                       <div>
                         <label style={jdStyles.label}>Responsibilities</label>
-
                         <SDLtextEditor
                           value={formData.RESPONSIBILITIES || ''}
                           onChange={e =>
@@ -2180,7 +2182,6 @@ const JobDescription = () => {
                       <div>
                         <div className='mb-3'>
                           <label className='form-label'>KRA*</label>
-
                           <MultiSelect
                             value={formData.KRA || []}
                             options={kraOptions}
