@@ -54,8 +54,10 @@ export const PORTALAPI = {
   PROFILE:{
     GET_PROFILE_DATA: "/common/myProfile/getProfileData.php", // Get profile Data
     UPLOAD_PROFILE_IMAGE: "/common/myProfile/uploadProfileImage.php", // Upload profile Data
-    SAVE_FAMILY_MEMBER: "/common/myProfile/saveFamilyMember.php", //Save family Data   
-    DELETE_FAMILY_MEMBER: "/common/myProfile/deleteFamilyMember.php", //Delete family Data   
+    SAVE_FAMILY_MEMBER: "/common/myProfile/saveFamilyMember.php", //Save family Data
+    DELETE_FAMILY_MEMBER: "/common/myProfile/deleteFamilyMember.php", //Delete family Data
+    SAVE_BANK_DETAILS: '/common/myProfile/saveBankDetails.php', //Save bank details
+    SAVE_PERSONAL_DETAILS:'/common/myProfile/savePersonalDetails.php'  //Save personal details
   },
 
   LEAVEREQUEST: {

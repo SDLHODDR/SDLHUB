@@ -54,3 +54,37 @@ export const deleteFamilyMember = (payload) =>
     dedupe: true,
     data: payload,
   });
+
+export const saveBankDetails = payload =>
+  coreRequest({
+    url: PORTALAPI.PROFILE.SAVE_BANK_DETAILS,
+    method: 'POST',
+    data: payload
+  })
+
+export const  sendPersonalDetailsOtp = formData =>
+  coreRequest({
+    url: PORTALAPI.PROFILE.SAVE_PERSONAL_DETAILS,
+    method: 'POST',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+
+export const verifyPersonalDetailsOtp = ({ otp }) => {
+
+  const formData = new FormData()
+
+  formData.append('action', 'verify_otp')
+  formData.append('otp', otp)
+
+  return coreRequest({
+    url: PORTALAPI.PROFILE.SAVE_PERSONAL_DETAILS,
+    method: 'POST',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
