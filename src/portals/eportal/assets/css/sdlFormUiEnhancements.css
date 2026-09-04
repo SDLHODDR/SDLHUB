@@ -1,0 +1,72 @@
+/* ==========================================================================
+   SDL Form UI Enhancements
+   Reusable overrides for prominent breadcrumbs, labels, and form borders.
+   Wrap any page's root JSX in <div className="sdl-form-ui"> to apply.
+   ========================================================================== */
+
+/* --- Breadcrumb: make it prominent --- */
+.sdl-form-ui .breadcrumb,
+.sdl-form-ui .breadcrumb-item,
+.sdl-form-ui .breadcrumb-item a {
+  color: #212529 !important;
+  font-weight: 500;
+}
+.sdl-form-ui .breadcrumb-item.active {
+  color: #495057 !important;
+}
+.sdl-form-ui .breadcrumb-item + .breadcrumb-item::before {
+  color: #6c757d !important;
+}
+
+/* --- Labels: dark, readable, slightly bold --- */
+.sdl-form-ui .form-label,
+.sdl-form-ui .form-check-label {
+  color: #212529 !important;
+  font-weight: 500;
+}
+
+/* --- Form control borders: darker, more visible --- */
+.sdl-form-ui .form-control,
+.sdl-form-ui .form-select,
+.sdl-form-ui input[type="file"] {
+  border: 1px solid #6c757d !important;
+  color: #212529;
+}
+.sdl-form-ui .form-control:focus,
+.sdl-form-ui .form-select:focus {
+  border-color: #495057 !important;
+  box-shadow: 0 0 0 0.2rem rgba(73, 80, 87, 0.15);
+}
+
+/* --- react-select based components (SDLReactSelect / SDLReactMultiSelect) ---
+   Update class targets below once you confirm classNamePrefix, if any. */
+.sdl-form-ui [class$="-control"] {
+  border-color: #6c757d !important;
+}
+.sdl-form-ui [class$="-control"]:hover {
+  border-color: #495057 !important;
+}
+.sdl-form-ui [class$="-placeholder"] {
+  color: #6c757d !important;
+}
+
+/* --- SDLCalendar (PrimeReact) input + trigger border --- */
+.sdl-form-ui .sdl-calendar-wrapper .p-inputtext {
+  border: 1px solid #6c757d !important;
+  border-right: 0 !important;
+  color: #212529;
+}
+.sdl-form-ui .sdl-calendar-wrapper .p-inputtext:enabled:focus {
+  border-color: #495057 !important;
+  box-shadow: 0 0 0 0.2rem rgba(73, 80, 87, 0.15);
+}
+
+.sdl-form-ui .sdl-calendar-wrapper button.p-datepicker-trigger {
+  border: 1px solid #6c757d !important;
+  border-left: 0 !important;
+}
+.sdl-form-ui .sdl-calendar-wrapper button.p-datepicker-trigger:hover,
+.sdl-form-ui .sdl-calendar-wrapper button.p-datepicker-trigger:focus,
+.sdl-form-ui .sdl-calendar-wrapper button.p-datepicker-trigger:active {
+  border-color: #6c757d !important;
+}

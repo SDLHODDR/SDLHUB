@@ -8605,7 +8605,8 @@ table .edit-delete-action.data {
   transition: all 0.5s ease-in-out;
   position: relative;
   border-radius: 8px;
-  border: 1px solid #E6EAED;
+  /* border: 1px solid #E6EAED; */
+  border: 1px solid #5B6670;
   box-shadow: none;
   color: inherit;
 }

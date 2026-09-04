@@ -15,13 +15,25 @@ export const getTicketBookingAuthorizationColumns = (openModal, formatDashDate) 
     header: "Travel Date",
     body: (rowData) => formatDashDate(rowData.TRVL_DATE) || "-",
   },
+   {
+    header: "Travel Mode",
+    body: (rowData) => rowData.TRVL_MODE || "-",
+  },
+  {
+    header: "Flight/Train Name",
+    body: (rowData) => rowData.TRVL_FT_NAME || "-",
+  },
+  {
+    header: "Travel Class",
+    body: (rowData) => rowData.TRVL_CLASS || "-",
+  },
   {
     header: "Travel From",
-    body: (rowData) => formatDashDate(rowData?.TRVL_FROM_LOC) || "-",
+    body: (rowData) => rowData?.TRVL_FROM_LOC || "-",
   },
   {
     header: "Travel To",
-    body: (rowData) => formatDashDate(rowData?.TRVL_TO_LOC) || "-",
+    body: (rowData) => rowData?.TRVL_TO_LOC || "-",
   },
 
   {

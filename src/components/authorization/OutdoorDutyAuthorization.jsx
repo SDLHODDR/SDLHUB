@@ -18,6 +18,7 @@ const OutdoorDutyAuthorization = () => {
     openModal,
     closeModal,
     handleModalSuccess,
+    currentTaskId
   } = useOutdoorDutyAuthorizationHandler();
 
   const columns = getOutdoorDutyAuthorizationColumns(openModal, formatDashDate);
@@ -28,7 +29,7 @@ const OutdoorDutyAuthorization = () => {
     <>
       <div className="page-header">
         <div className="page-title">
-          <h4>Outdoor Duty Authorization</h4>
+          <h4>{currentTaskId == 21 ? "Outdoor Duty Post Remarks Review" : "Outdoor Duty Authorization"}</h4>
         </div>
         <BreadcrumbNav
           items={[

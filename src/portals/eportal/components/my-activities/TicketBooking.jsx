@@ -229,7 +229,7 @@ const TicketBooking = () => {
                   </div> */}
                   <div className="col-lg-3 col-md-4 col-12">
                     <select
-                      className="form-select sdl-dark-select"
+                      className="form-select"
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
                     >

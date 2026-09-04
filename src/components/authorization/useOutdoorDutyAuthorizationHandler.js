@@ -118,5 +118,6 @@ export const useOutdoorDutyAuthorizationHandler = () => {
     openModal,
     closeModal,
     handleModalSuccess,
+    currentTaskId
   };
 };

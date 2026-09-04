@@ -190,7 +190,7 @@ const HeaderTop = () => {
             isPolicyPage ? "policy-header-left" : ""
           }`}
         >
-          <Link to="/eportal/dashboard" className="logo logo-normal">
+          {/* <Link to="/eportal/dashboard" className="logo logo-normal">
             <img src={LOGOS.MAIN} alt="Img" style={{ width: 90 }} />
           </Link>
 
@@ -199,6 +199,17 @@ const HeaderTop = () => {
           </Link>
 
           <Link to="/eportal/dashboard" className="logo-small">
+            <img src={LOGOS.MAIN} alt="Img" />
+          </Link> */}
+          <Link to={activePortal.path} className="logo logo-normal">
+            <img src={LOGOS.MAIN} alt="Img" style={{ width: 90 }} />
+          </Link>
+
+          <Link to={activePortal.path} className="logo logo-white">
+            <img src={LOGOS.MAIN} alt="Img" />
+          </Link>
+
+          <Link to={activePortal.path} className="logo-small">
             <img src={LOGOS.MAIN} alt="Img" />
           </Link>
         </div>
