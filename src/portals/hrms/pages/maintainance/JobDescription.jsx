@@ -727,8 +727,6 @@ const JobDescription = () => {
       const selectedJob =
         response?.data?.jobDescription || response?.jobDescription || null
 
-        console.log('ALLOWANCES FROM API:', selectedJob?.ALLOWANCES_LIST)
-
       if (!selectedJob) {
         notifyError('Unable to fetch job description details.')
         return
@@ -773,14 +771,9 @@ const JobDescription = () => {
 
         REPT_JDID: selectedJob.REPT_JDID || '',
 
-        EDUCATION: selectedJob.EDUCATION_LIST?.[0]
-          ? {
-              QUA_ID: selectedJob.EDUCATION_LIST[0].QUA_ID || '',
-              COMMENTS: selectedJob.EDUCATION_LIST[0].COMMENTS || ''
-            }
-          : {
-              ...INITIAL_FORM_DATA.EDUCATION
-            },
+        EDUCATION: {
+          ...INITIAL_FORM_DATA.EDUCATION
+        },
 
         EDUCATION_LIST: Array.isArray(selectedJob.EDUCATION_LIST)
           ? selectedJob.EDUCATION_LIST
@@ -794,14 +787,13 @@ const JobDescription = () => {
 
         // ALLOWANCES: [],
         ALLOWANCES: {
-  listing: '',
-  allowAmount: '',
-  frequency: '',
-  appliedLocation: '',
-  from: '',
-  to: ''
-},
-
+          listing: '',
+          allowAmount: '',
+          frequency: '',
+          appliedLocation: '',
+          from: '',
+          to: ''
+        },
 
         ALLOWANCES_LIST: Array.isArray(selectedJob.ALLOWANCES_LIST)
           ? selectedJob.ALLOWANCES_LIST
@@ -1035,7 +1027,107 @@ const JobDescription = () => {
     setSaving(true)
 
     try {
-      // include tab data in payload; arrays are stringified for backend compatibility
+      /*
+     Prepare Skills -------------------------------------------------
+     */
+      let skillsToSave = [...(formData.SKILLS_LIST || [])]
+
+      if (skillForm.code) {
+        const skillRecord = {
+          ID: editingSkillId || '',
+          CAPA_ID: skillForm.code,
+          CAPA_DESC: skillForm.details,
+          CAPALVL_ID: skillForm.level
+        }
+
+        if (editingSkillId) {
+          skillsToSave = skillsToSave.map(item =>
+            String(item.ID) === String(editingSkillId)
+              ? { ...item, ...skillRecord }
+              : item
+          )
+        } else {
+          skillsToSave.push(skillRecord)
+        }
+      }
+
+      /*
+     Prepare Allowances
+     */
+      let allowancesToSave = [...(formData.ALLOWANCES_LIST || [])]
+
+      if (allowanceForm.listing) {
+        const allowanceRecord = {
+          ID: editingAllowanceId || '',
+          ALLOW_ID: allowanceForm.listing,
+          ALLOW_AMOUNT: allowanceForm.amount,
+          ADD_INFO: allowanceForm.frequency,
+          EXP_TYPE: allowanceForm.expenseType,
+          FROMDT: allowanceForm.fromDate,
+          TODT: allowanceForm.toDate
+        }
+
+        if (editingAllowanceId) {
+          allowancesToSave = allowancesToSave.map(item =>
+            String(item.ID) === String(editingAllowanceId)
+              ? { ...item, ...allowanceRecord }
+              : item
+          )
+        } else {
+          allowancesToSave.push(allowanceRecord)
+        }
+      }
+
+      /*
+     Prepare CTC Heads
+     */
+      let ctcHeadsToSave = [...(formData.CTC_HEADS_LIST || [])]
+
+      if (ctcForm.head) {
+        const ctcRecord = {
+          ID: editingCtcId || '',
+          AD_ID: ctcForm.head,
+          KEY: ctcForm.formula,
+          TEMPVAL: ctcForm.formula,
+          VAL: ctcForm.value,
+          EFFEC_FROM: ctcForm.from,
+          EFFEC_TO: ctcForm.to
+        }
+
+        if (editingCtcId) {
+          ctcHeadsToSave = ctcHeadsToSave.map(item =>
+            String(item.ID) === String(editingCtcId)
+              ? { ...item, ...ctcRecord }
+              : item
+          )
+        } else {
+          ctcHeadsToSave.push(ctcRecord)
+        }
+      }
+
+      let educationToSave = [...(formData.EDUCATION_LIST || [])]
+
+      if (formData.EDUCATION?.QUA_ID) {
+        const educationRecord = {
+          ID: editingEducationId || '',
+          QUA_ID: formData.EDUCATION.QUA_ID,
+          COMMENTS: formData.EDUCATION.COMMENTS || ''
+        }
+
+        if (editingEducationId) {
+          educationToSave = educationToSave.map(item =>
+            String(item.ID) === String(editingEducationId)
+              ? { ...item, ...educationRecord }
+              : item
+          )
+        } else {
+          educationToSave.push(educationRecord)
+        }
+      }
+
+      /*
+     Main payload
+     */
       const payload = {
         id: formData.id,
         shdesc: formData.SH_DESC,
@@ -1055,23 +1147,24 @@ const JobDescription = () => {
         maxsal: formData.MAX_SAL,
         rep_jdid: formData.REPT_JDID,
 
-        responsibilities: formData.RESPONSIBILITIES,
-        kra: formData.KRA,
-        education: JSON.stringify(formData.EDUCATION || {}),
-        skills: JSON.stringify(formData.SKILLS || []),
-        // allowances: JSON.stringify(formData.ALLOWANCES || []),
-        allowances: JSON.stringify(formData.ALLOWANCES_LIST || []),
-        ctc_heads: JSON.stringify(formData.CTC_HEADS || []),
-        question_template: formData.QUESTION_TEMPLATE,
+        kra: JSON.stringify(formData.KRA || []),
+
+        education: JSON.stringify(educationToSave),
+
+        skills: JSON.stringify(skillsToSave),
+
+        allowances: JSON.stringify(allowancesToSave),
+
+        ctc_heads: JSON.stringify(ctcHeadsToSave),
+
+        question_template: JSON.stringify(formData.QUESTION_TEMPLATE || []),
+
         dept_references: JSON.stringify(formData.DEPT_REFERENCES || []),
+
         division_mapping: JSON.stringify(formData.DIVISION_MAPPING || []),
+
         induction: JSON.stringify(formData.INDUCTION || {})
       }
-
-      console.log(
-  'ALLOWANCES BEING SENT:',
-  formData.ALLOWANCES
-)
 
       const response = await saveJobDescription(payload)
 
@@ -1079,15 +1172,145 @@ const JobDescription = () => {
         notifySuccess(
           response?.message || 'Job description saved successfully.'
         )
+
+        /*
+         * Clear temporary row forms after successful save.
+         */
+        setEditingSkillId(null)
+        setSkillForm({
+          code: '',
+          details: '',
+          level: ''
+        })
+
+        setEditingAllowanceId(null)
+        setAllowanceForm({
+          listing: '',
+          amount: '',
+          frequency: '',
+          expenseType: '',
+          fromDate: '',
+          toDate: ''
+        })
+
+        setEditingCtcId(null)
+        setCtcForm({
+          head: '',
+          formula: '',
+          value: '',
+          from: '',
+          to: ''
+        })
+
+        setEditingEducationId(null)
+
+        /*
+         * Reload main job list.
+         */
         await loadData()
-        if (response?.data?.id) {
-          setSelectedJobId(response.data.id)
+
+        const refreshed = await getJobDescriptionById(response.data.id)
+
+        const updatedJob =
+          refreshed?.data?.jobDescription || refreshed?.jobDescription || null
+
+        if (updatedJob) {
+          setFormData(prev => ({
+            ...prev,
+            KRA: Array.isArray(updatedJob.KRA_LIST)
+              ? updatedJob.KRA_LIST.map(item => item.KRA_ID)
+              : [],
+            KRA_LIST: Array.isArray(updatedJob.KRA_LIST)
+              ? updatedJob.KRA_LIST
+              : [],
+            RESPONSIBILITIES_LIST: Array.isArray(
+              updatedJob.RESPONSIBILITIES_LIST
+            )
+              ? updatedJob.RESPONSIBILITIES_LIST
+              : [],
+            EDUCATION_LIST: Array.isArray(updatedJob.EDUCATION_LIST)
+              ? updatedJob.EDUCATION_LIST
+              : [],
+            ALLOWANCES_LIST: Array.isArray(updatedJob.ALLOWANCES_LIST)
+              ? updatedJob.ALLOWANCES_LIST
+              : [],
+            CTC_HEADS_LIST: Array.isArray(updatedJob.CTC_HEADS_LIST)
+              ? updatedJob.CTC_HEADS_LIST
+              : [],
+            DEPT_REFERENCE_LIST: Array.isArray(updatedJob.DEPT_REFERENCE_LIST)
+              ? updatedJob.DEPT_REFERENCE_LIST
+              : [],
+            DIVISION_MAPPING_LIST: Array.isArray(
+              updatedJob.DIVISION_MAPPING_LIST
+            )
+              ? updatedJob.DIVISION_MAPPING_LIST
+              : [],
+            INDUCTION_LIST: Array.isArray(updatedJob.INDUCTION_LIST)
+              ? updatedJob.INDUCTION_LIST
+              : []
+          }))
+        }
+
+        /*
+         * Reload the complete selected JD so all tables
+         * immediately show the saved records.
+         */
+        if (formData.id) {
+          const refreshed = await getJobDescriptionById(formData.id)
+
+          const updatedJob =
+            refreshed?.data?.jobDescription || refreshed?.jobDescription || null
+
+          if (updatedJob) {
+            setFormData(prev => ({
+              ...prev,
+
+              KRA: Array.isArray(updatedJob.KRA_LIST)
+                ? updatedJob.KRA_LIST.map(item => item.KRA_ID)
+                : [],
+
+              KRA_LIST: Array.isArray(updatedJob.KRA_LIST)
+                ? updatedJob.KRA_LIST
+                : [],
+
+              EDUCATION_LIST: Array.isArray(updatedJob.EDUCATION_LIST)
+                ? updatedJob.EDUCATION_LIST
+                : [],
+
+              SKILLS_LIST: Array.isArray(updatedJob.SKILLS_LIST)
+                ? updatedJob.SKILLS_LIST
+                : [],
+
+              ALLOWANCES_LIST: Array.isArray(updatedJob.ALLOWANCES_LIST)
+                ? updatedJob.ALLOWANCES_LIST
+                : [],
+
+              CTC_HEADS_LIST: Array.isArray(updatedJob.CTC_HEADS_LIST)
+                ? updatedJob.CTC_HEADS_LIST
+                : [],
+
+              DEPT_REFERENCE_LIST: Array.isArray(updatedJob.DEPT_REFERENCE_LIST)
+                ? updatedJob.DEPT_REFERENCE_LIST
+                : [],
+
+              DIVISION_MAPPING_LIST: Array.isArray(
+                updatedJob.DIVISION_MAPPING_LIST
+              )
+                ? updatedJob.DIVISION_MAPPING_LIST
+                : [],
+
+              INDUCTION_LIST: Array.isArray(updatedJob.INDUCTION_LIST)
+                ? updatedJob.INDUCTION_LIST
+                : []
+            }))
+          }
         }
       } else {
         notifyError(response?.message || 'Unable to save job description.')
       }
     } catch (error) {
       console.error('Save job description error:', error)
+
       notifyError(error?.message || 'Unable to save job description.')
     } finally {
       setSaving(false)
@@ -2046,7 +2269,7 @@ const JobDescription = () => {
                         />
 
                         {/* Responsibilities table */}
-                        {formData.RESPONSIBILITIES_LIST?.length > 0 && (
+                        {responsibilitiesList?.length > 0 && (
                           <div
                             style={{
                               width: '100%',
@@ -2102,69 +2325,67 @@ const JobDescription = () => {
                               </thead>
 
                               <tbody>
-                                {formData.RESPONSIBILITIES_LIST.map(
-                                  (item, index) => (
-                                    <tr key={item.ID}>
-                                      <td
-                                        style={{
-                                          textAlign: 'center',
-                                          verticalAlign: 'middle'
-                                        }}
-                                      >
-                                        {index + 1}
-                                      </td>
+                                {responsibilitiesList?.map((item, index) => (
+                                  <tr key={item.ID}>
+                                    <td
+                                      style={{
+                                        textAlign: 'center',
+                                        verticalAlign: 'middle'
+                                      }}
+                                    >
+                                      {index + 1}
+                                    </td>
 
-                                      <td
-                                        style={{
-                                          whiteSpace: 'normal',
-                                          overflowWrap: 'anywhere',
-                                          wordBreak: 'break-word',
-                                          verticalAlign: 'top'
+                                    <td
+                                      style={{
+                                        whiteSpace: 'normal',
+                                        overflowWrap: 'anywhere',
+                                        wordBreak: 'break-word',
+                                        verticalAlign: 'top'
+                                      }}
+                                    >
+                                      <div
+                                        dangerouslySetInnerHTML={{
+                                          __html: item.DESCR || ''
                                         }}
-                                      >
-                                        <div
-                                          dangerouslySetInnerHTML={{
-                                            __html: item.DESCR || ''
-                                          }}
-                                        />
-                                      </td>
+                                      />
+                                    </td>
 
-                                      <td
-                                        style={{
-                                          textAlign: 'center',
-                                          verticalAlign: 'middle'
-                                        }}
+                                    <td
+                                      style={{
+                                        textAlign: 'center',
+                                        verticalAlign: 'middle'
+                                      }}
+                                    >
+                                      <button
+                                        type='button'
+                                        className='btn btn-warning btn-sm'
+                                        onClick={() =>
+                                          handleEditResponsibility(item)
+                                        }
                                       >
-                                        <button
-                                          type='button'
-                                          className='btn btn-warning btn-sm'
-                                          onClick={() =>
-                                            handleEditResponsibility(item)
-                                          }
-                                        >
-                                          Edit
-                                        </button>
-                                      </td>
+                                        Edit
+                                      </button>
+                                    </td>
 
-                                      <td
-                                        style={{
-                                          textAlign: 'center',
-                                          verticalAlign: 'middle'
-                                        }}
+                                    <td
+                                      style={{
+                                        textAlign: 'center',
+                                        verticalAlign: 'middle'
+                                      }}
+                                    >
+                                      <button
+                                        type='button'
+                                        className='btn btn-danger btn-sm'
+                                        onClick={() =>
+                                          handleDeleteResponsibility(item.ID)
+                                        }
                                       >
-                                        <button
-                                          type='button'
-                                          className='btn btn-danger btn-sm'
-                                          onClick={() =>
-                                            handleDeleteResponsibility(item.ID)
-                                          }
-                                        >
-                                          Delete
-                                        </button>
-                                      </td>
-                                    </tr>
-                                  )
-                                )}
+                                        Delete
+                                      </button>
+                                    </td>
+                                  </tr>
+                                ))}
                               </tbody>
                             </table>
                           </div>
@@ -2223,7 +2444,7 @@ const JobDescription = () => {
                             }
                           ]}
                           showDelete
-                          // onDelete={handleDeleteKRA}
+                          onDelete={handleDeleteKRA}
                         />
                       </div>
                     )}
@@ -2317,8 +2538,8 @@ const JobDescription = () => {
                           ]}
                           showEdit
                           showDelete
-                          // onEdit={handleEditEducation}
-                          // onDelete={handleDeleteEducation}
+                          onEdit={handleEditEducation}
+                          onDelete={handleDeleteEducation}
                         />
                       </>
                     )}
@@ -2503,7 +2724,25 @@ const JobDescription = () => {
                                 label:
                                   item.label ?? item.FREQUENCY ?? item.EXP_TYPE
                               }))}
-                              value={null}
+                              // value={null}
+                              value={
+                                frequencyList
+                                  .map(item => ({
+                                    value:
+                                      item.value ??
+                                      item.FREQUENCY ??
+                                      item.EXP_TYPE,
+                                    label:
+                                      item.label ??
+                                      item.FREQUENCY ??
+                                      item.EXP_TYPE
+                                  }))
+                                  .find(
+                                    option =>
+                                      String(option.value) ===
+                                      String(allowanceForm.frequency)
+                                  ) || null
+                              }
                               onChange={option =>
                                 setAllowanceForm(prev => ({
                                   ...prev,
@@ -2521,15 +2760,41 @@ const JobDescription = () => {
                               Exp Type<span style={jdStyles.required}>*</span>
                             </label>
 
-                            <input
-                              className='form-control'
-                              value={allowanceForm.expenseType}
-                              onChange={e =>
+                            <Select
+                              // options={expenseTypeOptions}
+                              // value={
+                              //   expenseTypeOptions.find(
+                              //     option =>
+                              //       String(option.value) ===
+                              //       String(allowanceForm.expenseType)
+                              //   ) || null
+                              // }
+                              options={[
+                                { value: 'A', label: 'Allowance' },
+                                { value: 'R', label: 'Reimbursement' }
+                              ]}
+                              value={
+                                allowanceForm.expenseType
+                                  ? {
+                                      value: allowanceForm.expenseType,
+                                      label:
+                                        allowanceForm.expenseType === 'A'
+                                          ? 'Allowance'
+                                          : allowanceForm.expenseType === 'R'
+                                          ? 'Reimbursement'
+                                          : allowanceForm.expenseType
+                                    }
+                                  : null
+                              }
+                              onChange={option =>
                                 setAllowanceForm(prev => ({
                                   ...prev,
-                                  expenseType: e.target.value
+                                  expenseType: option?.value || ''
                                 }))
                               }
+                              isSearchable
+                              isClearable
+                              placeholder='Select Exp Type'
                             />
                           </div>
 
@@ -2595,7 +2860,16 @@ const JobDescription = () => {
                             },
                             {
                               key: 'EXP_TYPE',
-                              label: 'Exp Type'
+                              label: 'Exp Type',
+                              render: item => {
+                                const expType =
+                                  item.EXP_TYPE ?? item.exp_type ?? ''
+
+                                if (expType === 'A') return 'Allowance'
+                                if (expType === 'R') return 'Reimbursement'
+
+                                return expType || '-'
+                              }
                             },
                             {
                               key: 'FROMDT',
@@ -2667,12 +2941,10 @@ const JobDescription = () => {
                                 ) || null
                               }
                               onChange={option =>
-                                updateArrayField(
-                                  'CTC_HEADS',
-                                  idx,
-                                  'formula',
-                                  option?.value || ''
-                                )
+                                setCtcForm(prev => ({
+                                  ...prev,
+                                  formula: option?.value || ''
+                                }))
                               }
                               isSearchable
                               isClearable
@@ -2734,7 +3006,8 @@ const JobDescription = () => {
                         </div>
 
                         <JDDataTable
-                          data={formData.CTC_HEADS || []}
+                          // data={formData.CTC_HEADS || []}
+                          data={formData.CTC_HEADS_LIST || []}
                           columns={[
                             {
                               key: 'NO',
@@ -2750,7 +3023,8 @@ const JobDescription = () => {
                                 const option = ctcHeadList.find(
                                   option =>
                                     String(option.AD_ID ?? option.ad_id) ===
-                                    String(item.head)
+                                    // String(item.head)
+                                    String(item.AD_ID ?? item.ad_id)
                                 )
 
                                 return option ? getCTCHeadLabel(option) : '-'
@@ -2761,7 +3035,8 @@ const JobDescription = () => {
                               key: 'formula',
                               label: 'Key',
                               render: item => {
-                                const formulaValue = item.formula ?? ''
+                                // const formulaValue = item.formula ?? ''
+                                const formulaValue = item.KEY ?? item.key ?? ''
 
                                 const option = formulaOptions.find(
                                   option =>
@@ -2774,18 +3049,21 @@ const JobDescription = () => {
                             },
 
                             {
-                              key: 'value',
+                              // key: 'value',
+                              key: 'VAL',
                               label: 'Value',
                               align: 'center'
                             },
 
                             {
-                              key: 'from',
+                              // key: 'from',
+                              key: 'EFFEC_FROM',
                               label: 'Effective From'
                             },
 
                             {
-                              key: 'to',
+                              // key: 'to',
+                              key: 'EFFEC_TO',
                               label: 'Effective To'
                             }
                           ]}
@@ -3280,7 +3558,7 @@ const JobDescription = () => {
                             }
                           ]}
                           showDelete
-                          // onDelete={handleDeleteInduction}
+                          onDelete={handleDeleteInduction}
                         />
                       </div>
                     )}
