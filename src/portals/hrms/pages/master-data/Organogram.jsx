@@ -23,6 +23,7 @@ import {
 import { getPortalFromPath } from "../../../../config/portalConfig";
 import "../../assets/css/profileMaintenance.css";
 
+
 const Organogram = () => {
   /* ==========================================================
       PORTAL
@@ -126,13 +127,15 @@ const Organogram = () => {
               </div>
             </div>
             <div className="card-body">
-              <SDLTabsComponent
-                tabs={tabs}
-                selectedTab={selectedTab}
-                onTabChange={handleTabChange}
-                tabContent={tabContent}
-                loading={loadingOrgonogram}
-              />
+              <div class="tab-style-5-wrapper">
+                <SDLTabsComponent
+                  tabs={tabs}
+                  selectedTab={selectedTab}
+                  onTabChange={handleTabChange}
+                  tabContent={tabContent}
+                  loading={loadingOrgonogram}
+                />
+              </div>
             </div>
           </div>
         </div>

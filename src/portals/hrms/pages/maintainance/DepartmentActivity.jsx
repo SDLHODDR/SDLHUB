@@ -16,6 +16,8 @@ import { useDepartmentActivityHandler } from "../../portalutils/useDepartmentAct
 
 // import SDLActivitySelector from "../../components/SDLActivitySelector";
 import SDLDropdownSelect from "../../components/forms/SDLDropdownSelect";
+import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
+import SDLReactSelect from "../../../../components/SDLReactSelect";
 
 
 const ACT_TYPES = { J: "Join", E: "Exit" };
@@ -241,6 +243,7 @@ const DepartmentActivity = () => {
 
   return (
     <>
+    <div className="sdl-form-ui">
       <div className="page-header">
         <div className="add-item d-flex">
           <div className="page-title">
@@ -278,7 +281,7 @@ const DepartmentActivity = () => {
                 {/* (1) Keyword-searchable "Select Department Activity", same
                     pattern as KRAActivity's top selector — toggle button
                     kept as its own explicit sibling element. */}
-                <div className="d-flex align-items-center gap-2">
+                {/* <div className="d-flex align-items-center gap-2">
                   <div style={{ minWidth: "270px" }}>
                     <SDLDropdownSelect
                       id="deptActivitySelect"
@@ -299,16 +302,36 @@ const DepartmentActivity = () => {
                   >
                     <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
                   </button>
+                </div> */}
+                <div className="d-flex align-items-center gap-2">
+                  <div style={{ minWidth: "270px" }}>
+                    <SDLReactSelect
+                      value={selectedActivity}
+                      options={activityOptions.map((opt) => ({ value: opt.id, label: opt.label }))}
+                      onChange={(id) => handleSelectActivity(id)}
+                      placeholder="Select Department Activity"
+                      isDisabled={loading}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
+                    onClick={handleToggleView}
+                    disabled={isSubmitting}
+                    style={{ minWidth: "15px" }}
+                  >
+                    <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
+                  </button>
                 </div>
               </div>
 
               {!showAll ? (
                 <>
                   <div className="row mb-3">
-                    <div className="col-lg-3 col-md-6">
+                    {/* <div className="col-lg-3 col-md-6"> */}
                       {/* (2) Department Master — searchable + creatable,
                           same pattern as Department Master in DepartmentActivity. */}
-                      <SDLDropdownSelect
+                      {/* <SDLDropdownSelect
                         id="deptMaster"
                         label="Department Master"
                         required
@@ -323,9 +346,46 @@ const DepartmentActivity = () => {
                         onFilterChange={handleDeptMasterSearch}
                         placeholder="Select Department"
                       />
+                    </div> */}
+                    <div className="col-lg-3 col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">
+                          Department Master<span className="text-danger ms-1">*</span>
+                        </label>
+                        <SDLReactSelect
+                          value={form.DEPT_ID}
+                          options={deptOptions.map((opt) => ({ value: opt.id, label: opt.label }))}
+                          onChange={(id) => handleFieldChange("DEPT_ID", id)}
+                          hasError={!!errors.DEPT_ID}
+                          isDisabled={loading}
+                          allowAddNew
+                          onAddNew={async (typedText) => {
+                            const newOption = await handleAddNewDeptMaster(typedText);
+                            return newOption ? { value: newOption.id, label: newOption.label } : null;
+                          }}
+                          onFilterChange={handleDeptMasterSearch}
+                          notifyFilterOnSelect
+                          placeholder="Select Department"
+                        />
+                        {errors.DEPT_ID && <div className="invalid-feedback d-block">{errors.DEPT_ID}</div>}
+                      </div>
                     </div>
-
                     <div className="col-lg-3 col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">
+                          Type<span className="text-danger ms-1">*</span>
+                        </label>
+                        <SDLReactSelect
+                          value={form.ACT_TYPE}
+                          options={Object.entries(ACT_TYPES).map(([code, label]) => ({ value: code, label }))}
+                          onChange={(code) => handleFieldChange("ACT_TYPE", code)}
+                          hasError={!!errors.ACT_TYPE}
+                          placeholder="Select Type"
+                        />
+                        {errors.ACT_TYPE && <div className="invalid-feedback d-block">{errors.ACT_TYPE}</div>}
+                      </div>
+                    </div>
+                    {/* <div className="col-lg-3 col-md-3">
                       <div className="mb-3">
                         <label className="form-label">
                           Type
@@ -345,7 +405,7 @@ const DepartmentActivity = () => {
                         </select>
                         {errors.ACT_TYPE && <div className="invalid-feedback">{errors.ACT_TYPE}</div>}
                       </div>
-                    </div>
+                    </div> */}
 
                     <div className="col-lg-3 col-md-6">
                       <div className="mb-3">
@@ -445,6 +505,7 @@ const DepartmentActivity = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </>
   );

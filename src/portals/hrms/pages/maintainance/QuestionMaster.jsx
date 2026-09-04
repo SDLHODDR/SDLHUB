@@ -12,6 +12,8 @@ import { normalizeRecords, getDisplayValue } from "../../../../utils/formatUtils
 import { questionMasterColumns } from "../../portalutils/questionMasterColumns";
 import { useQuestionMasterHandler } from "../../portalutils/useQuestionMasterHandler";
 import { buildOptionsFromRow } from "../../portalutils/questionOptionsUtils";
+import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
+import SDLReactSelect from "../../../../components/SDLReactSelect";
 
 const ANSWER_TYPES = ["Text", "Radio", "Checkbox"];
 
@@ -241,6 +243,7 @@ const QuestionMaster = () => {
 
   return (
     <>
+     <div className="sdl-form-ui">
       <div className="page-header">
         <div className="add-item d-flex">
           <div className="page-title">
@@ -279,7 +282,7 @@ const QuestionMaster = () => {
                     pattern as the top selectors elsewhere. Toggle button
                     kept as its own explicit sibling, matching this file's
                     original icon+label style. */}
-                <div className="d-flex align-items-center gap-2">
+                {/* <div className="d-flex align-items-center gap-2">
                   <div style={{ minWidth: "270px" }}>
                     <SDLDropdownSelect
                       id="questionMasterSelect"
@@ -300,6 +303,25 @@ const QuestionMaster = () => {
                     <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
                     
                   </button>
+                </div> */}
+                <div className="d-flex align-items-center gap-2">
+                  <div style={{ minWidth: "270px" }}>
+                    <SDLReactSelect
+                      value={selectedQuestion}
+                      options={questionOptions.map((opt) => ({ value: opt.id, label: opt.label }))}
+                      onChange={(id) => handleSelectQuestion(id, listData)}
+                      placeholder="Select Question Master"
+                      isDisabled={loading}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
+                    onClick={handleToggleView}
+                    style={{ minWidth: "15px" }}
+                  >
+                    <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
+                  </button>
                 </div>
               </div>
 
@@ -309,8 +331,49 @@ const QuestionMaster = () => {
                       No of Options — four across, matching the screenshot. */}
                   <div className="row mb-3">
                     <div className="col-lg-3 col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Question Group</label>
+                        <SDLReactSelect
+                          value={form.QGRP_ID}
+                          options={groups.map((g) => ({ value: g.ID, label: g.NAME }))}
+                          onChange={(id) => handleGroupChange(id)}
+                          hasError={!!errors.QGRP_ID}
+                          onFilterChange={handleGroupSearch}
+                          notifyFilterOnSelect
+                          placeholder="Select Group"
+                        />
+                        {errors.QGRP_ID && <div className="invalid-feedback d-block">{errors.QGRP_ID}</div>}
+                      </div>
+                    </div>
+
+                    <div className="col-lg-3 col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Question Sub Group</label>
+                        <SDLReactSelect
+                          value={form.QSGRP_ID}
+                          options={subgroups.map((s) => ({ value: s.ID, label: s.NAME }))}
+                          onChange={(id) => handleField("QSGRP_ID", id)}
+                          onFilterChange={handleSubGroupSearch}
+                          notifyFilterOnSelect
+                          placeholder="Select Sub Group"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="col-lg-3 col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Answer Type</label>
+                        <SDLReactSelect
+                          value={form.ANSWER_TYPE}
+                          options={ANSWER_TYPES.map((t) => ({ value: t, label: t }))}
+                          onChange={(val) => handleField("ANSWER_TYPE", val)}
+                          isClearable={false}
+                        />
+                      </div>
+                    </div>
+                    {/* <div className="col-lg-3 col-md-6"> */}
                       {/* (2)+(3) Keyword-searchable, no "add new". */}
-                      <SDLDropdownSelect
+                      {/* <SDLDropdownSelect
                         id="questionGroup"
                         label="Question Group"
                         options={groups.map((g) => ({ id: g.ID, label: g.NAME }))}
@@ -321,9 +384,9 @@ const QuestionMaster = () => {
                         onFilterChange={handleGroupSearch}
                         placeholder="Select Group"
                       />
-                    </div>
+                    </div> */}
 
-                    <div className="col-lg-3 col-md-6">
+                    {/* <div className="col-lg-3 col-md-6">
                       <SDLDropdownSelect
                         id="questionSubGroup"
                         label="Question Sub Group"
@@ -333,9 +396,9 @@ const QuestionMaster = () => {
                         onFilterChange={handleSubGroupSearch}
                         placeholder="Select Sub Group"
                       />
-                    </div>
+                    </div> */}
 
-                    <div className="col-lg-3 col-md-6">
+                    {/* <div className="col-lg-3 col-md-6">
                       <div className="mb-3">
                         <label className="form-label">Answer Type</label>
                         <select
@@ -348,7 +411,7 @@ const QuestionMaster = () => {
                           ))}
                         </select>
                       </div>
-                    </div>
+                    </div> */}
 
                     <div className="col-lg-3 col-md-6">
                       {/* (8) Always visible now — disabled (not hidden)
@@ -491,6 +554,7 @@ const QuestionMaster = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </>
   );

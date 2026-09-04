@@ -16,11 +16,12 @@
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
-  padding: 4px 42px 4px 8px;
+  padding: 10px 42px 4px 10px;
   min-height: 38px;
   max-height: 82px;
   overflow-y: auto;
   align-content: flex-start;
+  font-size: 13px;
 }
 
 /* Individual designation chip */
@@ -67,4 +68,48 @@
   font-size: 12px;
   line-height: 20px;
   white-space: nowrap;
+}
+
+/* --- Breadcrumb: make it prominent --- */
+.policy-list-page .breadcrumb,
+.policy-list-page .breadcrumb-item,
+.policy-list-page .breadcrumb-item a {
+  color: #212529 !important;
+  font-weight: 500;
+}
+.policy-list-page .breadcrumb-item.active {
+  color: #495057 !important;
+}
+.policy-list-page .breadcrumb-item + .breadcrumb-item::before {
+  color: #6c757d !important;
+}
+
+/* --- Labels: dark, readable, slightly bold --- */
+.policy-list-page .form-label,
+.policy-list-page .form-check-label {
+  color: #212529 !important;
+  font-weight: 500;
+}
+
+/* --- Form control borders: darker, more visible --- */
+.policy-list-page .form-control,
+.policy-list-page .form-select,
+.policy-list-page input[type="file"] {
+  border: 1px solid #6c757d !important;
+  color: #212529;
+}
+.policy-list-page .form-control:focus,
+.policy-list-page .form-select:focus {
+  border-color: #495057 !important;
+  box-shadow: 0 0 0 0.2rem rgba(73, 80, 87, 0.15);
+}
+
+.policy-list-page [class$="-control"] {
+  border-color: #6c757d !important;
+}
+.policy-list-page [class$="-control"]:hover {
+  border-color: #495057 !important;
+}
+.policy-list-page [class$="-placeholder"] {
+  color: #6c757d !important;
 }

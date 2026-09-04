@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { getGpAttdData, authGPData, rejectGPData, closeTaskData } from "../services/outdoorDutyService";
 import { notifyError, notifySuccess } from "../../../services/alertService";
 import SDLAuthorizationActionButtons from "../../../components/SDLAuthorizationActionButtons";
+import AttendanceLogForOD from "./AttendanceLogForOD";
 
 const FILE_BASE_URL = import.meta.env.VITE_FILE_BASE_URL || "";
 
@@ -165,6 +166,17 @@ const OutdoorDutyAuthorizationModal = ({
 
   console.log("===================AuthRemarks===================", formData);
 
+  const attachmentFileName = formData.ATTACHMENT_URL
+  ? formData.ATTACHMENT_URL.split("/").pop()
+  : "";
+
+  const attachmentUrl = attachmentFileName
+    ? `${import.meta.env.VITE_DOWNLOAD_URL}input/gatepass/${attachmentFileName}`
+    : "";
+
+  const hasGpAttdInfo =
+  gpAttdData && gpAttdData.keyRt && gpAttdData.valRt;
+
   return (
     <>
       <div
@@ -241,20 +253,31 @@ const OutdoorDutyAuthorizationModal = ({
                           <div className="mb-3">
                             <label className="form-label fw-semibold">Attachment :</label>
                             <span className="ms-2 d-inline-flex gap-3 align-items-center">
+                              <span className="text-muted">{attachmentFileName}</span>
                               <a
-                                href={formData.ATTACHMENT_URL}
+                                href={attachmentUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
                                 <i className="ti ti-eye me-1" />
                                 View
                               </a>
-                              {/* <a href={formData.ATTACHMENT_URL} download>
+                              {/* <a href={attachmentUrl} download>
                                 <i className="ti ti-download me-1" />
                                 Download
                               </a> */}
                             </span>
                           </div>
+                        </div>
+                      </div>
+                    )}
+                    {formData.TabId == 21 && (
+                      <div className="row">
+                         <div className="col-12">
+                          <AttendanceLogForOD
+                            empCode={formData.empCode}
+                            gpassDate={formData.GPASS_DATE}
+                          />
                         </div>
                       </div>
                     )}
@@ -281,12 +304,22 @@ const OutdoorDutyAuthorizationModal = ({
                       </div>
                     </div>
 
-                    {gpAttdData?.keyRt && (
+                    {/* {gpAttdData?.keyRt && (
                       <div className="row">
                         <div className="col-12">
                           <div className="form-group mb-3">
                             <label className="form-label">{gpAttdData.keyRt}:</label>
                             <span className="ms-2">{gpAttdData.valRt || ""}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )} */}
+                    {hasGpAttdInfo && (
+                      <div className="row">
+                        <div className="col-12">
+                          <div className="form-group mb-3">
+                            <label className="form-label">{gpAttdData.keyRt}:</label>
+                            <span className="ms-2">{gpAttdData.valRt}</span>
                           </div>
                         </div>
                       </div>
