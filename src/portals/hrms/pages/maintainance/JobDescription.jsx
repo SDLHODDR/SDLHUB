@@ -22,7 +22,6 @@ import {
   getExpenseTypeList,
   getFrequencyList,
   getCTCHeadList,
-  // getFormulaList
   getQuestionTemplateList,
   getQuestionGroupList,
   getDivisionList,
@@ -727,6 +726,8 @@ const JobDescription = () => {
 
       const selectedJob =
         response?.data?.jobDescription || response?.jobDescription || null
+
+        console.log('ALLOWANCES FROM API:', selectedJob?.ALLOWANCES_LIST)
 
       if (!selectedJob) {
         notifyError('Unable to fetch job description details.')
@@ -2252,6 +2253,7 @@ const JobDescription = () => {
                     {showAllTabs && activeTab === 'responsibilities' && (
                       <div>
                         <label style={jdStyles.label}>Responsibilities</label>
+
                         <SDLtextEditor
                           value={formData.RESPONSIBILITIES || ''}
                           onChange={e =>
@@ -2401,6 +2403,7 @@ const JobDescription = () => {
                       <div>
                         <div className='mb-3'>
                           <label className='form-label'>KRA*</label>
+
                           <MultiSelect
                             value={formData.KRA || []}
                             options={kraOptions}
