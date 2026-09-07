@@ -146,7 +146,7 @@ const TicketBookingAuthorizationModal = ({
               <div className="modal-body">
                 <div className="row">
                   <SDLFormField label="mode" value={formData.TRVL_MODE || ""} />
-                  <SDLFormField label="remarks" value={formData.REMARKS || ""} />
+                  <SDLFormField label="class" value={formData.TRVL_CLASS || ""} />
                 </div>
                 <div className="row">
                   <SDLFormField label="from" value={formData.TRVL_FROM_LOC || ""} />
@@ -164,6 +164,14 @@ const TicketBookingAuthorizationModal = ({
                      </>
                   } />
                   <SDLFormField label="flight/train number" value={formData.TRVL_FT_NO || ""} />
+                </div>
+                <div className="row">
+                  <div className="col-12">
+                    <div className="form-group mb-3">
+                      <SDLFormField label="remarks" value={formData.REMARKS || ""} />
+                    </div>
+                  </div>
+                  
                 </div>
                 <div className="row">
                   <div className="col-12">

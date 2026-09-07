@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAuthDataResponse } from "../../store/eportal/ePortalAuthorizationDataSlice";
 import { getAuthroizationTaskCount } from "../../store/eportal/ePortalAuthorizationCountSlice";
 import { formatDashDate } from "../../portals/eportal/utils/formatUtils";
+import { getCFColumns } from "./CFAuthorizationColumns";
 
 const TASK_MODAL_MAP = {
     357: {
@@ -35,6 +36,8 @@ const ConferenceRoomAuthorization = () => {
   //const [authData, setAuthData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
    const [totalRecords, setTotalRecords] = useState(0);
+
+  const cfcolumns = getCFColumns(formatDashDate);
 
   const [modalConfig, setModalConfig] = useState({
       isOpen: false,
@@ -95,6 +98,7 @@ const ConferenceRoomAuthorization = () => {
             details: details,
             taskIdAuth: item?.ID || null,
             room: details?.ROOM_LABEL || "-",
+            noofattd: details?.NOOF_ATTD || "-",
             date: details?.ASON_DATE || "-",
             duration: calculateDuration(details?.STARTTIME, details?.ENDTIME),
             remarks: item.DETAILS.REMARKS || "-",
@@ -124,7 +128,7 @@ const ConferenceRoomAuthorization = () => {
     );
   }, [searchQuery, listData]);
 
-  
+console.log("=================================FIltertedData1===============", filteredData1);
 
 // =========================
 // SYNC FILTERED DATA
@@ -211,42 +215,45 @@ const handleSearch = (value) => {
   // =========================
   // TABLE COLUMNS
   // =========================
+
+  // CFAuthorizationColumns.jsx
   
-  const getColumns = () => {
+  
+  // const getColumns = () => {
    
-    const baseColumns = [
-      {
-        header: "Created On",
-        body: (rowData) => {rowData.addedon}
-      },
-      {
-        header: "Created By",
-        body: (rowData) => rowData?.empName || "-",
-      },
-      {
-        header: "Booking For",
-        body: (rowData) => rowData?.empName || "-",
-      },
-    ];
+  //   const baseColumns = [
+  //     {
+  //       header: "Created On",
+  //       body: (rowData) => {rowData.addedon}
+  //     },
+  //     {
+  //       header: "Created By",
+  //       body: (rowData) => rowData?.empName || "-",
+  //     },
+  //     {
+  //       header: "Booking For",
+  //       body: (rowData) => rowData?.empName || "-",
+  //     },
+  //   ];
 
-    // Add columns based on tabId
-    if (357) {
-        return [
-            ...baseColumns,
-            // { field: "room", header: "Room" },
-            {
-              header: "Date",
-              body: (rowData) => {formatDashDate(rowData.date)}
-            },
-            { field: "duration", header: "Duration" },
-            { field: "remarks", header: "Reason"}, 
+  //   // Add columns based on tabId
+  //   if (357) {
+  //       return [
+  //           ...baseColumns,
+  //           // { field: "room", header: "Room" },
+  //           {
+  //             header: "Date",
+  //             body: (rowData) => {formatDashDate(rowData.date)}
+  //           },
+  //           { field: "duration", header: "Duration" },
+  //           { field: "remarks", header: "Reason"}, 
             
-            //{ field: "task", header: "Task" },
-        ];
-    }
+  //           //{ field: "task", header: "Task" },
+  //       ];
+  //   }
 
-    return baseColumns;
-  }; 
+  //   return baseColumns;
+  // }; 
 
   const closeModal = () => {
       setModalConfig((prev) => ({
@@ -288,7 +295,7 @@ const handleSearch = (value) => {
           <div className="company-policies-table">
             <SDLDataTable
               data={filteredData1}
-              columns={getColumns()}
+              columns={cfcolumns}
               loading={loading}
               emptyMessage="No Tasks found"
               className="company-policies-grid"

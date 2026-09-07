@@ -10,6 +10,8 @@ import { getCapabilitiesDataResponse } from "../../../../store/hrms/hrmsCapabili
 import { normalizeRecords, getDisplayValue } from "../../../../utils/formatUtils";
 import { capabilitiesColumns } from "../../portalutils/capabilitiesColumns";
 import { useCapabilitiesHandler } from "../../portalutils/useCapabilitiesHandler";
+import SDLReactSelect from "../../../../components/SDLReactSelect";
+import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
 
 const Capabilities = () => {
   const dispatch = useDispatch();
@@ -162,6 +164,7 @@ const Capabilities = () => {
 
   return (
     <>
+    <div className="sdl-form-ui">
       <div className="page-header">
         <div className="add-item d-flex">
           <div className="page-title">
@@ -200,7 +203,7 @@ const Capabilities = () => {
                     as the top selectors in KRAActivity / DepartmentActivity
                     — toggle button kept as its own explicit sibling,
                     matching this file's original icon+label style. */}
-                <div className="d-flex align-items-center gap-2">
+                {/* <div className="d-flex align-items-center gap-2">
                   <div style={{ minWidth: "270px" }}>
                     <SDLDropdownSelect
                       id="capabilitySelect"
@@ -220,7 +223,28 @@ const Capabilities = () => {
                     style={{ minWidth: "15px" }}
                   >
                     <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
-                    {/* {showAll ? "Form" : "Table"} */}
+                   
+                  </button>
+                </div> */}
+                <div className="d-flex align-items-center gap-2">
+                  <div style={{ minWidth: "270px" }}>
+                    
+                    <SDLReactSelect
+                      value={selectedCapability}
+                      options={capabilityOptions.map((opt) => ({ value: opt.id, label: opt.label }))}
+                      onChange={(id) => handleSelectCapability(id)}
+                      placeholder="Select Capabilities"
+                      isDisabled={loading}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
+                    onClick={handleToggleView}
+                    disabled={isSubmitting}
+                    style={{ minWidth: "15px" }}
+                  >
+                    <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
                   </button>
                 </div>
               </div>
@@ -228,14 +252,14 @@ const Capabilities = () => {
               {!showAll ? (
                 <>
                   <div className="row mb-3">
-                    <div className="col-lg-4">
+                    {/* <div className="col-lg-4"> */}
                       {/* Capabilities Code — searchable + creatable, same
                           pattern as KRA Master / Department Master. Always
                           searchable now regardless of isEditing: selecting
                           an existing code behaves like the old edit-mode
                           <select>, typing a new one behaves like the old
                           add-mode free-text <input>. */}
-                      <SDLDropdownSelect
+                      {/* <SDLDropdownSelect
                         id="capaCode"
                         label="Capabilities Code"
                         options={capabilityOptions}
@@ -248,6 +272,24 @@ const Capabilities = () => {
                         onFilterChange={handleCapabilityCodeSearch}
                         placeholder={isEditing ? "Please Select" : "Enter new capability code"}
                       />
+                    </div> */}
+                    <div className="col-lg-4">
+                      <label className="form-label">Capabilities Code</label>
+                      <SDLReactSelect
+                        value={formData.CAPA_CODE}
+                        options={capabilityOptions.map((opt) => ({ value: opt.id, label: opt.label }))}
+                        onChange={(id) => handleFieldChange("CAPA_CODE", id)}
+                        hasError={!!errors.CAPA_CODE}
+                        allowAddNew
+                        onAddNew={async (typedText) => {
+                          const newOption = await handleAddNewCapabilityCode(typedText);
+                          return newOption ? { value: newOption.id, label: newOption.label } : null;
+                        }}
+                        onFilterChange={handleCapabilityCodeSearch}
+                        notifyFilterOnSelect
+                        placeholder={isEditing ? "Please Select" : "Enter new capability code"}
+                      />
+                      {errors.CAPA_CODE && <div className="invalid-feedback d-block">{errors.CAPA_CODE}</div>}
                     </div>
 
                     <div className="col-lg-6">
@@ -308,6 +350,7 @@ const Capabilities = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </>
   );

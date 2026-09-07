@@ -11,6 +11,9 @@ import { getKRAMasterData, createKRAMaster } from "../../services/kraActivitySer
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLDropdownSelect from "../../components/forms/SDLDropdownSelect";
+import SDLReactSelect from "../../../../components/SDLReactSelect";
+import "../../assets/departmentDesignation.css"
+import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
 
 const KRAActivity = () => {
   const dispatch = useDispatch();
@@ -260,6 +263,7 @@ const KRAActivity = () => {
 
   return (
     <>
+    <div className="sdl-form-ui">
       <div className="page-header">
         <div className="add-item d-flex">
           <div className="page-title">
@@ -290,7 +294,7 @@ const KRAActivity = () => {
 
                 <div className="d-flex align-items-center gap-2">
                   <div style={{ minWidth: "270px" }}>
-                    <SDLDropdownSelect
+                    {/* <SDLDropdownSelect
                       id="kraActivitySelect"
                       options={activityOptions}
                       value={selectedActivity}
@@ -298,7 +302,14 @@ const KRAActivity = () => {
                       placeholder="Select KRA Activity"
                       disabled={loading}
                       wrapperClassName=""
-                    />
+                    /> */}
+                    <SDLReactSelect
+                        value={selectedActivity}
+                        options={activityOptions.map((opt) => ({ value: opt.id, label: opt.label }))}
+                        onChange={handleSelectActivity}
+                        isLoading={loading}
+                        isDisabled={loading}
+                      />
                   </div>
                   <button
                     type="button"
@@ -316,24 +327,31 @@ const KRAActivity = () => {
                 <>
                   <div className="row">
                     <div className="col-lg-4 col-md-6">
-                      <SDLDropdownSelect
-                        id="kraMaster"
-                        label="KRA Master"
-                        required
-                        options={masterOptions}
+                       <label className="form-label">
+                          KRA Master<span className="text-danger ms-1">*</span>
+                        </label>
+                     
+
+                      <SDLReactSelect
                         value={formData.KRA_ID}
+                        options={masterOptions.map((opt) => ({ value: opt.id, label: opt.label }))}
                         onChange={(id, option) => {
                           handleFieldChange("KRA_ID", id);
                           handleFieldChange("KRA_DESC", option?.label || "");
                         }}
-                        invalid={!!errors.KRA_ID}
-                        errorMessage={errors.KRA_ID}
-                        disabled={loading}
+                        hasError={!!errors.KRA_ID}
+                        isLoading={loading}
+                        isDisabled={loading}
                         allowAddNew
-                        onAddNew={handleAddNewKRAMaster}
+                        onAddNew={async (typedText) => {
+                          const newOption = await handleAddNewKRAMaster(typedText);
+                          // handleAddNewKRAMaster already returns { id, label } — normalize to {value, label}
+                          return newOption ? { value: newOption.id, label: newOption.label } : null;
+                        }}
                         onFilterChange={handleKRAMasterSearch}
-                        placeholder="Select KRA Master"
+                        notifyFilterOnSelect
                       />
+                        
                     </div>
 
                     <div className="col-lg-4 col-md-6">
@@ -408,6 +426,7 @@ const KRAActivity = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </>
   );

@@ -47,7 +47,7 @@ const mapToOptions = (list = [], labelKey = "LABEL", valueKey = "ID") =>
     ? list.map((item) => ({ label: item[labelKey] ?? "", value: item[valueKey] }))
     : [];
 
-const useOrganogramFormHandler = (organogramId) => {
+const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
@@ -236,18 +236,25 @@ const useOrganogramFormHandler = (organogramId) => {
       setSaving(true);
       const payload = organogramId ? { ...formData, ID: organogramId } : formData;
       const res = await saveOrganogram(payload);
+
       if (res?.status) {
-        notifySuccess(res?.message || "Organogram saved successfully.");
+        notifySuccess(res?.message || "Organogram saved successfully.", {
+          onClose: onOrganogramSaved,
+        });
       } else {
-        notifyError(res?.message || "Unable to save organogram.");
+        notifyError(res?.message || "Unable to save organogram.", {
+          onClose: onOrganogramSaved,
+        });
       }
     } catch (error) {
       console.error("Save organogram error:", error);
-      notifyError(error?.message || "Unable to save organogram.");
+      notifyError(error?.message || "Unable to save organogram.", {
+        onClose: onOrganogramSaved,
+      });
     } finally {
       setSaving(false);
     }
-  }, [formData, validate, organogramId]);
+  }, [formData, validate, organogramId, onOrganogramSaved]);
 
   const handleCancel = useCallback(() => {
     setFormData(organogramId ? INITIAL_FORM_STATE : INITIAL_FORM_STATE);

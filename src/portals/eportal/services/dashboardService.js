@@ -14,6 +14,16 @@ export const getAttendanceLog = (date) =>
     fallback: { records: [] },
   });
 
+export const getAttendanceLogOD = (date, empCode) =>
+  eportalRequest({
+   // url: EPORTAL_API.DASHBOARD.ATTENDANCE_LOG_OD,
+    url: EPORTAL_API.DASHBOARD.ATTENDANCE_LOG1,
+    method: "GET",
+    params: { date, emp_code: empCode },
+    dedupe: true,
+    fallback: { records: [] },
+  });
+
 export const getLast10DaysAttendance = () =>
   eportalRequest({
     url: EPORTAL_API.DASHBOARD.ATTENDANCE_10_DAYS,

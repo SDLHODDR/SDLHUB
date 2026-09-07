@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback  } from "react";
 import { useLocation } from "react-router-dom";
 import { Dropdown } from "primereact/dropdown";
 
@@ -23,6 +23,7 @@ import {
 import { getPortalFromPath } from "../../../../config/portalConfig";
 import "../../assets/css/profileMaintenance.css";
 
+
 const Organogram = () => {
   /* ==========================================================
       PORTAL
@@ -43,45 +44,42 @@ const Organogram = () => {
         LOAD PROFILES
     ========================================================== */
 
-  useEffect(() => {
-    const loadOrgonogram = async () => {
-      try {
-        setLoadingOrgonogram(true);
-        const userConfig = localStorage.getItem("user-hrms-config");
+  const loadOrgonogram = useCallback(async () => {
+    try {
+      setLoadingOrgonogram(true);
+      const userConfig = localStorage.getItem("user-hrms-config");
+      const res = await getOrgonograms(userConfig);
 
-        const res = await getOrgonograms(userConfig);
-
-        if (res?.status) {
-          const orgonoList = Array.isArray(res.data) ? res.data : [];
-
-          setOrgonogram(orgonoList);
-
-          setSelectedOrgonogram(null);
-        } else {
-          notifyError(res?.message || "Unable to load profiles.");
-        }
-      } catch (error) {
-        console.error("Load profiles error:", error);
-
-        notifyError(error?.message || "Unable to load profiles.");
-      } finally {
-        setLoadingOrgonogram(false);
+      if (res?.status) {
+        const orgonoList = Array.isArray(res.data) ? res.data : [];
+        setOrgonogram(orgonoList);
+        setSelectedOrgonogram(null);
+      } else {
+        notifyError(res?.message || "Unable to load profiles.");
       }
-    };
-
-    loadOrgonogram();
+    } catch (error) {
+      console.error("Load profiles error:", error);
+      notifyError(error?.message || "Unable to load profiles.");
+    } finally {
+      setLoadingOrgonogram(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadOrgonogram();
+  }, [loadOrgonogram]);
 
   const orgonogramOptions = useMemo(() => {
     return orgonogram.map((orgngm) => ({
       label: orgngm.OPTIONS ?? "",
-
       value: orgngm.ID,
     }));
   }, [orgonogram]);
 
+    
+
   const { tabs, selectedTab, handleTabChange, tabContent } =
-    useSDLTabComponentHandler(selectedOrganogram);
+    useSDLTabComponentHandler(selectedOrganogram, loadOrgonogram);
 
 
   return (
@@ -129,13 +127,15 @@ const Organogram = () => {
               </div>
             </div>
             <div className="card-body">
-              <SDLTabsComponent
-                tabs={tabs}
-                selectedTab={selectedTab}
-                onTabChange={handleTabChange}
-                tabContent={tabContent}
-                loading={loadingOrgonogram}
-              />
+              <div class="tab-style-5-wrapper">
+                <SDLTabsComponent
+                  tabs={tabs}
+                  selectedTab={selectedTab}
+                  onTabChange={handleTabChange}
+                  tabContent={tabContent}
+                  loading={loadingOrgonogram}
+                />
+              </div>
             </div>
           </div>
         </div>
