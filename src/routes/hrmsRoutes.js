@@ -13,6 +13,7 @@ import JobDescription from "../portals/hrms/pages/maintainance/JobDescription";
 import PolicyList from "../portals/hrms/pages/maintainance/PolicyList";
 import Organogram from "../portals/hrms/pages/master-data/Organogram";
 import EmployeeAccess from "../portals/hrms/pages/maintainance/EmployeeAccess";
+import EmployeeData from "../portals/hrms/pages/maintainance/EmployeeData";
 
 import JoiningAuthorization from "../components/authorization/JoiningAuthorization";
 import ExitAuthorization from "../components/authorization/ExitAuthorization";
@@ -34,6 +35,7 @@ export const hrmsRoutes = [
   { path: "hrms/maintainance/capabilities", element: Capabilities },
   { path: "hrms/maintainance/department-activity", element: DepartmentActivity },
   { path: "hrms/maintainance/policylist", element: PolicyList },
+    { path: "hrms/maintainance/employee-data", element: EmployeeData },
 
   { path: "hrms/maintainance/employee-access", element: EmployeeAccess },
 

@@ -691,6 +691,12 @@ const JobDescription = () => {
       // First select the job
       setSelectedJobId(job.ID)
 
+      setResponsibilitiesList(
+        Array.isArray(job.RESPONSIBILITIES_LIST)
+          ? job.RESPONSIBILITIES_LIST
+          : []
+      )
+
       setSkillForm({
         ID: '',
         code: '',
@@ -727,7 +733,7 @@ const JobDescription = () => {
       const selectedJob =
         response?.data?.jobDescription || response?.jobDescription || null
 
-        console.log('ALLOWANCES FROM API:', selectedJob?.ALLOWANCES_LIST)
+      console.log('ALLOWANCES FROM API:', selectedJob?.ALLOWANCES_LIST)
 
       if (!selectedJob) {
         notifyError('Unable to fetch job description details.')
@@ -772,6 +778,10 @@ const JobDescription = () => {
         MAX_SAL: selectedJob.MAX_SAL || '',
 
         REPT_JDID: selectedJob.REPT_JDID || '',
+
+        RESPONSIBILITIES_LIST: Array.isArray(job.RESPONSIBILITIES_LIST)
+          ? job.RESPONSIBILITIES_LIST
+          : [],
 
         EDUCATION: {
           ...INITIAL_FORM_DATA.EDUCATION
@@ -825,9 +835,9 @@ const JobDescription = () => {
             }))
           : [],
 
-        RESPONSIBILITIES_LIST: Array.isArray(selectedJob.RESPONSIBILITIES_LIST)
-          ? selectedJob.RESPONSIBILITIES_LIST
-          : [],
+        // RESPONSIBILITIES_LIST: Array.isArray(selectedJob.RESPONSIBILITIES_LIST)
+        //   ? selectedJob.RESPONSIBILITIES_LIST
+        //   : [],
 
         KRA: Array.isArray(selectedJob.KRA_LIST)
           ? selectedJob.KRA_LIST.map(item => item.KRA_ID)
@@ -1019,7 +1029,12 @@ const JobDescription = () => {
 
     // If a responsibility is currently being edited,
     // save only that responsibility.
-    if (editingResponsibilityId !== null) {
+    // if (editingResponsibilityId !== null) {
+    //   await handleSaveResponsibility()
+    //   return
+    // }
+
+    if (activeTab === 'responsibilities') {
       await handleSaveResponsibility()
       return
     }
@@ -2271,127 +2286,38 @@ const JobDescription = () => {
                         />
 
                         {/* Responsibilities table */}
-                        {responsibilitiesList?.length > 0 && (
-                          <div
-                            style={{
-                              width: '100%',
-                              overflowX: 'hidden',
-                              marginTop: '16px'
-                            }}
-                          >
-                            <table
-                              className='table table-bordered'
-                              style={{
-                                width: '100%',
-                                tableLayout: 'fixed',
-                                marginBottom: 0
-                              }}
-                            >
-                              <thead>
-                                <tr>
-                                  <th
-                                    style={{
-                                      width: '60px',
-                                      textAlign: 'center'
-                                    }}
-                                  >
-                                    No.
-                                  </th>
-
-                                  <th
-                                    style={{
-                                      width: 'auto'
-                                    }}
-                                  >
-                                    Description
-                                  </th>
-
-                                  <th
-                                    style={{
-                                      width: '80px',
-                                      textAlign: 'center'
-                                    }}
-                                  >
-                                    Edit
-                                  </th>
-
-                                  <th
-                                    style={{
-                                      width: '90px',
-                                      textAlign: 'center'
-                                    }}
-                                  >
-                                    Delete
-                                  </th>
-                                </tr>
-                              </thead>
-
-                              <tbody>
-                                {responsibilitiesList?.map((item, index) => (
-                                  <tr key={item.ID}>
-                                    <td
-                                      style={{
-                                        textAlign: 'center',
-                                        verticalAlign: 'middle'
-                                      }}
-                                    >
-                                      {index + 1}
-                                    </td>
-
-                                    <td
-                                      style={{
-                                        whiteSpace: 'normal',
-                                        overflowWrap: 'anywhere',
-                                        wordBreak: 'break-word',
-                                        verticalAlign: 'top'
-                                      }}
-                                    >
-                                      <div
-                                        dangerouslySetInnerHTML={{
-                                          __html: item.DESCR || ''
-                                        }}
-                                      />
-                                    </td>
-
-                                    <td
-                                      style={{
-                                        textAlign: 'center',
-                                        verticalAlign: 'middle'
-                                      }}
-                                    >
-                                      <button
-                                        type='button'
-                                        className='btn btn-warning btn-sm'
-                                        onClick={() =>
-                                          handleEditResponsibility(item)
-                                        }
-                                      >
-                                        Edit
-                                      </button>
-                                    </td>
-
-                                    <td
-                                      style={{
-                                        textAlign: 'center',
-                                        verticalAlign: 'middle'
-                                      }}
-                                    >
-                                      <button
-                                        type='button'
-                                        className='btn btn-danger btn-sm'
-                                        onClick={() =>
-                                          handleDeleteResponsibility(item.ID)
-                                        }
-                                      >
-                                        Delete
-                                      </button>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        )}
+                        <JDDataTable
+                          data={responsibilitiesList || []}
+                          columns={[
+                            {
+                              key: 'NO',
+                              label: 'No.',
+                              width: '50px',
+                              align: 'center',
+                              render: (_, index) => index + 1
+                            },
+                            {
+                              key: 'DESCR',
+                              label: 'Description',
+                              render: item => (
+                                <div
+                                  style={{
+                                    whiteSpace: 'normal',
+                                    overflowWrap: 'anywhere',
+                                    wordBreak: 'break-word'
+                                  }}
+                                  dangerouslySetInnerHTML={{
+                                    __html: item.DESCR || ''
+                                  }}
+                                />
+                              )
+                            }
+                          ]}
+                          showEdit
+                          showDelete
+                          onEdit={handleEditResponsibility}
+                          onDelete={handleDeleteResponsibility}
+                        />
                       </div>
                     )}
 
@@ -3111,6 +3037,7 @@ const JobDescription = () => {
                             <thead className='table-light'>
                               <tr>
                                 <th style={{ width: '50px' }}></th>
+                                <th style={{ width: '18%' }}>Question Group</th>
                                 <th style={{ width: '15%' }}>Group</th>
                                 <th>Question</th>
                                 <th style={{ width: '25%' }}>Options</th>
@@ -3210,6 +3137,17 @@ const JobDescription = () => {
                                           />
                                         </td>
 
+                                        {/* QUESTION GROUP */}
+                                        <td>
+                                          {questionGroupOptions.find(
+                                            option =>
+                                              String(option.value) ===
+                                              String(groupId)
+                                          )?.label ||
+                                            groupName ||
+                                            '-'}
+                                        </td>
+
                                         {/* GROUP */}
                                         <td>{subGroupName || '-'}</td>
 
@@ -3237,7 +3175,7 @@ const JobDescription = () => {
                                 )
                               ) : (
                                 <tr>
-                                  <td colSpan='6' className='text-center'>
+                                  <td colSpan='7' className='text-center'>
                                     No questions found
                                   </td>
                                 </tr>
