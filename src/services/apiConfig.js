@@ -7,7 +7,7 @@ export const PORTALAPI = {
     RESET_PASSWORD: "/reset_password.php",
     VERIFY_OTP: "/verify_otp.php",
   },
- 
+
   CALENDAR: {
     GET: "/getCalendar.php", // <-- your calendar API
     CURRENT: "/getCalendar.php",//"/current_holidays.php",
@@ -51,13 +51,16 @@ export const PORTALAPI = {
     TASKTABLEDATA: "/getTable.php"
   },
 
-  PROFILE:{
+  PROFILE: {
     GET_PROFILE_DATA: "/common/myProfile/getProfileData.php", // Get profile Data
     UPLOAD_PROFILE_IMAGE: "/common/myProfile/uploadProfileImage.php", // Upload profile Data
     SAVE_FAMILY_MEMBER: "/common/myProfile/saveFamilyMember.php", //Save family Data
     DELETE_FAMILY_MEMBER: "/common/myProfile/deleteFamilyMember.php", //Delete family Data
     SAVE_BANK_DETAILS: '/common/myProfile/saveBankDetails.php', //Save bank details
-    SAVE_PERSONAL_DETAILS:'/common/myProfile/savePersonalDetails.php'  //Save personal details
+    //SAVE_PERSONAL_DETAILS:'/common/myProfile/savePersonalDetails.php'  //Save personal details
+
+    SAVE_PERSONAL_DETAILS: "common/profile/savePersonalDetails.php",
+
   },
 
   LEAVEREQUEST: {
@@ -76,7 +79,7 @@ export const PORTALAPI = {
     LRSWIPEDATA: "/leaverequest/lr_list_swipper_new.php"
   },
 
-   POLICY_ENDORSEMENT:{
+  POLICY_ENDORSEMENT: {
     GET_PENDING_POLICIES: "/policyEndorsement/getPendingPolicies.php", // Get Pending Policies
     ACCEPT_POLICY: "/policyEndorsement/acceptPolicy.php" // Accept Policies
   }

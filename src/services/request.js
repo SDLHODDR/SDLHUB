@@ -145,12 +145,18 @@ export const request = async (config) => {
         return fallback;
       }
 
-      const requestError = new Error(message);
-      requestError.status = status;
-      requestError.data = data;
-      requestError.originalError = error;
+     const requestError = new Error(message);
 
-      throw requestError;
+    requestError.status = status;
+    requestError.data = data;
+    requestError.response = {
+      status,
+      data,
+    };
+    requestError.originalError = error;
+
+throw requestError;
+
     } finally {
       if (dedupe) {
         pendingRequests.delete(requestKey);
