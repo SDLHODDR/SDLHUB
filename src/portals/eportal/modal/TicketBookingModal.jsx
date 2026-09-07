@@ -7,6 +7,8 @@ import {
   editTBRDataAUTH,
 } from "../services/ticketbookingService";
 import { notifyError, notifySuccess } from "../../../services/alertService";
+//import Select from "react-select";
+import SDLReactSelect from "../../../components/SDLReactSelect";
 
 const TicketBookingModal = ({
   formSettings,
@@ -437,6 +439,28 @@ const TicketBookingModal = ({
   };
 
   if (!isOpen) return null;
+
+  const bookingUserOptions = (config.type.SELECT?.EMP_CODE?.options || []).map(
+    (emp) => ({
+      value: emp.EMP_CODE,
+      label: `${emp.EMP_CODE} - ${emp.EMP_NAME}`,
+    }),
+  );
+
+  const selectedEmpCode =
+    bookingUserOptions.find(
+      (option) => String(option.value) === String(formData.EMP_CODE),
+    ) || null;
+
+  const handleEmpCodeChange = (selectedOption) => {
+    handleChange({
+      target: {
+        name: "EMP_CODE",
+        value: selectedOption ? selectedOption.value : "",
+      },
+    });
+  };
+
   return (
     <>
     {loading && (
@@ -513,27 +537,17 @@ const TicketBookingModal = ({
                   {formData.TRVL_EMP === "E" && (
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Employee Code:</label>
-                      <select
-                        className={`select2 form-control ${errors.EMP_CODE ? "is-invalid" : ""}`}
-                        name="EMP_CODE"
-                        id="EMP_CODE"
-                        value={formData.EMP_CODE || ""}
-                        onChange={handleChange}
-                      >
-                        <option value="">Select</option>
-                        {(config.type.SELECT?.EMP_CODE?.options || []).map(
-                          (emp, i) => (
-                            <option key={i} value={emp.EMP_CODE}>
-                              {emp.EMP_CODE} - {emp.EMP_NAME}
-                            </option>
-                          ),
-                        )}
-                      </select>
+                      <SDLReactSelect
+                        value={formData.EMP_CODE}
+                        options={bookingUserOptions}
+                        onChange={(val) => handleChange({ target: { name: "EMP_CODE", value: val } })}
+                        hasError={!!errors.EMP_CODE}
+                        placeholder="Search Employee..."
+                      />
                       {errors.EMP_CODE && (
-                        <div className="invalid-feedback">
-                          {errors.EMP_CODE}
-                        </div>
+                        <div className="invalid-feedback d-block">{errors.EMP_CODE}</div>
                       )}
+                    
                     </div>
                   )}
                   {/* Person Name (When Other selected) */}

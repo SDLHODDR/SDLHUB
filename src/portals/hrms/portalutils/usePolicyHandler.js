@@ -3,6 +3,7 @@ import { savePolicy, publishPolicy, getPolicyAssociations } from "../services/po
 import { notifySuccess, notifyError, confirmAction } from "../../../services/alertService";
 import { validateDocFile } from "./policyOptionsUtils";
 import { toDateInputValue } from "../../../utils/formatUtils";
+import moment from "moment";
 
 export const usePolicyHandler = ({
   formData,
@@ -16,7 +17,44 @@ export const usePolicyHandler = ({
   setIsEditing,
   resetForm,
 }) => {
+  const formatDateForForm = (value) => {
+      if (!value) return "";
+  
+      if (moment.isMoment(value)) {
+        return value.format("YYYY-MM-DD");
+      }
+  
+      if (value instanceof Date) {
+        if (Number.isNaN(value.getTime())) return "";
+  
+        return moment(value).format("YYYY-MM-DD");
+      }
+  
+      const str = String(value);
+  
+      if (!str) return "";
+  
+      /*
+       * Already YYYY-MM-DD
+       */
+      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+        return str;
+      }
+  
+      const parsed = moment(str);
+  
+      return parsed.isValid()
+        ? parsed.format("YYYY-MM-DD")
+        : "";
+    };
+
   const handleFieldChange = useCallback((name, value) => {
+    if(name === "START_DATE" || name === "END_DATE")
+    {
+      const formatted = formatDateForForm(value);
+      value = formatted;
+    }
+     
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
   }, [setFormData, setErrors]);

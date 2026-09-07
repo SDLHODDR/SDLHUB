@@ -27,6 +27,7 @@ export const PORTALAPI = {
     SENDAUTHGPData: "/gatepass/gp_auth.php",
     RESENDAUTHGPData: "/gatepass/gp_auth.php",
     AUTHGPData: "/gatepass/gp_svauth.php",
+    CLOSETASKGPData: "/gatepass/gp_svauth.php",
     REJECTGPData: "/gatepass/gp_svauth.php",
     CLOSEGPData: "/gatepass/gp_save.php"
   },

@@ -5,7 +5,7 @@ import AppraisalLevelsTab from "./AppraisalLevelsTab";
 import ReportingTab from "./ReportingTab";
 import AllowancesTab from "./AllowancesTab";
 
-const useSDLTabComponentHandler = (organogramId) => {
+const useSDLTabComponentHandler = (organogramId, onOrganogramSaved) => {
   const tabs = useMemo(() => {
     const base = [{ key: "organogram", label: "Organogram" }];
     if (organogramId) {
@@ -39,8 +39,13 @@ const useSDLTabComponentHandler = (organogramId) => {
   const tabContent = useMemo(() => {
     switch (selectedTab) {
       case "organogram":
-        return <OrganogramTab organogramId={organogramId} />;
-      case "locations":
+        return(
+          <OrganogramTab
+            organogramId={organogramId}
+            onOrganogramSaved={onOrganogramSaved}
+          />
+        );
+     case "locations":
         return (
           <LocationsTab
             organogramId={organogramId}
@@ -62,7 +67,7 @@ const useSDLTabComponentHandler = (organogramId) => {
       default:
         return null;
     }
-  }, [selectedTab, organogramId, tabContext, handleTabChange]);
+  }, [selectedTab, organogramId, tabContext, handleTabChange, onOrganogramSaved]);
 
   return { tabs, selectedTab, handleTabChange, tabContent };
 };

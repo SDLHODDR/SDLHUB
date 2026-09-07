@@ -851,3 +851,63 @@ color:#173b5e;
     border-color: #173b5e;
     color: #fff;
 }
+
+/* .tab-style-5 .nav-link {
+	border: 1px solid #dee2e6;
+	color: #000;
+}
+
+.tab-style-5 .nav-link.active {
+	font-weight: bold;
+	color: #000;
+	border-color: #dee2e6;
+} */
+
+/* page background */
+body {
+	background-color: #f4f4f6;
+}
+
+/* one shared container that wraps BOTH the tab bar and the content panel */
+.tab-style-5-wrapper {
+	background-color: #ffffff;
+	border: 1px solid #dee2e6;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+/* tab bar sits inside the same box, no bottom margin, no extra border of its own */
+.tab-style-5-wrapper .tab-style-5 {
+	margin-bottom: 0 !important;
+	background-color: #ffffff;
+}
+
+.tab-style-5-wrapper .nav-item {
+	border-right: 1px solid #ffffff !important;
+}
+
+.tab-style-5-wrapper .nav-item:last-child {
+	border-right: none;
+}
+
+.tab-style-5-wrapper .nav-link {
+	border-radius: 0 !important;
+	color: #000 !important;
+	background-color: #FE8D1F !important;
+	padding: 14px 16px;
+	font-weight: 500;
+}
+
+/* active tab - orange, flush against content below it, no border/radius break */
+.tab-style-5-wrapper .nav-link.active {
+	background-color: white !important;
+	color: #000 !important;
+	font-weight: 600;
+}
+
+/* content panel directly attached below the tab bar, no gap */
+.tab-style-5-wrapper .tab-content {
+	padding: 20px;
+	/* background-color: #ffffff; */
+    background-color: white;
+}

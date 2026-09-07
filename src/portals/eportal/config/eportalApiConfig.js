@@ -56,6 +56,7 @@ export const EPORTAL_API = {
   DASHBOARD: {
     STATS: "/dashboard_stats.php",
     ATTENDANCE_LOG: "/dashboard/attendanceLog.php",
+    ATTENDANCE_LOG1: "/dashboard/attendanceLog1.php",
     ATTENDANCE_10_DAYS: "/dashboard/attendanceLast10Days.php",
     LEAVE_SUMMARY: "/dashboard/leaveSummary.php",
     WORK_SUMMARY: "/dashboard/workSummary.php",

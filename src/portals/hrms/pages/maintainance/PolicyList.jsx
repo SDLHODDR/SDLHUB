@@ -12,12 +12,20 @@ import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLTagSelect from "../../../../components/SDLTagSelect";
 import SDLDropdownSelect from "../../components/forms/SDLDropdownSelect";
 import { Calendar } from "primereact/calendar";
+import SDLCalendar from "../../../../components/calendar/SDLCalendar";
+//import Select from "react-select";
+import SDLReactSelect from "../../../../components/SDLReactSelect";
+import SDLReactMultiSelect from "../../../../components/SDLReactMultiSelect";
+// import { MultiSelect } from 'primereact/multiselect'
 
 import { normalizeRecords, getDisplayValue, formatDate } from "../../../../utils/formatUtils";
 import { policyColumns } from "../../portalutils/policyColumns";
 import { mapCompanyOptions, mapDepartmentOptions, mapDivisionOptions } from "../../portalutils/policyOptionsUtils";
 import { usePolicyHandler } from "../../portalutils/usePolicyHandler";
-import "../../assets/css/sdldropselect.css";
+//import "../../assets/css/sdldropselect.css";
+import "../../assets/departmentDesignation.css"
+import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
+import moment from "moment";
 
 const emptyForm = {
   ID: "",
@@ -218,13 +226,70 @@ const PolicyList = () => {
     [listData],
   );
 
+  //------------------Use this if we wnat to just wipe out search typed keyword-----------
+  // const handleSelectPolicy = useCallback((id) => {
+  //   if (!id) {
+  //     setSelectedPolicy("");
+  //     return;
+  //   }
+  //   const policy = listData.find((item) => String(item.ID) === String(id));
+  //   if (policy) handleEdit(policy);
+  // }, [listData, handleEdit]);
+
+  //------------------Use this if we wnat to just wipe out search typed keyword or entire form should be reset-----------
   const handleSelectPolicy = useCallback((id) => {
+    if (!id) {
+      resetForm();
+      return;
+    }
     const policy = listData.find((item) => String(item.ID) === String(id));
     if (policy) handleEdit(policy);
-  }, [listData, handleEdit]);
+  }, [listData, handleEdit, resetForm]);
+
+  const toCalendarDate = (value) => {
+      if (!value) return null;
+  
+      if (value instanceof Date) {
+        return Number.isNaN(value.getTime())
+          ? null
+          : value;
+      }
+  
+      const parsed = moment(
+        String(value),
+        "YYYY-MM-DD",
+        true,
+      );
+  
+      if (!parsed.isValid()) return null;
+  
+      return parsed.toDate();
+    };
+
+     const calendarMinDate =
+        moment()
+          .startOf("month")
+          .toDate();
+    
+      const calendarMaxDate =
+        moment()
+          .add(1, "month")
+          .endOf("month")
+          .toDate();
+
+  const companyOptions = useMemo(
+    () =>
+      companyList.map((item) => ({
+        value: String(item.id),
+        label: item.label,
+		key: item.id,
+      })),
+    [companyList],
+  );
 
   return (
     <>
+      <div className="sdl-form-ui">
       <div className="page-header">
         <div className="add-item d-flex">
           <div className="page-title">
@@ -261,7 +326,7 @@ const PolicyList = () => {
 
                 <div className="d-flex align-items-center gap-2">
                   <div style={{ minWidth: "270px" }}>
-                    <SDLDropdownSelect
+                    {/* <SDLDropdownSelect
                       id="policySelect"
                       options={policyOptions}
                       value={selectedPolicy}
@@ -270,7 +335,15 @@ const PolicyList = () => {
                       searchPlaceholder="Search policy names..."
                       disabled={loading || isSubmitting}
                       wrapperClassName=""
-                    />
+                    /> */}
+
+                    <SDLReactSelect
+                        value={selectedPolicy}
+                        options={policyOptions.map((opt) => ({ value: opt.id, label: opt.label }))}
+                        onChange={handleSelectPolicy}
+                        isLoading={loading}
+                        isDisabled={loading || isSubmitting}
+                      />
                   </div>
                   <button
                     type="button"
@@ -301,47 +374,52 @@ const PolicyList = () => {
                         <label className="form-label">
                           Company<span className="text-danger ms-1">*</span>
                         </label>
-                        <select
-                          className={`form-select ${errors.COMP_NAME ? "is-invalid" : ""}`}
+                        <SDLReactSelect
                           value={formData.COMP_NAME}
-                          onChange={(e) => handleFieldChange("COMP_NAME", e.target.value)}
-                          disabled={lookupsLoading || isPublished}
-                        >
-                          <option value="">Please Select</option>
-                          {companyList.map((c) => (
-                            <option key={c.id} value={c.id}>{c.label}</option>
-                          ))}
-                        </select>
-                        {errors.COMP_NAME && <div className="invalid-feedback">{errors.COMP_NAME}</div>}
+                          options={companyOptions}
+                          onChange={(val) => handleFieldChange("COMP_NAME", val)}
+                          hasError={!!errors.COMP_NAME}
+                          isLoading={lookupsLoading}
+                          isDisabled={lookupsLoading || isPublished}
+                        />
+                        {errors.COMP_NAME && (
+                          <div className="invalid-feedback d-block">{errors.COMP_NAME}</div>
+                        )}
                       </div>
                     </div>
 
                     <div className="col-lg-4">
-                      <SDLTagSelect
-                        id="deptSelect"
-                        label="Department"
-                        options={departmentList}
-                        value={formData.DEPT_ID}
-                        onChange={(newIds) =>
-                          setFormData((prev) => ({ ...prev, DEPT_ID: newIds }))
-                        }
-                        placeholder="Select Department"
-                        disabled={lookupsLoading || isPublished}
-                      />
+                      <div className="mb-3">
+                        <label className="form-label">Department</label>
+                        <SDLReactMultiSelect
+                          value={formData.DEPT_ID}
+                          options={departmentList.map((d) => ({ value: String(d.id), label: d.label }))}
+                          onChange={(newIds) =>
+                            setFormData((prev) => ({ ...prev, DEPT_ID: newIds }))
+                          }
+                          placeholder="Select Department"
+                          isLoading={lookupsLoading}
+                          isDisabled={lookupsLoading || isPublished}
+                        />
+                      </div>
                     </div>
 
-                    <div className="col-lg-5">
-                      <SDLTagSelect
-                        id="divisionSelect"
-                        label="Division"
-                        options={divisionList}
-                        value={formData.DIVISION_ID}
-                        onChange={(newIds) =>
-                          setFormData((prev) => ({ ...prev, DIVISION_ID: newIds }))
-                        }
-                        placeholder="Select Division"
-                        disabled={lookupsLoading || isPublished}
-                      />
+                    
+
+                    <div className="col-lg-4">
+                      <div className="mb-3">
+                        <label className="form-label">Division</label>
+                        <SDLReactMultiSelect
+                          value={formData.DIVISION_ID}
+                          options={divisionList.map((d) => ({ value: String(d.id), label: d.label }))}
+                          onChange={(newIds) =>
+                            setFormData((prev) => ({ ...prev, DIVISION_ID: newIds }))
+                          }
+                          placeholder="Select Division"
+                          isLoading={lookupsLoading}
+                          isDisabled={lookupsLoading || isPublished}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -365,72 +443,50 @@ const PolicyList = () => {
                       </div>
                     </div>
 
-                    {/* <div className="col-md-3">
-                      <div className="mb-3">
-                        <label className="form-label">
-                          Start Date<span className="text-danger ms-1">*</span>
-                        </label>
-                        <input
-                          type="date"
-                          className={`form-control ${errors.START_DATE ? "is-invalid" : ""}`}
-                          value={formData.START_DATE}
-                          onChange={(e) => handleFieldChange("START_DATE", e.target.value)}
-                        />
-                        {errors.START_DATE && <div className="invalid-feedback">{errors.START_DATE}</div>}
-                      </div>
-                    </div> */}
+                   
 
                     <div className="col-md-3">
                       <div className="mb-3">
                         <label className="form-label">
                           Start Date<span className="text-danger ms-1">*</span>
                         </label>
-                        <Calendar
-                          value={formData.START_DATE ? new Date(formData.START_DATE) : null}
-                          onChange={(e) => {
-                            const iso = e.value ? e.value.toISOString().split("T")[0] : "";
-                            handleFieldChange("START_DATE", iso); // stored as YYYY-MM-DD
-                          }}
-                          dateFormat="dd-M-yy" // displays as 24-Aug-2026
-                          showIcon
+                        <SDLCalendar
+                          value={toCalendarDate(
+                            formData.START_DATE,
+                          )}
+                          onChange={(date) =>
+                            handleFieldChange( "START_DATE", date, )
+                          }
+                          minDate={ calendarMinDate }
+                          maxDate={ calendarMaxDate }
+                          allowAllDates={true}
                           disabled={isPublished}
-                          className={`sdl-datepicker w-100 ${errors.START_DATE ? "p-invalid" : ""}`}
                         />
+                       
                         {errors.START_DATE && <div className="invalid-feedback d-block">{errors.START_DATE}</div>}
                       </div>
                     </div>
 
-                    {/* <div className="col-md-3">
-                      <div className="mb-3">
-                        <label className="form-label">
-                          End Date<span className="text-danger ms-1">*</span>
-                        </label>
-                        <input
-                          type="date"
-                          className={`form-control ${errors.END_DATE ? "is-invalid" : ""}`}
-                          value={formData.END_DATE}
-                          onChange={(e) => handleFieldChange("END_DATE", e.target.value)}
-                        />
-                        {errors.END_DATE && <div className="invalid-feedback">{errors.END_DATE}</div>}
-                      </div>
-                    </div> */}
+                   
 
                     <div className="col-md-3">
                       <div className="mb-3">
                         <label className="form-label">
                           End Date<span className="text-danger ms-1">*</span>
                         </label>
-                        <Calendar
-                          value={formData.END_DATE ? new Date(formData.END_DATE) : null}
-                          onChange={(e) => {
-                            const iso = e.value ? e.value.toISOString().split("T")[0] : "";
-                            handleFieldChange("END_DATE", iso); // stored as YYYY-MM-DD
-                          }}
-                          dateFormat="dd-M-yy" // displays as 24-Aug-2026
-                          showIcon
+                         <SDLCalendar
+                          value={toCalendarDate(
+                            formData.END_DATE,
+                          )}
+                          onChange={(date) =>
+                            handleFieldChange( "END_DATE", date, )
+                          }
+                          minDate={ calendarMinDate }
+                          maxDate={ calendarMaxDate }
+                          allowAllDates={true}
                           disabled={isPublished}
-                          className={`sdl-datepicker w-100 ${errors.END_DATE ? "p-invalid" : ""}`}
                         />
+                        
                         {errors.END_DATE && <div className="invalid-feedback d-block">{errors.END_DATE}</div>}
                       </div>
                     </div>
@@ -532,6 +588,7 @@ const PolicyList = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </>
   );
