@@ -3,8 +3,8 @@ import Select from 'react-select'
 import {
   getEmployees,
   getEmployeeById,
-  getEmployeeMasters,
-} from "../../services/employeeDataService";
+  getEmployeeMasters
+} from '../../services/employeeDataService'
 
 const INITIAL_EMPLOYEE_DATA = {
   // Employee selection
@@ -129,38 +129,40 @@ const EmployeeData = () => {
   const [showAllTabs, setShowAllTabs] = useState(false)
   const [activeTab, setActiveTab] = useState('personal')
   const [employeeData, setEmployeeData] = useState(INITIAL_EMPLOYEE_DATA)
-  const [employeeList, setEmployeeList] = useState([])
   const [fieldErrors, setFieldErrors] = useState({})
-  const [employees, setEmployees] = useState([]);
+  const [employees, setEmployees] = useState([])
+  const [masters, setMasters] = useState({
+    titles: [],
+    states: [],
+    countries: [],
+    companies: [],
+    genders: [],
+    bloodGroups: [],
+    maritalStatuses: [],
+    religions: [],
+    nationalities: [],
+    employeeTypes: [],
+    levels: [],
+    bands: [],
+    documentTypes: [],
+    assets: []
+  })
 
-  const employeeOptions = useMemo(
-    () =>
-      employeeList
-        .map(item => ({
-          value:
-            item.EMPLOYEE_ID ??
-            item.employee_id ??
-            item.EMP_ID ??
-            item.emp_id ??
-            item.ID ??
-            item.id,
-          label:
-            item.EMPLOYEE_NAME ??
-            item.employee_name ??
-            item.EMP_NAME ??
-            item.emp_name ??
-            item.NAME ??
-            item.name ??
-            ''
-        }))
-        .filter(item => item.value && item.label),
-    [employeeList]
-  )
+  const employeeOptions = useMemo(() => {
+    if (!Array.isArray(employees)) {
+      return []
+    }
+
+    return employees
+      .map(item => ({
+        value: String(item.ID || ''),
+        label: item.EMP_NAME || ''
+      }))
+      .filter(item => item.value && item.label)
+  }, [employees])
 
   /*
-   * -------------------------------------------------------------
-   * TABS
-   * -------------------------------------------------------------
+   -----------TABS----------
    */
 
   const tabs = [
@@ -182,10 +184,7 @@ const EmployeeData = () => {
     ? tabs
     : tabs.filter(([key]) => key === 'personal')
 
-  /*
-   * -------------------------------------------------------------
-   * HELPERS
-   * -------------------------------------------------------------
+  /*----------------HELPERS----------------
    */
 
   const nameAndCityFields = [
@@ -209,34 +208,18 @@ const EmployeeData = () => {
   const handleFieldChange = (name, value) => {
     let updatedValue = value
 
-    /*
-     * Name / City
-     * Only alphabets and spaces
-     * Maximum 15 characters
-     */
     if (nameAndCityFields.includes(name)) {
       updatedValue = value.replace(/[^A-Za-z\s]/g, '').slice(0, 15)
     }
 
-    /*
-     * Numeric fields
-     * Numbers only
-     */
     if (numericFields.includes(name)) {
       updatedValue = value.replace(/\D/g, '')
     }
 
-    /*
-     * Mobile number
-     * Maximum 10 digits
-     */
     if (name === 'MOBILE_NUMBER') {
       updatedValue = value.replace(/\D/g, '').slice(0, 10)
     }
 
-    /*
-     * Email validation
-     */
     if (emailFields.includes(name)) {
       if (updatedValue && !updatedValue.includes('@')) {
         setFieldErrors(prev => ({
@@ -283,130 +266,211 @@ const EmployeeData = () => {
 
     placeholder: provided => ({
       ...provided,
-      color: '#6c757d'
+      color: '#6c757d',
+      fontSize: '14px'
+    }),
+
+    singleValue: provided => ({
+      ...provided,
+      fontSize: '14px'
+    }),
+
+    input: provided => ({
+      ...provided,
+      fontSize: '14px'
+    }),
+
+    option: provided => ({
+      ...provided,
+      fontSize: '14px'
     })
   }
 
-  const titleOptions = [
-    { value: 'Mr.', label: 'Mr.' },
-    { value: 'Mrs.', label: 'Mrs.' },
-    { value: 'Ms.', label: 'Ms.' },
-    { value: 'Dr.', label: 'Dr.' }
-  ]
+  const titleOptions = useMemo(
+  () =>
+    (masters.titles || [])
+      .map(item => ({
+        value: String(item.VALUE ?? item.value ?? ''),
+        label: item.LABEL ?? item.label ?? ''
+      }))
+      .filter(item => item.value && item.label),
+  [masters.titles]
+)
 
-  const genderOptions = [
-    { value: 'MALE', label: 'Male' },
-    { value: 'FEMALE', label: 'Female' },
-    { value: 'OTHER', label: 'Other' }
-  ]
+  const genderOptions = useMemo(
+    () =>
+      (masters.genders || [])
+        .map(item => ({
+          value: String(item.VALUE ?? item.value ?? ''),
+          label: item.LABEL ?? item.label ?? ''
+        }))
+        .filter(item => item.value && item.label),
+    [masters.genders]
+  )
 
-  const bloodGroupOptions = [
-    { value: 'A+', label: 'A+' },
-    { value: 'A-', label: 'A-' },
-    { value: 'B+', label: 'B+' },
-    { value: 'B-', label: 'B-' },
-    { value: 'AB+', label: 'AB+' },
-    { value: 'AB-', label: 'AB-' },
-    { value: 'O+', label: 'O+' },
-    { value: 'O-', label: 'O-' }
-  ]
+  const bloodGroupOptions = useMemo(
+    () =>
+      (masters.bloodGroups || [])
+        .map(item => ({
+          value: String(item.VALUE ?? item.value ?? ''),
+          label: item.LABEL ?? item.label ?? ''
+        }))
+        .filter(item => item.value && item.label),
+    [masters.bloodGroups]
+  )
 
-  const countryOptions = [
-    { value: 'India', label: 'India' },
-    { value: 'USA', label: 'USA' },
-    { value: 'UK', label: 'UK' },
-    { value: 'UAE', label: 'UAE' },
-    { value: 'Canada', label: 'Canada' },
-    { value: 'Australia', label: 'Australia' }
-  ]
+  const countryOptions = useMemo(
+    () =>
+      (masters.countries || [])
+        .map(item => ({
+          value: String(item.VALUE ?? item.value ?? ''),
+          label: (item.LABEL ?? item.label ?? '').trim()
+        }))
+        .filter(item => item.value && item.label),
+    [masters.countries]
+  )
 
-  const stateOptions = [
-    { value: 'Andhra Pradesh', label: 'Andhra Pradesh' },
-    { value: 'Assam', label: 'Assam' },
-    { value: 'Bihar', label: 'Bihar' },
-    { value: 'Delhi', label: 'Delhi' },
-    { value: 'Gujarat', label: 'Gujarat' },
-    { value: 'Haryana', label: 'Haryana' },
-    { value: 'Karnataka', label: 'Karnataka' },
-    { value: 'Kerala', label: 'Kerala' },
-    { value: 'Madhya Pradesh', label: 'Madhya Pradesh' },
-    { value: 'Maharashtra', label: 'Maharashtra' },
-    { value: 'Odisha', label: 'Odisha' },
-    { value: 'Punjab', label: 'Punjab' },
-    { value: 'Rajasthan', label: 'Rajasthan' },
-    { value: 'Tamil Nadu', label: 'Tamil Nadu' },
-    { value: 'Telangana', label: 'Telangana' },
-    { value: 'Uttar Pradesh', label: 'Uttar Pradesh' },
-    { value: 'West Bengal', label: 'West Bengal' }
-  ]
+  const stateOptions = useMemo(
+    () =>
+      (masters.states || [])
+        .map(item => ({
+          value: String(item.VALUE ?? item.value ?? ''),
+          label: (item.LABEL ?? item.label ?? '').trim()
+        }))
+        .filter(item => item.value && item.label),
+    [masters.states]
+  )
 
-  const companyOptions = useMemo(() => {
-    const companies = employeeList
-      .map(
-        item =>
-          item.COMPANY ??
-          item.company ??
-          item.COMPANY_NAME ??
-          item.company_name ??
-          ''
-      )
-      .filter(Boolean)
+  const companyOptions = useMemo(
+    () =>
+      (masters.companies || [])
+        .map(item => ({
+          value: String(item.VALUE ?? item.value ?? ''),
+          label: (item.LABEL ?? item.label ?? '').trim()
+        }))
+        .filter(item => item.value && item.label),
+    [masters.companies]
+  )
 
-    return [...new Set(companies)].map(company => ({
-      value: company,
-      label: company
-    }))
-  }, [employeeList])
+  const formatDateForInput = value => {
+    if (!value) return ''
 
-  /*
-   * -------------------------------------------------------------
-   * EMPLOYEE SELECTION
-   *
-   * Backend fetching will be added later.
-   * -------------------------------------------------------------
-   */
+    // Already in YYYY-MM-DD format
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return value
+    }
+
+    // Convert DD-MMM-YY to YYYY-MM-DD
+    const months = {
+      JAN: '01',
+      FEB: '02',
+      MAR: '03',
+      APR: '04',
+      MAY: '05',
+      JUN: '06',
+      JUL: '07',
+      AUG: '08',
+      SEP: '09',
+      OCT: '10',
+      NOV: '11',
+      DEC: '12'
+    }
+
+    const match = String(value)
+      .toUpperCase()
+      .match(/^(\d{2})-([A-Z]{3})-(\d{2})$/)
+
+    if (!match) return ''
+
+    const [, day, month, year] = match
+
+    // Assuming 50-99 = 1950-1999 and 00-49 = 2000-2049
+    const fullYear = Number(year) >= 50 ? `19${year}` : `20${year}`
+
+    return `${fullYear}-${months[month]}-${day}`
+  }
 
   const handleEmployeeChange = async option => {
-    const employeeId = option?.value || ''
-
-    setSelectedEmployeeId(employeeId)
-
-    if (!employeeId) {
-      setShowAllTabs(false)
-      setActiveTab('personal')
-      setEmployeeData(INITIAL_EMPLOYEE_DATA)
+    if (!option) {
+      setSelectedEmployeeId('')
+      setEmployeeData({})
       return
     }
 
-    /*
-     * For now we only switch the UI.
-     *
-     * Once you provide the old HRMS backend code,
-     * we will call the Employee Data API here and populate
-     * employeeData with the response.
-     */
+    const employeeId = option.value
 
-    setLoading(true)
+    setSelectedEmployeeId(employeeId)
 
     try {
-      setEmployeeData(prev => ({
-        ...prev,
-        EMPLOYEE_ID: employeeId
-      }))
+      setLoading(true)
 
-      setShowAllTabs(true)
-      setActiveTab('personal')
+      const response = await getEmployeeById(employeeId)
+
+      if (response?.status) {
+        const employee = response.data?.employee || {}
+
+        console.log('Selected employee data:', employee)
+
+        setShowAllTabs(true)
+        setActiveTab('personal')
+
+        setEmployeeData({
+          ID: employee.ID || '',
+          EMP_CODE: employee.EMP_CODE || '',
+
+          TITLE: employee.TITLE || '',
+          FIRST_NAME: employee.FNAME || '',
+          MIDDLE_NAME: employee.MNAME || '',
+          LAST_NAME: employee.LNAME || '',
+
+          CURRENT_ADDRESS: employee.ADDRESS || '',
+          CURRENT_CITY: employee.CITY || '',
+          CURRENT_STATE: employee.STATE || '',
+          CURRENT_PINCODE: employee.PINCODE || '',
+          CURRENT_COUNTRY: employee.COUNTRY || '',
+
+          PERMANENT_ADDRESS: employee.PERMNT_ADDRESS || '',
+          PERMANENT_CITY: employee.PERMNT_CITY || '',
+          PERMANENT_STATE: employee.PERMNT_STATE || '',
+          PERMANENT_PINCODE: employee.PERMNT_PINCODE || '',
+          PERMANENT_COUNTRY: employee.PERMNT_COUNTRY || '',
+
+          TELEPHONE: employee.PHONE || '',
+          MOBILE_NUMBER: employee.CELL || '',
+
+          PERSONAL_EMAIL: employee.PER_EMAIL || '',
+          COMPANY_EMAIL: employee.COM_EMAIL || '',
+
+          DATE_OF_BIRTH: formatDateForInput(employee.DOB),
+          DATE_OF_JOINING: formatDateForInput(employee.DOJ),
+
+          EMERGENCY_CONTACT: employee.TEL_NO_EMERG || '',
+
+          GENDER: employee.GENDER || '',
+          BLOOD_GROUP: employee.BLOOD_GRP || '',
+
+          PROFILE_PHOTO: employee.PICS || '',
+
+          COMPANY: employee.COMP_ID || '',
+
+          STATUS: employee.STATUS || ''
+        })
+                setShowAllTabs(true)
+        setActiveTab('personal')
+      } else {
+        console.error(response?.message || 'Unable to load employee details.')
+        setEmployeeData({})
+      }
     } catch (error) {
-      console.error('Error loading employee:', error)
+      console.error('Error loading employee details:', error)
+      setEmployeeData({})
     } finally {
       setLoading(false)
     }
   }
 
   /*
-   * -------------------------------------------------------------
-   * RESET
-   * -------------------------------------------------------------
+   * -------------------RESET-------------------
    */
 
   const resetEmployee = () => {
@@ -416,34 +480,62 @@ const EmployeeData = () => {
     setEmployeeData(INITIAL_EMPLOYEE_DATA)
   }
 
-const loadEmployees = async () => {
-  try {
-    const response = await getEmployees();
+  const loadEmployees = async () => {
+    try {
+      const response = await getEmployees()
 
-    console.log("Employee API response:", response);
-
-    if (response?.status) {
-      setEmployees(Array.isArray(response.data) ? response.data : []);
-    } else {
-      console.error(
-        response?.message || "Unable to load employees."
-      );
-      setEmployees([]);
+      if (response?.status) {
+        setEmployees(Array.isArray(response.data) ? response.data : [])
+      } else {
+        console.error(response?.message || 'Unable to load employees.')
+        setEmployees([])
+      }
+    } catch (error) {
+      console.error('Error loading employees:', error)
+      setEmployees([])
     }
-  } catch (error) {
-    console.error("Error loading employees:", error);
-    setEmployees([]);
   }
-};
 
-useEffect(() => {
-  loadEmployees();
-}, []);
+  const loadEmployeeMasters = async () => {
+    try {
+      const response = await getEmployeeMasters()
+
+      console.log('Employee Masters API response:', response)
+
+      if (response?.status) {
+        setMasters(response.data || {})
+      } else {
+        console.error(response?.message || 'Unable to load employee masters.')
+      }
+    } catch (error) {
+      console.error('Error loading employee masters:', error)
+    }
+  }
+
+  useEffect(() => {
+    loadEmployees()
+    loadEmployeeMasters()
+  }, [])
+
+  useEffect(() => {
+    const loadMasters = async () => {
+      try {
+        const response = await getEmployeeMasters()
+
+        console.log('Employee Masters response:', response)
+      } catch (error) {
+        console.error('Error loading employee masters:', error)
+      }
+    }
+
+    loadMasters()
+  }, [])
+
+  console.log('TITLE from employee:', employeeData.TITLE)
+console.log('Title options:', titleOptions)
 
   /*
-   * -------------------------------------------------------------
-   * STYLES
-   * -------------------------------------------------------------
+   * ------------STYLES-------------
    */
 
   const styles = {
@@ -739,14 +831,14 @@ useEffect(() => {
 
         {/* CURRENT STATE */}
         <div className='col-lg-2 col-md-6'>
-          {renderInput('CURRENT_STATE', 'Current State', stateOptions, {
+          {renderSelect('CURRENT_STATE', 'Current State', stateOptions, {
             required: true
           })}
         </div>
 
         {/* CURRENT COUNTRY */}
         <div className='col-lg-2 col-md-6'>
-          {renderInput('CURRENT_COUNTRY', 'Current Country', countryOptions, {
+          {renderSelect('CURRENT_COUNTRY', 'Current Country', countryOptions, {
             required: true
           })}
         </div>
@@ -786,13 +878,13 @@ useEffect(() => {
         </div>
 
         <div className='col-lg-2 col-md-6'>
-          {renderInput('PERMANENT_STATE', 'Permanent State', stateOptions, {
+          {renderSelect('PERMANENT_STATE', 'Permanent State', stateOptions, {
             required: true
           })}
         </div>
 
         <div className='col-lg-2 col-md-6'>
-          {renderInput(
+          {renderSelect(
             'PERMANENT_COUNTRY',
             'Permanent Country',
             countryOptions,
@@ -838,7 +930,7 @@ useEffect(() => {
 
       <div className='row'>
         <div className='col-lg-4 col-md-6'>
-          {renderInput('COMPANY', 'Company', companyOptions, {
+          {renderSelect('COMPANY', 'Company', companyOptions, {
             required: true
           })}
         </div>
