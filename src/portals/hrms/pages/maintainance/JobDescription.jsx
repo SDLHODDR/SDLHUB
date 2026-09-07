@@ -733,6 +733,8 @@ const JobDescription = () => {
       const selectedJob =
         response?.data?.jobDescription || response?.jobDescription || null
 
+      console.log('ALLOWANCES FROM API:', selectedJob?.ALLOWANCES_LIST)
+
       if (!selectedJob) {
         notifyError('Unable to fetch job description details.')
         return

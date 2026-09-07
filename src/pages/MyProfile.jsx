@@ -9,9 +9,7 @@ import {
   uploadProfileImage,
   saveFamilyMember,
   deleteFamilyMember,
-  saveBankDetails,
-  sendPersonalDetailsOtp,
-  verifyPersonalDetailsOtp
+  saveBankDetails
 } from '../services/profileService'
 
 import {
@@ -1560,12 +1558,9 @@ const handleSendPersonalOtp = async () => {
       ''
     ])
 
-
     setShowPersonalForm(false)
 
-
     setShowPersonalOtp(true)
-
 
     notifySuccess(
       res?.message ||
@@ -1883,6 +1878,10 @@ const handleVerifyPersonalOtp = async () => {
             </div>
           </div>
         </div>
+
+
+
+        
         <div className='col-xl-8'>
           <div style={{ minHeight: 402 }} className='card'>
             <div className='card-body'>

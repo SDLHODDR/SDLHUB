@@ -28,6 +28,7 @@ import ConferenceRoomAuthorization from "../components/authorization/ConferenceR
 import ConferenceRoomMaintenance from "../portals/eportal/components/maintenance/ConferenceRoomMaintenance";
 
 import MyProfile from "../pages/MyProfile";
+import Profile from "../pages/profile/profile";
 
 export const eportalRoutes = [
 	{ path: "eportal/dashboard", element: Dashboard, },
@@ -59,6 +60,7 @@ export const eportalRoutes = [
 
 	// Profile
 	{ path: "eportal/my-profile", element: MyProfile, },
+	{ path: "eportal/profile", element: Profile, },
 
 	// Authorization
 	{ path: "eportal/taskauthorization/109", element: LeavesAuthorization, },
