@@ -2,6 +2,7 @@ import { Column } from "primereact/column";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 import { formatDate } from "../../../utils/formatUtils";
+import SDLReactSelect from "../../../components/SDLReactSelect";
 
 export const getApprLevelColumns = ({ apprOptions }) => [
   {
@@ -16,13 +17,11 @@ export const getApprLevelColumns = ({ apprOptions }) => [
     style: { width: "40%" },
     body: (row) => row.NAME ?? "",
     editor: (options) => (
-      <Dropdown
+      <SDLReactSelect
         value={options.value}
         options={apprOptions}
-        onChange={(e) => options.editorCallback(e.value)}
+        onChange={(value) => options.editorCallback(value)}
         placeholder="Select Appraiser"
-        className="w-100"
-        filter
       />
     ),
   },

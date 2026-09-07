@@ -1,7 +1,8 @@
 import { Column } from "primereact/column";
-import { Dropdown } from "primereact/dropdown";
+//import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 import { formatDate } from "../../../utils/formatUtils";
+import SDLReactSelect from "../../../components/SDLReactSelect";
 
 export const getReportingColumns = ({ getParentOptionsForRow }) => [
   {
@@ -22,13 +23,11 @@ export const getReportingColumns = ({ getParentOptionsForRow }) => [
     style: { width: "35%" },
     body: (row) => row.ORGNM ?? "",
     editor: (opts) => (
-      <Dropdown
+      <SDLReactSelect
         value={opts.value}
         options={getParentOptionsForRow(opts.rowData)}
-        onChange={(e) => opts.editorCallback(e.value)}
-        placeholder="Select Parent Location"
-        className="w-100"
-        filter
+        onChange={(value) => opts.editorCallback(value)}
+        placeholder=" Parent Location"
       />
     ),
   },

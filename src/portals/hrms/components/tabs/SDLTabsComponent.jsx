@@ -41,7 +41,7 @@ const SDLTabsComponent = ({
       </ul>
 
       <div className="tab-content" id="pills-tabContent">
-        <div className="tab-pane show active text-dark" tabindex="0" role="tabpanel">
+        <div className="tab-pane show active text-dark" tabIndex="0" role="tabpanel">
           {tabContent}
         </div>
       </div>

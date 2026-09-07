@@ -1,4 +1,5 @@
 import useOrganogramFormHandler from "./useOrganogramFormHandler";
+import SDLReactSelect from "../../../components/SDLReactSelect";
 
 const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
   const {
@@ -31,7 +32,16 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
             <label className="form-label">
               Fin Entity<span className="text-danger ms-1">*</span>
             </label>
-            <select
+             
+            <SDLReactSelect
+                value={formData.FIN_ENTITY_ID}
+                options={finEntityOptions}
+                onChange={(value) => handleFieldChange("FIN_ENTITY_ID", value)}
+                hasError={!!errors.FIN_ENTITY_ID}
+                isLoading={loadingMasters}
+                isDisabled={loadingMasters}
+              />
+            {/* <select
               className={`form-select ${errors.FIN_ENTITY_ID ? "is-invalid" : ""}`}
               value={formData.FIN_ENTITY_ID}
               onChange={(e) => handleFieldChange("FIN_ENTITY_ID", e.target.value)}
@@ -41,7 +51,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               {finEntityOptions.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
-            </select>
+            </select> */}
             {errors.FIN_ENTITY_ID && <div className="invalid-feedback">{errors.FIN_ENTITY_ID}</div>}
           </div>
         </div>
@@ -51,7 +61,15 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
             <label className="form-label">
               Company<span className="text-danger ms-1">*</span>
             </label>
-            <select
+            <SDLReactSelect
+                value={formData.COMPANY_ID}
+                options={companyOptions}
+                onChange={(value) => handleFieldChange("COMPANY_ID", value)}
+                hasError={!!errors.COMPANY_ID}
+                isLoading={loadingMasters}
+                isDisabled={loadingMasters}
+              />
+            {/* <select
               className={`form-select ${errors.COMPANY_ID ? "is-invalid" : ""}`}
               value={formData.COMPANY_ID}
               onChange={(e) => handleFieldChange("COMPANY_ID", e.target.value)}
@@ -61,7 +79,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               {companyOptions.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
-            </select>
+            </select> */}
             {errors.COMPANY_ID && <div className="invalid-feedback">{errors.COMPANY_ID}</div>}
           </div>
         </div>
@@ -71,7 +89,15 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
             <label className="form-label">
               Department<span className="text-danger ms-1">*</span>
             </label>
-            <select
+            <SDLReactSelect
+                value={formData.DEPARTMENT_ID}
+                options={departmentOptions}
+                onChange={(value) => handleFieldChange("DEPARTMENT_ID", value)}
+                hasError={!!errors.DEPARTMENT_ID}
+                isLoading={loadingMasters}
+                isDisabled={loadingMasters}
+              />
+            {/* <select
               className={`form-select ${errors.DEPARTMENT_ID ? "is-invalid" : ""}`}
               value={formData.DEPARTMENT_ID}
               onChange={(e) => handleFieldChange("DEPARTMENT_ID", e.target.value)}
@@ -81,7 +107,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               {departmentOptions.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
-            </select>
+            </select> */}
             {errors.DEPARTMENT_ID && <div className="invalid-feedback">{errors.DEPARTMENT_ID}</div>}
           </div>
         </div>
@@ -89,7 +115,15 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
         <div className="col-lg-4 col-md-6">
           <div className="mb-3">
             <label className="form-label">Designation</label>
-            <select
+            <SDLReactSelect
+                value={formData.DESIGNATION_ID}
+                options={designationOptions}
+                onChange={(value) => handleFieldChange("DESIGNATION_ID", value)}
+                hasError={!!errors.DESIGNATION_ID}
+                isLoading={loadingDesignations}
+                isDisabled={!formData.DEPARTMENT_ID || loadingDesignations}
+              />
+            {/* <select
               className="form-select"
               value={formData.DESIGNATION_ID}
               onChange={(e) => handleFieldChange("DESIGNATION_ID", e.target.value)}
@@ -99,14 +133,22 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               {designationOptions.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
-            </select>
+            </select> */}
           </div>
         </div>
 
         <div className="col-lg-4 col-md-6">
           <div className="mb-3">
             <label className="form-label">JD Label</label>
-            <select
+            <SDLReactSelect
+                value={formData.JD_LABEL_ID}
+                options={jdLabelOptions}
+                onChange={(value) => handleFieldChange("JD_LABEL_ID", value)}
+                hasError={!!errors.JD_LABEL_ID}
+                isLoading={loadingJdLabels}
+                isDisabled={!formData.DESIGNATION_ID || loadingJdLabels}
+              />
+            {/* <select
               className="form-select"
               value={formData.JD_LABEL_ID}
               onChange={(e) => handleFieldChange("JD_LABEL_ID", e.target.value)}
@@ -116,7 +158,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               {jdLabelOptions.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
-            </select>
+            </select> */}
           </div>
         </div>
       </div>
@@ -128,7 +170,15 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
             <label className="form-label">
               Division<span className="text-danger ms-1">*</span>
             </label>
-            <select
+             <SDLReactSelect
+                value={formData.DIVISION_ID}
+                options={divisionOptions}
+                onChange={(value) => handleFieldChange("DIVISION_ID", value)}
+                hasError={!!errors.DIVISION_ID}
+                isLoading={loadingMasters}
+                isDisabled={loadingMasters}
+              />
+            {/* <select
               className={`form-select ${errors.DIVISION_ID ? "is-invalid" : ""}`}
               value={formData.DIVISION_ID}
               onChange={(e) => handleFieldChange("DIVISION_ID", e.target.value)}
@@ -138,7 +188,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               {divisionOptions.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
-            </select>
+            </select> */}
             {errors.DIVISION_ID && <div className="invalid-feedback">{errors.DIVISION_ID}</div>}
           </div>
         </div>
@@ -148,7 +198,15 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
             <label className="form-label">
               Employee Level<span className="text-danger ms-1">*</span>
             </label>
-            <select
+            <SDLReactSelect
+                value={formData.EMP_LEVEL_ID}
+                options={empLevelOptions}
+                onChange={(value) => handleFieldChange("EMP_LEVEL_ID", value)}
+                hasError={!!errors.EMP_LEVEL_ID}
+                isLoading={loadingMasters}
+                isDisabled={loadingMasters}
+              />
+            {/* <select
               className={`form-select ${errors.EMP_LEVEL_ID ? "is-invalid" : ""}`}
               value={formData.EMP_LEVEL_ID}
               onChange={(e) => handleFieldChange("EMP_LEVEL_ID", e.target.value)}
@@ -158,7 +216,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               {empLevelOptions.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
-            </select>
+            </select> */}
             {errors.EMP_LEVEL_ID && <div className="invalid-feedback">{errors.EMP_LEVEL_ID}</div>}
           </div>
         </div>
@@ -168,7 +226,15 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
             <label className="form-label">
               Organogram Level<span className="text-danger ms-1">*</span>
             </label>
-            <select
+             <SDLReactSelect
+                value={formData.ORG_LEVEL_ID}
+                options={orgLevelOptions}
+                onChange={(value) => handleFieldChange("ORG_LEVEL_ID", value)}
+                hasError={!!errors.ORG_LEVEL_ID}
+                isLoading={loadingMasters}
+                isDisabled={loadingMasters}
+              />
+            {/* <select
               className={`form-select ${errors.ORG_LEVEL_ID ? "is-invalid" : ""}`}
               value={formData.ORG_LEVEL_ID}
               onChange={(e) => handleFieldChange("ORG_LEVEL_ID", e.target.value)}
@@ -178,7 +244,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               {orgLevelOptions.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
-            </select>
+            </select> */}
             {errors.ORG_LEVEL_ID && <div className="invalid-feedback">{errors.ORG_LEVEL_ID}</div>}
           </div>
         </div>

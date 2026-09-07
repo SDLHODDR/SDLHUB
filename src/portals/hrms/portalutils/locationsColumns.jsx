@@ -3,6 +3,7 @@ import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 import { formatDate } from "../../../utils/formatUtils";
 import SDLActionButtons from "../../../components/SDLActionButtons";
+import SDLReactSelect from "../../../components/SDLReactSelect";
 
 const getGeoLocationDisplay = (row, organogramDetails) => {
   if (organogramDetails?.EMP_LEVEL === "15") {
@@ -76,31 +77,32 @@ export const getLocationsColumns = ({
   {
     key: "GEO_ID",
     header: "Geo Label",
-    style: { width: "8%" },
+    style: { width: "16%", minWidth: "180px" },
     sortable: true,
     body: (row) => row.GEO_MAPPING_LABEL || row.DIVSN_DESC || row.GEODESC || "",
     editor: (options) => (
-      <Dropdown
-        value={options.value}
-        options={getGeoMappingOptions(options.rowData)}
-        onChange={(e) => options.editorCallback(e.value)}
-        placeholder="Select"
-        className="w-100"
-        filter
-      />
+      
+      <div style={{ minWidth: "160px" }}>
+        <SDLReactSelect
+          value={options.value}
+          options={getGeoMappingOptions(options.rowData)}
+          onChange={(value) => options.editorCallback(value)}
+          placeholder="Select"
+        />
+      </div>
     ),
   },
   {
     key: "NM",
     header: "Employee",
-    style: { width: "12%" },
+    style: { width: "10%" },
     sortable: true,
     body: (row) => row.NM ?? "",
   },
   {
     key: "REPORT_TO_DISPLAY",
     header: "Report To",
-    style: { width: "20%" },
+    style: { width: "14%" },
     sortable: true,
     body: (row) => row.REPORT_TO_DISPLAY ?? "",
   },

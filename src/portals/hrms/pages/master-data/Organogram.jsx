@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Dropdown } from "primereact/dropdown";
 
 import BreadcrumbNav from "../../../eportal/components/breadcrumb-nav/BreadcrumbNav";
+import SDLReactSelect from "../../../../components/SDLReactSelect";
 
 import {
   //notifySuccess,
@@ -87,7 +88,7 @@ const Organogram = () => {
       {/* ======================================================
           PAGE HEADER
       ====================================================== */}
-
+        <div className="sdl-form-ui">
       <div className="page-header">
         <div className="add-item d-flex">
           <div className="page-title">
@@ -113,8 +114,8 @@ const Organogram = () => {
         <div className="col-xl-12">
           <div className="card">
             <div className="card-header">
-              <div className="card-title ms-auto" style={{ width: '270px' }}>
-                <Dropdown
+              <div className="card-title ms-auto" style={{ width: '470px' }}>
+                {/* <Dropdown
                   value={selectedOrganogram}
                   options={orgonogramOptions}
                   onChange={(e) => setSelectedOrgonogram(e.value)}
@@ -123,11 +124,21 @@ const Organogram = () => {
                   showClear
                   filter
                   disabled={loadingOrgonogram}
+                /> */}
+                 <SDLReactSelect
+                  value={selectedOrganogram}
+                  options={orgonogramOptions}
+                  onChange={(value) => setSelectedOrgonogram(value || null)}
+                  placeholder="Select Orgonogram"
+                  isClearable
+                  isDisabled={loadingOrgonogram}
+                  isLoading={loadingOrgonogram}
                 />
+                
               </div>
             </div>
             <div className="card-body">
-              <div class="tab-style-5-wrapper">
+              <div className="tab-style-5-wrapper">
                 <SDLTabsComponent
                   tabs={tabs}
                   selectedTab={selectedTab}
@@ -141,6 +152,7 @@ const Organogram = () => {
         </div>
       </div>
       {/* /Default Nav Tabs */}
+      </div>
     </>
   );
 };
