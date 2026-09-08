@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
+import SDLCalendar from "../../../../components/calendar/SDLCalendar";
 
 import {
   saveFamilyMember,
@@ -27,11 +28,15 @@ import {
 
 const FamilyDetailsTab = ({ profile, setProfile }) => {
   /* =========================================================
-     PROFILE DATA
+     PERMISSION
   ========================================================= */
 
   const canManageFamily =
     profile?.permissions?.can_manage_family || false;
+
+  /* =========================================================
+     EXISTING FAMILY DATA
+  ========================================================= */
 
   const spouse = profile?.spouse || {};
   const children = profile?.children || [];
@@ -43,11 +48,8 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
   ========================================================= */
 
   const [searchQuery, setSearchQuery] = useState("");
-
   const [showFamilyForm, setShowFamilyForm] = useState(false);
-
   const [editingMember, setEditingMember] = useState(null);
-
   const [familySaving, setFamilySaving] = useState(false);
 
   const [familyForm, setFamilyForm] = useState({
@@ -60,16 +62,166 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
     aadhaar: "",
   });
 
-  /*
-   * Inline validation errors
-   */
   const [familyErrors, setFamilyErrors] = useState({
     name: "",
     relation: "",
   });
 
   /* =========================================================
-     FAMILY DATA
+     PARSE DATE
+  ========================================================= */
+
+  const parseFormDate = (value) => {
+    if (!value) return null;
+
+    if (value instanceof Date) {
+      return isNaN(value.getTime()) ? null : value;
+    }
+
+    const valueString = String(value)
+      .trim()
+      .substring(0, 11);
+
+    /* YYYY-MM-DD */
+    let match = valueString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (match) {
+      const year = Number(match[1]);
+      const month = Number(match[2]) - 1;
+      const day = Number(match[3]);
+      const date = new Date(year, month, day);
+
+      if (
+        date.getFullYear() === year &&
+        date.getMonth() === month &&
+        date.getDate() === day
+      ) {
+        return date;
+      }
+      return null;
+    }
+
+    /* DD/MM/YYYY */
+    match = valueString.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (match) {
+      const day = Number(match[1]);
+      const month = Number(match[2]) - 1;
+      const year = Number(match[3]);
+      const date = new Date(year, month, day);
+
+      if (
+        date.getFullYear() === year &&
+        date.getMonth() === month &&
+        date.getDate() === day
+      ) {
+        return date;
+      }
+      return null;
+    }
+
+    /* DD-MM-YYYY */
+    match = valueString.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    if (match) {
+      const day = Number(match[1]);
+      const month = Number(match[2]) - 1;
+      const year = Number(match[3]);
+      const date = new Date(year, month, day);
+
+      if (
+        date.getFullYear() === year &&
+        date.getMonth() === month &&
+        date.getDate() === day
+      ) {
+        return date;
+      }
+      return null;
+    }
+
+    /* DD-Mon-YYYY */
+    match = valueString.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/i);
+    if (match) {
+      const day = Number(match[1]);
+      const monthMap = {
+        JAN: 0,
+        FEB: 1,
+        MAR: 2,
+        APR: 3,
+        MAY: 4,
+        JUN: 5,
+        JUL: 6,
+        AUG: 7,
+        SEP: 8,
+        OCT: 9,
+        NOV: 10,
+        DEC: 11,
+      };
+
+      const month = monthMap[match[2].toUpperCase()];
+      const year = Number(match[3]);
+
+      if (month === undefined) return null;
+
+      const date = new Date(year, month, day);
+      if (
+        date.getFullYear() === year &&
+        date.getMonth() === month &&
+        date.getDate() === day
+      ) {
+        return date;
+      }
+      return null;
+    }
+
+    return null;
+  };
+
+  /* =========================================================
+     FORMAT DATE FOR FORM (YYYY-MM-DD)
+  ========================================================= */
+
+  const formatDateForForm = (date) => {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+      return "";
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  /* =========================================================
+     FORMAT DATE FOR DISPLAY (DD-Mon-YYYY)
+  ========================================================= */
+
+  const formatDisplayDate = (value) => {
+    if (!value) return "";
+    const date = parseFormDate(value);
+    if (!date) return value;
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+
+    return `${day}-${month}-${year}`;
+  };
+
+  /* =========================================================
+     FAMILY DATA FOR DATATABLE
   ========================================================= */
 
   const familyData = useMemo(() => {
@@ -84,10 +236,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
           age: member.AGE || "",
           dob: member.DOB || "",
           dependent: member.FM_DEP || "",
-          occupation:
-            member.OCCUPATION ||
-            member.FM_OCCUPATION ||
-            "",
+          occupation: member.OCCUPATION || member.FM_OCCUPATION || "",
           aadhaar: member.AADHAAR || "",
         });
       }
@@ -98,22 +247,19 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
     pushMember(father, "Father");
 
     children.forEach((child) => {
-      pushMember(child, "Child");
+      pushMember(child, child.FM_RELATION || "Child");
     });
 
     return list;
   }, [spouse, mother, father, children]);
 
   /* =========================================================
-     FILTERED FAMILY DATA
+     SEARCH
   ========================================================= */
 
   const filteredFamilyData = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-
-    if (!q) {
-      return familyData;
-    }
+    if (!q) return familyData;
 
     return familyData.filter((item) => {
       return (
@@ -134,18 +280,15 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
 
   const handleAddFamily = () => {
     if (!canManageFamily) {
-      notifyWarning(
-        PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED
-      );
+      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED);
       return;
     }
 
     setEditingMember(null);
-
     setFamilyForm({
       id: "",
       name: "",
-      relation: FAMILY_RELATIONS.WIFE,
+      relation: "Wife",
       dependent: FAMILY_DEPENDENT.DEPENDANT,
       dob: "",
       occupation: "",
@@ -166,38 +309,23 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
 
   const handleEditFamily = (row) => {
     if (!canManageFamily) {
-      notifyWarning(
-        PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED
-      );
+      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED);
       return;
     }
 
-    let formattedDOB = "";
+    const parsedDate = parseFormDate(row.dob);
+    const formattedDOB = parsedDate ? formatDateForForm(parsedDate) : "";
 
-    if (row.dob) {
-      const parsedDate = new Date(row.dob);
-
-      if (!isNaN(parsedDate.getTime())) {
-        const year = parsedDate.getFullYear();
-        const month = String(
-          parsedDate.getMonth() + 1
-        ).padStart(2, "0");
-        const day = String(
-          parsedDate.getDate()
-        ).padStart(2, "0");
-
-        formattedDOB = `${year}-${month}-${day}`;
-      }
-    }
-
-    setEditingMember(row);
+    setEditingMember({
+      ...row,
+      id: row.id,
+    });
 
     setFamilyForm({
       id: row.id,
       name: row.name || "",
       relation: row.relation || "",
-      dependent:
-        row.dependent || FAMILY_DEPENDENT.DEPENDANT,
+      dependent: row.dependent || FAMILY_DEPENDENT.DEPENDANT,
       dob: formattedDOB,
       occupation: row.occupation || "",
       aadhaar: row.aadhaar || "",
@@ -217,9 +345,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
 
   const handleDeleteFamily = async (row) => {
     if (!canManageFamily) {
-      notifyWarning(
-        PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED
-      );
+      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED);
       return;
     }
 
@@ -228,14 +354,10 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
       PROFILE_MESSAGES.DELETE_FAMILY_MESSAGE(row.name)
     );
 
-    if (!result?.isConfirmed) {
-      return;
-    }
+    if (!result?.isConfirmed) return;
 
     try {
-      const res = await deleteFamilyMember({
-        id: row.id,
-      });
+      const res = await deleteFamilyMember({ id: row.id });
 
       if (res?.status) {
         let updatedChildren = [...children];
@@ -243,47 +365,17 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
         let updatedMother = { ...mother };
         let updatedFather = { ...father };
 
-        /* ---------------------------------------------
-           SPOUSE
-        --------------------------------------------- */
+        const targetRel = String(row.relation).toLowerCase();
 
-        if (
-          [
-            FAMILY_RELATIONS.WIFE,
-            FAMILY_RELATIONS.HUSBAND,
-          ].includes(row.relation)
-        ) {
+        if (["wife", "husband", "spouse"].includes(targetRel)) {
           updatedSpouse = {};
-        }
-
-        /* ---------------------------------------------
-           MOTHER
-        --------------------------------------------- */
-
-        else if (
-          row.relation === FAMILY_RELATIONS.MOTHER
-        ) {
+        } else if (targetRel === "mother") {
           updatedMother = {};
-        }
-
-        /* ---------------------------------------------
-           FATHER
-        --------------------------------------------- */
-
-        else if (
-          row.relation === FAMILY_RELATIONS.FATHER
-        ) {
+        } else if (targetRel === "father") {
           updatedFather = {};
-        }
-
-        /* ---------------------------------------------
-           CHILD
-        --------------------------------------------- */
-
-        else {
+        } else {
           updatedChildren = children.filter(
-            (item) =>
-              String(item.ID) !== String(row.id)
+            (item) => String(item.ID) !== String(row.id)
           );
         }
 
@@ -295,26 +387,41 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
           children: updatedChildren,
         }));
 
-        notifySuccess(
-          PROFILE_MESSAGES.FAMILY_DELETED
-        );
+        notifySuccess(PROFILE_MESSAGES.FAMILY_DELETED);
       } else {
-        notifyError(
-          res?.message ||
-            PROFILE_MESSAGES.FAMILY_DELETE_FAILED
-        );
+        notifyError(res?.message || PROFILE_MESSAGES.FAMILY_DELETE_FAILED);
       }
     } catch (error) {
-      console.error(
-        "DELETE FAMILY ERROR:",
-        error
-      );
-
+      console.error("DELETE FAMILY ERROR:", error);
       notifyError(
-        PROFILE_MESSAGES.FAMILY_DELETE_ERROR
+        error?.response?.data?.message ||
+          error?.message ||
+          PROFILE_MESSAGES.FAMILY_DELETE_ERROR
       );
     }
   };
+
+  /* =========================================================
+     DOB CHANGE
+  ========================================================= */
+
+  const handleDobChange = (date) => {
+    if (!date) {
+      setFamilyForm((prev) => ({
+        ...prev,
+        dob: "",
+      }));
+      return;
+    }
+
+    const formattedDate = formatDateForForm(date);
+    setFamilyForm((prev) => ({
+      ...prev,
+      dob: formattedDate,
+    }));
+  };
+
+  const dobValue = parseFormDate(familyForm.dob);
 
   /* =========================================================
      INPUT CHANGE
@@ -328,21 +435,10 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
       [name]: value,
     }));
 
-    /*
-     * Clear inline validation as soon as
-     * the user fixes the field.
-     */
     setFamilyErrors((prev) => {
       const updated = { ...prev };
-
-      if (name === "name" && value.trim()) {
-        updated.name = "";
-      }
-
-      if (name === "relation" && value) {
-        updated.relation = "";
-      }
-
+      if (name === "name" && value.trim()) updated.name = "";
+      if (name === "relation" && value) updated.relation = "";
       return updated;
     });
   };
@@ -352,35 +448,22 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
   ========================================================= */
 
   const calculateAge = (dob) => {
-    if (!dob) {
-      return "";
-    }
-
-    const birthDate = new Date(dob);
-
-    if (isNaN(birthDate.getTime())) {
-      return "";
-    }
+    if (!dob) return "";
+    const birthDate = parseFormDate(dob);
+    if (!birthDate) return "";
 
     const today = new Date();
-
-    let age =
-      today.getFullYear() -
-      birthDate.getFullYear();
-
-    const monthDiff =
-      today.getMonth() -
-      birthDate.getMonth();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
 
     if (
       monthDiff < 0 ||
-      (monthDiff === 0 &&
-        today.getDate() < birthDate.getDate())
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
     ) {
       age--;
     }
 
-    return age;
+    return Math.max(age, 0);
   };
 
   /* =========================================================
@@ -389,16 +472,13 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
 
   const handleSaveFamily = async () => {
     if (!canManageFamily) {
-      notifyWarning(
-        PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED
-      );
+      notifyWarning(PROFILE_MESSAGES.FAMILY_UPDATE_CLOSED);
       return;
     }
 
-    /* =====================================================
-       INLINE REQUIRED FIELD VALIDATION
-    ===================================================== */
-
+    /* -------------------------------------------------------
+       BASIC VALIDATION
+    ------------------------------------------------------- */
     const errors = {
       name: "",
       relation: "",
@@ -413,146 +493,100 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
     }
 
     setFamilyErrors(errors);
+    if (errors.name || errors.relation) return;
 
-    /*
-     * Stop here when required validation fails.
-     */
-    if (errors.name || errors.relation) {
-      return;
-    }
-
-    /* =====================================================
+    /* -------------------------------------------------------
        AADHAAR VALIDATION
-    ===================================================== */
-
+    ------------------------------------------------------- */
     const aadhaar = familyForm.aadhaar?.trim();
 
     if (aadhaar) {
       if (!/^\d+$/.test(aadhaar)) {
-        notifyError(
-          PROFILE_MESSAGES.AADHAAR_DIGITS_ONLY
-        );
+        notifyError(PROFILE_MESSAGES.AADHAAR_DIGITS_ONLY);
         return;
       }
-
       if (aadhaar.length !== 12) {
-        notifyError(
-          PROFILE_MESSAGES.AADHAAR_LENGTH
-        );
+        notifyError(PROFILE_MESSAGES.AADHAAR_LENGTH);
         return;
       }
-
       if (/^[01]/.test(aadhaar)) {
+        notifyError(PROFILE_MESSAGES.AADHAAR_INVALID);
+        return;
+      }
+    }
+
+    /* =========================================================
+       RELATION DUPLICATE CHECK (ALLOWS MULTIPLE SONS / DAUGHTERS)
+    ========================================================= */
+    const selectedRelation = familyForm.relation.trim().toLowerCase();
+    const currentEditingId = editingMember
+      ? String(familyForm.id || editingMember.id || "")
+      : null;
+
+    // Filter out the member currently being updated
+    const otherMembers = familyData.filter((member) => {
+      if (!currentEditingId) return true;
+      return String(member.id || "") !== currentEditingId;
+    });
+
+    // Check Wife / Husband exclusivity (cannot have duplicate spouse records)
+    if (selectedRelation === "wife" || selectedRelation === "husband") {
+      const hasSpouse = otherMembers.some((m) => {
+        const r = (m.relation || "").trim().toLowerCase();
+        return r === "wife" || r === "husband" || r === "spouse";
+      });
+
+      if (hasSpouse) {
         notifyError(
-          PROFILE_MESSAGES.AADHAAR_INVALID
+          "A spouse record (Wife/Husband) already exists in your family details."
         );
         return;
       }
     }
 
-    /* =====================================================
-       DUPLICATE VALIDATION
-    ===================================================== */
-
-    const isDuplicate = familyData.some(
-      (member) => {
-        /*
-         * Ignore the current record while editing.
-         */
-        if (
-          editingMember &&
-          String(member.id) ===
-            String(familyForm.id)
-        ) {
-          return false;
-        }
-
-        return (
-          member.name
-            ?.trim()
-            .toLowerCase() ===
-            familyForm.name
-              ?.trim()
-              .toLowerCase() &&
-          member.relation
-            ?.trim()
-            .toLowerCase() ===
-            familyForm.relation
-              ?.trim()
-              .toLowerCase()
-        );
-      }
-    );
-
-    if (isDuplicate) {
-      notifyError(
-        PROFILE_MESSAGES.DUPLICATE_FAMILY
+    // Check Mother (single record only)
+    if (selectedRelation === "mother") {
+      const hasMother = otherMembers.some(
+        (m) => (m.relation || "").trim().toLowerCase() === "mother"
       );
-      return;
-    }
-
-    /* =====================================================
-       FORMAT DOB
-    ===================================================== */
-
-    let formattedDOB = familyForm.dob;
-
-    if (familyForm.dob) {
-      const date = new Date(familyForm.dob);
-
-      if (!isNaN(date.getTime())) {
-        const day = String(
-          date.getDate()
-        ).padStart(2, "0");
-
-        const month = date.toLocaleString(
-          "en-IN",
-          {
-            month: "short",
-          }
-        );
-
-        const year = date.getFullYear();
-
-        formattedDOB = `${day}-${month}-${year}`;
+      if (hasMother) {
+        notifyError("A Mother record already exists in your family details.");
+        return;
       }
     }
 
-    /* =====================================================
+    // Check Father (single record only)
+    if (selectedRelation === "father") {
+      const hasFather = otherMembers.some(
+        (m) => (m.relation || "").trim().toLowerCase() === "father"
+      );
+      if (hasFather) {
+        notifyError("A Father record already exists in your family details.");
+        return;
+      }
+    }
+
+    // Note: 'son' and 'daughter' bypass all duplicate checks above
+
+    /* -------------------------------------------------------
        PAYLOAD
-    ===================================================== */
-
+    ------------------------------------------------------- */
     const payload = {
-      id: editingMember
-        ? familyForm.id
-        : null,
-
+      id: editingMember ? familyForm.id : null,
       name: familyForm.name.trim(),
-
       relation: familyForm.relation,
-
-      dependent:
-        familyForm.dependent ||
-        FAMILY_DEPENDENT.DEPENDANT,
-
-      dob: formattedDOB,
-
-      occupation:
-        familyForm.occupation?.trim() || "",
-
+      dependent: familyForm.dependent || FAMILY_DEPENDENT.DEPENDANT,
+      dob: familyForm.dob || "",
+      occupation: familyForm.occupation?.trim() || "",
       aadhaar: familyForm.aadhaar?.trim() || "",
     };
 
-    /* =====================================================
-       API SAVE
-    ===================================================== */
-
+    /* -------------------------------------------------------
+       SAVE
+    ------------------------------------------------------- */
     try {
       setFamilySaving(true);
-
-      const res = await saveFamilyMember(
-        payload
-      );
+      const res = await saveFamilyMember(payload);
 
       if (res?.status) {
         let updatedChildren = [...children];
@@ -560,165 +594,46 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
         let updatedMother = { ...mother };
         let updatedFather = { ...father };
 
-        /* ---------------------------------------------
-           UPDATED MEMBER DATA
-        --------------------------------------------- */
-
         const updatedMemberData = {
-          ID:
-            familyForm.id ||
-            res?.data?.id ||
-            Date.now(),
-
+          ID: familyForm.id || res?.data?.id || null,
           FM_NAME: familyForm.name.trim(),
-
-          FM_RELATION:
-            familyForm.relation,
-
-          FM_DEP:
-            familyForm.dependent ||
-            FAMILY_DEPENDENT.DEPENDANT,
-
-          DOB: formattedDOB,
-
-          OCCUPATION:
-            familyForm.occupation?.trim() ||
-            "",
-
-          AADHAAR:
-            familyForm.aadhaar?.trim() ||
-            "",
-
-          AGE: calculateAge(
-            familyForm.dob
-          ),
+          FM_RELATION: familyForm.relation,
+          FM_DEP: familyForm.dependent || FAMILY_DEPENDENT.DEPENDANT,
+          DOB: familyForm.dob || "",
+          OCCUPATION: familyForm.occupation?.trim() || "",
+          AADHAAR: familyForm.aadhaar?.trim() || "",
+          AGE: calculateAge(familyForm.dob),
         };
 
-        /* =================================================
-           EDIT EXISTING MEMBER
-        ================================================= */
+        const currentRel = familyForm.relation.trim().toLowerCase();
 
+        /* EDIT EXISTING MEMBER */
         if (editingMember) {
-          /* ---------------------------------------------
-             SPOUSE
-          --------------------------------------------- */
-
-          if (
-            String(spouse?.ID) ===
-            String(familyForm.id)
-          ) {
-            updatedSpouse = {
-              ...updatedSpouse,
-              ...updatedMemberData,
-            };
-          }
-
-          /* ---------------------------------------------
-             MOTHER
-          --------------------------------------------- */
-
-          else if (
-            String(mother?.ID) ===
-            String(familyForm.id)
-          ) {
-            updatedMother = {
-              ...updatedMother,
-              ...updatedMemberData,
-            };
-          }
-
-          /* ---------------------------------------------
-             FATHER
-          --------------------------------------------- */
-
-          else if (
-            String(father?.ID) ===
-            String(familyForm.id)
-          ) {
-            updatedFather = {
-              ...updatedFather,
-              ...updatedMemberData,
-            };
-          }
-
-          /* ---------------------------------------------
-             CHILD
-          --------------------------------------------- */
-
-          else {
-            updatedChildren =
-              updatedChildren.map(
-                (item) =>
-                  String(item.ID) ===
-                  String(familyForm.id)
-                    ? {
-                        ...item,
-                        ...updatedMemberData,
-                      }
-                    : item
-              );
-          }
-        }
-
-        /* =================================================
-           ADD NEW MEMBER
-        ================================================= */
-
-        else {
-          /* ---------------------------------------------
-             SPOUSE
-          --------------------------------------------- */
-
-          if (
-            [
-              FAMILY_RELATIONS.WIFE,
-              FAMILY_RELATIONS.HUSBAND,
-            ].includes(
-              familyForm.relation
-            )
-          ) {
-            updatedSpouse =
-              updatedMemberData;
-          }
-
-          /* ---------------------------------------------
-             MOTHER
-          --------------------------------------------- */
-
-          else if (
-            familyForm.relation ===
-            FAMILY_RELATIONS.MOTHER
-          ) {
-            updatedMother =
-              updatedMemberData;
-          }
-
-          /* ---------------------------------------------
-             FATHER
-          --------------------------------------------- */
-
-          else if (
-            familyForm.relation ===
-            FAMILY_RELATIONS.FATHER
-          ) {
-            updatedFather =
-              updatedMemberData;
-          }
-
-          /* ---------------------------------------------
-             CHILD
-          --------------------------------------------- */
-
-          else {
-            updatedChildren.push(
-              updatedMemberData
+          if (["wife", "husband"].includes(currentRel)) {
+            updatedSpouse = { ...updatedSpouse, ...updatedMemberData };
+          } else if (currentRel === "mother") {
+            updatedMother = { ...updatedMother, ...updatedMemberData };
+          } else if (currentRel === "father") {
+            updatedFather = { ...updatedFather, ...updatedMemberData };
+          } else {
+            updatedChildren = updatedChildren.map((item) =>
+              String(item.ID) === String(familyForm.id)
+                ? { ...item, ...updatedMemberData }
+                : item
             );
           }
+        } else {
+          /* ADD NEW MEMBER */
+          if (["wife", "husband"].includes(currentRel)) {
+            updatedSpouse = updatedMemberData;
+          } else if (currentRel === "mother") {
+            updatedMother = updatedMemberData;
+          } else if (currentRel === "father") {
+            updatedFather = updatedMemberData;
+          } else {
+            updatedChildren.push(updatedMemberData);
+          }
         }
-
-        /* =================================================
-           UPDATE PROFILE STATE
-        ================================================= */
 
         setProfile((prev) => ({
           ...prev,
@@ -728,14 +643,8 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
           children: updatedChildren,
         }));
 
-        /* =================================================
-           CLOSE MODAL
-        ================================================= */
-
         setShowFamilyForm(false);
-
         setEditingMember(null);
-
         setFamilyErrors({
           name: "",
           relation: "",
@@ -747,17 +656,10 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
             : PROFILE_MESSAGES.FAMILY_ADDED
         );
       } else {
-        notifyError(
-          res?.message ||
-            PROFILE_MESSAGES.FAMILY_SAVE_FAILED
-        );
+        notifyError(res?.message || PROFILE_MESSAGES.FAMILY_SAVE_FAILED);
       }
     } catch (error) {
-      console.error(
-        "SAVE FAMILY ERROR:",
-        error
-      );
-
+      console.error("SAVE FAMILY ERROR:", error);
       notifyError(
         error?.response?.data?.message ||
           error?.message ||
@@ -769,18 +671,14 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
   };
 
   /* =========================================================
-     CLOSE MODAL
+     CLOSE FORM
   ========================================================= */
 
   const handleCloseFamilyForm = () => {
-    if (familySaving) {
-      return;
-    }
+    if (familySaving) return;
 
     setShowFamilyForm(false);
-
     setEditingMember(null);
-
     setFamilyErrors({
       name: "",
       relation: "",
@@ -793,32 +691,20 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
 
   const actionBody = (rowData) => (
     <div className="d-flex align-items-center gap-2">
-      {/* EDIT */}
-
       <button
         type="button"
-        title={
-          PROFILE_MESSAGES.EDIT_FAMILY_TITLE
-        }
+        title={PROFILE_MESSAGES.EDIT_FAMILY_TITLE}
         className="btn btn-icon btn-sm btn-primary"
-        onClick={() =>
-          handleEditFamily(rowData)
-        }
+        onClick={() => handleEditFamily(rowData)}
       >
         <i className="ti ti-edit"></i>
       </button>
 
-      {/* DELETE */}
-
       <button
         type="button"
-        title={
-          PROFILE_MESSAGES.DELETE_FAMILY_TOOLTIP
-        }
+        title={PROFILE_MESSAGES.DELETE_FAMILY_TOOLTIP}
         className="btn btn-icon btn-sm btn-danger"
-        onClick={() =>
-          handleDeleteFamily(rowData)
-        }
+        onClick={() => handleDeleteFamily(rowData)}
       >
         <i className="ti ti-trash"></i>
       </button>
@@ -826,7 +712,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
   );
 
   /* =========================================================
-     TABLE COLUMNS
+     DATATABLE COLUMNS
   ========================================================= */
 
   const familyColumns = [
@@ -849,6 +735,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
       field: "dob",
       header: "DOB",
       sortable: true,
+      body: (rowData) => formatDisplayDate(rowData.dob),
     },
     {
       field: "aadhaar",
@@ -881,26 +768,15 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
 
   return (
     <>
-      {/* =====================================================
-          FAMILY DETAILS
-      ===================================================== */}
-
       <div className="tab-pane active">
-        {/* HEADER */}
-
+        {/* SEARCH + ADD */}
         <div className="d-flex justify-content-between align-items-center flex-wrap row-gap-3 mb-3">
-          {/* SEARCH */}
-
           <SDLSearch
             value={searchQuery}
             onChange={setSearchQuery}
             placeholder="Search..."
-            style={{
-              width: "280px",
-            }}
+            style={{ width: "280px" }}
           />
-
-          {/* ADD */}
 
           {canManageFamily && (
             <button
@@ -915,40 +791,29 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
           )}
         </div>
 
-        {/* TABLE */}
-
+        {/* FAMILY TABLE */}
         <div className="table-responsive">
           <SDLDataTable
             data={filteredFamilyData}
             columns={familyColumns}
             loading={false}
             rows={10}
-            rowsPerPageOptions={[
-              10,
-              20,
-              50,
-            ]}
+            rowsPerPageOptions={[10, 20, 50]}
             removableSort
             dataKey="id"
             emptyMessage="No family members found"
-            tableStyle={{
-              minWidth: "800px",
-            }}
+            tableStyle={{ minWidth: "800px" }}
           />
         </div>
       </div>
 
-      {/* =====================================================
-          ADD / EDIT FAMILY MEMBER MODAL
-      ===================================================== */}
-
+      {/* ADD / EDIT MODAL */}
       {showFamilyForm && (
         <div
           className="modal fade show"
           style={{
             display: "block",
-            backgroundColor:
-              "rgba(0,0,0,0.5)",
+            backgroundColor: "rgba(0,0,0,0.5)",
           }}
           tabIndex="-1"
           role="dialog"
@@ -956,250 +821,134 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
         >
           <div className="modal-dialog modal-lg modal-dialog-centered">
             <div className="modal-content">
-              {/* =================================================
-                  MODAL HEADER
-              ================================================= */}
-
+              {/* MODAL HEADER */}
               <div className="modal-header">
                 <h5 className="modal-title">
                   {editingMember
                     ? "Edit Family Member"
                     : "Add Family Member"}
                 </h5>
-
                 <button
                   type="button"
                   className="btn-close"
                   aria-label="Close"
-                  onClick={
-                    handleCloseFamilyForm
-                  }
+                  onClick={handleCloseFamilyForm}
                   disabled={familySaving}
                 ></button>
               </div>
 
-              {/* =================================================
-                  MODAL BODY
-              ================================================= */}
-
+              {/* MODAL BODY */}
               <div className="modal-body">
                 <div className="row">
-                  {/* =================================================
-                      NAME
-                  ================================================= */}
-
+                  {/* NAME */}
                   <div className="col-md-6 mb-3">
                     <label className="form-label">
-                      Name{" "}
-                      <span className="text-danger">
-                        *
-                      </span>
+                      Name <span className="text-danger">*</span>
                     </label>
-
                     <input
                       type="text"
                       name="name"
-                      value={
-                        familyForm.name
-                      }
-                      onChange={
-                        handleFamilyInputChange
-                      }
+                      value={familyForm.name}
+                      onChange={handleFamilyInputChange}
                       placeholder="Enter Name"
                       className={`form-control ${
-                        familyErrors.name
-                          ? "is-invalid"
-                          : ""
+                        familyErrors.name ? "is-invalid" : ""
                       }`}
                     />
-
                     {familyErrors.name && (
                       <div className="invalid-feedback d-block">
-                        {
-                          familyErrors.name
-                        }
+                        {familyErrors.name}
                       </div>
                     )}
                   </div>
 
-                  {/* =================================================
-                      RELATION
-                  ================================================= */}
-
+                  {/* RELATION */}
                   <div className="col-md-6 mb-3">
                     <label className="form-label">
-                      Relation{" "}
-                      <span className="text-danger">
-                        *
-                      </span>
+                      Relation <span className="text-danger">*</span>
                     </label>
-
                     <select
                       name="relation"
-                      value={
-                        familyForm.relation
-                      }
-                      onChange={
-                        handleFamilyInputChange
-                      }
+                      value={familyForm.relation}
+                      onChange={handleFamilyInputChange}
                       className={`form-select ${
-                        familyErrors.relation
-                          ? "is-invalid"
-                          : ""
+                        familyErrors.relation ? "is-invalid" : ""
                       }`}
                     >
-                      <option value="">
-                        Select Relation
-                      </option>
-
-                      <option value="Wife">
-                        Wife
-                      </option>
-
-                      <option value="Husband">
-                        Husband
-                      </option>
-
-                      <option value="Mother">
-                        Mother
-                      </option>
-
-                      <option value="Father">
-                        Father
-                      </option>
-
-                      <option value="Son">
-                        Son
-                      </option>
-
-                      <option value="Daughter">
-                        Daughter
-                      </option>
+                      <option value="">Select Relation</option>
+                      <option value="Wife">Wife</option>
+                      <option value="Husband">Husband</option>
+                      <option value="Mother">Mother</option>
+                      <option value="Father">Father</option>
+                      <option value="Son">Son</option>
+                      <option value="Daughter">Daughter</option>
                     </select>
-
                     {familyErrors.relation && (
                       <div className="invalid-feedback d-block">
-                        {
-                          familyErrors.relation
-                        }
+                        {familyErrors.relation}
                       </div>
                     )}
                   </div>
 
-                  {/* =================================================
-                      DEPENDENT
-                  ================================================= */}
-
+                  {/* DEPENDENT */}
                   <div className="col-md-6 mb-3">
-                    <label className="form-label">
-                      Dependent
-                    </label>
-
+                    <label className="form-label">Dependent</label>
                     <select
                       name="dependent"
-                      value={
-                        familyForm.dependent
-                      }
-                      onChange={
-                        handleFamilyInputChange
-                      }
+                      value={familyForm.dependent}
+                      onChange={handleFamilyInputChange}
                       className="form-select"
                     >
-                      <option value="Dependant">
-                        Dependant
-                      </option>
-
-                      <option value="Non-Dependant">
-                        Non-Dependant
-                      </option>
-
-                      <option value="Deceased">
-                        Deceased
-                      </option>
-
-                      <option value="Not-Applicable">
-                        Not-Applicable
-                      </option>
+                      <option value="Dependant">Dependant</option>
+                      <option value="Non-Dependant">Non-Dependant</option>
+                      <option value="Deceased">Deceased</option>
+                      <option value="Not-Applicable">Not-Applicable</option>
                     </select>
                   </div>
 
-                  {/* =================================================
-                      DOB
-                  ================================================= */}
-
+                  {/* DOB */}
                   <div className="col-md-6 mb-3">
-                    <label className="form-label">
-                      Date of Birth
-                    </label>
-
-                    <input
-                      type="date"
-                      name="dob"
-                      value={
-                        familyForm.dob
+                    <label className="form-label">Date of Birth</label>
+                    <SDLCalendar
+                      value={dobValue}
+                      onChange={handleDobChange}
+                      inline={false}
+                      allowAllDates={true}
+                      disabled={familySaving}
+                      maxDate={
+                        new Date(
+                          new Date().setHours(0, 0, 0, 0) - 24 * 60 * 60 * 1000
+                        )
                       }
-                      onChange={
-                        handleFamilyInputChange
-                      }
-                      className="form-control"
                     />
                   </div>
 
-                  {/* =================================================
-                      OCCUPATION
-                  ================================================= */}
-
+                  {/* OCCUPATION */}
                   <div className="col-md-6 mb-3">
-                    <label className="form-label">
-                      Occupation
-                    </label>
-
+                    <label className="form-label">Occupation</label>
                     <input
                       type="text"
                       name="occupation"
-                      value={
-                        familyForm.occupation
-                      }
-                      onChange={
-                        handleFamilyInputChange
-                      }
+                      value={familyForm.occupation}
+                      onChange={handleFamilyInputChange}
                       placeholder="Enter Occupation"
                       className="form-control"
                     />
                   </div>
 
-                  {/* =================================================
-                      AADHAAR
-                  ================================================= */}
-
+                  {/* AADHAAR */}
                   <div className="col-md-6 mb-3">
-                    <label className="form-label">
-                      Aadhaar
-                    </label>
-
+                    <label className="form-label">Aadhaar</label>
                     <input
                       type="text"
                       name="aadhaar"
-                      value={
-                        familyForm.aadhaar
-                      }
+                      value={familyForm.aadhaar}
                       onChange={(e) => {
-                        const value =
-                          e.target.value.replace(
-                            /\D/g,
-                            ""
-                          );
-
-                        setFamilyForm(
-                          (prev) => ({
-                            ...prev,
-                            aadhaar:
-                              value.slice(
-                                0,
-                                12
-                              ),
-                          })
-                        );
+                        const value = e.target.value.replace(/\D/g, "");
+                        setFamilyForm((prev) => ({
+                          ...prev,
+                          aadhaar: value.slice(0, 12),
+                        }));
                       }}
                       maxLength={12}
                       inputMode="numeric"
@@ -1210,17 +959,12 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
                 </div>
               </div>
 
-              {/* =================================================
-                  MODAL FOOTER
-              ================================================= */}
-
+              {/* MODAL FOOTER */}
               <div className="modal-footer">
                 <button
                   type="button"
                   className="btn btn-light"
-                  onClick={
-                    handleCloseFamilyForm
-                  }
+                  onClick={handleCloseFamilyForm}
                   disabled={familySaving}
                 >
                   Cancel
@@ -1229,9 +973,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
                 <button
                   type="button"
                   className="btn btn-primary"
-                  onClick={
-                    handleSaveFamily
-                  }
+                  onClick={handleSaveFamily}
                   disabled={familySaving}
                 >
                   {familySaving ? (
@@ -1241,7 +983,6 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
                         role="status"
                         aria-hidden="true"
                       ></span>
-
                       Saving...
                     </>
                   ) : editingMember ? (

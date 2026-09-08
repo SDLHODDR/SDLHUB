@@ -7,7 +7,7 @@ import { PORTALAPI } from "./apiConfig";
 
 export const getProfile = () =>
   coreRequest({
-    url: PORTALAPI.PROFILE.GET_PROFILE_DATA,
+    url: PORTALAPI.MYPROFILE.GET_PROFILE_DATA,
     method: "GET",
     dedupe: true,
     fallback: {},
@@ -15,7 +15,7 @@ export const getProfile = () =>
 
 export const uploadProfileImage = (formData) =>
   coreRequest({
-    url: PORTALAPI.PROFILE.UPLOAD_PROFILE_IMAGE,
+    url: PORTALAPI.MYPROFILE.UPLOAD_PROFILE_IMAGE,
     method: "POST",
     data: formData,
     headers: {
@@ -41,7 +41,7 @@ export const getSalaryStructure = () =>
 
 export const saveFamilyMember = (payload) =>
   coreRequest({
-    url: PORTALAPI.PROFILE.SAVE_FAMILY_MEMBER,
+    url: PORTALAPI.MYPROFILE.SAVE_FAMILY_MEMBER,
     method: "POST",
     dedupe: true,
     data: payload,
@@ -49,7 +49,7 @@ export const saveFamilyMember = (payload) =>
 
 export const deleteFamilyMember = (payload) =>
   coreRequest({
-    url: PORTALAPI.PROFILE.DELETE_FAMILY_MEMBER,
+    url: PORTALAPI.MYPROFILE.DELETE_FAMILY_MEMBER,
     method: "POST",
     dedupe: true,
     data: payload,
@@ -57,7 +57,7 @@ export const deleteFamilyMember = (payload) =>
 
 export const saveBankDetails = payload =>
   coreRequest({
-    url: PORTALAPI.PROFILE.SAVE_BANK_DETAILS,
+    url: PORTALAPI.MYPROFILE.SAVE_BANK_DETAILS,
     method: 'POST',
     data: payload
   })
