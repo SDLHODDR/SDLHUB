@@ -14,7 +14,7 @@ export const getApprLevelColumns = ({ apprOptions }) => [
   {
     key: "NAME",
     header: "Organogram",
-    style: { width: "40%" },
+    style: { width: "70%" },
     body: (row) => row.NAME ?? "",
     editor: (options) => (
       <SDLReactSelect
@@ -40,21 +40,21 @@ export const getApprLevelColumns = ({ apprOptions }) => [
       />
     ),
   },
-  {
-    key: "EFFEC_TO",
-    header: "Effec To",
-    style: { width: "20%" },
-    body: (row) => row.EFFEC_TO || "",
-    editor: (options) => (
-      <Calendar
-        value={formatDate(options.value) || (options.value instanceof Date ? options.value : null)}
-        onChange={(e) => options.editorCallback(e.value)}
-        dateFormat="dd-M-yyyy"
-        showIcon
-        className="sdl-locations-calendar"
-      />
-    ),
-  },
+  // {
+  //   key: "EFFEC_TO",
+  //   header: "Effec To",
+  //   style: { width: "20%" },
+  //   body: (row) => row.EFFEC_TO || "",
+  //   editor: (options) => (
+  //     <Calendar
+  //       value={formatDate(options.value) || (options.value instanceof Date ? options.value : null)}
+  //       onChange={(e) => options.editorCallback(e.value)}
+  //       dateFormat="dd-M-yyyy"
+  //       showIcon
+  //       className="sdl-locations-calendar"
+  //     />
+  //   ),
+  // },
 ];
 
 export const renderApprLevelColumns = (columnDefs) => [

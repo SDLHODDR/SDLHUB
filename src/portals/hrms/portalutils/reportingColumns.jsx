@@ -1,7 +1,7 @@
 import { Column } from "primereact/column";
 //import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
-import { formatDate } from "../../../utils/formatUtils";
+import { parseDDMonYY } from "../../../utils/formatUtils";
 import SDLReactSelect from "../../../components/SDLReactSelect";
 
 export const getReportingColumns = ({ getParentOptionsForRow }) => [
@@ -36,30 +36,36 @@ export const getReportingColumns = ({ getParentOptionsForRow }) => [
     header: "Effec From",
     style: { width: "17%" },
     body: (row) => row.EFFEC_FROM || "",
-    editor: (opts) => (
-      <Calendar
-        value={formatDate(opts.value) || (opts.value instanceof Date ? opts.value : null)}
-        onChange={(e) => opts.editorCallback(e.value)}
-        dateFormat="dd-M-yyyy"
-        showIcon
-        className="sdl-locations-calendar"
-      />
-    ),
+    editor: (opts) => {
+       const calendarValue = opts.value instanceof Date ? opts.value : parseDDMonYY(opts.value);
+        return (
+          <Calendar
+            value={calendarValue}
+            onChange={(e) => opts.editorCallback(e.value)}
+            dateFormat="dd-M-yy"
+            showIcon
+            className="sdl-locations-calendar"
+          />
+        );
+      },
   },
   {
     key: "EFFEC_TO",
     header: "Effec To",
     style: { width: "18%" },
     body: (row) => row.EFFEC_TO || "",
-    editor: (opts) => (
-      <Calendar
-        value={opts.value instanceof Date ? opts.value : null}
-        onChange={(e) => opts.editorCallback(e.value)}
-        dateFormat="dd-M-yyyy"
-        showIcon
-        className="sdl-locations-calendar"
-      />
-    ),
+    editor: (opts) => {
+       const calendarValue = opts.value instanceof Date ? opts.value : parseDDMonYY(opts.value);
+        return (
+          <Calendar
+            value={calendarValue}
+            onChange={(e) => opts.editorCallback(e.value)}
+            dateFormat="dd-M-yy"
+            showIcon
+            className="sdl-locations-calendar"
+          />
+        );
+      },
   },
 ];
 

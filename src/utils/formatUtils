@@ -11,6 +11,28 @@ export const formatDate = (dateStr) => {
     });
 };
 
+const MONTH_MAP = { JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5, JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11 };
+const MONTH_NAMES = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+
+export const parseDDMonYY = (str) => {
+  if (!str || typeof str !== "string") return null;
+  const match = str.match(/^(\d{2})-([A-Za-z]{3})-(\d{2})$/);
+  if (!match) return null;
+  const [, dd, mon, yy] = match;
+  const month = MONTH_MAP[mon.toUpperCase()];
+  if (month === undefined) return null;
+  const date = new Date(2000 + Number(yy), month, Number(dd));
+  return isNaN(date.getTime()) ? null : date;
+};
+
+export const formatDateForApi = (value) => {
+    if (!(value instanceof Date) || isNaN(value.getTime())) return value || "";
+    const dd = String(value.getDate()).padStart(2, "0");
+    const mon = MONTH_NAMES[value.getMonth()];
+    const yy = String(value.getFullYear()).slice(-2);
+    return `${dd}-${mon}-${yy}`;
+  };
+
 // Same parsing approach as formatDate() — reused here because it already
 // correctly handles whatever raw date format the API returns (confirmed
 // by formatDate's existing use in the table display). Output shape is

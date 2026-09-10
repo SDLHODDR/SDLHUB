@@ -68,13 +68,15 @@ const useApprLevelTabHandler = (organogramId) => {
         next[index] = newData;
         return next;
       });
-
+      
+      //console.log("==========NewData===================", newData);
       try {
         setSavingRow(true);
         const res = await saveApprLevel({
           ORG_ID: organogramId,
           APPR_LEVEL: newData.APPR_LEVEL,
-          APPR_ORGID: newData.APPR_ORGID,
+          //APPR_ORGID: newData.APPR_ORGID,
+          APPR_ORGID: newData.NAME,
           EFFEC_FROM: newData.EFFEC_FROM,
           EFFEC_TO: newData.EFFEC_TO,
         });
