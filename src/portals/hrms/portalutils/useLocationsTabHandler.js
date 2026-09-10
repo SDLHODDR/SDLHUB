@@ -8,6 +8,7 @@ import {
   saveOrganogramLocation,
 } from "../services/orgonogramService";
 import { notifyError, notifySuccess } from "../../../services/alertService";
+import { formatDateForApi } from "../../../utils/formatUtils";
 
 /* ==========================================================
     ROW BUILDER
@@ -44,6 +45,8 @@ const buildLocationRows = (posiCount, savedRows = [], divisionMap = {}, reportin
 ========================================================== */
 const fetchDivisionMap = async (savedRows = []) => {
   const uniqueGeoIds = [...new Set(savedRows.map((r) => r.GEO_ID).filter(Boolean))];
+    console.log("========uniqueGeoIds====", uniqueGeoIds);
+
   if (!uniqueGeoIds.length) return {};
 
   const results = await Promise.all(
@@ -67,17 +70,69 @@ const fetchDivisionMap = async (savedRows = []) => {
 ========================================================== */
 const buildGeoMappingCacheKey = (divsnId, effecFrom) => `${divsnId}::${effecFrom}`;
 
-const fetchGeoMappingOptionsMap = async (empLevel, savedRows = []) => {
+// const fetchGeoMappingOptionsMap = async (empLevel, savedRows = []) => {
+//   const uniqueCombos = new Map();
+//   savedRows.forEach((row) => {
+//     if (!row.GEO_ID) return;
+//     const key = buildGeoMappingCacheKey(row.__divsnId, row.EFFEC_FROM);
+//     if (!uniqueCombos.has(key)) {
+//       uniqueCombos.set(key, { DIVSN_ID: row.__divsnId, EFFEC_FROM: row.EFFEC_FROM });
+//     }
+//   });
+
+//   const entries = Array.from(uniqueCombos.entries());
+//   const results = await Promise.all(
+//     entries.map(([, params]) =>
+//       getGeoMappingOptions({ EMP_LEVEL: empLevel, ...params }).catch((error) => {
+//         console.error("Load geo mapping options error:", params, error);
+//         return null;
+//       })
+//     )
+//   );
+
+//   const map = {};
+//   entries.forEach(([key], idx) => {
+//     const rows = Array.isArray(results[idx]?.data) ? results[idx].data : [];
+//     map[key] = rows.map((r) => ({
+//       label: r.GEO_DETAILS ?? "",
+//       value: r.GEO_ID,
+//     }));
+//   });
+//   return map;
+// };
+
+const fetchGeoMappingOptionsMap = async (empLevel, rows = []) => {
   const uniqueCombos = new Map();
-  savedRows.forEach((row) => {
-    if (!row.GEO_ID) return;
-    const key = buildGeoMappingCacheKey(row.__divsnId, row.EFFEC_FROM);
+  rows.forEach((row) => {
+    if (!row.__divsnId) return;
+    const key = buildGeoMappingCacheKey(row.__divsnId, row.EFFEC_FROM_RAW);
     if (!uniqueCombos.has(key)) {
-      uniqueCombos.set(key, { DIVSN_ID: row.__divsnId, EFFEC_FROM: row.EFFEC_FROM });
+      uniqueCombos.set(key, { DIVSN_ID: row.__divsnId, EFFEC_FROM: row.EFFEC_FROM_RAW });
     }
   });
-
   const entries = Array.from(uniqueCombos.entries());
+
+  if (empLevel === "15") {
+    const uniqueDivsnIds = [...new Set(entries.map(([, p]) => p.DIVSN_ID).filter(Boolean))];
+    const divResults = await Promise.all(
+      uniqueDivsnIds.map((divsnId) =>
+        getHrDivision({ GEO_ID: divsnId }).catch((error) => {
+          console.error("Load division error:", divsnId, error);
+          return null;
+        })
+      )
+    );
+    const descById = {};
+    uniqueDivsnIds.forEach((divsnId, idx) => {
+      descById[divsnId] = divResults[idx]?.data?.DIVSN_DESC ?? "";
+    });
+    const map = {};
+    entries.forEach(([key, params]) => {
+      map[key] = [{ label: descById[params.DIVSN_ID] ?? "", value: params.DIVSN_ID }];
+    });
+    return map;
+  }
+
   const results = await Promise.all(
     entries.map(([, params]) =>
       getGeoMappingOptions({ EMP_LEVEL: empLevel, ...params }).catch((error) => {
@@ -86,14 +141,10 @@ const fetchGeoMappingOptionsMap = async (empLevel, savedRows = []) => {
       })
     )
   );
-
   const map = {};
   entries.forEach(([key], idx) => {
-    const rows = Array.isArray(results[idx]?.data) ? results[idx].data : [];
-    map[key] = rows.map((r) => ({
-      label: r.GEO_DETAILS ?? "",
-      value: r.GEO_ID,
-    }));
+    const rowsData = Array.isArray(results[idx]?.data) ? results[idx].data : [];
+    map[key] = rowsData.map((r) => ({ label: r.GEO_DETAILS ?? "", value: r.GEO_ID }));
   });
   return map;
 };
@@ -140,6 +191,7 @@ const useLocationsTabHandler = (organogramId) => {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [loadingLocations, setLoadingLocations] = useState(false);
   const [savingRow, setSavingRow] = useState(false);
+  const [empLevelPL, setEmpLevelPL] = useState(null); // add this
 
   useEffect(() => {
     if (!organogramId) {
@@ -164,19 +216,57 @@ const useLocationsTabHandler = (organogramId) => {
         const posiCount = Number(detailsRes.data?.POSI_COUNT) || 0;
         const empLevel = detailsRes.data?.EMP_LEVEL;
         const divsnId = detailsRes.data?.DIVSN_ID;
+        setEmpLevelPL(empLevel); 
+        console.log("==============||detailsRes||============", detailsRes);
+        console.log("==============||empLevel||============", empLevel);
+        console.log("==============||empLevelPL||============", empLevelPL);
+
+        // const locationsRes = await getOrganogramLocations({ ID: organogramId });
+        // console.log("==============||locationsRes||============", locationsRes);
+        // const savedRows = Array.isArray(locationsRes)
+        //   ? locationsRes
+        //   : Array.isArray(locationsRes?.data)
+        //     ? locationsRes.data
+        //     : [];
 
         const locationsRes = await getOrganogramLocations({ ID: organogramId });
+        console.log("==============||locationsRes||============", locationsRes);
         const savedRows = Array.isArray(locationsRes)
           ? locationsRes
           : Array.isArray(locationsRes?.data)
             ? locationsRes.data
             : [];
 
+        console.log("==============||savedRows||============", savedRows);
         const savedRowsWithDivsn = savedRows.map((r) => ({ ...r, __divsnId: divsnId }));
+
+         console.log("==============||divsnId||============", divsnId);
+          console.log("==============||savedRowsWithDivsn||============", savedRowsWithDivsn);
+        // const [divisionMap, geoMappingMap, reportingMap] = await Promise.all([
+        //   empLevel === "15" ? fetchDivisionMap(savedRows) : Promise.resolve({}),
+        //   empLevel !== "15" ? fetchGeoMappingOptionsMap(empLevel, savedRowsWithDivsn) : Promise.resolve({}),
+        //   fetchReportingMap(savedRows),
+        // ]);
+
+        // const [divisionMap, geoMappingMap, reportingMap] = await Promise.all([
+        //   empLevel === "15" ? fetchDivisionMap(savedRows) : Promise.resolve({}),
+        //   fetchGeoMappingOptionsMap(empLevel, savedRowsWithDivsn),
+        //   fetchReportingMap(savedRows),
+        // ]);
+
+        //  console.log("==============||divisionMap||===||geoMappingMap||============", divisionMap, geoMappingMap);
+
+        // setGeoMappingOptionsMap(geoMappingMap);
+        // setLocations(buildLocationRows(posiCount, savedRows, divisionMap, reportingMap, divsnId));
+
+        // Build the row skeletons FIRST (empty divisionMap/reportingMap placeholders) —
+        // this is the actual shape the dropdown editor will render against,
+        // covering every position (posiCount), not just ones with saved data.
+        const rowSkeletons = buildLocationRows(posiCount, savedRows, {}, {}, divsnId);
 
         const [divisionMap, geoMappingMap, reportingMap] = await Promise.all([
           empLevel === "15" ? fetchDivisionMap(savedRows) : Promise.resolve({}),
-          empLevel !== "15" ? fetchGeoMappingOptionsMap(empLevel, savedRowsWithDivsn) : Promise.resolve({}),
+          fetchGeoMappingOptionsMap(empLevel, rowSkeletons),
           fetchReportingMap(savedRows),
         ]);
 
@@ -194,6 +284,8 @@ const useLocationsTabHandler = (organogramId) => {
     loadDetailsAndLocations();
   }, [organogramId]);
 
+  
+
   const handleRowEditComplete = useCallback(
     async (e) => {
       const { newData, index } = e;
@@ -202,15 +294,17 @@ const useLocationsTabHandler = (organogramId) => {
         next[index] = newData;
         return next;
       });
-
+        console.log("==============||empLevelPL - Payload||============", empLevelPL);
       try {
         setSavingRow(true);
         const payload = {
           ID: newData.LOC_ID,
           ORGANOGRAM_ID: organogramId,
           GEO_ID: newData.GEO_ID,
-          EFFEC_FROM: newData.FROM_DATE,
-          EFFEC_TO: newData.TO_DATE,
+          EFFEC_FROM: formatDateForApi(newData.FROM_DATE),
+          EFFEC_TO: formatDateForApi(newData.TO_DATE),
+          DIVSN_ID: newData.__divsnId,
+          EMP_LEVEL: empLevelPL, // add this
         };
         const res = await saveOrganogramLocation(payload);
         if (res?.status) {
@@ -225,7 +319,7 @@ const useLocationsTabHandler = (organogramId) => {
         setSavingRow(false);
       }
     },
-    [organogramId]
+    [organogramId, empLevelPL]
   );
 
   const handleRowEditCancel = useCallback(() => {

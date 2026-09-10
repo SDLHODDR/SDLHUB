@@ -5,6 +5,7 @@ import {
   saveOrgLocReporting,
 } from "../services/orgonogramService";
 import { notifyError, notifySuccess, notifyWarning } from "../../../services/alertService";
+import { formatDateForApi } from "../../../utils/formatUtils";
 
 const useReportingTabHandler = (locId) => {
   const [reportingRows, setReportingRows] = useState([]);
@@ -90,8 +91,8 @@ const useReportingTabHandler = (locId) => {
           ORG_LOC_ID: locId,
           PARENT_ORGID: newData.PARENT_ORGID,
           PARENT_LOCID: newData.PARENT_LOCID,
-          EFFEC_FROM: newData.EFFEC_FROM,
-          EFFEC_TO: newData.EFFEC_TO,
+          EFFEC_FROM: formatDateForApi(newData.EFFEC_FROM),
+          EFFEC_TO: formatDateForApi(newData.EFFEC_TO),
         });
         if (res?.status) {
           notifySuccess(res?.message || "Reporting updated.");
