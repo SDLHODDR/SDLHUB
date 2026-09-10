@@ -7,6 +7,9 @@ import { notifyError } from "../../services/alertService";
 import ProfileHeader from "./components/profileHeader";
 
 import PersonalDetailsTab from "./components/personaldetails/personalDetailsTab";
+import OfficeDetailsTab from "./components/officedetails/officeDetailsTab";
+import BankDetailsTab from "./components/bankdetails/bankDetailsTab";
+import FamilyDetailsTab from "./components/familydetails/familyDetailsTab";
 
 const profile = () => {
   /* =========================================================
@@ -285,43 +288,20 @@ const profile = () => {
                     FAMILY DETAILS
                 =============================================== */}
 
-              {activeTab === "family" && (
-                <div>
-                  <h6 className="mb-1">Family Details</h6>
-
-                  <p className="text-muted mb-0">
-                    Family details will be implemented in Phase 2.
-                  </p>
-                </div>
-              )}
+              {activeTab === "family" && ( <FamilyDetailsTab profile={profile} setProfile={setProfile} /> )}
 
               {/* ===============================================
                     OFFICE DETAILS
                 =============================================== */}
 
-              {activeTab === "office" && (
-                <div>
-                  <h6 className="mb-1">Office Details</h6>
-
-                  <p className="text-muted mb-0">
-                    Office details will be implemented in Phase 3.
-                  </p>
-                </div>
-              )}
+             {activeTab === "office" && <OfficeDetailsTab profile={profile} />}
 
               {/* ===============================================
                     BANK DETAILS
                 =============================================== */}
 
-              {activeTab === "bank" && (
-                <div>
-                  <h6 className="mb-1">Bank & Other Details</h6>
-
-                  <p className="text-muted mb-0">
-                    Bank details will be implemented in Phase 4.
-                  </p>
-                </div>
-              )}
+             {activeTab === "bank" && (<BankDetailsTab profile={profile} />)}
+     
             </div>
           </div>
         </div>
