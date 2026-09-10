@@ -176,3 +176,30 @@ export const uploadProfileImage = (formData) =>
       "Content-Type": "multipart/form-data",
     },
   });
+
+  export const saveBankDetails = payload =>
+  coreRequest({
+    url: PORTALAPI.PROFILE.SAVE_BANK_DETAILS,
+    method: 'POST',
+    data: payload
+  });
+
+  /* ============================
+   FAMILY
+============================ */
+
+export const saveFamilyMember = (payload) =>
+  coreRequest({
+    url: PORTALAPI.PROFILE.SAVE_FAMILY_MEMBER,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });
+
+export const deleteFamilyMember = (payload) =>
+  coreRequest({
+    url: PORTALAPI.PROFILE.DELETE_FAMILY_MEMBER,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+  });
