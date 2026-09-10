@@ -52,16 +52,24 @@ export const PORTALAPI = {
     TASKTABLEDATA: "/getTable.php"
   },
 
-  PROFILE: {
+  MYPROFILE: {
     GET_PROFILE_DATA: "/common/myProfile/getProfileData.php", // Get profile Data
     UPLOAD_PROFILE_IMAGE: "/common/myProfile/uploadProfileImage.php", // Upload profile Data
     SAVE_FAMILY_MEMBER: "/common/myProfile/saveFamilyMember.php", //Save family Data
     DELETE_FAMILY_MEMBER: "/common/myProfile/deleteFamilyMember.php", //Delete family Data
     SAVE_BANK_DETAILS: '/common/myProfile/saveBankDetails.php', //Save bank details
     //SAVE_PERSONAL_DETAILS:'/common/myProfile/savePersonalDetails.php'  //Save personal details
-
     SAVE_PERSONAL_DETAILS: "common/profile/savePersonalDetails.php",
+  },
 
+  PROFILE: {
+    GET_PROFILE_DATA: "/common/profile/getProfileData.php", // Get profile Data
+    UPLOAD_PROFILE_IMAGE: "/common/profile/uploadProfileImage.php", // Upload profile Data
+    SAVE_FAMILY_MEMBER: "/common/profile/saveFamilyMember.php", //Save family Data
+    DELETE_FAMILY_MEMBER: "/common/profile/deleteFamilyMember.php", //Delete family Data
+    SAVE_BANK_DETAILS: '/common/profile/saveBankDetails.php', //Save bank details
+    //SAVE_PERSONAL_DETAILS:'/common/myProfile/savePersonalDetails.php'  //Save personal details
+    SAVE_PERSONAL_DETAILS: "common/profile/savePersonalDetails.php",
   },
 
   LEAVEREQUEST: {
