@@ -104,6 +104,12 @@ export const HRMS_API = {
     DELETE_ALLOWANCE: "/masterdata/orgonogram/deleteOrgAllowance.php",
   },
 
+  EMPLOYEE: {
+    GET_EMPLOYEES: "/maintainance/employeedata/getEmployees.php",
+    GET_EMPLOYEE_BY_ID: "/maintainance/employeedata/getEmployeeById.php",
+    GET_MASTERS: "/maintainance/employeedata/getEmployeeMasters.php",
+  },
+
    LOGS:{
     GET_ERROR_LOGS: "/reports/getErrorLogs.php",
   }

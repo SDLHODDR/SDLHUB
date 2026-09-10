@@ -62,6 +62,7 @@ export const saveBankDetails = payload =>
     data: payload
   })
 
+  /*
 export const  sendPersonalDetailsOtp = formData =>
   coreRequest({
     url: PORTALAPI.PROFILE.SAVE_PERSONAL_DETAILS,
@@ -87,4 +88,4 @@ export const verifyPersonalDetailsOtp = ({ otp }) => {
       'Content-Type': 'multipart/form-data'
     }
   })
-}
+}*/
