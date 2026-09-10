@@ -5,6 +5,7 @@ import {
   getEmployeeById,
   getEmployeeMasters
 } from '../../services/employeeDataService'
+import JDDataTable from '../../components/data-table/JDDataTable'
 
 const INITIAL_EMPLOYEE_DATA = {
   // Employee selection
@@ -41,17 +42,33 @@ const INITIAL_EMPLOYEE_DATA = {
 
   // Basic Details
   EMPLOYEE_CODE: '',
-  EMPLOYEE_STATUS: '',
-  MARITAL_STATUS: '',
-  NATIONALITY: '',
-  RELIGION: '',
   AADHAAR_NO: '',
   PAN_NO: '',
+  DRIVING_LICENSE_NO: '',
+  PASSPORT_NO: '',
+  ESI_NO: '',
+  NATIONALITY: '',
+  MARITAL_STATUS: '',
+  DATE_OF_ANNIVERSARY: '',
+  MOTHER_TONGUE: '',
+  RELIGION: '',
+  PF_NO: '',
+  FPF_NO: '',
+  PF_NOMINEE: '',
+  MEMBER_ID: '',
+  UAN_NO: '',
+  RETIREMENT_AGE: '',
+  GRATUITY_DATE: '',
+  CITIZEN_NO: '',
 
   // Office Details
   DEPARTMENT: '',
   DESIGNATION: '',
   DIVISION: '',
+  ORGANOGRAM: '',
+  ORGANOGRAM_LOCATION: '',
+  EFFECTIVE_FROM: '',
+  EFFECTIVE_TO: '',
   LOCATION: '',
   REPORTING_MANAGER: '',
   EMPLOYMENT_TYPE: '',
@@ -59,25 +76,30 @@ const INITIAL_EMPLOYEE_DATA = {
   LEVEL: '',
 
   // Tenure Details
-  CONFIRMATION_DATE: '',
-  PROBATION_PERIOD: '',
-  RETIREMENT_DATE: '',
-  TOTAL_EXPERIENCE: '',
-  PREVIOUS_EXPERIENCE: '',
+  TENURE_EMPLOYEE_TYPE: '',
+  TENURE_PERIOD: '',
+  TENURE_EFFECTIVE_FROM: '',
+  TENURE_EFFECTIVE_TO: '',
+  TENURE_STATUS: '',
+  TENURE_DETAILS: [],
 
   // Bank Details
   BANK_NAME: '',
-  ACCOUNT_NUMBER: '',
-  IFSC_CODE: '',
-  BRANCH_NAME: '',
-  ACCOUNT_TYPE: '',
+  BANK_BRANCH: '',
+  BANK_IFSC: '',
+  BANK_ACNO: '',
+  BANK_NOMINEE: '',
+  BANK_STATUS: '',
+  BANK_DETAILS: [],
 
   // Qualification Details
-  HIGHEST_QUALIFICATION: '',
-  UNIVERSITY: '',
-  SPECIALIZATION: '',
-  PASSING_YEAR: '',
+  QUALIFICATION_INSTITUTE: '',
+  QUALIFICATION_COURSE: '',
   QUALIFICATION_GRADE: '',
+  QUALIFICATION_START_DATE: '',
+  QUALIFICATION_END_DATE: '',
+  QUALIFICATION_REMARK: '',
+  QUALIFICATION_DETAILS: [],
 
   // Experience Details
   PREVIOUS_COMPANY: '',
@@ -85,36 +107,24 @@ const INITIAL_EMPLOYEE_DATA = {
   PREVIOUS_FROM_DATE: '',
   PREVIOUS_TO_DATE: '',
   PREVIOUS_JOB_DESCRIPTION: '',
+  PREVIOUS_GROSS_SALARY: '',
+  PREVIOUS_LEAVE_REASON: '',
+  EXPERIENCE_DETAILS: [],
 
   // Reference
-  REFERENCE_NAME: '',
-  REFERENCE_RELATION: '',
-  REFERENCE_CONTACT: '',
-  REFERENCE_EMAIL: '',
-  REFERENCE_ADDRESS: '',
+  REFERENCE_DETAILS: [],
 
   // Family Details
-  FATHER_NAME: '',
-  MOTHER_NAME: '',
-  SPOUSE_NAME: '',
-  SPOUSE_OCCUPATION: '',
-  CHILDREN: '',
-  FAMILY_CONTACT: '',
+  FAMILY_DETAILS: [],
 
   // Documents
-  PAN_DOCUMENT: '',
-  AADHAAR_DOCUMENT: '',
-  RESUME_DOCUMENT: '',
-  PHOTO_DOCUMENT: '',
-  OTHER_DOCUMENT: '',
+  DOCUMENTS: [],
 
   // Application Access
-  USERNAME: '',
-  ACCESS_ROLE: '',
-  ACCESS_STATUS: '',
+  APPLICATION_ACCESS: [],
 
   // KRA
-  KRA: ''
+  KRA: []
 }
 
 const EmployeeData = () => {
@@ -146,6 +156,13 @@ const EmployeeData = () => {
     bands: [],
     documentTypes: [],
     assets: []
+  })
+  const [officeMasters, setOfficeMasters] = useState({
+    departments: [],
+    designations: [],
+    divisions: [],
+    organograms: [],
+    organogramLocations: []
   })
 
   const employeeOptions = useMemo(() => {
@@ -287,15 +304,15 @@ const EmployeeData = () => {
   }
 
   const titleOptions = useMemo(
-  () =>
-    (masters.titles || [])
-      .map(item => ({
-        value: String(item.VALUE ?? item.value ?? ''),
-        label: item.LABEL ?? item.label ?? ''
-      }))
-      .filter(item => item.value && item.label),
-  [masters.titles]
-)
+    () =>
+      (masters.titles || [])
+        .map(item => ({
+          value: String(item.VALUE ?? item.value ?? ''),
+          label: item.LABEL ?? item.label ?? ''
+        }))
+        .filter(item => item.value && item.label),
+    [masters.titles]
+  )
 
   const genderOptions = useMemo(
     () =>
@@ -352,6 +369,123 @@ const EmployeeData = () => {
     [masters.companies]
   )
 
+  const maritalStatusOptions = useMemo(
+    () =>
+      (masters.maritalStatuses || [])
+        .map(item => ({
+          value: String(item.VALUE ?? item.value ?? ''),
+          label: item.LABEL ?? item.label ?? ''
+        }))
+        .filter(item => item.value && item.label),
+    [masters.maritalStatuses]
+  )
+
+  const nationalityOptions = useMemo(
+    () =>
+      (masters.nationalities || [])
+        .map(item => ({
+          value: String(item.VALUE ?? item.value ?? ''),
+          label: item.LABEL ?? item.label ?? ''
+        }))
+        .filter(item => item.value && item.label),
+    [masters.nationalities]
+  )
+
+  const religionOptions = useMemo(
+    () =>
+      (masters.religions || [])
+        .map(item => ({
+          value: String(item.VALUE ?? item.value ?? ''),
+          label: item.LABEL ?? item.label ?? ''
+        }))
+        .filter(item => item.value && item.label),
+    [masters.religions]
+  )
+
+  const retirementAgeOptions = [
+    { value: '55', label: '55' },
+    { value: '58', label: '58' },
+    { value: '60', label: '60' }
+  ]
+
+  const departmentOptions = useMemo(
+    () =>
+      (officeMasters.departments || [])
+        .map(item => ({
+          value: String(item.VALUE ?? item.value ?? ''),
+          label: item.LABEL ?? item.label ?? ''
+        }))
+        .filter(item => item.value && item.label),
+    [officeMasters.departments]
+  )
+
+  const designationOptions = useMemo(
+    () =>
+      (officeMasters.designations || [])
+        .map(item => ({
+          value: String(item.VALUE ?? item.value ?? ''),
+          label: item.LABEL ?? item.label ?? ''
+        }))
+        .filter(item => item.value && item.label),
+    [officeMasters.designations]
+  )
+
+  const divisionOptions = useMemo(
+    () =>
+      (officeMasters.divisions || [])
+        .map(item => ({
+          value: String(item.VALUE ?? item.value ?? ''),
+          label: item.LABEL ?? item.label ?? ''
+        }))
+        .filter(item => item.value && item.label),
+    [officeMasters.divisions]
+  )
+
+  const organogramOptions = useMemo(
+    () =>
+      (officeMasters.organograms || [])
+        .map(item => ({
+          value: String(item.VALUE ?? item.value ?? ''),
+          label: item.LABEL ?? item.label ?? ''
+        }))
+        .filter(item => item.value && item.label),
+    [officeMasters.organograms]
+  )
+
+  const organogramLocationOptions = useMemo(
+    () =>
+      (officeMasters.organogramLocations || [])
+        .map(item => ({
+          value: String(item.VALUE ?? item.value ?? ''),
+          label: item.LABEL ?? item.label ?? ''
+        }))
+        .filter(item => item.value && item.label),
+    [officeMasters.organogramLocations]
+  )
+
+  const employeeTypeOptions = useMemo(
+    () =>
+      (masters.employeeTypes || [])
+        .map(item => ({
+          value: String(item.VALUE ?? item.value ?? ''),
+          label: item.LABEL ?? item.label ?? ''
+        }))
+        .filter(item => item.value && item.label),
+    [masters.employeeTypes]
+  )
+
+  const tenureStatusOptions = [
+    { value: 'A', label: 'Active' },
+    { value: 'R', label: 'Resigned' }
+  ]
+
+  const bankStatusOptions = [
+    { value: 'A', label: 'Active' },
+    { value: 'I', label: 'In-Active' }
+  ]
+
+  // helper functions
+
   const formatDateForInput = value => {
     if (!value) return ''
 
@@ -390,6 +524,65 @@ const EmployeeData = () => {
     return `${fullYear}-${months[month]}-${day}`
   }
 
+  const formatDateForDisplay = value => {
+    if (!value) return '-'
+
+    const [year, month, day] = value.split('-')
+
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ]
+
+    return `${day}-${months[Number(month) - 1]}-${year}`
+  }
+
+  const getDocumentUrl = docPath => {
+    if (!docPath) return '#'
+
+    const baseUrl = import.meta.env.VITE_HRMS_DOC_BASE_URL || ''
+
+    return `${baseUrl.replace(/\/$/, '')}/${docPath.replace(/^\//, '')}`
+  }
+
+  const getDocumentName = docPath => {
+    if (!docPath) return '-'
+
+    return docPath.split('/').pop() || '-'
+  }
+
+  const getDocumentIcon = docPath => {
+    const extension = docPath?.split('.').pop()?.toLowerCase()
+
+    if (extension === 'pdf') {
+      return 'fas fa-file-pdf'
+    }
+
+    if (['png', 'jpg', 'jpeg', 'gif'].includes(extension)) {
+      return 'fas fa-file-image'
+    }
+
+    if (['doc', 'docx'].includes(extension)) {
+      return 'fas fa-file-word'
+    }
+
+    if (['xls', 'xlsx'].includes(extension)) {
+      return 'fas fa-file-excel'
+    }
+
+    return 'fas fa-file'
+  }
+
   const handleEmployeeChange = async option => {
     if (!option) {
       setSelectedEmployeeId('')
@@ -408,54 +601,160 @@ const EmployeeData = () => {
 
       if (response?.status) {
         const employee = response.data?.employee || {}
+        const officeDetails = response.data?.officeDetails || []
+        const tenureDetails = response.data?.tenure || []
+        const currentTenure = tenureDetails[0] || {}
+        const reportsTo = response.data?.reportsTo?.[0] || {}
+        const reportsToName = [reportsTo.FNAME, reportsTo.LNAME]
+          .filter(value => value && value !== '.')
+          .join(' ')
+        const currentOffice = officeDetails[0] || {}
+        const bankDetails = response.data?.banks || []
+        const currentBank = bankDetails[0] || {}
+        const qualificationDetails = response.data?.education || []
+        const currentQualification = qualificationDetails[0] || {}
+        const experienceDetails = response.data?.experience || []
+        const currentExperience = experienceDetails[0] || {}
+        const referenceDetails = response.data?.references || []
+        const familyDetails = response.data?.family || []
+        const documentDetails = response.data?.documents || []
+        const applicationAccess = response.data?.userAccess || []
+        const kraDetails = response.data?.kra || []
 
         console.log('Selected employee data:', employee)
 
         setShowAllTabs(true)
         setActiveTab('personal')
 
+        setOfficeMasters({
+          departments: response.data?.officeMasters?.departments || [],
+          designations: response.data?.officeMasters?.designations || [],
+          divisions: response.data?.officeMasters?.divisions || [],
+          organograms: response.data?.officeMasters?.organograms || [],
+          organogramLocations:
+            response.data?.officeMasters?.organogramLocations || []
+        })
+
         setEmployeeData({
+          //Personal details
           ID: employee.ID || '',
           EMP_CODE: employee.EMP_CODE || '',
-
           TITLE: employee.TITLE || '',
           FIRST_NAME: employee.FNAME || '',
           MIDDLE_NAME: employee.MNAME || '',
           LAST_NAME: employee.LNAME || '',
-
           CURRENT_ADDRESS: employee.ADDRESS || '',
           CURRENT_CITY: employee.CITY || '',
           CURRENT_STATE: employee.STATE || '',
           CURRENT_PINCODE: employee.PINCODE || '',
           CURRENT_COUNTRY: employee.COUNTRY || '',
-
           PERMANENT_ADDRESS: employee.PERMNT_ADDRESS || '',
           PERMANENT_CITY: employee.PERMNT_CITY || '',
           PERMANENT_STATE: employee.PERMNT_STATE || '',
           PERMANENT_PINCODE: employee.PERMNT_PINCODE || '',
           PERMANENT_COUNTRY: employee.PERMNT_COUNTRY || '',
-
           TELEPHONE: employee.PHONE || '',
           MOBILE_NUMBER: employee.CELL || '',
-
           PERSONAL_EMAIL: employee.PER_EMAIL || '',
           COMPANY_EMAIL: employee.COM_EMAIL || '',
-
           DATE_OF_BIRTH: formatDateForInput(employee.DOB),
           DATE_OF_JOINING: formatDateForInput(employee.DOJ),
-
           EMERGENCY_CONTACT: employee.TEL_NO_EMERG || '',
-
           GENDER: employee.GENDER || '',
           BLOOD_GROUP: employee.BLOOD_GRP || '',
-
           PROFILE_PHOTO: employee.PICS || '',
-
           COMPANY: employee.COMP_ID || '',
+          STATUS: employee.STATUS || '',
 
-          STATUS: employee.STATUS || ''
+          // Basic Details
+          EMPLOYEE_CODE: employee.EMP_CODE || '',
+          AADHAAR_NO: employee.ADHAR_NO || '',
+          PAN_NO: employee.PAN_NO || '',
+          DRIVING_LICENSE_NO: employee.DRIV_LICE_NO || '',
+          PASSPORT_NO: employee.PASSPORT_NO || '',
+          ESI_NO: employee.ESI_NO || '',
+          NATIONALITY: employee.NATIONALITY || '',
+          MARITAL_STATUS: employee.M_STATUS || '',
+          DATE_OF_ANNIVERSARY: employee.DATE_OF_ANNIVERSARY || '',
+          MOTHER_TONGUE: employee.MOTHER_LANG || '',
+          RELIGION: employee.RELIGION || '',
+          PF_NO: employee.PF_NO || '',
+          FPF_NO: employee.FPF_NO || '',
+          PF_NOMINEE: employee.PF_NOMINEE || '',
+          MEMBER_ID: employee.MEMBER_ID || '',
+          UAN_NO: employee.UAN_NO || '',
+          RETIREMENT_AGE: employee.RETIRE_AGE || '',
+          GRATUITY_DATE: formatDateForInput(employee.GRATUITY_DATE),
+          CITIZEN_NO: employee.CITIZEN_NO || '',
+
+          // Office Details
+          DEPARTMENT: currentOffice.DEPT_ID || '',
+          DESIGNATION: currentOffice.DESI_ID || '',
+          DIVISION: currentOffice.DIVSN_ID || '',
+          ORGANOGRAM: currentOffice.ORG_ID || '',
+          ORGANOGRAM_LOCATION: currentOffice.ORG_LOC_ID || '',
+          EFFECTIVE_FROM: formatDateForInput(currentOffice.EFFEC_FROM),
+          EFFECTIVE_TO: formatDateForInput(currentOffice.EFFEC_TO),
+
+          REPORTS_TO: reportsToName,
+          OFFICE_DETAILS: officeDetails,
+
+          // Tenure Details
+          TENURE_EMPLOYEE_TYPE: currentTenure.ETYPE_ID || '',
+          TENURE_PERIOD: currentTenure.ETYPE_PERIOD || '',
+          TENURE_EFFECTIVE_FROM: formatDateForInput(currentTenure.EFF_FROM),
+          TENURE_EFFECTIVE_TO: formatDateForInput(currentTenure.EFF_TO),
+          TENURE_STATUS: currentTenure.EMP_STATUS || '',
+          TENURE_DETAILS: tenureDetails,
+
+          // Bank Details
+          BANK_NAME: currentBank.BANK_NAME || '',
+          BANK_BRANCH: currentBank.BANK_BRANCH || '',
+          BANK_IFSC: currentBank.BANK_IFSC || '',
+          BANK_ACNO: currentBank.BANK_ACNO || '',
+          BANK_NOMINEE: currentBank.BANK_NOMINEE || '',
+          BANK_STATUS: currentBank.STATUS || '',
+          BANK_DETAILS: bankDetails,
+
+          // Qualification Details
+          QUALIFICATION_INSTITUTE: currentQualification.INST_NAME || '',
+          QUALIFICATION_COURSE: currentQualification.COURSE || '',
+          QUALIFICATION_GRADE: currentQualification.PERGRADE || '',
+          QUALIFICATION_START_DATE: formatDateForInput(
+            currentQualification.FROM_DATE
+          ),
+          QUALIFICATION_END_DATE: formatDateForInput(
+            currentQualification.TO_DATE
+          ),
+          QUALIFICATION_REMARK: currentQualification.REMARKS || '',
+          QUALIFICATION_DETAILS: qualificationDetails,
+
+          // Experience Details
+          PREVIOUS_COMPANY: currentExperience.ORG_NAME || '',
+          PREVIOUS_DESIGNATION: currentExperience.DESIG || '',
+          PREVIOUS_FROM_DATE: formatDateForInput(currentExperience.FROM_DATE),
+          PREVIOUS_TO_DATE: formatDateForInput(currentExperience.TO_DATE),
+          PREVIOUS_GROSS_SALARY: currentExperience.GROSS_SALARY || '',
+          PREVIOUS_JOB_DESCRIPTION: currentExperience.DUTY_NATURE || '',
+          PREVIOUS_LEAVE_REASON: currentExperience.LEAVE_REASON || '',
+          EXPERIENCE_DETAILS: experienceDetails,
+
+          // Reference Details
+          REFERENCE_DETAILS: referenceDetails,
+
+          // Family Details
+          FAMILY_DETAILS: familyDetails,
+
+          // Document Details
+          DOCUMENTS: documentDetails,
+
+          // Application Access
+          APPLICATION_ACCESS: applicationAccess,
+
+          // KRA Details
+          KRA: kraDetails
         })
-                setShowAllTabs(true)
+        setShowAllTabs(true)
         setActiveTab('personal')
       } else {
         console.error(response?.message || 'Unable to load employee details.')
@@ -500,8 +799,6 @@ const EmployeeData = () => {
     try {
       const response = await getEmployeeMasters()
 
-      console.log('Employee Masters API response:', response)
-
       if (response?.status) {
         setMasters(response.data || {})
       } else {
@@ -516,23 +813,6 @@ const EmployeeData = () => {
     loadEmployees()
     loadEmployeeMasters()
   }, [])
-
-  useEffect(() => {
-    const loadMasters = async () => {
-      try {
-        const response = await getEmployeeMasters()
-
-        console.log('Employee Masters response:', response)
-      } catch (error) {
-        console.error('Error loading employee masters:', error)
-      }
-    }
-
-    loadMasters()
-  }, [])
-
-  console.log('TITLE from employee:', employeeData.TITLE)
-console.log('Title options:', titleOptions)
 
   /*
    * ------------STYLES-------------
@@ -587,7 +867,8 @@ console.log('Title options:', titleOptions)
     activeTab: {
       color: '#126184',
       background: '#fff',
-      borderTop: '3px solid #126184'
+      border: 'none',
+      boxShadow: 'inset 0 3px 0 #126184'
     },
 
     content: {
@@ -629,6 +910,12 @@ console.log('Title options:', titleOptions)
       fontWeight: '600',
       marginLeft: '7px',
       verticalAlign: 'middle'
+    },
+
+    tableWrapper: {
+      width: '100%',
+      marginTop: '10px',
+      overflowX: 'auto'
     }
   }
 
@@ -969,33 +1256,109 @@ console.log('Title options:', titleOptions)
     <div>
       <div style={styles.sectionTitle}>Basic Details</div>
 
+      {/* EMPLOYEE CODE */}
+      <div
+        style={{
+          fontSize: '12px',
+          fontWeight: '600',
+          marginBottom: '14px'
+        }}
+      >
+        Employee Code: {employeeData.EMPLOYEE_CODE || '-'}
+      </div>
+
+      {/* ROW 1 */}
       <div className='row'>
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('EMPLOYEE_CODE', 'Employee Code')}
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderInput('AADHAAR_NO', 'AADHAAR No', {
+            required: true
+          })}
         </div>
 
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('EMPLOYEE_STATUS', 'Employee Status')}
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderInput('PAN_NO', 'PAN No')}
         </div>
 
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('MARITAL_STATUS', 'Marital Status')}
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderInput('DRIVING_LICENSE_NO', 'Driving Licence No')}
         </div>
 
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('NATIONALITY', 'Nationality')}
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderInput('PASSPORT_NO', 'Passport No')}
         </div>
 
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('RELIGION', 'Religion')}
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderInput('ESI_NO', 'ESI No')}
         </div>
 
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('AADHAAR_NO', 'Aadhaar No.')}
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderSelect('NATIONALITY', 'Nationality', nationalityOptions)}
+        </div>
+      </div>
+
+      {/* ROW 2 */}
+      <div className='row'>
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderSelect(
+            'MARITAL_STATUS',
+            'Marital Status',
+            maritalStatusOptions
+          )}
         </div>
 
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('PAN_NO', 'PAN No.')}
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderInput('DATE_OF_ANNIVERSARY', 'Date Of Anniversary', {
+            type: 'date'
+          })}
+        </div>
+
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderInput('MOTHER_TONGUE', 'Mother Language')}
+        </div>
+
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderSelect('RELIGION', 'Religion', religionOptions)}
+        </div>
+
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderInput('PF_NO', 'PF No')}
+        </div>
+
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderInput('FPF_NO', 'FPF No')}
+        </div>
+      </div>
+
+      {/* ROW 3 */}
+      <div className='row'>
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderInput('PF_NOMINEE', 'PF Nominee')}
+        </div>
+
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderInput('MEMBER_ID', 'Member ID')}
+        </div>
+
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderInput('UAN_NO', 'UAN No')}
+        </div>
+
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderSelect(
+            'RETIREMENT_AGE',
+            'Retirement Age',
+            retirementAgeOptions
+          )}
+        </div>
+
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderInput('GRATUITY_DATE', 'Gratuity Date', {
+            type: 'date'
+          })}
+        </div>
+
+        <div className='col-lg-2 col-md-4 col-sm-6'>
+          {renderInput('CITIZEN_NO', 'Citizen No')}
         </div>
       </div>
     </div>
@@ -1007,38 +1370,125 @@ console.log('Title options:', titleOptions)
    * -------------------------------------------------------------
    */
 
+  const getOptionLabel = (options, value) => {
+    const option = options.find(item => String(item.value) === String(value))
+
+    return option?.label || '-'
+  }
+
   const renderOfficeDetailsTab = () => (
     <div>
       <div style={styles.sectionTitle}>Office Details</div>
 
+      {/* Employee Code */}
+      <div
+        style={{ marginBottom: '15px', fontSize: '13px', fontWeight: '600' }}
+      >
+        Employee Code: {employeeData.EMP_CODE || '-'}
+      </div>
+
       <div className='row'>
+        {/* Division */}
         <div className='col-lg-4 col-md-6'>
-          {renderInput('DEPARTMENT', 'Department')}
+          {renderSelect('DIVISION', 'Division', divisionOptions)}
         </div>
 
+        {/* Department */}
         <div className='col-lg-4 col-md-6'>
-          {renderInput('DESIGNATION', 'Designation')}
+          {renderSelect('DEPARTMENT', 'Department', departmentOptions)}
         </div>
 
+        {/* Designation */}
         <div className='col-lg-4 col-md-6'>
-          {renderInput('DIVISION', 'Division')}
+          {renderSelect('DESIGNATION', 'Designation', designationOptions)}
         </div>
 
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('LOCATION', 'Location')}
+        {/* Organogram */}
+        <div className='col-lg-6 col-md-6'>
+          {renderSelect('ORGANOGRAM', 'Organogram', organogramOptions)}
         </div>
 
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('REPORTING_MANAGER', 'Reporting Manager')}
+        {/* Organogram Location */}
+        <div className='col-lg-6 col-md-6'>
+          {renderSelect(
+            'ORGANOGRAM_LOCATION',
+            'Organogram Location',
+            organogramLocationOptions
+          )}
         </div>
 
+        {/* Effective From */}
         <div className='col-lg-4 col-md-6'>
-          {renderInput('EMPLOYMENT_TYPE', 'Employment Type')}
+          {renderInput('EFFECTIVE_FROM', 'Effective From', { type: 'date' })}
         </div>
 
-        <div className='col-lg-4 col-md-6'>{renderInput('GRADE', 'Grade')}</div>
+        {/* Effective To */}
+        <div className='col-lg-4 col-md-6'>
+          {renderInput('EFFECTIVE_TO', 'Effective To', { type: 'date' })}
+        </div>
+      </div>
 
-        <div className='col-lg-4 col-md-6'>{renderInput('LEVEL', 'Level')}</div>
+      {/* Buttons */}
+      {/* <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '2px',
+        marginTop: '0px',
+        marginBottom: '25px'
+      }}
+    >
+      <button
+        type='button'
+        className='btn btn-primary btn-sm'
+        style={{ backgroundColor: '#126184', borderColor: '#126184' }}
+      >
+        Save
+      </button>
+
+      <button
+        type='button'
+        className='btn btn-secondary btn-sm'
+      >
+        Cancel
+      </button>
+    </div> */}
+
+      {/* Existing Office Details */}
+      <div style={styles.tableWrapper}>
+        <table className='table table-bordered table-sm mb-0'>
+          <thead>
+            <tr>
+              <th>Organogram</th>
+              <th>Organogram Location</th>
+              <th>Effective From</th>
+              <th>Effective To</th>
+              <th>Reports To</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {(employeeData.OFFICE_DETAILS || []).length > 0 ? (
+              employeeData.OFFICE_DETAILS.map((item, index) => (
+                <tr key={item.ID || index}>
+                  <td>{getOptionLabel(organogramOptions, item.ORG_ID)}</td>
+                  <td>
+                    {getOptionLabel(organogramLocationOptions, item.ORG_LOC_ID)}
+                  </td>
+                  <td>{formatDateForDisplay(item.EFFEC_FROM)}</td>
+                  <td>{formatDateForDisplay(item.EFFEC_TO)}</td>
+                  <td>{employeeData.REPORTS_TO || '-'}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan='5' style={{ textAlign: 'center' }}>
+                  No office details found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   )
@@ -1055,27 +1505,77 @@ console.log('Title options:', titleOptions)
 
       <div className='row'>
         <div className='col-lg-4 col-md-6'>
-          {renderInput('CONFIRMATION_DATE', 'Confirmation Date', {
-            type: 'date'
-          })}
+          {renderSelect('TENURE_STATUS', 'Status', tenureStatusOptions)}
         </div>
 
         <div className='col-lg-4 col-md-6'>
-          {renderInput('PROBATION_PERIOD', 'Probation Period')}
+          {renderSelect(
+            'TENURE_EMPLOYEE_TYPE',
+            'Employee Type',
+            employeeTypeOptions
+          )}
         </div>
 
         <div className='col-lg-4 col-md-6'>
-          {renderInput('RETIREMENT_DATE', 'Retirement Date', { type: 'date' })}
+          {renderInput('TENURE_PERIOD', 'Period [In Months]')}
         </div>
 
         <div className='col-lg-4 col-md-6'>
-          {renderInput('TOTAL_EXPERIENCE', 'Total Experience')}
+          {renderInput('TENURE_EFFECTIVE_FROM', 'From Date', { type: 'date' })}
         </div>
 
         <div className='col-lg-4 col-md-6'>
-          {renderInput('PREVIOUS_EXPERIENCE', 'Previous Experience')}
+          {renderInput('TENURE_EFFECTIVE_TO', 'To Date', { type: 'date' })}
         </div>
       </div>
+
+      <JDDataTable
+        data={employeeData.TENURE_DETAILS || []}
+        columns={[
+          {
+            key: 'EMP_STATUS',
+            label: 'Status',
+            width: '15%',
+            render: row =>
+              tenureStatusOptions.find(
+                option => option.value === String(row.EMP_STATUS)
+              )?.label || '-'
+          },
+          {
+            key: 'ETYPE_ID',
+            label: 'Type',
+            width: '20%',
+            render: row =>
+              employeeTypeOptions.find(
+                option => option.value === String(row.ETYPE_ID)
+              )?.label || '-'
+          },
+          {
+            key: 'ETYPE_PERIOD',
+            label: 'Period [In Months]',
+            width: '20%',
+            align: 'center',
+            render: row => row.ETYPE_PERIOD || '-'
+          },
+          {
+            key: 'EFF_FROM',
+            label: 'From Date',
+            width: '20%',
+            align: 'center',
+            render: row => formatDateForDisplay(row.EFF_FROM)
+          },
+          {
+            key: 'EFF_TO',
+            label: 'To Date',
+            width: '20%',
+            align: 'center',
+            render: row => formatDateForDisplay(row.EFF_TO)
+          }
+        ]}
+        showEdit={false}
+        showDelete={false}
+        emptyMessage='No tenure details found'
+      />
     </div>
   )
 
@@ -1089,27 +1589,81 @@ console.log('Title options:', titleOptions)
     <div>
       <div style={styles.sectionTitle}>Bank Details</div>
 
+      <div
+        style={{ marginBottom: '15px', fontWeight: '600', fontSize: '14px' }}
+      >
+        Employee Code: {employeeData.EMP_CODE || '-'}
+      </div>
+
       <div className='row'>
         <div className='col-lg-4 col-md-6'>
-          {renderInput('BANK_NAME', 'Bank Name')}
+          {renderInput('BANK_NAME', 'Bank Name', { readOnly: true })}
         </div>
 
         <div className='col-lg-4 col-md-6'>
-          {renderInput('ACCOUNT_NUMBER', 'Account Number')}
+          {renderInput('BANK_BRANCH', 'Bank Branch', { readOnly: true })}
         </div>
 
         <div className='col-lg-4 col-md-6'>
-          {renderInput('IFSC_CODE', 'IFSC Code')}
+          {renderInput('BANK_ACNO', 'Account Number', { readOnly: true })}
         </div>
 
         <div className='col-lg-4 col-md-6'>
-          {renderInput('BRANCH_NAME', 'Branch Name')}
+          {renderInput('BANK_IFSC', 'IFSC', { readOnly: true })}
         </div>
 
         <div className='col-lg-4 col-md-6'>
-          {renderInput('ACCOUNT_TYPE', 'Account Type')}
+          {renderInput('BANK_NOMINEE', 'Nominee Name', { readOnly: true })}
+        </div>
+
+        <div className='col-lg-4 col-md-6'>
+          {renderSelect('BANK_STATUS', 'Status', bankStatusOptions)}
         </div>
       </div>
+
+      <JDDataTable
+        data={employeeData.BANK_DETAILS || []}
+        columns={[
+          {
+            key: 'BANK_NAME',
+            label: 'Bank Name',
+            width: '20%'
+          },
+          {
+            key: 'BANK_BRANCH',
+            label: 'Branch',
+            width: '17%'
+          },
+          {
+            key: 'BANK_ACNO',
+            label: 'Account Number',
+            width: '17%'
+          },
+          {
+            key: 'BANK_IFSC',
+            label: 'IFSC',
+            width: '17%'
+          },
+          {
+            key: 'BANK_NOMINEE',
+            label: 'Nominee',
+            width: '17%'
+          },
+          {
+            key: 'STATUS',
+            label: 'Status',
+            width: '12%',
+            align: 'center',
+            render: row =>
+              bankStatusOptions.find(
+                option => option.value === String(row.STATUS)
+              )?.label || '-'
+          }
+        ]}
+        showEdit={false}
+        showDelete={false}
+        emptyMessage='No bank details found'
+      />
     </div>
   )
 
@@ -1123,27 +1677,93 @@ console.log('Title options:', titleOptions)
     <div>
       <div style={styles.sectionTitle}>Qualification Details</div>
 
+      <div
+        style={{ marginBottom: '15px', fontWeight: '600', fontSize: '14px' }}
+      >
+        Employee Code: {employeeData.EMP_CODE || '-'}
+      </div>
+
       <div className='row'>
         <div className='col-lg-4 col-md-6'>
-          {renderInput('HIGHEST_QUALIFICATION', 'Highest Qualification')}
+          {renderInput('QUALIFICATION_INSTITUTE', 'Institute Name', {
+            readOnly: true
+          })}
         </div>
 
         <div className='col-lg-4 col-md-6'>
-          {renderInput('UNIVERSITY', 'University / Institute')}
+          {renderInput('QUALIFICATION_COURSE', 'Qualification', {
+            readOnly: true
+          })}
         </div>
 
         <div className='col-lg-4 col-md-6'>
-          {renderInput('SPECIALIZATION', 'Specialization')}
+          {renderInput('QUALIFICATION_GRADE', 'Grade/Percentage/CGPA', {
+            readOnly: true
+          })}
         </div>
 
         <div className='col-lg-4 col-md-6'>
-          {renderInput('PASSING_YEAR', 'Passing Year')}
+          {renderInput('QUALIFICATION_START_DATE', 'Start Date', {
+            type: 'date',
+            readOnly: true
+          })}
         </div>
 
         <div className='col-lg-4 col-md-6'>
-          {renderInput('QUALIFICATION_GRADE', 'Grade / Percentage')}
+          {renderInput('QUALIFICATION_END_DATE', 'End Date', {
+            type: 'date',
+            readOnly: true
+          })}
+        </div>
+
+        <div className='col-lg-4 col-md-6'>
+          {renderInput('QUALIFICATION_REMARK', 'Remark', { readOnly: true })}
         </div>
       </div>
+
+      <JDDataTable
+        data={employeeData.QUALIFICATION_DETAILS || []}
+        columns={[
+          {
+            key: 'INST_NAME',
+            label: 'Institute/College Name',
+            width: '20%'
+          },
+          {
+            key: 'COURSE',
+            label: 'Course Name',
+            width: '18%'
+          },
+          {
+            key: 'PERGRADE',
+            label: 'Grade/Percentage/CGPA',
+            width: '18%',
+            align: 'center'
+          },
+          {
+            key: 'FROM_DATE',
+            label: 'Start Date',
+            width: '15%',
+            align: 'center',
+            render: row => formatDateForDisplay(row.FROM_DATE)
+          },
+          {
+            key: 'TO_DATE',
+            label: 'End Date',
+            width: '15%',
+            align: 'center',
+            render: row => formatDateForDisplay(row.TO_DATE)
+          },
+          {
+            key: 'REMARKS',
+            label: 'Remarks',
+            width: '14%'
+          }
+        ]}
+        showEdit={false}
+        showDelete={false}
+        emptyMessage='No qualification details found'
+      />
     </div>
   )
 
@@ -1157,27 +1777,106 @@ console.log('Title options:', titleOptions)
     <div>
       <div style={styles.sectionTitle}>Experience Details</div>
 
+      <div
+        style={{ marginBottom: '15px', fontWeight: '600', fontSize: '14px' }}
+      >
+        Employee Code: {employeeData.EMP_CODE || '-'}
+      </div>
+
       <div className='row'>
         <div className='col-lg-4 col-md-6'>
-          {renderInput('PREVIOUS_COMPANY', 'Previous Company')}
+          {renderInput('PREVIOUS_COMPANY', 'Organization Name', {
+            readOnly: true
+          })}
         </div>
 
         <div className='col-lg-4 col-md-6'>
-          {renderInput('PREVIOUS_DESIGNATION', 'Previous Designation')}
+          {renderInput('PREVIOUS_DESIGNATION', 'Designation', {
+            readOnly: true
+          })}
         </div>
 
         <div className='col-lg-2 col-md-6'>
-          {renderInput('PREVIOUS_FROM_DATE', 'From Date', { type: 'date' })}
+          {renderInput('PREVIOUS_FROM_DATE', 'Start Date', {
+            type: 'date',
+            readOnly: true
+          })}
         </div>
 
         <div className='col-lg-2 col-md-6'>
-          {renderInput('PREVIOUS_TO_DATE', 'To Date', { type: 'date' })}
+          {renderInput('PREVIOUS_TO_DATE', 'End Date', {
+            type: 'date',
+            readOnly: true
+          })}
         </div>
 
-        <div className='col-12'>
-          {renderTextarea('PREVIOUS_JOB_DESCRIPTION', 'Job Description')}
+        <div className='col-lg-4 col-md-6'>
+          {renderInput('PREVIOUS_GROSS_SALARY', 'Gross Salary', {
+            readOnly: true
+          })}
+        </div>
+
+        <div className='col-lg-4 col-md-6'>
+          {renderInput('PREVIOUS_JOB_DESCRIPTION', 'Nature Of Duty', {
+            readOnly: true
+          })}
+        </div>
+
+        <div className='col-lg-4 col-md-6'>
+          {renderInput('PREVIOUS_LEAVE_REASON', 'Leave Reason', {
+            readOnly: true
+          })}
         </div>
       </div>
+
+      <JDDataTable
+        data={employeeData.EXPERIENCE_DETAILS || []}
+        columns={[
+          {
+            key: 'ORG_NAME',
+            label: 'Organization Name',
+            width: '16%'
+          },
+          {
+            key: 'DESIG',
+            label: 'Designation',
+            width: '15%'
+          },
+          {
+            key: 'FROM_DATE',
+            label: 'Start Date',
+            width: '11%',
+            align: 'center',
+            render: row => formatDateForDisplay(row.FROM_DATE)
+          },
+          {
+            key: 'TO_DATE',
+            label: 'End Date',
+            width: '11%',
+            align: 'center',
+            render: row => formatDateForDisplay(row.TO_DATE)
+          },
+          {
+            key: 'GROSS_SALARY',
+            label: 'Gross Salary',
+            width: '10%',
+            align: 'center'
+          },
+          {
+            key: 'DUTY_NATURE',
+            label: 'Nature Of Duty',
+            width: '19%'
+          },
+          {
+            key: 'LEAVE_REASON',
+            label: 'Leave Reason',
+            width: '18%'
+          }
+        ]}
+        showEdit={false}
+        showDelete={false}
+        emptyMessage='No experience details found'
+      />
     </div>
   )
 
@@ -1191,27 +1890,67 @@ console.log('Title options:', titleOptions)
     <div>
       <div style={styles.sectionTitle}>Reference Details</div>
 
-      <div className='row'>
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('REFERENCE_NAME', 'Reference Name')}
-        </div>
-
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('REFERENCE_RELATION', 'Relationship')}
-        </div>
-
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('REFERENCE_CONTACT', 'Contact Number')}
-        </div>
-
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('REFERENCE_EMAIL', 'Email')}
-        </div>
-
-        <div className='col-lg-8 col-md-6'>
-          {renderTextarea('REFERENCE_ADDRESS', 'Address')}
-        </div>
-      </div>
+      <JDDataTable
+        data={employeeData.REFERENCE_DETAILS || []}
+        columns={[
+          {
+            key: 'REF_NAME',
+            label: 'Reference Name',
+            width: '16%'
+          },
+          {
+            key: 'ADDRESS',
+            label: 'Address',
+            width: '18%'
+          },
+          {
+            key: 'POSITION',
+            label: 'Position',
+            width: '12%'
+          },
+          {
+            key: 'TEL',
+            label: 'Telephone',
+            width: '13%'
+          },
+          {
+            key: 'YEAR_KNOWN',
+            label: 'Yr. Known',
+            width: '8%',
+            align: 'center'
+          },
+          {
+            key: 'STATUS',
+            label: 'Status',
+            width: '8%',
+            align: 'center',
+            render: row => {
+              if (row.STATUS === 'N') return 'New'
+              if (row.STATUS === 'A') return 'Active'
+              if (row.STATUS === 'I') return 'In-Active'
+              return row.STATUS || '-'
+            }
+          },
+          {
+            key: 'FERIFIC_TYPE',
+            label: 'Verify Type',
+            width: '9%'
+          },
+          {
+            key: 'VERIFIC_MODE',
+            label: 'Verify Mode',
+            width: '9%'
+          },
+          {
+            key: 'VERIFIC_REMARKS',
+            label: 'Verify Remark',
+            width: '12%'
+          }
+        ]}
+        showEdit={false}
+        showDelete={false}
+        emptyMessage='No reference details found'
+      />
     </div>
   )
 
@@ -1225,31 +1964,51 @@ console.log('Title options:', titleOptions)
     <div>
       <div style={styles.sectionTitle}>Family Details</div>
 
-      <div className='row'>
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('FATHER_NAME', 'Father Name')}
-        </div>
-
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('MOTHER_NAME', 'Mother Name')}
-        </div>
-
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('SPOUSE_NAME', 'Spouse Name')}
-        </div>
-
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('SPOUSE_OCCUPATION', 'Spouse Occupation')}
-        </div>
-
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('CHILDREN', 'Children')}
-        </div>
-
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('FAMILY_CONTACT', 'Family Contact')}
-        </div>
-      </div>
+      <JDDataTable
+        data={employeeData.FAMILY_DETAILS || []}
+        columns={[
+          {
+            key: 'FM_NAME',
+            label: 'Name',
+            width: '18%'
+          },
+          {
+            key: 'FM_RELATION',
+            label: 'Relationship',
+            width: '14%'
+          },
+          {
+            key: 'DOB',
+            label: 'DOB',
+            width: '12%',
+            align: 'center',
+            render: row => formatDateForDisplay(row.DOB)
+          },
+          {
+            key: 'AADHAAR',
+            label: 'Aadhaar',
+            width: '14%'
+          },
+          {
+            key: 'FM_OCCUPATION',
+            label: 'Occupation',
+            width: '17%'
+          },
+          {
+            key: 'FM_DEP',
+            label: 'Dependent',
+            width: '13%'
+          },
+          {
+            key: 'FM_CONTACT',
+            label: 'Contact Number',
+            width: '12%'
+          }
+        ]}
+        showEdit={false}
+        showDelete={false}
+        emptyMessage='No family details found'
+      />
     </div>
   )
 
@@ -1263,26 +2022,60 @@ console.log('Title options:', titleOptions)
     <div>
       <div style={styles.sectionTitle}>Documents</div>
 
+      <div
+        style={{ marginBottom: '15px', fontWeight: '600', fontSize: '14px' }}
+      >
+        Employee Code: {employeeData.EMP_CODE || '-'}
+      </div>
+
       <div className='row'>
-        <div className='col-lg-6 col-md-6'>
-          {renderInput('PAN_DOCUMENT', 'PAN Document')}
-        </div>
+        {(employeeData.DOCUMENTS || []).length > 0 ? (
+          employeeData.DOCUMENTS.map(document => (
+            <div
+              key={document.ID}
+              className='col-lg-6 col-md-6'
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '20px'
+              }}
+            >
+              <i
+                className={`${getDocumentIcon(document.DOC_PATH)} mr-3`}
+                style={{
+                  fontSize: '18px',
+                  width: '25px'
+                }}
+              />
 
-        <div className='col-lg-6 col-md-6'>
-          {renderInput('AADHAAR_DOCUMENT', 'Aadhaar Document')}
-        </div>
-
-        <div className='col-lg-6 col-md-6'>
-          {renderInput('RESUME_DOCUMENT', 'Resume')}
-        </div>
-
-        <div className='col-lg-6 col-md-6'>
-          {renderInput('PHOTO_DOCUMENT', 'Photo')}
-        </div>
-
-        <div className='col-lg-6 col-md-6'>
-          {renderInput('OTHER_DOCUMENT', 'Other Document')}
-        </div>
+              <a
+                href={getDocumentUrl(document.DOC_PATH)}
+                target='_blank'
+                rel='noopener noreferrer'
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#17365d',
+                  textDecoration: 'none'
+                }}
+              >
+                {getDocumentName(document.DOC_PATH)}
+              </a>
+            </div>
+          ))
+        ) : (
+          <div className='col-12'>
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '20px',
+                color: '#6c757d'
+              }}
+            >
+              No documents found
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -1297,18 +2090,55 @@ console.log('Title options:', titleOptions)
     <div>
       <div style={styles.sectionTitle}>Application Access</div>
 
+      <div
+        style={{ marginBottom: '15px', fontWeight: '600', fontSize: '14px' }}
+      >
+        Employee Code: {employeeData.EMP_CODE || '-'}
+      </div>
+
       <div className='row'>
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('USERNAME', 'Username')}
-        </div>
+        {(employeeData.APPLICATION_ACCESS || []).length > 0 ? (
+          employeeData.APPLICATION_ACCESS.map(app => (
+            <div
+              key={app.ID}
+              className='col-lg-3 col-md-6'
+              style={{ marginBottom: '15px' }}
+            >
+              <div className='form-check'>
+                <input
+                  type='checkbox'
+                  className='form-check-input'
+                  checked={app.HAS_ACCESS === 'Y'}
+                  readOnly
+                  id={`app-${app.ID}`}
+                />
 
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('ACCESS_ROLE', 'Access Role')}
-        </div>
-
-        <div className='col-lg-4 col-md-6'>
-          {renderInput('ACCESS_STATUS', 'Access Status')}
-        </div>
+                <label
+                  className='form-check-label'
+                  htmlFor={`app-${app.ID}`}
+                  style={{
+                    fontWeight: '600',
+                    fontSize: '14px'
+                  }}
+                >
+                  {app.APP}
+                </label>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className='col-12'>
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '20px',
+                color: '#6c757d'
+              }}
+            >
+              No application access found
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -1319,15 +2149,67 @@ console.log('Title options:', titleOptions)
    * -------------------------------------------------------------
    */
 
-  const renderKRATab = () => (
-    <div>
-      <div style={styles.sectionTitle}>KRA</div>
+  const renderKRATab = () => {
+    const kraData = employeeData.KRA || []
 
-      <div className='row'>
-        <div className='col-lg-12'>{renderTextarea('KRA', 'KRA')}</div>
+    const kraColumns = [
+      {
+        key: 'NO',
+        label: 'No',
+        width: '8%',
+        align: 'center',
+        render: (row, index) => index + 1
+      },
+      {
+        key: 'KRA_DESC',
+        label: 'KRA Details',
+        width: '52%'
+      },
+      {
+        key: 'RESP_PERC',
+        label: 'Percentage',
+        width: '20%',
+        align: 'center',
+        render: row =>
+          row.RESP_PERC !== null &&
+          row.RESP_PERC !== undefined &&
+          row.RESP_PERC !== ''
+            ? `${row.RESP_PERC}%`
+            : '-'
+      }
+    ]
+
+    const totalPercentage = kraData.reduce(
+      (total, row) => total + (Number(row.RESP_PERC) || 0),
+      0
+    )
+
+    return (
+      <div>
+        <div style={styles.sectionTitle}>KRA</div>
+
+        <JDDataTable
+          data={kraData}
+          columns={kraColumns}
+          emptyMessage='No KRA details found'
+        />
+
+        {kraData.length > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              marginTop: '10px',
+              fontWeight: '600',
+              fontSize: '14px'
+            }}
+          >
+            Total Percentage: {totalPercentage}%
+          </div>
+        )}
       </div>
-    </div>
-  )
+    )
+  }
 
   /*
    * -------------------------------------------------------------
