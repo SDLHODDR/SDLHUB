@@ -1,41 +1,53 @@
+import { formatDashDate } from "../../eportal/utils/formatUtils";
+
 export const policyColumns = ({ handleEdit }) => [
   {
     field: "COMP_DESC",
     header: "Company Name",
-    style: { width: "18%" },
+    style: { width: "30%" },
   },
-  {
-    field: "DEPT_DESC",
-    header: "Department Name",
-    style: { width: "14%" },
-  },
-  {
-    field: "DIVSN_DESC",
-    header: "Division Name",
-    style: { width: "14%" },
-  },
+  // {
+  //   field: "DEPT_DESC",
+  //   header: "Department Name",
+  //   style: { width: "14%" },
+  // },
+  // {
+  //   field: "DIVSN_DESC",
+  //   header: "Division Name",
+  //   style: { width: "14%" },
+  // },
   {
     field: "POLICY_NAME",
     header: "Policy Name",
-    style: { width: "14%" },
+    style: { width: "24%" },
   },
   {
-    field: "START_DATE_DISPLAY",
     header: "Start Date",
-    style: { width: "8%", textAlign: "center" },
+    style: { width: "15%", textAlign: "center" },
+    body: (row) => formatDashDate(row.START_DATE_DISPLAY)
   },
   {
-    field: "END_DATE_DISPLAY",
     header: "End Date",
-    style: { width: "8%", textAlign: "center" },
+    style: { width: "15%", textAlign: "center" },
+    body: (row) => formatDashDate(row.END_DATE_DISPLAY)
   },
+  // {
+  //   field: "START_DATE_DISPLAY",
+  //   header: "Start Date",
+  //   style: { width: "8%", textAlign: "center" },
+  // },
+  // {
+  //   field: "END_DATE_DISPLAY",
+  //   header: "End Date",
+  //   style: { width: "8%", textAlign: "center" },
+  // },
+  // {
+  //   field: "POLICY_DESC",
+  //   header: "Policy Description",
+  //   style: { width: "18%" },
+  // },
   {
-    field: "POLICY_DESC",
-    header: "Policy Description",
-    style: { width: "18%" },
-  },
-  {
-    header: "Upload Document",
+    header: "Download Document",
     body: (row) =>
       row.DOC_PATH ? (
         <a href={row.DOC_PATH} target="_blank" rel="noopener noreferrer" aria-label="Download policy document">
@@ -44,7 +56,7 @@ export const policyColumns = ({ handleEdit }) => [
       ) : (
         "-"
       ),
-    style: { width: "6%", textAlign: "center" },
+    style: { width: "15%", textAlign: "center" },
   },
   {
     header: "Status",
@@ -61,6 +73,6 @@ export const policyColumns = ({ handleEdit }) => [
           <i className="fa fa-pencil" />
         </button>
       ),
-    style: { width: "6%", textAlign: "center" },
+    style: { width: "9%", textAlign: "center" },
   },
 ];

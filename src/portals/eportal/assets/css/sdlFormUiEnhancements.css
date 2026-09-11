@@ -70,3 +70,11 @@
 .sdl-form-ui .sdl-calendar-wrapper button.p-datepicker-trigger:active {
   border-color: #6c757d !important;
 }
+
+.heightTxtA {
+  height: 90px !important;
+}
+
+.fixWidth {
+  width: 270px !important;
+}

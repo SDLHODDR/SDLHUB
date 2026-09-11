@@ -325,7 +325,7 @@ const PolicyList = () => {
                 </div>
 
                 <div className="d-flex align-items-center gap-2">
-                  <div style={{ minWidth: "270px" }}>
+                  <div className="fixWidth">
                     {/* <SDLDropdownSelect
                       id="policySelect"
                       options={policyOptions}
@@ -352,7 +352,7 @@ const PolicyList = () => {
                     disabled={isSubmitting}
                     style={{ minWidth: "15px" }}
                   >
-                    <i className={`fas ${showAll ? "fa-plus" : "fa-table"}`} />
+                    <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
                   </button>
                 </div>
               </div>

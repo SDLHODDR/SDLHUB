@@ -29,7 +29,7 @@ const OutdoorDutyAuthorization = () => {
     <>
       <div className="page-header">
         <div className="page-title">
-          <h4>{currentTaskId == 21 ? "Outdoor Duty Post Remarks Review" : "Outdoor Duty Authorization"}</h4>
+          <h4>{currentTaskId == 21 ? "Outdoor Duty Post Remarks Review" : currentTaskId == 22 ? "Outdoor Duty Post Remarks Employee Review" : "Outdoor Duty Authorization"}</h4>
         </div>
         <BreadcrumbNav
           items={[

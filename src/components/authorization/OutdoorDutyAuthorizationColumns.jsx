@@ -14,6 +14,9 @@ export const handleRowClick = (e, rowData, openModal) => {
   if (rowData?.REQUEST_TYPE && rowData.REQUEST_TYPE.trim() === "POSTREMARKS") {
     notifyWarning("Kindly submit your Post Remarks in Outdoor Duty page", "Action Required");
     return;
+  } else if(rowData.TASK_ID == 22) {
+    notifyWarning("Kindly submit your Post Remarks in Outdoor Duty page", "Action Required");
+    return;
   }
   openModal(rowData);
 };
