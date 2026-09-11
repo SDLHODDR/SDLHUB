@@ -67,5 +67,6 @@ export const eportalRoutes = [
 	{ path: "eportal/taskauthorization/346", element: TicketBookingAuthorization, },
 	{ path: "eportal/taskauthorization/349", element: OutdoorDutyAuthorization, },
 	{ path: "eportal/taskauthorization/21", element: OutdoorDutyAuthorization, },
+	{ path: "eportal/taskauthorization/22", element: OutdoorDutyAuthorization, },
 	{ path: "eportal/taskauthorization/357", element: ConferenceRoomAuthorization, },
 ];

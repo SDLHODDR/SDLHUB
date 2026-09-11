@@ -27,8 +27,9 @@ export const useOutdoorDutyAuthorizationHandler = () => {
   const currentTaskId = segments[segments.length - 1]; // "21" or "349"
 
   useEffect(() => {
-    dispatch(getAuthDataResponse({ task_id: 349 }));
-  }, [dispatch, refreshKey]);
+    //dispatch(getAuthDataResponse({ task_id: 349 }));
+    dispatch(getAuthDataResponse({ task_id: currentTaskId }));
+  }, [dispatch, refreshKey, currentTaskId]);
 
   useEffect(() => {
     let mounted = true;

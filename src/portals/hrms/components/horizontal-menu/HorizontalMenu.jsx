@@ -64,6 +64,8 @@ const HorizontalMenu = () => {
   |--------------------------------------------------------------------------
   */
 
+  console.log("==========================Menus====================", menus);
+
   const isChildActive = (route) => {
     const formattedRoute = formatRoute(route);
 

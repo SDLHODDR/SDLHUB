@@ -293,7 +293,7 @@ const KRAActivity = () => {
                 </div>
 
                 <div className="d-flex align-items-center gap-2">
-                  <div style={{ minWidth: "270px" }}>
+                 <div className="fixWidth">
                     {/* <SDLDropdownSelect
                       id="kraActivitySelect"
                       options={activityOptions}

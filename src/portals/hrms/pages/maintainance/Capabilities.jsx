@@ -227,7 +227,7 @@ const Capabilities = () => {
                   </button>
                 </div> */}
                 <div className="d-flex align-items-center gap-2">
-                  <div style={{ minWidth: "270px" }}>
+                  <div className="fixWidth">
                     
                     <SDLReactSelect
                       value={selectedCapability}

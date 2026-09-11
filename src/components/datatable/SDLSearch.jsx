@@ -10,7 +10,7 @@ const SDLSearch = ({
     onKeyDown,
     style = {},
 }) => (
-     <div className={`search-set ${className}`} style={style}>
+     <div className={`search-set fixWidth ${className}`} style={style}>
         <div className="search-input position-relative">
             <span className="btn-searchset">
                 <i className="ti ti-search"></i>

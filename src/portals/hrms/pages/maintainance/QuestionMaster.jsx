@@ -266,7 +266,7 @@ const QuestionMaster = () => {
               <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
                 <div className="d-flex align-items-center gap-2 flex-wrap">
                   {showAll && (
-                    <div className="d-flex align-items-center" style={{ minWidth: "270px" }}>
+                    <div className="d-flex align-items-center " style={{ maxWidth: "270px" }}>
                       <SDLSearch
                         value={search}
                         onChange={setSearch}
@@ -305,7 +305,8 @@ const QuestionMaster = () => {
                   </button>
                 </div> */}
                 <div className="d-flex align-items-center gap-2">
-                  <div style={{ minWidth: "270px" }}>
+                  {/* <div style={{ maxWidth: "270px" }}> */}
+                    <div className="fixWidth">
                     <SDLReactSelect
                       value={selectedQuestion}
                       options={questionOptions.map((opt) => ({ value: opt.id, label: opt.label }))}
@@ -442,7 +443,7 @@ const QuestionMaster = () => {
                     <div className={isTextType ? "col-lg-12" : "col-lg-6"}>
                       <label className="form-label">Question</label>
                       <textarea
-                        className={`form-control ${errors.QUES_DESCR ? "is-invalid" : ""}`}
+                        className={`heightTxtA form-control ${errors.QUES_DESCR ? "is-invalid" : ""}`}
                         value={form.QUES_DESCR}
                         maxLength={200}
                         rows={isTextType ? 4 : 8}
