@@ -26,6 +26,17 @@ export const saveJobDescription = (payload = {}) =>
     data: payload,
   });
 
+  // =====================================================
+// JOB DESCRIPTION AUTHORIZATION
+// =====================================================
+
+export const sendJobDescriptionForAuth = (payload = {}) =>
+  hrmsRequest({
+    url: HRMS_API.MAINTAINANCE.SEND_FOR_AUTH,
+    method: "POST",
+    data: payload,
+  });
+
 
 // =====================================================
 // JOB DESCRIPTION MASTER DATA

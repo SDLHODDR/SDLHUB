@@ -37,6 +37,7 @@ export const HRMS_API = {
 
     JOB_DESCRIPTION_LIST: "/maintainance/jobdescription/getJobDescriptions.php",
     JOB_DESCRIPTION_SAVE: "/maintainance/jobdescription/saveJobDescription.php",
+    SEND_FOR_AUTH: "/maintainance/jobdescription/sendForAuth.php",
 
     GET_PROFILES: "/maintainance/profilemaintenance/getProfiles.php",
     GET_PROFILE_ACCESS: "/maintainance/profilemaintenance/getProfileAccess.php",
