@@ -6,8 +6,9 @@ const GROUP_KEY_MAP = {
   "Tenure Change": "tenure-change",
   Exit: "exit",
   Organogram: "organogram",
-  Miscellaneous: "miscellaneous",
+  Masters: "masters",
 };
+
 const GROUP_KEY_MAP1 = {
   Recruitment: "R",
   Joining: "J",
@@ -15,11 +16,11 @@ const GROUP_KEY_MAP1 = {
   Exit: "E",
   Appraisal: "A",
   Organogram: "O",
-  Miscellaneous: "M"
+  Masters: "M"
 };
 
 // Preserves your desired display order regardless of what order the API returns groups in
-const GROUP_ORDER = ["Recruitment", "Joining", "Tenure Change", "Exit", "Organogram", "Miscellaneous"];
+const GROUP_ORDER = ["Recruitment", "Joining", "Tenure Change", "Exit", "Organogram", "Masters"];
 
 export const normalizeHrmsGroups = (apiResponse = {}) =>
   GROUP_ORDER
