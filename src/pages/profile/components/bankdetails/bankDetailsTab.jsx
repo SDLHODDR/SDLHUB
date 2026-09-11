@@ -230,84 +230,52 @@ const bankDetailsTab = ({ profile }) => {
     setBankSaving(true);
 
     try {
-      const payload = {
-        bank_name: currentBank.bank_name,
+  const payload = {
+    bank_name: currentBank.bank_name,
+    bank_branch: currentBank.bank_branch,
+    bank_ifsc: currentBank.bank_ifsc,
+    bank_acno: currentBank.bank_acno,
+    bank_nominee: currentBank.bank_nominee,
+  };
 
-        bank_branch: currentBank.bank_branch,
+  console.log("BANK UPDATE PAYLOAD:", payload);
 
-        bank_ifsc: currentBank.bank_ifsc,
+  const res = await saveBankDetails(payload);
 
-        bank_acno: currentBank.bank_acno,
+  console.log("BANK UPDATE RESPONSE:", res);
 
-        bank_nominee: currentBank.bank_nominee,
-      };
+  if (res?.status) {
+    setShowBankForm(false);
 
-      console.log(
-        "BANK UPDATE PAYLOAD:",
-        payload
-      );
+    notifySuccess(
+      res?.message ||
+        "Bank details update request submitted successfully for authorization."
+    );
 
-      /* =====================================================
-         API
-      ===================================================== */
+    return;
+  }
 
-      const res = await saveBankDetails(payload);
+  notifyError(
+    res?.message ||
+      "Unable to submit bank details update request."
+  );
 
-      console.log(
-        "BANK UPDATE RESPONSE:",
-        res
-      );
+} catch (error) {
 
-      /* =====================================================
-         SUCCESS
-      ===================================================== */
+  console.error("BANK UPDATE ERROR:", error);
 
-      if (res?.status) {
-        setShowBankForm(false);
+  const apiMessage =
+    error?.response?.data?.message ||
+    error?.data?.message ||
+    error?.message ||
+    "Unable to submit bank details update request.";
 
-        /*
-         * IMPORTANT:
-         *
-         * Do NOT update profile.employee bank fields here.
-         *
-         * Bank details should remain unchanged until
-         * authorization is completed.
-         */
+  notifyError(apiMessage);
 
-        notifySuccess(
-          res?.message ||
-            "Bank details update request submitted successfully for authorization."
-        );
+} finally {
 
-        return;
-      }
-
-      /* =====================================================
-         BUSINESS ERROR
-      ===================================================== */
-
-      notifyError(
-        res?.message ||
-          "Unable to submit bank details update request."
-      );
-    } catch (error) {
-      console.error(
-        "BANK UPDATE ERROR:",
-        error
-      );
-
-      const apiMessage =
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        error?.message;
-
-      notifyError(
-        apiMessage ||
-          "Unable to submit bank details update request."
-      );
-    } finally {
-      setBankSaving(false);
-    }
+  setBankSaving(false);
+}
   };
 
   /* =========================================================

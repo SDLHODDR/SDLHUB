@@ -26,7 +26,7 @@ import {
   getQuestionGroupList,
   getDivisionList,
   getInductionList,
-  getOrganogramList
+  getOrganogramList, sendJobDescriptionForAuth
 } from '../../services/jobDescriptionService'
 import { notifySuccess, notifyError } from '../../../../services/alertService'
 import SDLtextEditor from '../../../../components/editor/SDLtextEditor'
@@ -1333,6 +1333,38 @@ const JobDescription = () => {
       setSaving(false)
     }
   }
+
+  const handleSendForAuth = async () => {
+  if (!formData.id) {
+    notifyError('Please save the job description before sending for authorization.')
+    return
+  }
+
+  try {
+    const response = await sendJobDescriptionForAuth({
+      id: formData.id
+    })
+
+    if (response?.status) {
+      notifySuccess(
+        response?.message ||
+          'Job description sent for authorization successfully.'
+      )
+    } else {
+      notifyError(
+        response?.message ||
+          'Unable to send job description for authorization.'
+      )
+    }
+  } catch (error) {
+    console.error('Send job description for authorization error:', error)
+
+    notifyError(
+      error?.message ||
+        'Unable to send job description for authorization.'
+    )
+  }
+}
 
   const handleEditResponsibility = item => {
     setEditingResponsibilityId(item.ID)
@@ -3508,22 +3540,32 @@ const JobDescription = () => {
                     ACTION BUTTONS
                     ============================ */}
                   <div className='d-flex justify-content-end mt-3'>
-                    <button
-                      className='btn btn-primary me-2'
-                      type='submit'
-                      disabled={saving}
-                    >
-                      {saving ? 'Saving...' : 'Save'}
-                    </button>
-                    <button
-                      className='btn btn-secondary'
-                      type='button'
-                      onClick={resetForm}
-                      disabled={saving}
-                    >
-                      Cancel
-                    </button>
-                  </div>
+  <button
+    className='btn btn-primary me-2'
+    type='submit'
+    disabled={saving}
+  >
+    {saving ? 'Saving...' : 'Save'}
+  </button>
+
+  <button
+    className='btn btn-success me-2'
+    type='button'
+    onClick={handleSendForAuth}
+    disabled={saving || !formData.id}
+  >
+    Send for Auth
+  </button>
+
+  <button
+    className='btn btn-secondary'
+    type='button'
+    onClick={resetForm}
+    disabled={saving}
+  >
+    Cancel
+  </button>
+</div>
                 </form>
               )}
             </div>
