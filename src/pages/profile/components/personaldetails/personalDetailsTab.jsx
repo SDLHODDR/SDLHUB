@@ -1049,7 +1049,6 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
 
       if (apiResponse?.status === false && apiResponse?.data?.request_id) {
         console.log("PENDING ADDRESS REQUEST FOUND");
-
         console.log("REQUEST DETAILS:", apiResponse.data);
 
         /*
@@ -1102,9 +1101,7 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
       console.error("========== ADDRESS API ERROR ==========");
 
       console.error("ERROR:", error);
-
       console.error("HTTP STATUS:", error?.response?.status);
-
       console.error("ERROR DATA:", error?.response?.data);
 
       console.error("=======================================");
@@ -1120,7 +1117,6 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
 
       if (errorData?.data?.request_id) {
         console.log("PENDING ADDRESS REQUEST FOUND IN ERROR RESPONSE");
-
         console.log("REQUEST DETAILS:", errorData.data);
 
         setPendingAddressRequest({
@@ -1604,8 +1600,8 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
               </div>
 
               {/* =================================================
-            BODY
-        ================================================= */}
+                    BODY
+                ================================================= */}
 
               <div className="modal-body">
                 {/* WARNING */}
@@ -1898,8 +1894,8 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
               </div>
 
               {/* =================================================
-            FOOTER
-        ================================================= */}
+                  FOOTER
+                ================================================= */}
 
               <div className="modal-footer">
                 <button
@@ -1955,7 +1951,7 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
               <div className="modal-body">
                 {/* ===================================================
                     CURRENT ADDRESS
-                =================================================== */}
+                  =================================================== */}
 
                 <h6 className="fw-semibold mb-2">Current Address</h6>
 
