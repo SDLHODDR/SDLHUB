@@ -50,6 +50,7 @@ const useSDLTabComponentHandler = (organogramId, onOrganogramSaved) => {
           <LocationsTab
             organogramId={organogramId}
             onNavigateToTab={handleTabChange}
+            onOrganogramSaved={onOrganogramSaved}
           />
         );
       case "appraisalLevels":

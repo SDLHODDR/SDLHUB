@@ -66,6 +66,8 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
   const [loadingDesignations, setLoadingDesignations] = useState(false);
   const [loadingJdLabels, setLoadingJdLabels] = useState(false);
 
+  const isEditMode = !!organogramId;
+
   /* ==========================================================
       INITIAL MASTER DATA LOAD (unchanged)
   ========================================================== */
@@ -226,6 +228,10 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
     if (formData.POSITION_OCCUPIED !== "" && Number.isNaN(Number(formData.POSITION_OCCUPIED))) {
       newErrors.POSITION_OCCUPIED = "Position occupied must be a number.";
     }
+    if(formData.POSITION_OCCUPIED > formData.POSITION_COUNT) {
+      newErrors.POSITION_OCCUPIED = "Position occupied must be less than Position count.";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [formData]);
@@ -234,7 +240,7 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
     if (!validate()) return;
     try {
       setSaving(true);
-      const payload = organogramId ? { ...formData, ID: organogramId } : formData;
+      const payload = organogramId ? { ...formData, ID: organogramId, mode: isEditMode ? "edit" : "add" } : formData;
       const res = await saveOrganogram(payload);
 
       if (res?.status) {
@@ -254,7 +260,7 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
     } finally {
       setSaving(false);
     }
-  }, [formData, validate, organogramId, onOrganogramSaved]);
+  }, [formData, validate, organogramId, onOrganogramSaved, isEditMode]);
 
   const handleCancel = useCallback(() => {
     setFormData(organogramId ? INITIAL_FORM_STATE : INITIAL_FORM_STATE);
@@ -280,6 +286,7 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
     loadingMasters,
     loadingDesignations,
     loadingJdLabels,
+    isEditMode,
   };
 };
 

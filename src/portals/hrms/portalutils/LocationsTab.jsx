@@ -3,7 +3,7 @@ import { DataTable } from "primereact/datatable";
 import useLocationsTabHandler from "./useLocationsTabHandler";
 import { getLocationsColumns, renderLocationsColumns } from "./locationsColumns";
 
-const LocationsTab = ({ organogramId, onNavigateToTab }) => {
+const LocationsTab = ({ organogramId, onNavigateToTab, onOrganogramSaved }) => {
   const {
     organogramDetails,
     locations,
@@ -12,7 +12,9 @@ const LocationsTab = ({ organogramId, onNavigateToTab }) => {
     handleRowEditComplete,
     handleRowEditCancel,
     getGeoMappingOptionsForRow,
-  } = useLocationsTabHandler(organogramId);
+    validateLocationRow,
+    clearRowFieldError,
+  } = useLocationsTabHandler(organogramId, onOrganogramSaved);
 
   const [editingRows, setEditingRows] = useState({});
 
@@ -21,6 +23,7 @@ const LocationsTab = ({ organogramId, onNavigateToTab }) => {
   const columnDefs = getLocationsColumns({
     organogramDetails,
     getGeoMappingOptions: getGeoMappingOptionsForRow,
+    clearRowFieldError,
   });
 
   const columns = renderLocationsColumns(columnDefs, {
@@ -38,6 +41,7 @@ const LocationsTab = ({ organogramId, onNavigateToTab }) => {
       dataKey="SNO"
       editingRows={editingRows}
       onRowEditChange={(e) => setEditingRows(e.data)}
+      rowEditValidator={validateLocationRow}
       onRowEditComplete={handleRowEditComplete}
       onRowEditCancel={handleRowEditCancel}
       size="small"

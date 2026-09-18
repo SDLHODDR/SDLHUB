@@ -2,6 +2,9 @@ import useOrganogramFormHandler from "./useOrganogramFormHandler";
 import SDLReactSelect from "../../../components/SDLReactSelect";
 
 const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
+
+  //const isEditMode = !!organogramId;
+
   const {
     formData,
     errors,
@@ -21,9 +24,10 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
     loadingMasters,
     loadingDesignations,
     loadingJdLabels,
+    isEditMode,
   } = useOrganogramFormHandler(organogramId, onOrganogramSaved);
 
-  const isEditMode = !!organogramId;
+  
 
   return (
     <div>
