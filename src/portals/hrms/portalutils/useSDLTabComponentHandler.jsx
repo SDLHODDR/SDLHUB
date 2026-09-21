@@ -5,7 +5,8 @@ import AppraisalLevelsTab from "./AppraisalLevelsTab";
 import ReportingTab from "./ReportingTab";
 import AllowancesTab from "./AllowancesTab";
 
-const useSDLTabComponentHandler = (organogramId, onOrganogramSaved) => {
+// showAll is the shared top-toggle state for tabs with list/form views.
+const useSDLTabComponentHandler = (organogramId, onOrganogramSaved, showAll) => {
   const tabs = useMemo(() => {
     const base = [{ key: "organogram", label: "Organogram" }];
     if (organogramId) {
@@ -20,8 +21,6 @@ const useSDLTabComponentHandler = (organogramId, onOrganogramSaved) => {
   }, [organogramId]);
 
   const [selectedTab, setSelectedTab] = useState("organogram");
-  // Carries context (e.g. LOC_ID) when a tab switch is triggered
-  // programmatically from a row action rather than a tab click.
   const [tabContext, setTabContext] = useState(null);
 
   const handleTabChange = useCallback((tabKey, context = null) => {
@@ -50,10 +49,12 @@ const useSDLTabComponentHandler = (organogramId, onOrganogramSaved) => {
           <LocationsTab
             organogramId={organogramId}
             onNavigateToTab={handleTabChange}
+            onOrganogramSaved={onOrganogramSaved}
+            showAll={showAll}
           />
         );
       case "appraisalLevels":
-        return <AppraisalLevelsTab organogramId={organogramId} />;
+        return <AppraisalLevelsTab organogramId={organogramId} showAll={showAll} />;
       case "reporting":
         return <ReportingTab organogramId={organogramId} locId={tabContext?.LOC_ID} />;
       case "allowances":
@@ -67,7 +68,7 @@ const useSDLTabComponentHandler = (organogramId, onOrganogramSaved) => {
       default:
         return null;
     }
-  }, [selectedTab, organogramId, tabContext, handleTabChange, onOrganogramSaved]);
+  }, [selectedTab, organogramId, tabContext, handleTabChange, onOrganogramSaved, showAll]);
 
   return { tabs, selectedTab, handleTabChange, tabContent };
 };

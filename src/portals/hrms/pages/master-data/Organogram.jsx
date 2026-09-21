@@ -14,6 +14,7 @@ import {
 
 import SDLTabsComponent from "../../components/tabs/SDLTabsComponent";
 import useSDLTabComponentHandler from "../../portalutils/useSDLTabComponentHandler";
+import OrganogramListView from "../../portalutils/OrganogramListView";
 
 import {
   getOrgonograms,
@@ -23,7 +24,6 @@ import {
 
 import { getPortalFromPath } from "../../../../config/portalConfig";
 import "../../assets/css/profileMaintenance.css";
-
 
 const Organogram = () => {
   /* ==========================================================
@@ -41,11 +41,14 @@ const Organogram = () => {
   const [selectedOrganogram, setSelectedOrgonogram] = useState(null);
   const [orgonogram, setOrgonogram] = useState([]);
 
+  // Global list/form toggle shared by the tabs that support both views.
+  const [showAll, setShowAll] = useState(false);
+
   /* ==========================================================
         LOAD PROFILES
     ========================================================== */
 
-  const loadOrgonogram = useCallback(async () => {
+  const loadOrgonogram = useCallback(async (selectId) => {
     try {
       setLoadingOrgonogram(true);
       const userConfig = localStorage.getItem("user-hrms-config");
@@ -54,7 +57,7 @@ const Organogram = () => {
       if (res?.status) {
         const orgonoList = Array.isArray(res.data) ? res.data : [];
         setOrgonogram(orgonoList);
-        setSelectedOrgonogram(null);
+        setSelectedOrgonogram((prev) => (selectId !== undefined ? selectId : prev));
       } else {
         notifyError(res?.message || "Unable to load profiles.");
       }
@@ -77,17 +80,31 @@ const Organogram = () => {
     }));
   }, [orgonogram]);
 
-    
+  const { tabs, selectedTab, handleTabChange, tabContent } = useSDLTabComponentHandler(selectedOrganogram, loadOrgonogram, showAll);
 
-  const { tabs, selectedTab, handleTabChange, tabContent } =
-    useSDLTabComponentHandler(selectedOrganogram, loadOrgonogram);
+  /* ==========================================================
+      TOGGLE: list <-> form
+  ========================================================== */
+  const handleToggleView = useCallback(() => {
+    if (loadingOrgonogram) return;
+    setShowAll((prev) => !prev);
+  }, [loadingOrgonogram]);
 
+  // Selecting an organogram — from the top dropdown OR a list row's Edit
+  // action — always drops back into form mode, same as KRA Activity's
+  // handleSelectActivity does.
+  const handleSelectOrganogram = useCallback((value) => {
+    setSelectedOrgonogram(value || null);
+    setShowAll(false);
+  }, []);
+
+  const handleSelectFromList = useCallback((id) => {
+    setSelectedOrgonogram(id);
+    setShowAll(false);
+  }, []);
 
   return (
     <>
-      {/* ======================================================
-          PAGE HEADER
-      ====================================================== */}
         <div className="sdl-form-ui">
       <div className="page-header">
         <div className="add-item d-flex">
@@ -113,8 +130,8 @@ const Organogram = () => {
       <div className="row">
         <div className="col-xl-12">
           <div className="card">
-            <div className="card-header">
-              <div className="card-title ms-auto" style={{ width: '470px' }}>
+            <div className="card-header d-flex align-items-center justify-content-end gap-2">
+              <div className="card-title mb-0" style={{ width: '470px' }}>
                 {/* <Dropdown
                   value={selectedOrganogram}
                   options={orgonogramOptions}
@@ -128,14 +145,23 @@ const Organogram = () => {
                  <SDLReactSelect
                   value={selectedOrganogram}
                   options={orgonogramOptions}
-                  onChange={(value) => setSelectedOrgonogram(value || null)}
+                  onChange={handleSelectOrganogram}
                   placeholder="Select Orgonogram"
                   isClearable
                   isDisabled={loadingOrgonogram}
                   isLoading={loadingOrgonogram}
                 />
-                
               </div>
+
+              <button
+                type="button"
+                className="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+                onClick={handleToggleView}
+                disabled={loadingOrgonogram}
+                title={showAll ? "Switch to form view" : "Switch to list view"}
+              >
+                <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
+              </button>
             </div>
             <div className="card-body">
               <div className="tab-style-5-wrapper">
@@ -143,7 +169,17 @@ const Organogram = () => {
                   tabs={tabs}
                   selectedTab={selectedTab}
                   onTabChange={handleTabChange}
-                  tabContent={tabContent}
+                  tabContent={
+                    showAll && selectedTab === "organogram" ? (
+                      <OrganogramListView
+                        data={orgonogram}
+                        loading={loadingOrgonogram}
+                        onEdit={handleSelectFromList}
+                      />
+                    ) : (
+                      tabContent
+                    )
+                  }
                   loading={loadingOrgonogram}
                 />
               </div>

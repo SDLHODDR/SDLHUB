@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
   getOrganogramDetails,
   getOrganogramLocations,
   getHrDivision,
   getGeoMappingOptions,
   getOrgLocReportingManager,
-  saveOrganogramLocation,
+  saveOrganogramLocationsBulk,
 } from "../services/orgonogramService";
 import { notifyError, notifySuccess } from "../../../services/alertService";
 import { formatDateForApi } from "../../../utils/formatUtils";
@@ -35,9 +35,16 @@ const buildLocationRows = (posiCount, savedRows = [], divisionMap = {}, reportin
       REPORT_TO_DISPLAY: reporting.REPORT_TO_DISPLAY ?? "",
       HAS_REPORTING: !!reporting.HAS_REPORTING,
       ALLOW_ID: saved.ALLOW_ID ?? null,
+      _errors: {},
     });
   }
   return rows;
+};
+
+const toDate = (value) => {
+  if (!value) return null;
+  const d = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
 };
 
 /* ==========================================================
@@ -45,8 +52,6 @@ const buildLocationRows = (posiCount, savedRows = [], divisionMap = {}, reportin
 ========================================================== */
 const fetchDivisionMap = async (savedRows = []) => {
   const uniqueGeoIds = [...new Set(savedRows.map((r) => r.GEO_ID).filter(Boolean))];
-    console.log("========uniqueGeoIds====", uniqueGeoIds);
-
   if (!uniqueGeoIds.length) return {};
 
   const results = await Promise.all(
@@ -69,37 +74,6 @@ const fetchDivisionMap = async (savedRows = []) => {
     GEO MAPPING OPTIONS (EMP_LEVEL !== '15')
 ========================================================== */
 const buildGeoMappingCacheKey = (divsnId, effecFrom) => `${divsnId}::${effecFrom}`;
-
-// const fetchGeoMappingOptionsMap = async (empLevel, savedRows = []) => {
-//   const uniqueCombos = new Map();
-//   savedRows.forEach((row) => {
-//     if (!row.GEO_ID) return;
-//     const key = buildGeoMappingCacheKey(row.__divsnId, row.EFFEC_FROM);
-//     if (!uniqueCombos.has(key)) {
-//       uniqueCombos.set(key, { DIVSN_ID: row.__divsnId, EFFEC_FROM: row.EFFEC_FROM });
-//     }
-//   });
-
-//   const entries = Array.from(uniqueCombos.entries());
-//   const results = await Promise.all(
-//     entries.map(([, params]) =>
-//       getGeoMappingOptions({ EMP_LEVEL: empLevel, ...params }).catch((error) => {
-//         console.error("Load geo mapping options error:", params, error);
-//         return null;
-//       })
-//     )
-//   );
-
-//   const map = {};
-//   entries.forEach(([key], idx) => {
-//     const rows = Array.isArray(results[idx]?.data) ? results[idx].data : [];
-//     map[key] = rows.map((r) => ({
-//       label: r.GEO_DETAILS ?? "",
-//       value: r.GEO_ID,
-//     }));
-//   });
-//   return map;
-// };
 
 const fetchGeoMappingOptionsMap = async (empLevel, rows = []) => {
   const uniqueCombos = new Map();
@@ -183,161 +157,85 @@ const fetchReportingMap = async (savedRows = []) => {
 /* ==========================================================
     HOOK
 ========================================================== */
-const useLocationsTabHandler = (organogramId) => {
+const useLocationsTabHandler = (organogramId, onOrganogramSaved) => {
   const [organogramDetails, setOrganogramDetails] = useState(null);
   const [locations, setLocations] = useState([]);
   const [geoMappingOptionsMap, setGeoMappingOptionsMap] = useState({});
 
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [loadingLocations, setLoadingLocations] = useState(false);
-  const [savingRow, setSavingRow] = useState(false);
-  const [empLevelPL, setEmpLevelPL] = useState(null); // add this
+  const [empLevelPL, setEmpLevelPL] = useState(null);
+  const [savingAll, setSavingAll] = useState(false);
 
-  useEffect(() => {
+  // Baseline used to diff on save (only send changed rows) and to restore
+  // on Cancel. Refreshed after every successful load AND after every
+  // successful save, so the next diff always starts clean. Editing is no
+  // longer a separately-entered mode — it's just whichever state
+  // `locations` is in versus this snapshot.
+  const savedSnapshotRef = useRef([]);
+
+  const loadDetailsAndLocations = useCallback(async () => {
     if (!organogramId) {
       setOrganogramDetails(null);
       setLocations([]);
       setGeoMappingOptionsMap({});
+      savedSnapshotRef.current = [];
       return;
     }
 
-    const loadDetailsAndLocations = async () => {
-      try {
-        setLoadingDetails(true);
-        setLoadingLocations(true);
+    try {
+      setLoadingDetails(true);
+      setLoadingLocations(true);
 
-        const detailsRes = await getOrganogramDetails({ ID: organogramId });
-        if (!detailsRes?.status) {
-          notifyError(detailsRes?.message || "Unable to load organogram details.");
-          return;
-        }
-        setOrganogramDetails(detailsRes.data);
-
-        const posiCount = Number(detailsRes.data?.POSI_COUNT) || 0;
-        const empLevel = detailsRes.data?.EMP_LEVEL;
-        const divsnId = detailsRes.data?.DIVSN_ID;
-        setEmpLevelPL(empLevel); 
-        console.log("==============||detailsRes||============", detailsRes);
-        console.log("==============||empLevel||============", empLevel);
-        console.log("==============||empLevelPL||============", empLevelPL);
-
-        // const locationsRes = await getOrganogramLocations({ ID: organogramId });
-        // console.log("==============||locationsRes||============", locationsRes);
-        // const savedRows = Array.isArray(locationsRes)
-        //   ? locationsRes
-        //   : Array.isArray(locationsRes?.data)
-        //     ? locationsRes.data
-        //     : [];
-
-        const locationsRes = await getOrganogramLocations({ ID: organogramId });
-        console.log("==============||locationsRes||============", locationsRes);
-        const savedRows = Array.isArray(locationsRes)
-          ? locationsRes
-          : Array.isArray(locationsRes?.data)
-            ? locationsRes.data
-            : [];
-
-        console.log("==============||savedRows||============", savedRows);
-        const savedRowsWithDivsn = savedRows.map((r) => ({ ...r, __divsnId: divsnId }));
-
-         console.log("==============||divsnId||============", divsnId);
-          console.log("==============||savedRowsWithDivsn||============", savedRowsWithDivsn);
-        // const [divisionMap, geoMappingMap, reportingMap] = await Promise.all([
-        //   empLevel === "15" ? fetchDivisionMap(savedRows) : Promise.resolve({}),
-        //   empLevel !== "15" ? fetchGeoMappingOptionsMap(empLevel, savedRowsWithDivsn) : Promise.resolve({}),
-        //   fetchReportingMap(savedRows),
-        // ]);
-
-        // const [divisionMap, geoMappingMap, reportingMap] = await Promise.all([
-        //   empLevel === "15" ? fetchDivisionMap(savedRows) : Promise.resolve({}),
-        //   fetchGeoMappingOptionsMap(empLevel, savedRowsWithDivsn),
-        //   fetchReportingMap(savedRows),
-        // ]);
-
-        //  console.log("==============||divisionMap||===||geoMappingMap||============", divisionMap, geoMappingMap);
-
-        // setGeoMappingOptionsMap(geoMappingMap);
-        // setLocations(buildLocationRows(posiCount, savedRows, divisionMap, reportingMap, divsnId));
-
-        // Build the row skeletons FIRST (empty divisionMap/reportingMap placeholders) —
-        // this is the actual shape the dropdown editor will render against,
-        // covering every position (posiCount), not just ones with saved data.
-        const rowSkeletons = buildLocationRows(posiCount, savedRows, {}, {}, divsnId);
-
-        const [divisionMap, geoMappingMap, reportingMap] = await Promise.all([
-          empLevel === "15" ? fetchDivisionMap(savedRows) : Promise.resolve({}),
-          fetchGeoMappingOptionsMap(empLevel, rowSkeletons),
-          fetchReportingMap(savedRows),
-        ]);
-
-        setGeoMappingOptionsMap(geoMappingMap);
-        setLocations(buildLocationRows(posiCount, savedRows, divisionMap, reportingMap, divsnId));
-      } catch (error) {
-        console.error("Load location details error:", error);
-        notifyError(error?.message || "Unable to load location details.");
-      } finally {
-        setLoadingDetails(false);
-        setLoadingLocations(false);
+      const detailsRes = await getOrganogramDetails({ ID: organogramId });
+      if (!detailsRes?.status) {
+        notifyError(detailsRes?.message || "Unable to load organogram details.");
+        return;
       }
-    };
+      setOrganogramDetails(detailsRes.data);
 
-    loadDetailsAndLocations();
+      const posiCount = Number(detailsRes.data?.POSI_COUNT) || 0;
+      const empLevel = detailsRes.data?.EMP_LEVEL;
+      const divsnId = detailsRes.data?.DIVSN_ID;
+      setEmpLevelPL(empLevel);
+
+      const locationsRes = await getOrganogramLocations({ ID: organogramId });
+      const savedRows = Array.isArray(locationsRes)
+        ? locationsRes
+        : Array.isArray(locationsRes?.data)
+          ? locationsRes.data
+          : [];
+
+      const rowSkeletons = buildLocationRows(posiCount, savedRows, {}, {}, divsnId);
+
+      const [divisionMap, geoMappingMap, reportingMap] = await Promise.all([
+        empLevel === "15" ? fetchDivisionMap(savedRows) : Promise.resolve({}),
+        fetchGeoMappingOptionsMap(empLevel, rowSkeletons),
+        fetchReportingMap(savedRows),
+      ]);
+
+      setGeoMappingOptionsMap(geoMappingMap);
+      const freshRows = buildLocationRows(posiCount, savedRows, divisionMap, reportingMap, divsnId);
+      setLocations(freshRows);
+      savedSnapshotRef.current = freshRows;
+    } catch (error) {
+      console.error("Load location details error:", error);
+      notifyError(error?.message || "Unable to load location details.");
+    } finally {
+      setLoadingDetails(false);
+      setLoadingLocations(false);
+    }
   }, [organogramId]);
 
-  
+  useEffect(() => {
+    loadDetailsAndLocations();
+  }, [loadDetailsAndLocations]);
 
-  const handleRowEditComplete = useCallback(
-    async (e) => {
-      const { newData, index } = e;
-      setLocations((prev) => {
-        const next = [...prev];
-        next[index] = newData;
-        return next;
-      });
-        console.log("==============||empLevelPL - Payload||============", empLevelPL);
-      try {
-        setSavingRow(true);
-        const payload = {
-          ID: newData.LOC_ID,
-          ORGANOGRAM_ID: organogramId,
-          GEO_ID: newData.GEO_ID,
-          EFFEC_FROM: formatDateForApi(newData.FROM_DATE),
-          EFFEC_TO: formatDateForApi(newData.TO_DATE),
-          DIVSN_ID: newData.__divsnId,
-          EMP_LEVEL: empLevelPL, // add this
-        };
-        const res = await saveOrganogramLocation(payload);
-        if (res?.status) {
-          notifySuccess(res?.message || "Location saved.");
-        } else {
-          notifyError(res?.message || "Unable to save location.");
-        }
-      } catch (error) {
-        console.error("Save location row error:", error);
-        notifyError(error?.message || "Unable to save location.");
-      } finally {
-        setSavingRow(false);
-      }
-    },
-    [organogramId, empLevelPL]
-  );
-
-  const handleRowEditCancel = useCallback(() => {
-    // No optimistic mutation happens before save, so nothing to revert.
-  }, []);
-
-  // THIS was the missing piece — defined earlier in conversation but
-  // never actually returned from the hook.
   const getGeoMappingOptionsForRow = useCallback(
     (row) => {
       const key = buildGeoMappingCacheKey(row.__divsnId, row.EFFEC_FROM_RAW);
       const fetched = geoMappingOptionsMap[key] || [];
 
-      // Guarantee the row's currently assigned GEO_ID is always present
-      // as an option — even when the API returns no matching geo-mapping
-      // rows for this division/level/date combo — so the dropdown can
-      // resolve a label and preselect instead of showing "Select" /
-      // "No available options" for a position that's actually assigned.
       const hasCurrentValue = fetched.some(
         (opt) => String(opt.value) === String(row.GEO_ID)
       );
@@ -353,15 +251,142 @@ const useLocationsTabHandler = (organogramId) => {
     [geoMappingOptionsMap]
   );
 
+  const getRowValidationErrors = useCallback(
+    (row) => {
+      const errors = {};
+
+      if (!row.GEO_ID && row.GEO_ID !== 0) {
+        errors.GEO_ID = "Geo Label is required.";
+      } else {
+        const options = getGeoMappingOptionsForRow(row);
+        const isValidOption = options.some(
+          (opt) => String(opt.value) === String(row.GEO_ID)
+        );
+        if (!isValidOption) {
+          errors.GEO_ID = "Selected Geo Label is not valid for this division/date.";
+        }
+      }
+
+      const fromDate = toDate(row.FROM_DATE);
+      if (!row.FROM_DATE) {
+        errors.FROM_DATE = "From Date is required.";
+      } else if (!fromDate) {
+        errors.FROM_DATE = "From Date is not a valid date.";
+      }
+
+      return errors;
+    },
+    [getGeoMappingOptionsForRow]
+  );
+
+  // Reverts any unsaved edits back to the last successfully loaded/saved
+  // state. Mode itself (list vs. edit) is controlled by the parent via
+  // the shared top toggle — this only ever resets data, never switches view.
+  const handleCancelEdits = useCallback(() => {
+    setLocations(savedSnapshotRef.current);
+  }, []);
+
+  const updateBulkRowField = useCallback((sno, field, value) => {
+    setLocations((prev) =>
+      prev.map((row) => {
+        if (row.SNO !== sno) return row;
+        const nextErrors = { ...row._errors };
+        delete nextErrors[field];
+        return { ...row, [field]: value, _errors: nextErrors };
+      })
+    );
+  }, []);
+
+  const hasRowChanged = (draft, original) =>
+    draft.GEO_ID !== original.GEO_ID ||
+    draft.FROM_DATE !== original.FROM_DATE ||
+    draft.TO_DATE !== original.TO_DATE;
+
+  const handleBulkSave = useCallback(
+    async (sendForAuth = false) => {
+      const rowErrors = {};
+      locations.forEach((row) => {
+        const errors = getRowValidationErrors(row);
+        if (Object.keys(errors).length > 0) rowErrors[row.SNO] = errors;
+      });
+
+      if (Object.keys(rowErrors).length > 0) {
+        setLocations((prev) =>
+          prev.map((row) => ({ ...row, _errors: rowErrors[row.SNO] || {} }))
+        );
+        notifyError(
+          `${Object.keys(rowErrors).length} position(s) have invalid or missing data. Please fix the highlighted rows.`
+        );
+        return;
+      }
+
+      const original = savedSnapshotRef.current;
+      const changedRows = locations.filter((row) => {
+        const originalRow = original.find((o) => o.SNO === row.SNO);
+        return !originalRow || hasRowChanged(row, originalRow);
+      });
+
+      if (changedRows.length === 0) {
+        notifySuccess("No changes to save.");
+        return;
+      }
+
+      const payload = {
+        ORGANOGRAM_ID: organogramId,
+        DIVSN_ID: changedRows[0]?.__divsnId,
+        EMP_LEVEL: empLevelPL,
+        sendForAuth,
+        ROWS: changedRows.map((r) => ({
+          ID: r.LOC_ID,
+          GEO_ID: r.GEO_ID,
+          EFFEC_FROM: formatDateForApi(r.FROM_DATE),
+          EFFEC_TO: formatDateForApi(r.TO_DATE),
+        })),
+      };
+
+      try {
+        setSavingAll(true);
+        const res = await saveOrganogramLocationsBulk(payload);
+
+        if (res?.status) {
+          notifySuccess(
+            res?.message ||
+              (sendForAuth
+                ? "Locations saved and sent for authorization."
+                : "Locations saved successfully."),
+            { onClose: onOrganogramSaved }
+          );
+          // Refresh from server so LOC_IDs / saved values are accurate,
+          // and reset the diff baseline for the next round of edits.
+          await loadDetailsAndLocations();
+        } else {
+          notifyError(res?.message || "Unable to save locations.");
+        }
+      } catch (error) {
+        console.error("Bulk save locations error:", error);
+        notifyError(error?.message || "Unable to save locations.");
+      } finally {
+        setSavingAll(false);
+      }
+    },
+    [locations, organogramId, empLevelPL, getRowValidationErrors, onOrganogramSaved, loadDetailsAndLocations]
+  );
+
+  const canSendForAuth = useMemo(() => {
+    return locations.every((row) => !row.status || row.status === "N");
+  }, [locations]);
+
   return {
     organogramDetails,
     locations,
     loadingDetails,
     loadingLocations,
-    savingRow,
-    handleRowEditComplete,
-    handleRowEditCancel,
     getGeoMappingOptionsForRow,
+    savingAll,
+    handleCancelEdits,
+    handleBulkSave,
+    updateBulkRowField,
+    canSendForAuth,
   };
 };
 

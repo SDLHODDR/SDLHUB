@@ -3,9 +3,9 @@ import {
   getOrganogramApprLevels,
   getApprLevelOptions,
   saveApprLevel,
-  saveApprLevelOrder,
 } from "../services/orgonogramService";
 import { notifyError, notifySuccess } from "../../../services/alertService";
+import { formatDateForApi } from "../../../utils/formatUtils";
 
 const useApprLevelTabHandler = (organogramId) => {
   const [apprLevels, setApprLevels] = useState([]);
@@ -13,7 +13,6 @@ const useApprLevelTabHandler = (organogramId) => {
 
   const [loadingApprLevels, setLoadingApprLevels] = useState(false);
   const [savingRow, setSavingRow] = useState(false);
-  const [reordering, setReordering] = useState(false);
 
   const loadApprLevels = useCallback(async () => {
     if (!organogramId) {
@@ -57,79 +56,42 @@ const useApprLevelTabHandler = (organogramId) => {
   }, [organogramId]);
 
   useEffect(() => {
-    loadApprLevels();
+    const load = async () => {
+      await loadApprLevels();
+    };
+    load();
   }, [loadApprLevels]);
 
-  const handleRowEditComplete = useCallback(
-    async (e) => {
-      const { newData, index } = e;
-      setApprLevels((prev) => {
-        const next = [...prev];
-        next[index] = newData;
-        return next;
-      });
-      
-      //console.log("==========NewData===================", newData);
+  const handleAddApprLevel = useCallback(
+    async (appraiserId, effectiveFrom) => {
+      if (!organogramId || !appraiserId || !effectiveFrom) return false;
+
       try {
         setSavingRow(true);
         const res = await saveApprLevel({
           ORG_ID: organogramId,
-          APPR_LEVEL: newData.APPR_LEVEL,
-          //APPR_ORGID: newData.APPR_ORGID,
-          APPR_ORGID: newData.NAME,
-          EFFEC_FROM: newData.EFFEC_FROM,
-          EFFEC_TO: newData.EFFEC_TO,
+          APPR_LEVEL: apprLevels.length + 1,
+          APPR_ORGID: appraiserId,
+          EFFEC_FROM: formatDateForApi(effectiveFrom),
+          EFFEC_TO: "",
         });
         if (res?.status) {
           notifySuccess(res?.message || "Appraisal level saved.");
-          loadApprLevels();
+          await loadApprLevels();
+          return true;
         } else {
           notifyError(res?.message || "Unable to save appraisal level.");
         }
       } catch (error) {
-        console.error("Save appraisal level row error:", error);
+        console.error("Add appraisal level error:", error);
         notifyError(error?.message || "Unable to save appraisal level.");
       } finally {
         setSavingRow(false);
       }
+
+      return false;
     },
-    [organogramId, loadApprLevels]
-  );
-
-  const handleRowEditCancel = useCallback(() => {}, []);
-
-  const handleRowReorder = useCallback(
-    async (e) => {
-      const reordered = e.value.map((row, idx) => ({
-        ...row,
-        APPR_LEVEL: idx + 1,
-      }));
-      setApprLevels(reordered);
-
-      try {
-        setReordering(true);
-        const res = await saveApprLevelOrder({
-          ORG_ID: organogramId,
-          ROWS: reordered.map((r) => ({
-            APPR_LEVEL: r.APPR_LEVEL,
-            APPR_ORGID: r.APPR_ORGID,
-          })),
-        });
-        if (res?.status) {
-          notifySuccess(res?.message || "Order updated.");
-        } else {
-          notifyError(res?.message || "Unable to update order.");
-          loadApprLevels();
-        }
-      } catch (error) {
-        console.error("Reorder appraisal levels error:", error);
-        notifyError(error?.message || "Unable to update order.");
-        loadApprLevels();
-      } finally {
-        setReordering(false);
-      }
-    },
-    [organogramId, loadApprLevels]
+    [organogramId, apprLevels.length, loadApprLevels]
   );
 
   return {
@@ -137,10 +99,7 @@ const useApprLevelTabHandler = (organogramId) => {
     apprOptions,
     loadingApprLevels,
     savingRow,
-    reordering,
-    handleRowEditComplete,
-    handleRowEditCancel,
-    handleRowReorder,
+    handleAddApprLevel,
   };
 };
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   getFinEntities,
   getCompanies,
@@ -65,6 +65,8 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
   const [loadingMasters, setLoadingMasters] = useState(false);
   const [loadingDesignations, setLoadingDesignations] = useState(false);
   const [loadingJdLabels, setLoadingJdLabels] = useState(false);
+
+  const isEditMode = !!organogramId;
 
   /* ==========================================================
       INITIAL MASTER DATA LOAD (unchanged)
@@ -226,21 +228,40 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
     if (formData.POSITION_OCCUPIED !== "" && Number.isNaN(Number(formData.POSITION_OCCUPIED))) {
       newErrors.POSITION_OCCUPIED = "Position occupied must be a number.";
     }
+    if(formData.POSITION_OCCUPIED > formData.POSITION_COUNT) {
+      newErrors.POSITION_OCCUPIED = "Position occupied must be less than Position count.";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [formData]);
 
-  const handleSave = useCallback(async () => {
+  const handleSave = useCallback(async (sendForAuth = false) => {
     if (!validate()) return;
     try {
       setSaving(true);
-      const payload = organogramId ? { ...formData, ID: organogramId } : formData;
+      const payload = {
+        ...formData,
+        ...(organogramId && { ID: organogramId }),
+        mode: isEditMode ? "edit" : "add",
+        sendForAuth, // true when "Save & Send for Auth" clicked
+      };
       const res = await saveOrganogram(payload);
 
       if (res?.status) {
-        notifySuccess(res?.message || "Organogram saved successfully.", {
-          onClose: onOrganogramSaved,
-        });
+        // Edit mode already knows its ID. Add mode needs it back from the API.
+        // TODO: confirm the actual key your backend returns the new ID under —
+        // assuming res.data.ID below; change if it's e.g. res.data.ORGANOGRAM_ID.
+        const savedId = organogramId ?? res?.data?.ID ?? res?.data?.id ?? null;
+
+        notifySuccess(
+          res?.message ||
+          (sendForAuth
+              ? "Organogram saved and sent for authorization."
+              : "Organogram saved successfully."),
+          { onClose: () => onOrganogramSaved?.(savedId) }
+        );
+        
       } else {
         notifyError(res?.message || "Unable to save organogram.", {
           onClose: onOrganogramSaved,
@@ -254,12 +275,19 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
     } finally {
       setSaving(false);
     }
-  }, [formData, validate, organogramId, onOrganogramSaved]);
+  }, [formData, validate, organogramId, onOrganogramSaved, isEditMode]);
 
   const handleCancel = useCallback(() => {
     setFormData(organogramId ? INITIAL_FORM_STATE : INITIAL_FORM_STATE);
     setErrors({});
   }, [organogramId]);
+
+  // status values are examples — match these to your actual enum
+  const canSendForAuth = useMemo(() => {
+    const status = formData?.status;
+    //return !status || status === "DRAFT" || status === "REJECTED";
+    return !status || status === "N";
+  }, [formData?.status]);
 
   return {
     formData,
@@ -280,6 +308,8 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
     loadingMasters,
     loadingDesignations,
     loadingJdLabels,
+    isEditMode,
+    canSendForAuth
   };
 };
 

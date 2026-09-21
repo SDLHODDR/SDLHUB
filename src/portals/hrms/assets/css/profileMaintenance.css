@@ -911,3 +911,18 @@ body {
 	/* background-color: #ffffff; */
     background-color: white;
 }
+
+/* global stylesheet, or a CSS module scoped to this table */
+.p-datatable .p-datatable-tbody > tr.p-row-editing > td {
+  vertical-align: top;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  vertical-align: top;
+}
+
+.invalid-feedback.d-block {
+  margin-top: 2px;
+  font-size: 0.75rem;
+  line-height: 1.1;
+}
