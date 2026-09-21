@@ -18,7 +18,6 @@ import {
 
 import {
   PROFILE_MESSAGES,
-  FAMILY_RELATIONS,
   FAMILY_DEPENDENT,
 } from "../../../../constants/profileMessages";
 
@@ -275,7 +274,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
   }, [familyData, searchQuery]);
 
   /* =========================================================
-     ADD FAMILY MEMBER
+     ADD FAMILY MEMBER MODAL OPEN
   ========================================================= */
 
   const handleAddFamily = () => {
@@ -304,7 +303,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
   };
 
   /* =========================================================
-     EDIT FAMILY MEMBER
+     EDIT FAMILY MEMBER MODAL OPEN
   ========================================================= */
 
   const handleEditFamily = (row) => {
@@ -340,7 +339,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
   };
 
   /* =========================================================
-     DELETE FAMILY MEMBER
+     DELETE FAMILY MEMBER (REQUEST ACTION: 'D')
   ========================================================= */
 
   const handleDeleteFamily = async (row) => {
@@ -351,45 +350,24 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
 
     const result = await confirmAction(
       PROFILE_MESSAGES.DELETE_FAMILY_TITLE,
-      PROFILE_MESSAGES.DELETE_FAMILY_MESSAGE(row.name)
+      `Are you sure you want to request removal of ${row.name}? This will be sent for authorization.`
     );
 
     if (!result?.isConfirmed) return;
 
     try {
-      const res = await deleteFamilyMember({ id: row.id });
+      // Calls saveFamilyMember with action 'D'
+      const res = await saveFamilyMember({
+        action: "D",
+        id: row.id,
+      });
 
       if (res?.status) {
-        let updatedChildren = [...children];
-        let updatedSpouse = { ...spouse };
-        let updatedMother = { ...mother };
-        let updatedFather = { ...father };
-
-        const targetRel = String(row.relation).toLowerCase();
-
-        if (["wife", "husband", "spouse"].includes(targetRel)) {
-          updatedSpouse = {};
-        } else if (targetRel === "mother") {
-          updatedMother = {};
-        } else if (targetRel === "father") {
-          updatedFather = {};
-        } else {
-          updatedChildren = children.filter(
-            (item) => String(item.ID) !== String(row.id)
-          );
-        }
-
-        setProfile((prev) => ({
-          ...prev,
-          spouse: updatedSpouse,
-          mother: updatedMother,
-          father: updatedFather,
-          children: updatedChildren,
-        }));
-
-        notifySuccess(PROFILE_MESSAGES.FAMILY_DELETED);
+        notifySuccess(
+          res?.message || "Family member removal request submitted for authorization."
+        );
       } else {
-        notifyError(res?.message || PROFILE_MESSAGES.FAMILY_DELETE_FAILED);
+        notifyError(res?.message || "Failed to submit removal request.");
       }
     } catch (error) {
       console.error("DELETE FAMILY ERROR:", error);
@@ -444,30 +422,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
   };
 
   /* =========================================================
-     CALCULATE AGE
-  ========================================================= */
-
-  const calculateAge = (dob) => {
-    if (!dob) return "";
-    const birthDate = parseFormDate(dob);
-    if (!birthDate) return "";
-
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birthDate.getDate())
-    ) {
-      age--;
-    }
-
-    return Math.max(age, 0);
-  };
-
-  /* =========================================================
-     SAVE FAMILY MEMBER
+     SAVE FAMILY MEMBER (REQUEST ACTION: 'A' or 'E')
   ========================================================= */
 
   const handleSaveFamily = async () => {
@@ -515,21 +470,19 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
       }
     }
 
-    /* =========================================================
-       RELATION DUPLICATE CHECK (ALLOWS MULTIPLE SONS / DAUGHTERS)
-    ========================================================= */
+    /* -------------------------------------------------------
+       RELATION DUPLICATE CHECK
+    ------------------------------------------------------- */
     const selectedRelation = familyForm.relation.trim().toLowerCase();
     const currentEditingId = editingMember
       ? String(familyForm.id || editingMember.id || "")
       : null;
 
-    // Filter out the member currently being updated
     const otherMembers = familyData.filter((member) => {
       if (!currentEditingId) return true;
       return String(member.id || "") !== currentEditingId;
     });
 
-    // Check Wife / Husband exclusivity (cannot have duplicate spouse records)
     if (selectedRelation === "wife" || selectedRelation === "husband") {
       const hasSpouse = otherMembers.some((m) => {
         const r = (m.relation || "").trim().toLowerCase();
@@ -544,7 +497,6 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
       }
     }
 
-    // Check Mother (single record only)
     if (selectedRelation === "mother") {
       const hasMother = otherMembers.some(
         (m) => (m.relation || "").trim().toLowerCase() === "mother"
@@ -555,7 +507,6 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
       }
     }
 
-    // Check Father (single record only)
     if (selectedRelation === "father") {
       const hasFather = otherMembers.some(
         (m) => (m.relation || "").trim().toLowerCase() === "father"
@@ -566,13 +517,14 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
       }
     }
 
-    // Note: 'son' and 'daughter' bypass all duplicate checks above
-
     /* -------------------------------------------------------
-       PAYLOAD
+       BUILD PAYLOAD
     ------------------------------------------------------- */
+    const isEdit = Boolean(editingMember && familyForm.id);
+
     const payload = {
-      id: editingMember ? familyForm.id : null,
+      action: isEdit ? "E" : "A",
+      id: isEdit ? familyForm.id : null,
       name: familyForm.name.trim(),
       relation: familyForm.relation,
       dependent: familyForm.dependent || FAMILY_DEPENDENT.DEPENDANT,
@@ -582,67 +534,13 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
     };
 
     /* -------------------------------------------------------
-       SAVE
+       SUBMIT FOR AUTHORIZATION
     ------------------------------------------------------- */
     try {
       setFamilySaving(true);
       const res = await saveFamilyMember(payload);
 
       if (res?.status) {
-        let updatedChildren = [...children];
-        let updatedSpouse = { ...spouse };
-        let updatedMother = { ...mother };
-        let updatedFather = { ...father };
-
-        const updatedMemberData = {
-          ID: familyForm.id || res?.data?.id || null,
-          FM_NAME: familyForm.name.trim(),
-          FM_RELATION: familyForm.relation,
-          FM_DEP: familyForm.dependent || FAMILY_DEPENDENT.DEPENDANT,
-          DOB: familyForm.dob || "",
-          OCCUPATION: familyForm.occupation?.trim() || "",
-          AADHAAR: familyForm.aadhaar?.trim() || "",
-          AGE: calculateAge(familyForm.dob),
-        };
-
-        const currentRel = familyForm.relation.trim().toLowerCase();
-
-        /* EDIT EXISTING MEMBER */
-        if (editingMember) {
-          if (["wife", "husband"].includes(currentRel)) {
-            updatedSpouse = { ...updatedSpouse, ...updatedMemberData };
-          } else if (currentRel === "mother") {
-            updatedMother = { ...updatedMother, ...updatedMemberData };
-          } else if (currentRel === "father") {
-            updatedFather = { ...updatedFather, ...updatedMemberData };
-          } else {
-            updatedChildren = updatedChildren.map((item) =>
-              String(item.ID) === String(familyForm.id)
-                ? { ...item, ...updatedMemberData }
-                : item
-            );
-          }
-        } else {
-          /* ADD NEW MEMBER */
-          if (["wife", "husband"].includes(currentRel)) {
-            updatedSpouse = updatedMemberData;
-          } else if (currentRel === "mother") {
-            updatedMother = updatedMemberData;
-          } else if (currentRel === "father") {
-            updatedFather = updatedMemberData;
-          } else {
-            updatedChildren.push(updatedMemberData);
-          }
-        }
-
-        setProfile((prev) => ({
-          ...prev,
-          spouse: updatedSpouse,
-          mother: updatedMother,
-          father: updatedFather,
-          children: updatedChildren,
-        }));
-
         setShowFamilyForm(false);
         setEditingMember(null);
         setFamilyErrors({
@@ -651,9 +549,10 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
         });
 
         notifySuccess(
-          editingMember
-            ? PROFILE_MESSAGES.FAMILY_UPDATED
-            : PROFILE_MESSAGES.FAMILY_ADDED
+          res?.message ||
+            (isEdit
+              ? "Family member update request submitted for authorization."
+              : "Family member addition request submitted for authorization.")
         );
       } else {
         notifyError(res?.message || PROFILE_MESSAGES.FAMILY_SAVE_FAILED);
@@ -983,12 +882,12 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
                         role="status"
                         aria-hidden="true"
                       ></span>
-                      Saving...
+                      Submitting...
                     </>
                   ) : editingMember ? (
-                    "Update"
+                    "Submit Update Request"
                   ) : (
-                    "Save"
+                    "Submit Request"
                   )}
                 </button>
               </div>
