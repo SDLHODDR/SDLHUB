@@ -34,7 +34,7 @@ export const notifyError = (message, options = {}) => {
   });
 };
 
-export const notifyWarning = (
+/*export const notifyWarning = (
   message,
   title = "Warning"
 ) => {
@@ -48,6 +48,30 @@ export const notifyWarning = (
       confirmButton: "dreampos-btn-warning",
     },
     buttonsStyling: false,
+  });
+};*/
+
+export const notifyWarning = (
+  message,
+  title = "Warning",
+  options = {}
+) => {
+  // Automatically detect if message contains HTML markup or if options.isHtml is true
+  const isHtml = options.isHtml || (typeof message === "string" && /<[a-z][\s\S]*>/i.test(message));
+
+  return Swal.fire({
+    icon: "warning",
+    title,
+    ...(isHtml ? { html: message } : { text: message }),
+    confirmButtonText: "OK",
+    customClass: {
+      popup: "dreampos-popup",
+      confirmButton: "dreampos-btn-warning",
+    },
+    buttonsStyling: false,
+    didClose: () => {
+      options.onClose?.();
+    },
   });
 };
 
