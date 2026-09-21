@@ -86,6 +86,7 @@ export const HRMS_API = {
     GET_ORGANOGRAM_GEOLOCATIONS: "/masterdata/orgonogram/getOrganogramGeoLocations.php",
     GET_ORGANOGRAM_EMPLOYEES: "/masterdata/orgonogram/getOrganogramEmployees.php",
     SAVE_ORGANOGRAM_LOCATION: "/masterdata/orgonogram/saveOrganogramLocationData.php",
+    SAVE_ORGANOGRAM_LOCATION_BULK: "/masterdata/orgonogram/saveOrganogramLocationDataBulk.php",
     GET_ORGANOGRAM_DIVISION: "/masterdata/orgonogram/getOrganogramDivisions.php",
     GET_ORG_GEO_MAPPING_OPTIONS: "/masterdata/orgonogram/getOrgGeoMapping.php",
     GET_ORG_LOC_REPORTING_MANAGER: "/masterdata/orgonogram/getOrgLocReportingMgr.php",

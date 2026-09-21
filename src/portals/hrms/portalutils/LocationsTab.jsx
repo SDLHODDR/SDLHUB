@@ -1,29 +1,34 @@
-import { useState } from "react";
 import { DataTable } from "primereact/datatable";
 import useLocationsTabHandler from "./useLocationsTabHandler";
 import { getLocationsColumns, renderLocationsColumns } from "./locationsColumns";
 
-const LocationsTab = ({ organogramId, onNavigateToTab, onOrganogramSaved }) => {
+const LocationsTab = ({ organogramId, onNavigateToTab, onOrganogramSaved, showAll }) => {
   const {
     organogramDetails,
     locations,
     loadingDetails,
     loadingLocations,
-    handleRowEditComplete,
-    handleRowEditCancel,
     getGeoMappingOptionsForRow,
-    validateLocationRow,
-    clearRowFieldError,
+    savingAll,
+    handleCancelEdits,
+    handleBulkSave,
+    updateBulkRowField,
+    canSendForAuth,
   } = useLocationsTabHandler(organogramId, onOrganogramSaved);
 
-  const [editingRows, setEditingRows] = useState({});
+  // Mode is driven entirely by the shared top toggle (Organogram.jsx) —
+  // no local button or state needed anymore. showAll=true -> plain list
+  // (matches KRA's list mode); showAll=false -> editable form with
+  // pickers/dropdown, matching KRA's default form mode.
+  const isEditing = !showAll;
 
   const isLoading = loadingDetails || loadingLocations;
 
   const columnDefs = getLocationsColumns({
     organogramDetails,
     getGeoMappingOptions: getGeoMappingOptionsForRow,
-    clearRowFieldError,
+    isEditing,
+    updateBulkRowField,
   });
 
   const columns = renderLocationsColumns(columnDefs, {
@@ -34,21 +39,51 @@ const LocationsTab = ({ organogramId, onNavigateToTab, onOrganogramSaved }) => {
   });
 
   return (
-    <DataTable
-      value={locations}
-      loading={isLoading}
-      editMode="row"
-      dataKey="SNO"
-      editingRows={editingRows}
-      onRowEditChange={(e) => setEditingRows(e.data)}
-      rowEditValidator={validateLocationRow}
-      onRowEditComplete={handleRowEditComplete}
-      onRowEditCancel={handleRowEditCancel}
-      size="small"
-      emptyMessage="No positions defined for this organogram."
-    >
-      {columns}
-    </DataTable>
+    <div>
+      <DataTable
+        key={isEditing ? "edit" : "view"}
+        value={locations}
+        loading={isLoading}
+        dataKey="SNO"
+        size="small"
+        emptyMessage="No positions defined for this organogram."
+      >
+        {columns}
+      </DataTable>
+
+      {isEditing && (
+        <div className="d-flex justify-content-end gap-2 mt-3">
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => handleBulkSave(false)}
+            disabled={savingAll}
+          >
+            {savingAll ? "Saving..." : "Save/Update"}
+          </button>
+
+          {canSendForAuth && (
+            <button
+              type="button"
+              className="btn btn-success"
+              onClick={() => handleBulkSave(true)}
+              disabled={savingAll}
+            >
+              {savingAll ? "Sending..." : "Save/Update & Send for Auth"}
+            </button>
+          )}
+
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleCancelEdits}
+            disabled={savingAll}
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+    </div>
   );
 };
 

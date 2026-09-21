@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
   getOrganogramDetails,
   getOrganogramLocations,
   getHrDivision,
   getGeoMappingOptions,
   getOrgLocReportingManager,
-  saveOrganogramLocation,
+  saveOrganogramLocationsBulk,
 } from "../services/orgonogramService";
 import { notifyError, notifySuccess } from "../../../services/alertService";
 import { formatDateForApi } from "../../../utils/formatUtils";
@@ -41,9 +41,6 @@ const buildLocationRows = (posiCount, savedRows = [], divisionMap = {}, reportin
   return rows;
 };
 
-/* ==========================================================
-    VALIDATION HELPERS
-========================================================== */
 const toDate = (value) => {
   if (!value) return null;
   const d = value instanceof Date ? value : new Date(value);
@@ -167,79 +164,78 @@ const useLocationsTabHandler = (organogramId, onOrganogramSaved) => {
 
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [loadingLocations, setLoadingLocations] = useState(false);
-  const [savingRow, setSavingRow] = useState(false);
   const [empLevelPL, setEmpLevelPL] = useState(null);
+  const [savingAll, setSavingAll] = useState(false);
 
-  useEffect(() => {
+  // Baseline used to diff on save (only send changed rows) and to restore
+  // on Cancel. Refreshed after every successful load AND after every
+  // successful save, so the next diff always starts clean. Editing is no
+  // longer a separately-entered mode — it's just whichever state
+  // `locations` is in versus this snapshot.
+  const savedSnapshotRef = useRef([]);
+
+  const loadDetailsAndLocations = useCallback(async () => {
     if (!organogramId) {
       setOrganogramDetails(null);
       setLocations([]);
       setGeoMappingOptionsMap({});
+      savedSnapshotRef.current = [];
       return;
     }
 
-    const loadDetailsAndLocations = async () => {
-      try {
-        setLoadingDetails(true);
-        setLoadingLocations(true);
+    try {
+      setLoadingDetails(true);
+      setLoadingLocations(true);
 
-        const detailsRes = await getOrganogramDetails({ ID: organogramId });
-        if (!detailsRes?.status) {
-          notifyError(detailsRes?.message || "Unable to load organogram details.");
-          return;
-        }
-        setOrganogramDetails(detailsRes.data);
-
-        const posiCount = Number(detailsRes.data?.POSI_COUNT) || 0;
-        const empLevel = detailsRes.data?.EMP_LEVEL;
-        const divsnId = detailsRes.data?.DIVSN_ID;
-        setEmpLevelPL(empLevel);
-
-        const locationsRes = await getOrganogramLocations({ ID: organogramId });
-        const savedRows = Array.isArray(locationsRes)
-          ? locationsRes
-          : Array.isArray(locationsRes?.data)
-            ? locationsRes.data
-            : [];
-
-        // Build the row skeletons FIRST (empty divisionMap/reportingMap placeholders) —
-        // this is the actual shape the dropdown editor will render against,
-        // covering every position (posiCount), not just ones with saved data.
-        const rowSkeletons = buildLocationRows(posiCount, savedRows, {}, {}, divsnId);
-
-        const [divisionMap, geoMappingMap, reportingMap] = await Promise.all([
-          empLevel === "15" ? fetchDivisionMap(savedRows) : Promise.resolve({}),
-          fetchGeoMappingOptionsMap(empLevel, rowSkeletons),
-          fetchReportingMap(savedRows),
-        ]);
-
-        setGeoMappingOptionsMap(geoMappingMap);
-        setLocations(buildLocationRows(posiCount, savedRows, divisionMap, reportingMap, divsnId));
-      } catch (error) {
-        console.error("Load location details error:", error);
-        notifyError(error?.message || "Unable to load location details.");
-      } finally {
-        setLoadingDetails(false);
-        setLoadingLocations(false);
+      const detailsRes = await getOrganogramDetails({ ID: organogramId });
+      if (!detailsRes?.status) {
+        notifyError(detailsRes?.message || "Unable to load organogram details.");
+        return;
       }
-    };
+      setOrganogramDetails(detailsRes.data);
 
-    loadDetailsAndLocations();
+      const posiCount = Number(detailsRes.data?.POSI_COUNT) || 0;
+      const empLevel = detailsRes.data?.EMP_LEVEL;
+      const divsnId = detailsRes.data?.DIVSN_ID;
+      setEmpLevelPL(empLevel);
+
+      const locationsRes = await getOrganogramLocations({ ID: organogramId });
+      const savedRows = Array.isArray(locationsRes)
+        ? locationsRes
+        : Array.isArray(locationsRes?.data)
+          ? locationsRes.data
+          : [];
+
+      const rowSkeletons = buildLocationRows(posiCount, savedRows, {}, {}, divsnId);
+
+      const [divisionMap, geoMappingMap, reportingMap] = await Promise.all([
+        empLevel === "15" ? fetchDivisionMap(savedRows) : Promise.resolve({}),
+        fetchGeoMappingOptionsMap(empLevel, rowSkeletons),
+        fetchReportingMap(savedRows),
+      ]);
+
+      setGeoMappingOptionsMap(geoMappingMap);
+      const freshRows = buildLocationRows(posiCount, savedRows, divisionMap, reportingMap, divsnId);
+      setLocations(freshRows);
+      savedSnapshotRef.current = freshRows;
+    } catch (error) {
+      console.error("Load location details error:", error);
+      notifyError(error?.message || "Unable to load location details.");
+    } finally {
+      setLoadingDetails(false);
+      setLoadingLocations(false);
+    }
   }, [organogramId]);
 
-  // Declared before getRowValidationErrors (which reads it) — const/useCallback
-  // bindings aren't hoisted, so this must come first or referencing it below
-  // throws a "Cannot access before initialization" error on render.
+  useEffect(() => {
+    loadDetailsAndLocations();
+  }, [loadDetailsAndLocations]);
+
   const getGeoMappingOptionsForRow = useCallback(
     (row) => {
       const key = buildGeoMappingCacheKey(row.__divsnId, row.EFFEC_FROM_RAW);
       const fetched = geoMappingOptionsMap[key] || [];
 
-      // Guarantee the row's currently assigned GEO_ID is always present
-      // as an option — even when the API returns no matching geo-mapping
-      // rows for this division/level/date combo — so the dropdown can
-      // resolve a label and preselect instead of showing "Select" /
-      // "No available options" for a position that's actually assigned.
       const hasCurrentValue = fetched.some(
         (opt) => String(opt.value) === String(row.GEO_ID)
       );
@@ -255,13 +251,10 @@ const useLocationsTabHandler = (organogramId, onOrganogramSaved) => {
     [geoMappingOptionsMap]
   );
 
-  // Returns a field-keyed error object, e.g. { GEO_ID: "...", FROM_DATE: "..." },
-  // so each message can be rendered under its own input.
   const getRowValidationErrors = useCallback(
     (row) => {
       const errors = {};
 
-      /* ---- Geo Label dropdown ---- */
       if (!row.GEO_ID && row.GEO_ID !== 0) {
         errors.GEO_ID = "Geo Label is required.";
       } else {
@@ -274,7 +267,6 @@ const useLocationsTabHandler = (organogramId, onOrganogramSaved) => {
         }
       }
 
-      /* ---- From Date ---- */
       const fromDate = toDate(row.FROM_DATE);
       if (!row.FROM_DATE) {
         errors.FROM_DATE = "From Date is required.";
@@ -287,119 +279,114 @@ const useLocationsTabHandler = (organogramId, onOrganogramSaved) => {
     [getGeoMappingOptionsForRow]
   );
 
-  // PrimeReact rowEditValidator signature: (data, options) => boolean.
-  // Stores field-level messages directly on the row object in `locations`
-  // (as `_errors`) so the editor templates — which render off rowData —
-  // pick them up on the very next render. A separate rowErrors state object
-  // was tried and dropped: it didn't reliably trigger PrimeReact's row-edit
-  // cell templates to re-render.
-  const validateLocationRow = useCallback(
-    (rowData) => {
-      const errors = getRowValidationErrors(rowData);
-      const hasErrors = Object.keys(errors).length > 0;
+  // Reverts any unsaved edits back to the last successfully loaded/saved
+  // state. Mode itself (list vs. edit) is controlled by the parent via
+  // the shared top toggle — this only ever resets data, never switches view.
+  const handleCancelEdits = useCallback(() => {
+    setLocations(savedSnapshotRef.current);
+  }, []);
 
-      setLocations((prev) =>
-        prev.map((row) => (row.SNO === rowData.SNO ? { ...row, _errors: errors } : row))
-      );
-
-      if (hasErrors) {
-        // Fallback popup alongside the inline messages, so validation is
-        // never silently blocked even if the inline message goes unnoticed.
-        notifyError(Object.values(errors).join(" "));
-      }
-
-      return !hasErrors; // false keeps the row open in edit mode
-    },
-    [getRowValidationErrors]
-  );
-
-  // Call from an editor's onChange so the message clears the moment the
-  // user fixes that specific field, without waiting for the next save attempt.
-  const clearRowFieldError = useCallback((sno, field) => {
+  const updateBulkRowField = useCallback((sno, field, value) => {
     setLocations((prev) =>
       prev.map((row) => {
-        if (row.SNO !== sno || !row._errors?.[field]) return row;
-        const { [field]: _omit, ...rest } = row._errors;
-        return { ...row, _errors: rest };
+        if (row.SNO !== sno) return row;
+        const nextErrors = { ...row._errors };
+        delete nextErrors[field];
+        return { ...row, [field]: value, _errors: nextErrors };
       })
     );
   }, []);
 
-  const handleRowEditComplete = useCallback(
-    async (e) => {
-      const { newData, index } = e;
+  const hasRowChanged = (draft, original) =>
+    draft.GEO_ID !== original.GEO_ID ||
+    draft.FROM_DATE !== original.FROM_DATE ||
+    draft.TO_DATE !== original.TO_DATE;
 
-      // Defensive re-check: rowEditValidator should already have blocked
-      // invalid data from reaching here, but this guards against the
-      // handler ever being wired without a validator.
-      const errors = getRowValidationErrors(newData);
-      if (Object.keys(errors).length > 0) {
+  const handleBulkSave = useCallback(
+    async (sendForAuth = false) => {
+      const rowErrors = {};
+      locations.forEach((row) => {
+        const errors = getRowValidationErrors(row);
+        if (Object.keys(errors).length > 0) rowErrors[row.SNO] = errors;
+      });
+
+      if (Object.keys(rowErrors).length > 0) {
         setLocations((prev) =>
-          prev.map((row) => (row.SNO === newData.SNO ? { ...row, _errors: errors } : row))
+          prev.map((row) => ({ ...row, _errors: rowErrors[row.SNO] || {} }))
         );
-        notifyError(Object.values(errors).join(" "));
+        notifyError(
+          `${Object.keys(rowErrors).length} position(s) have invalid or missing data. Please fix the highlighted rows.`
+        );
         return;
       }
 
-      setLocations((prev) => {
-        const next = [...prev];
-        next[index] = { ...newData, _errors: {} };
-        return next;
+      const original = savedSnapshotRef.current;
+      const changedRows = locations.filter((row) => {
+        const originalRow = original.find((o) => o.SNO === row.SNO);
+        return !originalRow || hasRowChanged(row, originalRow);
       });
 
+      if (changedRows.length === 0) {
+        notifySuccess("No changes to save.");
+        return;
+      }
+
+      const payload = {
+        ORGANOGRAM_ID: organogramId,
+        DIVSN_ID: changedRows[0]?.__divsnId,
+        EMP_LEVEL: empLevelPL,
+        sendForAuth,
+        ROWS: changedRows.map((r) => ({
+          ID: r.LOC_ID,
+          GEO_ID: r.GEO_ID,
+          EFFEC_FROM: formatDateForApi(r.FROM_DATE),
+          EFFEC_TO: formatDateForApi(r.TO_DATE),
+        })),
+      };
+
       try {
-        setSavingRow(true);
-        const payload = {
-          ID: newData.LOC_ID,
-          ORGANOGRAM_ID: organogramId,
-          GEO_ID: newData.GEO_ID,
-          EFFEC_FROM: formatDateForApi(newData.FROM_DATE),
-          EFFEC_TO: formatDateForApi(newData.TO_DATE),
-          DIVSN_ID: newData.__divsnId,
-          EMP_LEVEL: empLevelPL,
-        };
-        const res = await saveOrganogramLocation(payload);
+        setSavingAll(true);
+        const res = await saveOrganogramLocationsBulk(payload);
+
         if (res?.status) {
-          notifySuccess(res?.message || "Location saved successfully.", {
-            onClose: onOrganogramSaved,
-          });
+          notifySuccess(
+            res?.message ||
+              (sendForAuth
+                ? "Locations saved and sent for authorization."
+                : "Locations saved successfully."),
+            { onClose: onOrganogramSaved }
+          );
+          // Refresh from server so LOC_IDs / saved values are accurate,
+          // and reset the diff baseline for the next round of edits.
+          await loadDetailsAndLocations();
         } else {
-          notifyError(res?.message || "Unable to save location.", {
-            onClose: onOrganogramSaved,
-          });
+          notifyError(res?.message || "Unable to save locations.");
         }
       } catch (error) {
-        console.error("Save location row error:", error);
-        notifyError(error?.message || "Unable to save location.", {
-          onClose: onOrganogramSaved,
-        });
+        console.error("Bulk save locations error:", error);
+        notifyError(error?.message || "Unable to save locations.");
       } finally {
-        setSavingRow(false);
+        setSavingAll(false);
       }
     },
-    [organogramId, empLevelPL, getRowValidationErrors, onOrganogramSaved]
+    [locations, organogramId, empLevelPL, getRowValidationErrors, onOrganogramSaved, loadDetailsAndLocations]
   );
 
-  const handleRowEditCancel = useCallback((e) => {
-    const sno = e?.data?.SNO;
-    if (sno != null) {
-      setLocations((prev) =>
-        prev.map((row) => (row.SNO === sno ? { ...row, _errors: {} } : row))
-      );
-    }
-  }, []);
+  const canSendForAuth = useMemo(() => {
+    return locations.every((row) => !row.status || row.status === "N");
+  }, [locations]);
 
   return {
     organogramDetails,
     locations,
     loadingDetails,
     loadingLocations,
-    savingRow,
-    handleRowEditComplete,
-    handleRowEditCancel,
     getGeoMappingOptionsForRow,
-    validateLocationRow,
-    clearRowFieldError,
+    savingAll,
+    handleCancelEdits,
+    handleBulkSave,
+    updateBulkRowField,
+    canSendForAuth,
   };
 };
 

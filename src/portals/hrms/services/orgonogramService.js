@@ -140,6 +140,14 @@ export const saveOrganogramLocation = async (payload = {}) => {
   });
 }
 
+export const saveOrganogramLocationsBulk = async (payload = {}) => {
+  return hrmsRequest({
+    url: HRMS_API.MASTERDATA.SAVE_ORGANOGRAM_LOCATION_BULK,
+    method: "POST",
+    data: payload,
+  });
+}
+
 // Geo mapping options for EMP_LEVEL != 15, mirrors:
 // select hgm.GEO_ID, hgm.geo_desc||'('||hgm.geo_label||')' as GEO_DETAILS
 // from HR_SFM_NEW_GEO_MAPPING hgm

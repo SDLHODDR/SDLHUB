@@ -25,6 +25,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
     loadingDesignations,
     loadingJdLabels,
     isEditMode,
+    canSendForAuth,
   } = useOrganogramFormHandler(organogramId, onOrganogramSaved);
 
   
@@ -231,12 +232,40 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
       </div>
 
       {/* ACTIONS */}
-      <div className="d-flex justify-content-end gap-2 mt-3">
+      {/* <div className="d-flex justify-content-end gap-2 mt-3">
         <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}>
           {saving
             ? (isEditMode ? "Updating..." : "Saving...")
             : (isEditMode ? "Update" : "Save")}
         </button>
+        <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={saving}>
+          Cancel
+        </button>
+      </div> */}
+      {/* ACTIONS */}
+      <div className="d-flex justify-content-end gap-2 mt-3">
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => handleSave(false)}
+          disabled={saving}
+        >
+          {saving ? (isEditMode ? "Updating..." : "Saving...") : (isEditMode ? "Update" : "Save")}
+        </button>
+
+        {canSendForAuth && (
+          <button
+            type="button"
+            className="btn btn-success"
+            onClick={() => handleSave(true)}
+            disabled={saving}
+          >
+            {saving
+              ? (isEditMode ? "Updating..." : "Sending...")
+              : (isEditMode ? "Update & Send for Auth" : "Save & Send for Auth")}
+          </button>
+        )}
+
         <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={saving}>
           Cancel
         </button>

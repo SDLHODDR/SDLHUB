@@ -24,10 +24,13 @@ const parseDDMonYY = (str) => {
   return isNaN(date.getTime()) ? null : date;
 };
 
+const toEditableDate = (value) => (value instanceof Date ? value : parseDDMonYY(value));
+
 export const getLocationsColumns = ({
   organogramDetails,
   getGeoMappingOptions,
-  clearRowFieldError,
+  isEditing,
+  updateBulkRowField,
 }) => [
   {
     key: "SNO",
@@ -48,28 +51,19 @@ export const getLocationsColumns = ({
     header: "From Date",
     style: { width: "8%" },
     sortable: true,
-    body: (row) => row.FROM_DATE || "No Data",
-    editor: (options) => {
-      const rowData = options.rowData;
-      const fieldError = rowData._errors?.FROM_DATE;
-      const calendarValue =
-        options.value instanceof Date ? options.value : parseDDMonYY(options.value);
-
+    body: (row) => {
+      if (!isEditing) return row.FROM_DATE || "No Data";
+      const fieldError = row._errors?.FROM_DATE;
       return (
         <div>
           <Calendar
-            value={calendarValue}
-            onChange={(e) => {
-              options.editorCallback(e.value);
-              clearRowFieldError?.(rowData.SNO, "FROM_DATE");
-            }}
+            value={toEditableDate(row.FROM_DATE)}
+            onChange={(e) => updateBulkRowField(row.SNO, "FROM_DATE", e.value)}
             dateFormat="dd-M-yy"
             showIcon
             className={`sdl-locations-calendar${fieldError ? " p-invalid" : ""}`}
           />
-          {fieldError && (
-            <div className="invalid-feedback d-block">{fieldError}</div>
-          )}
+          {fieldError && <div className="invalid-feedback d-block">{fieldError}</div>}
         </div>
       );
     },
@@ -79,14 +73,12 @@ export const getLocationsColumns = ({
     header: "To Date",
     style: { width: "8%" },
     sortable: true,
-    body: (row) => row.TO_DATE || "No Data",
-    editor: (options) => {
-      const calendarValue =
-        options.value instanceof Date ? options.value : parseDDMonYY(options.value);
+    body: (row) => {
+      if (!isEditing) return row.TO_DATE || "No Data";
       return (
         <Calendar
-          value={calendarValue}
-          onChange={(e) => options.editorCallback(e.value)}
+          value={toEditableDate(row.TO_DATE)}
+          onChange={(e) => updateBulkRowField(row.SNO, "TO_DATE", e.value)}
           dateFormat="dd-M-yy"
           showIcon
           className="sdl-locations-calendar"
@@ -99,27 +91,20 @@ export const getLocationsColumns = ({
     header: "Geo Label",
     style: { width: "16%", minWidth: "180px" },
     sortable: true,
-    body: (row) => row.GEO_MAPPING_LABEL || row.DIVSN_DESC || row.GEODESC || "No Data",
-    editor: (options) => {
-      const rowData = options.rowData;
-      const fieldError = rowData._errors?.GEO_ID;
-      const geoOptions = getGeoMappingOptions(rowData);
-
+    body: (row) => {
+      if (!isEditing) return row.GEO_MAPPING_LABEL || row.DIVSN_DESC || row.GEODESC || "No Data";
+      const fieldError = row._errors?.GEO_ID;
+      const geoOptions = getGeoMappingOptions(row);
       return (
         <div style={{ minWidth: "160px" }}>
           <SDLReactSelect
-            value={options.value}
+            value={row.GEO_ID}
             options={geoOptions}
-            onChange={(value) => {
-              options.editorCallback(value);
-              clearRowFieldError?.(rowData.SNO, "GEO_ID");
-            }}
+            onChange={(value) => updateBulkRowField(row.SNO, "GEO_ID", value)}
             placeholder="Select"
             hasError={!!fieldError}
           />
-          {fieldError && (
-            <div className="invalid-feedback d-block">{fieldError}</div>
-          )}
+          {fieldError && <div className="invalid-feedback d-block">{fieldError}</div>}
         </div>
       );
     },
@@ -149,18 +134,8 @@ export const renderLocationsColumns = (columnDefs, { onShowAllowance, onShowRepo
       style={col.style}
       sortable={col.sortable}
       body={col.body}
-      editor={col.editor}
     />
   )),
-  // Without this, editMode="row" never triggers. Gives the pencil icon
-  // per row; clicking it swaps in check/times (save/cancel) icons for
-  // that row, firing onRowEditComplete / onRowEditCancel.
-  <Column
-    key="__rowEditor"
-    rowEditor
-    headerStyle={{ width: "6%" }}
-    bodyStyle={{ textAlign: "center", verticalAlign: "top" }}
-  />,
   <Column
     key="__actions"
     header=""
