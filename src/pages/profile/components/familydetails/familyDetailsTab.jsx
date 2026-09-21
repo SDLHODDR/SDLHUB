@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
@@ -30,8 +30,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
      PERMISSION
   ========================================================= */
 
-  const canManageFamily =
-    profile?.permissions?.can_manage_family || false;
+  const canManageFamily = profile?.permissions?.can_manage_family || false;
 
   /* =========================================================
      EXISTING FAMILY DATA
@@ -43,9 +42,10 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
   const father = profile?.father || {};
 
   /* =========================================================
-     STATE
+     STATE & REFS
   ========================================================= */
 
+  const fileInputRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showFamilyForm, setShowFamilyForm] = useState(false);
   const [editingMember, setEditingMember] = useState(null);
@@ -61,9 +61,12 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
     aadhaar: "",
   });
 
+  const [documentFile, setDocumentFile] = useState(null);
+
   const [familyErrors, setFamilyErrors] = useState({
     name: "",
     relation: "",
+    document: "",
   });
 
   /* =========================================================
@@ -77,9 +80,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
       return isNaN(value.getTime()) ? null : value;
     }
 
-    const valueString = String(value)
-      .trim()
-      .substring(0, 11);
+    const valueString = String(value).trim().substring(0, 11);
 
     /* YYYY-MM-DD */
     let match = valueString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -284,6 +285,9 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
     }
 
     setEditingMember(null);
+    setDocumentFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+
     setFamilyForm({
       id: "",
       name: "",
@@ -297,6 +301,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
     setFamilyErrors({
       name: "",
       relation: "",
+      document: "",
     });
 
     setShowFamilyForm(true);
@@ -319,6 +324,8 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
       ...row,
       id: row.id,
     });
+    setDocumentFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
 
     setFamilyForm({
       id: row.id,
@@ -333,6 +340,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
     setFamilyErrors({
       name: "",
       relation: "",
+      document: "",
     });
 
     setShowFamilyForm(true);
@@ -356,7 +364,6 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
     if (!result?.isConfirmed) return;
 
     try {
-      // Calls saveFamilyMember with action 'D'
       const res = await saveFamilyMember({
         action: "D",
         id: row.id,
@@ -364,18 +371,33 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
 
       if (res?.status) {
         notifySuccess(
-          res?.message || "Family member removal request submitted for authorization."
+          res?.message ||
+            "Family member removal request submitted for authorization."
         );
       } else {
-        notifyError(res?.message || "Failed to submit removal request.");
+        notifyWarning(
+          res?.message ||
+            "A request is already pending for this family member."
+        );
       }
     } catch (error) {
       console.error("DELETE FAMILY ERROR:", error);
-      notifyError(
-        error?.response?.data?.message ||
-          error?.message ||
-          PROFILE_MESSAGES.FAMILY_DELETE_ERROR
-      );
+
+      const responseData = error?.response?.data;
+      const errorMsg =
+        responseData?.message ||
+        error?.message ||
+        PROFILE_MESSAGES.FAMILY_DELETE_ERROR;
+
+      if (error?.response?.status === 409) {
+        const pendingDetails = responseData?.data?.pending_data;
+        const reqAction = responseData?.data?.req_action || "D";
+        notifyWarning(
+          renderPendingDetailsHtml(errorMsg, pendingDetails, reqAction)
+        );
+      } else {
+        notifyError(errorMsg);
+      }
     }
   };
 
@@ -422,6 +444,45 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
   };
 
   /* =========================================================
+     DOCUMENT FILE CHANGE HANDLER
+  ========================================================= */
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setDocumentFile(null);
+      return;
+    }
+
+    // Allowed extensions: pdf, jpg, jpeg, png
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"];
+    if (!allowedTypes.includes(file.type)) {
+      setFamilyErrors((prev) => ({
+        ...prev,
+        document: "Only PDF, JPG, or PNG files are permitted.",
+      }));
+      setDocumentFile(null);
+      e.target.value = "";
+      return;
+    }
+
+    // Size limit: 2MB
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setFamilyErrors((prev) => ({
+        ...prev,
+        document: "Document file size must be less than 2MB.",
+      }));
+      setDocumentFile(null);
+      e.target.value = "";
+      return;
+    }
+
+    setFamilyErrors((prev) => ({ ...prev, document: "" }));
+    setDocumentFile(file);
+  };
+
+  /* =========================================================
      SAVE FAMILY MEMBER (REQUEST ACTION: 'A' or 'E')
   ========================================================= */
 
@@ -437,6 +498,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
     const errors = {
       name: "",
       relation: "",
+      document: "",
     };
 
     if (!familyForm.name?.trim()) {
@@ -518,34 +580,62 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
     }
 
     /* -------------------------------------------------------
-       BUILD PAYLOAD
+       DUPLICATE MEMBER CHECK (NAME + RELATION)
+    ------------------------------------------------------- */
+    const trimmedName = familyForm.name.trim().toLowerCase();
+
+    const isDuplicate = otherMembers.some((m) => {
+      const existingName = (m.name || "").trim().toLowerCase();
+      const existingRelation = (m.relation || "").trim().toLowerCase();
+      return (
+        existingName === trimmedName && existingRelation === selectedRelation
+      );
+    });
+
+    if (isDuplicate) {
+      notifyWarning(
+        `A family member record with the name "${familyForm.name.trim()}" and relation "${familyForm.relation}" already exists.`
+      );
+      return;
+    }
+
+    /* -------------------------------------------------------
+       BUILD PAYLOAD (FormData supports both text and files)
     ------------------------------------------------------- */
     const isEdit = Boolean(editingMember && familyForm.id);
 
-    const payload = {
-      action: isEdit ? "E" : "A",
-      id: isEdit ? familyForm.id : null,
-      name: familyForm.name.trim(),
-      relation: familyForm.relation,
-      dependent: familyForm.dependent || FAMILY_DEPENDENT.DEPENDANT,
-      dob: familyForm.dob || "",
-      occupation: familyForm.occupation?.trim() || "",
-      aadhaar: familyForm.aadhaar?.trim() || "",
-    };
+    const formData = new FormData();
+    formData.append("action", isEdit ? "E" : "A");
+    if (isEdit) {
+      formData.append("id", familyForm.id);
+    }
+    formData.append("name", familyForm.name.trim());
+    formData.append("relation", familyForm.relation);
+    formData.append("dependent", familyForm.dependent || FAMILY_DEPENDENT.DEPENDANT);
+    formData.append("dob", familyForm.dob || "");
+    formData.append("occupation", familyForm.occupation?.trim() || "");
+    formData.append("aadhaar", familyForm.aadhaar?.trim() || "");
+
+    if (documentFile) {
+      formData.append("document", documentFile);
+    }
 
     /* -------------------------------------------------------
        SUBMIT FOR AUTHORIZATION
     ------------------------------------------------------- */
     try {
       setFamilySaving(true);
-      const res = await saveFamilyMember(payload);
+      const res = await saveFamilyMember(formData);
 
       if (res?.status) {
         setShowFamilyForm(false);
         setEditingMember(null);
+        setDocumentFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
         setFamilyErrors({
           name: "",
           relation: "",
+          document: "",
         });
 
         notifySuccess(
@@ -555,15 +645,26 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
               : "Family member addition request submitted for authorization.")
         );
       } else {
-        notifyError(res?.message || PROFILE_MESSAGES.FAMILY_SAVE_FAILED);
+        notifyWarning(res?.message || PROFILE_MESSAGES.FAMILY_SAVE_FAILED);
       }
     } catch (error) {
       console.error("SAVE FAMILY ERROR:", error);
-      notifyError(
-        error?.response?.data?.message ||
-          error?.message ||
-          PROFILE_MESSAGES.FAMILY_SAVE_ERROR
-      );
+
+      const responseData = error?.response?.data;
+      const errorMsg =
+        responseData?.message ||
+        error?.message ||
+        PROFILE_MESSAGES.FAMILY_SAVE_ERROR;
+
+      if (error?.response?.status === 409) {
+        const pendingDetails = responseData?.data?.pending_data;
+        const reqAction = responseData?.data?.req_action || (isEdit ? "E" : "A");
+        notifyWarning(
+          renderPendingDetailsHtml(errorMsg, pendingDetails, reqAction)
+        );
+      } else {
+        notifyError(errorMsg);
+      }
     } finally {
       setFamilySaving(false);
     }
@@ -578,9 +679,12 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
 
     setShowFamilyForm(false);
     setEditingMember(null);
+    setDocumentFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
     setFamilyErrors({
       name: "",
       relation: "",
+      document: "",
     });
   };
 
@@ -662,6 +766,64 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
   ];
 
   /* =========================================================
+    Render Pending Details in Popup (Clean Card Format)
+  ========================================================== */
+  const renderPendingDetailsHtml = (message, pendingData, reqAction = "E") => {
+    if (!pendingData || Object.keys(pendingData).length === 0) {
+      return `<div style="font-size: 0.95rem; color: #4b5563; line-height: 1.5;">${message}</div>`;
+    }
+
+    let cardTitle = "Pending Update Details";
+    if (reqAction === "D") {
+      cardTitle = "Pending Removal Details";
+    } else if (reqAction === "A") {
+      cardTitle = "Pending Addition Details";
+    }
+
+    const fields = [
+      { label: "Name", value: pendingData.name },
+      { label: "Relation", value: pendingData.relation },
+      { label: "Date of Birth", value: pendingData.dob },
+      { label: "Dependent", value: pendingData.dependent },
+      { label: "Occupation", value: pendingData.occupation },
+    ];
+
+    const detailRows = fields
+      .filter((f) => Boolean(f.value))
+      .map(
+        (f) => `
+        <tr style="border-bottom: 1px solid #edf2f7;">
+          <td style="padding: 7px 12px; font-weight: 500; color: #64748b; width: 38%;">${f.label}</td>
+          <td style="padding: 7px 12px; font-weight: 600; color: #1e293b;">${f.value}</td>
+        </tr>`
+      )
+      .join("");
+
+    if (!detailRows) {
+      return `<div style="font-size: 0.95rem; color: #4b5563; line-height: 1.5;">${message}</div>`;
+    }
+
+    return `
+      <div style="text-align: left; font-size: 0.9rem;">
+        <p style="color: #475569; margin-bottom: 14px; text-align: center; line-height: 1.5;">
+          ${message}
+        </p>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+          <div style="background: #f1f5f9; padding: 8px 12px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: #475569; letter-spacing: 0.04em; border-bottom: 1px solid #e2e8f0;">
+            ${cardTitle}
+          </div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem;">
+            <tbody>
+              ${detailRows}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  };
+
+  /* =========================================================
      RENDER
   ========================================================= */
 
@@ -723,17 +885,17 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
               {/* MODAL HEADER */}
               <div className="modal-header">
                 <h5 className="modal-title">
-                  {editingMember
-                    ? "Edit Family Member"
-                    : "Add Family Member"}
+                  {editingMember ? "Edit Family Member" : "Add Family Member"}
                 </h5>
                 <button
                   type="button"
-                  className="btn-close"
+                  className="close"
                   aria-label="Close"
                   onClick={handleCloseFamilyForm}
                   disabled={familySaving}
-                ></button>
+                >
+                  <span aria-hidden="true"> ×</span>
+                </button>
               </div>
 
               {/* MODAL BODY */}
@@ -855,6 +1017,40 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
                       className="form-control"
                     />
                   </div>
+
+                  {/* DOCUMENT UPLOAD (Birth certificate, ID proof, etc.) */}
+                  <div className="col-md-12 mb-3">
+                    <label className="form-label d-flex justify-content-between">
+                      <span>
+                        Supporting Document{" "}
+                        <small className="text-muted">
+                          (e.g., Birth Certificate, Marriage Certificate, ID Proof)
+                        </small>
+                      </span>
+                      <small className="text-muted">Max 2MB (PDF, JPG, PNG)</small>
+                    </label>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      name="document"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={handleFileChange}
+                      className={`form-control ${
+                        familyErrors.document ? "is-invalid" : ""
+                      }`}
+                    />
+                    {familyErrors.document && (
+                      <div className="invalid-feedback d-block">
+                        {familyErrors.document}
+                      </div>
+                    )}
+                    {documentFile && (
+                      <div className="small text-success mt-1 d-flex align-items-center gap-1">
+                        <i className="ti ti-check"></i>
+                        <span>Selected file: {documentFile.name} ({(documentFile.size / 1024).toFixed(1)} KB)</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -862,16 +1058,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
               <div className="modal-footer">
                 <button
                   type="button"
-                  className="btn btn-light"
-                  onClick={handleCloseFamilyForm}
-                  disabled={familySaving}
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="button"
-                  className="btn btn-primary"
+                  className="btn btn-primary me-2"
                   onClick={handleSaveFamily}
                   disabled={familySaving}
                 >
@@ -889,6 +1076,15 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
                   ) : (
                     "Submit Request"
                   )}
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleCloseFamilyForm}
+                  disabled={familySaving}
+                >
+                  Cancel
                 </button>
               </div>
             </div>
