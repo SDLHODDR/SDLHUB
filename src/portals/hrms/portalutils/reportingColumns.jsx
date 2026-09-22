@@ -1,10 +1,7 @@
 import { Column } from "primereact/column";
 //import { Dropdown } from "primereact/dropdown";
-import { Calendar } from "primereact/calendar";
-import { parseDDMonYY } from "../../../utils/formatUtils";
-import SDLReactSelect from "../../../components/SDLReactSelect";
 
-export const getReportingColumns = ({ getParentOptionsForRow }) => [
+export const getReportingColumns = () => [
   {
     key: "NO",
     header: "No",
@@ -22,54 +19,22 @@ export const getReportingColumns = ({ getParentOptionsForRow }) => [
     header: "Parent Organogram Location",
     style: { width: "35%" },
     body: (row) => row.ORGNM ?? "",
-    editor: (opts) => (
-      <SDLReactSelect
-        value={opts.value}
-        options={getParentOptionsForRow(opts.rowData)}
-        onChange={(value) => opts.editorCallback(value)}
-        placeholder=" Parent Location"
-      />
-    ),
   },
   {
     key: "EFFEC_FROM",
     header: "Effec From",
     style: { width: "17%" },
     body: (row) => row.EFFEC_FROM || "",
-    editor: (opts) => {
-       const calendarValue = opts.value instanceof Date ? opts.value : parseDDMonYY(opts.value);
-        return (
-          <Calendar
-            value={calendarValue}
-            onChange={(e) => opts.editorCallback(e.value)}
-            dateFormat="dd-M-yy"
-            showIcon
-            className="sdl-locations-calendar"
-          />
-        );
-      },
   },
   {
     key: "EFFEC_TO",
     header: "Effec To",
     style: { width: "18%" },
     body: (row) => row.EFFEC_TO || "",
-    editor: (opts) => {
-       const calendarValue = opts.value instanceof Date ? opts.value : parseDDMonYY(opts.value);
-        return (
-          <Calendar
-            value={calendarValue}
-            onChange={(e) => opts.editorCallback(e.value)}
-            dateFormat="dd-M-yy"
-            showIcon
-            className="sdl-locations-calendar"
-          />
-        );
-      },
   },
 ];
 
-export const renderReportingColumns = (columnDefs) => [
+export const renderReportingColumns = (columnDefs, { onEdit } = {}) => [
   ...columnDefs.map((col) => (
     <Column
       key={col.key}
@@ -77,13 +42,22 @@ export const renderReportingColumns = (columnDefs) => [
       header={col.header}
       style={col.style}
       body={col.body}
-      editor={col.editor}
     />
   )),
   <Column
-    key="__rowEditor"
-    rowEditor
-    headerStyle={{ width: "8%" }}
-    bodyStyle={{ textAlign: "center" }}
+    key="__actions"
+    header=""
+    style={{ width: "8%" }}
+    body={(row) => (
+      <button
+        type="button"
+        className="btn btn-sm btn-outline-primary"
+        onClick={() => onEdit?.(row)}
+        title="Edit reporting"
+        aria-label="Edit reporting"
+      >
+        <i className="fas fa-edit" />
+      </button>
+    )}
   />,
 ];

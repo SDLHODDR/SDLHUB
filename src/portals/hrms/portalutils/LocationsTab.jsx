@@ -2,7 +2,7 @@ import { DataTable } from "primereact/datatable";
 import useLocationsTabHandler from "./useLocationsTabHandler";
 import { getLocationsColumns, renderLocationsColumns } from "./locationsColumns";
 
-const LocationsTab = ({ organogramId, onNavigateToTab, onOrganogramSaved, showAll }) => {
+const LocationsTab = ({ organogramId, onNavigateToTab, onOrganogramSaved, showAll, onCancelEdit }) => {
   const {
     organogramDetails,
     locations,
@@ -13,7 +13,6 @@ const LocationsTab = ({ organogramId, onNavigateToTab, onOrganogramSaved, showAl
     handleCancelEdits,
     handleBulkSave,
     updateBulkRowField,
-    canSendForAuth,
   } = useLocationsTabHandler(organogramId, onOrganogramSaved);
 
   // Mode is driven entirely by the shared top toggle (Organogram.jsx) —
@@ -59,24 +58,16 @@ const LocationsTab = ({ organogramId, onNavigateToTab, onOrganogramSaved, showAl
             onClick={() => handleBulkSave(false)}
             disabled={savingAll}
           >
-            {savingAll ? "Saving..." : "Save/Update"}
+            {savingAll ? "Saving..." : "Save"}
           </button>
-
-          {canSendForAuth && (
-            <button
-              type="button"
-              className="btn btn-success"
-              onClick={() => handleBulkSave(true)}
-              disabled={savingAll}
-            >
-              {savingAll ? "Sending..." : "Save/Update & Send for Auth"}
-            </button>
-          )}
 
           <button
             type="button"
             className="btn btn-secondary"
-            onClick={handleCancelEdits}
+            onClick={() => {
+              handleCancelEdits();
+              onCancelEdit?.();
+            }}
             disabled={savingAll}
           >
             Cancel

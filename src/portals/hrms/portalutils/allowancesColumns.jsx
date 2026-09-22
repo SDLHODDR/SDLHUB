@@ -1,15 +1,6 @@
 import { Column } from "primereact/column";
-import { Calendar } from "primereact/calendar";
-import SDLTagSelect from "../../../components/SDLTagSelect"; // adjust path to actual location
 
-export const getAllowancesColumns = ({
-  allowanceOptions,
-  loadingOptions,
-  selectedAllowIds,
-  setSelectedAllowIds,
-  newEffecFrom,
-  setNewEffecFrom,
-}) => [
+export const getAllowancesColumns = () => [
   {
     key: "NO",
     header: "No",
@@ -20,57 +11,23 @@ export const getAllowancesColumns = ({
     key: "ALLOWANCE",
     header: "Allowance",
     style: { width: "50%" },
-    body: (row) =>
-      row.__isNew ? (
-        // <SDLTagSelect
-        //   id="allowanceSelect"
-        //   options={allowanceOptions}
-        //   value={selectedAllowIds}
-        //   onChange={setSelectedAllowIds}
-        //   placeholder="Select Allowance"
-        //   disabled={loadingOptions}
-        // />
-        <SDLTagSelect
-          id="allowanceSelect"
-          options={allowanceOptions}
-          value={selectedAllowIds}
-          onChange={setSelectedAllowIds}
-          placeholder={loadingOptions ? "Loading..." : "Select Allowance"}
-          disabled={false}
-        />
-      ) : (
-        row.ALLOW_DESC ?? ""
-      ),
+    body: (row) => row.ALLOW_DESC ?? "",
   },
   {
     key: "FROM_DATE",
     header: "From Date",
     style: { width: "20%" },
-    body: (row) =>
-      row.__isNew ? (
-        <Calendar
-          value={newEffecFrom}
-          onChange={(e) => setNewEffecFrom(e.value)}
-          dateFormat="dd-M-yyyy"
-          showIcon
-          className="sdl-locations-calendar"
-        />
-      ) : (
-        row.EFFEC_FROM || ""
-      ),
+    body: (row) => row.EFFEC_FROM || "",
   },
   {
     key: "TO_DATE",
     header: "To Date",
     style: { width: "20%" },
-    body: (row) => (row.__isNew ? "" : row.EFFEC_TO || ""),
+    body: (row) => row.EFFEC_TO || "",
   },
 ];
 
-export const renderAllowancesColumns = (
-  columnDefs,
-  { onSave, onCancel, onDelete, saving, deletingId }
-) => [
+export const renderAllowancesColumns = (columnDefs, { onEdit, onDelete, deletingId }) => [
   ...columnDefs.map((col) => (
     <Column
       key={col.key}
@@ -84,40 +41,23 @@ export const renderAllowancesColumns = (
     key="__actions"
     header=""
     style={{ width: "5%" }}
-    body={(row) => {
-      if (row.__isNew) {
-        return (
-          <div className="d-flex gap-2 justify-content-center">
-            <a
-              title="Save"
-              onClick={saving ? undefined : onSave}
-              style={{ cursor: saving ? "not-allowed" : "pointer" }}
-            >
-              <i className="fas fa-check text-success icon-md" />
-            </a>
-            <a
-              title="Cancel"
-              onClick={saving ? undefined : onCancel}
-              style={{ cursor: saving ? "not-allowed" : "pointer" }}
-            >
-              <i className="fas fa-times text-danger icon-md" />
-            </a>
-          </div>
-        );
-      }
-      // legacy: delete only shown when EFFEC_TO is blank
-      if (String(row.EFFEC_TO || "").trim() === "") {
-        return (
-          <a
-            title="Delete"
+    body={(row) => (
+      <div className="d-flex gap-2 justify-content-center">
+        <button type="button" className="btn btn-sm btn-outline-primary" title="Edit allowance" onClick={() => onEdit?.(row)}>
+          <i className="fas fa-edit" />
+        </button>
+        {String(row.EFFEC_TO || "").trim() === "" && (
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-danger"
+            title="Delete allowance"
             onClick={deletingId === row.ID ? undefined : () => onDelete(row)}
-            style={{ cursor: deletingId === row.ID ? "not-allowed" : "pointer" }}
+            disabled={deletingId === row.ID}
           >
-            <i className="fas fa-trash text-info icon-md" />
-          </a>
-        );
-      }
-      return null;
-    }}
+            <i className="fas fa-trash" />
+          </button>
+        )}
+      </div>
+    )}
   />,
 ];

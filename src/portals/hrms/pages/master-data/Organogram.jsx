@@ -44,6 +44,10 @@ const Organogram = () => {
   // Global list/form toggle shared by the tabs that support both views.
   const [showAll, setShowAll] = useState(false);
 
+  const handleCancelEdit = useCallback(() => {
+    setShowAll(true);
+  }, []);
+
   /* ==========================================================
         LOAD PROFILES
     ========================================================== */
@@ -80,7 +84,12 @@ const Organogram = () => {
     }));
   }, [orgonogram]);
 
-  const { tabs, selectedTab, handleTabChange, tabContent } = useSDLTabComponentHandler(selectedOrganogram, loadOrgonogram, showAll);
+  const { tabs, selectedTab, handleTabChange, tabContent } = useSDLTabComponentHandler(
+    selectedOrganogram,
+    loadOrgonogram,
+    showAll,
+    handleCancelEdit
+  );
 
   /* ==========================================================
       TOGGLE: list <-> form

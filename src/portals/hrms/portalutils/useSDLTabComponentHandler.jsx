@@ -6,7 +6,7 @@ import ReportingTab from "./ReportingTab";
 import AllowancesTab from "./AllowancesTab";
 
 // showAll is the shared top-toggle state for tabs with list/form views.
-const useSDLTabComponentHandler = (organogramId, onOrganogramSaved, showAll) => {
+const useSDLTabComponentHandler = (organogramId, onOrganogramSaved, showAll, onCancelEdit) => {
   const tabs = useMemo(() => {
     const base = [{ key: "organogram", label: "Organogram" }];
     if (organogramId) {
@@ -51,24 +51,40 @@ const useSDLTabComponentHandler = (organogramId, onOrganogramSaved, showAll) => 
             onNavigateToTab={handleTabChange}
             onOrganogramSaved={onOrganogramSaved}
             showAll={showAll}
+            onCancelEdit={onCancelEdit}
           />
         );
       case "appraisalLevels":
-        return <AppraisalLevelsTab organogramId={organogramId} showAll={showAll} />;
+        return (
+          <AppraisalLevelsTab
+            organogramId={organogramId}
+            showAll={showAll}
+            onCancelEdit={onCancelEdit}
+          />
+        );
       case "reporting":
-        return <ReportingTab organogramId={organogramId} locId={tabContext?.LOC_ID} />;
+        return (
+          <ReportingTab
+            organogramId={organogramId}
+            locId={tabContext?.LOC_ID}
+            showAll={showAll}
+            onCancelEdit={onCancelEdit}
+          />
+        );
       case "allowances":
         return (
           <AllowancesTab
             organogramId={organogramId}
             locId={tabContext?.LOC_ID}
             allowId={tabContext?.ALLOW_ID}
+            showAll={showAll}
+            onCancelEdit={onCancelEdit}
           />
         );
       default:
         return null;
     }
-  }, [selectedTab, organogramId, tabContext, handleTabChange, onOrganogramSaved, showAll]);
+  }, [selectedTab, organogramId, tabContext, handleTabChange, onOrganogramSaved, showAll, onCancelEdit]);
 
   return { tabs, selectedTab, handleTabChange, tabContent };
 };
