@@ -546,9 +546,9 @@ const OutdoorDutyModal = ({
           }
 
           // New: attachment required only when adding Post Remarks
-          if (!attachment && !existingAttachment) {
-              newErrors.ATTACHMENT = "Attachment is required when adding Post Remarks";
-          }
+          // if (!attachment && !existingAttachment) {
+          //     newErrors.ATTACHMENT = "Attachment is required when adding Post Remarks";
+          // }
         }
 
         setErrors(newErrors);
