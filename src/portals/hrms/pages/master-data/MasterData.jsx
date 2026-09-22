@@ -1,57 +1,58 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   getMasterTables,
   getMasterData,
-  saveMasterData,
-} from "../../services/masterDataService";
-import BreadcrumbNav from "../../../eportal/components/breadcrumb-nav/BreadcrumbNav";
-import { notifyError, notifySuccess } from "../../../../services/alertService";
-import { getPortalFromPath } from "../../../../config/portalConfig";
+  saveMasterData
+} from '../../services/masterDataService'
+import BreadcrumbNav from '../../../eportal/components/breadcrumb-nav/BreadcrumbNav'
+import { notifyError, notifySuccess } from '../../../../services/alertService'
+import { getPortalFromPath } from '../../../../config/portalConfig'
+import EditButton from "../../components/buttons/EditButton"
 
-import "../../assets/css/masterData.css";
+import '../../assets/css/masterData.css'
 
 const MasterData = () => {
   /* ==========================================================
      STATE
   ========================================================== */
 
-  const [masterTables, setMasterTables] = useState([]);
-  const [selectedMaster, setSelectedMaster] = useState(null);
+  const [masterTables, setMasterTables] = useState([])
+  const [selectedMaster, setSelectedMaster] = useState(null)
 
-  const [masterData, setMasterData] = useState([]);
+  const [masterData, setMasterData] = useState([])
 
-  const [loadingTables, setLoadingTables] = useState(true);
-  const [loadingData, setLoadingData] = useState(false);
+  const [loadingTables, setLoadingTables] = useState(true)
+  const [loadingData, setLoadingData] = useState(false)
 
   /* =========================
      EDIT
   ========================= */
-  const saveLockRef = useRef(false);
+  const saveLockRef = useRef(false)
 
-  const [editingId, setEditingId] = useState(null);
-  const [editDescription, setEditDescription] = useState("");
+  const [editingId, setEditingId] = useState(null)
+  const [editDescription, setEditDescription] = useState('')
 
   /* =========================
      ADD
   ========================= */
-  const DESCRIPTION_MAX_LENGTH = 100;
+  const DESCRIPTION_MAX_LENGTH = 100
 
-  const [isAdding, setIsAdding] = useState(false);
-  const [newDescription, setNewDescription] = useState("");
+  const [isAdding, setIsAdding] = useState(false)
+  const [newDescription, setNewDescription] = useState('')
 
   /* =========================
      SAVE
   ========================= */
 
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useState(false)
 
   /* ==========================================================
      PORTAL
   ========================================================== */
 
-  const portal = getPortalFromPath(location.pathname);
+  const portal = getPortalFromPath(location.pathname)
 
-  const portalHome = `/${portal.key}/dashboard`;
+  const portalHome = `/${portal.key}/dashboard`
 
   /* ==========================================================
      LOAD MASTER DATA
@@ -63,36 +64,36 @@ const MasterData = () => {
      manually inserting/updating React state.
   ========================================================== */
 
-  const loadMasterData = useCallback(async (tabName) => {
+  const loadMasterData = useCallback(async tabName => {
     if (!tabName) {
-      setMasterData([]);
-      return;
+      setMasterData([])
+      return
     }
 
     try {
-      setLoadingData(true);
+      setLoadingData(true)
 
-      const res = await getMasterData(tabName);
+      const res = await getMasterData(tabName)
 
       if (res?.status) {
-        const records = res?.data?.records;
+        const records = res?.data?.records
 
-        setMasterData(Array.isArray(records) ? records : []);
+        setMasterData(Array.isArray(records) ? records : [])
       } else {
-        setMasterData([]);
+        setMasterData([])
 
-        notifyError(res?.message || "Unable to load master data.");
+        notifyError(res?.message || 'Unable to load master data.')
       }
     } catch (error) {
-      console.error("Master data error:", error);
+      console.error('Master data error:', error)
 
-      setMasterData([]);
+      setMasterData([])
 
-      notifyError(error?.message || "Unable to load master data.");
+      notifyError(error?.message || 'Unable to load master data.')
     } finally {
-      setLoadingData(false);
+      setLoadingData(false)
     }
-  }, []);
+  }, [])
 
   /* ==========================================================
      LOAD MASTER TABLES
@@ -101,36 +102,36 @@ const MasterData = () => {
   useEffect(() => {
     const loadMasterTables = async () => {
       try {
-        setLoadingTables(true);
+        setLoadingTables(true)
 
-        const res = await getMasterTables();
+        const res = await getMasterTables()
 
         if (res?.status) {
-          const tables = res.data || [];
+          const tables = res.data || []
 
-          setMasterTables(tables);
+          setMasterTables(tables)
 
           /* ================================================
              SELECT FIRST MASTER BY DEFAULT
           ================================================ */
 
           if (tables.length > 0) {
-            setSelectedMaster(tables[0]);
+            setSelectedMaster(tables[0])
           }
         } else {
-          notifyError(res?.message || "Unable to load master tables.");
+          notifyError(res?.message || 'Unable to load master tables.')
         }
       } catch (error) {
-        console.error("Master table error:", error);
+        console.error('Master table error:', error)
 
-        notifyError(error?.message || "Unable to load master tables.");
+        notifyError(error?.message || 'Unable to load master tables.')
       } finally {
-        setLoadingTables(false);
+        setLoadingTables(false)
       }
-    };
+    }
 
-    loadMasterTables();
-  }, []);
+    loadMasterTables()
+  }, [])
 
   /* ==========================================================
      LOAD DATA WHEN MASTER TABLE CHANGES
@@ -138,51 +139,51 @@ const MasterData = () => {
 
   useEffect(() => {
     if (!selectedMaster?.tabName) {
-      setMasterData([]);
-      return;
+      setMasterData([])
+      return
     }
 
     /* ----------------------------------------------
        Reset Add / Edit state when changing master
     ---------------------------------------------- */
 
-    setEditingId(null);
-    setEditDescription("");
+    setEditingId(null)
+    setEditDescription('')
 
-    setIsAdding(false);
-    setNewDescription("");
+    setIsAdding(false)
+    setNewDescription('')
 
-    loadMasterData(selectedMaster.tabName);
-  }, [selectedMaster, loadMasterData]);
+    loadMasterData(selectedMaster.tabName)
+  }, [selectedMaster, loadMasterData])
 
   /* ==========================================================
      HANDLE MASTER TABLE CHANGE
   ========================================================== */
 
-  const handleMasterChange = (master) => {
+  const handleMasterChange = master => {
     if (saving || isAdding || editingId !== null) {
-      return;
+      return
     }
 
-    setSelectedMaster(master);
-  };
+    setSelectedMaster(master)
+  }
 
   /* ==========================================================
      EDIT
   ========================================================== */
 
-  const handleEdit = (row) => {
+  const handleEdit = row => {
     if (saving || isAdding) {
-      return;
+      return
     }
 
-    setIsAdding(false);
-    setNewDescription("");
+    setIsAdding(false)
+    setNewDescription('')
 
-    setEditingId(row.id);
+    setEditingId(row.id)
 
-    setEditDescription(row.description || "");
-  };
+    setEditDescription(row.description || '')
+  }
 
   /* ==========================================================
      CANCEL EDIT
@@ -190,74 +191,70 @@ const MasterData = () => {
 
   const handleCancelEdit = () => {
     if (saving) {
-      return;
+      return
     }
 
-    setEditingId(null);
-    setEditDescription("");
-  };
+    setEditingId(null)
+    setEditDescription('')
+  }
 
   /* ==========================================================
      SAVE EDIT
   ========================================================== */
 
-  const handleSaveEdit = async (row) => {
-    const description = editDescription.trim();
+  const handleSaveEdit = async row => {
+    const description = editDescription.trim()
 
     if (!description) {
-      notifyError("Description is required.");
-      return;
+      notifyError('Description is required.')
+      return
     }
 
     if (description.length > DESCRIPTION_MAX_LENGTH) {
       notifyError(
         `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters.`
-      );
-      return;
+      )
+      return
     }
 
     if (!selectedMaster?.tabName) {
-      notifyError("Please select a master table.");
-      return;
+      notifyError('Please select a master table.')
+      return
     }
 
     if (saving || saveLockRef.current) {
-      return;
+      return
     }
 
-    saveLockRef.current = true;
-    setSaving(true);
+    saveLockRef.current = true
+    setSaving(true)
 
     try {
       const res = await saveMasterData({
         tabName: selectedMaster.tabName,
         id: row.id,
-        description,
-      });
+        description
+      })
 
       if (res?.status) {
-        setEditingId(null);
-        setEditDescription("");
+        setEditingId(null)
+        setEditDescription('')
 
-        await loadMasterData(selectedMaster.tabName);
+        await loadMasterData(selectedMaster.tabName)
 
-        notifySuccess(
-          res.message || "Master record updated successfully."
-        );
+        notifySuccess(res.message || 'Master record updated successfully.')
       } else {
-        notifyError(res?.message || "Unable to update record.");
+        notifyError(res?.message || 'Unable to update record.')
       }
     } catch (error) {
-      console.error("Update master data error:", error);
+      console.error('Update master data error:', error)
 
-      notifyError(
-        error?.message || "Unable to update record."
-      );
+      notifyError(error?.message || 'Unable to update record.')
     } finally {
-      saveLockRef.current = false;
-      setSaving(false);
+      saveLockRef.current = false
+      setSaving(false)
     }
-  };
+  }
 
   /* ==========================================================
      ADD
@@ -265,23 +262,23 @@ const MasterData = () => {
 
   const handleAdd = () => {
     if (saving || editingId !== null) {
-      return;
+      return
     }
 
     /* ----------------------------------------------
        Clear edit mode
     ---------------------------------------------- */
 
-    setEditingId(null);
-    setEditDescription("");
+    setEditingId(null)
+    setEditDescription('')
 
     /* ----------------------------------------------
        Open new row
     ---------------------------------------------- */
 
-    setIsAdding(true);
-    setNewDescription("");
-  };
+    setIsAdding(true)
+    setNewDescription('')
+  }
 
   /* ==========================================================
      CANCEL ADD
@@ -289,110 +286,106 @@ const MasterData = () => {
 
   const handleCancelAdd = () => {
     if (saving) {
-      return;
+      return
     }
 
-    setIsAdding(false);
-    setNewDescription("");
-  };
+    setIsAdding(false)
+    setNewDescription('')
+  }
 
   /* ==========================================================
      SAVE ADD
   ========================================================== */
 
   const handleSaveAdd = async () => {
-    const description = newDescription.trim();
+    const description = newDescription.trim()
 
     if (!description) {
-      notifyError("Description is required.");
-      return;
+      notifyError('Description is required.')
+      return
     }
 
     if (description.length > DESCRIPTION_MAX_LENGTH) {
       notifyError(
         `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters.`
-      );
-      return;
+      )
+      return
     }
 
     if (!selectedMaster?.tabName) {
-      notifyError("Please select a master table.");
-      return;
+      notifyError('Please select a master table.')
+      return
     }
 
     if (saving || saveLockRef.current) {
-      return;
+      return
     }
 
-    saveLockRef.current = true;
-    setSaving(true);
+    saveLockRef.current = true
+    setSaving(true)
 
     try {
       const res = await saveMasterData({
         tabName: selectedMaster.tabName,
-        id: "",
-        description,
-      });
+        id: '',
+        description
+      })
 
       if (res?.status) {
-        setIsAdding(false);
-        setNewDescription("");
+        setIsAdding(false)
+        setNewDescription('')
 
-        await loadMasterData(selectedMaster.tabName);
+        await loadMasterData(selectedMaster.tabName)
 
-        notifySuccess(
-          res.message || "Master record added successfully."
-        );
+        notifySuccess(res.message || 'Master record added successfully.')
       } else {
-        notifyError(res?.message || "Unable to add record.");
+        notifyError(res?.message || 'Unable to add record.')
       }
     } catch (error) {
-      console.error("Add master data error:", error);
+      console.error('Add master data error:', error)
 
-      notifyError(
-        error?.message || "Unable to add record."
-      );
+      notifyError(error?.message || 'Unable to add record.')
     } finally {
-      saveLockRef.current = false;
-      setSaving(false);
+      saveLockRef.current = false
+      setSaving(false)
     }
-  };
+  }
 
   /* ==========================================================
      KEYBOARD HANDLER - ADD
   ========================================================== */
 
-  const handleAddKeyDown = (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
+  const handleAddKeyDown = event => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
 
-      handleSaveAdd();
+      handleSaveAdd()
     }
 
-    if (event.key === "Escape") {
-      event.preventDefault();
+    if (event.key === 'Escape') {
+      event.preventDefault()
 
-      handleCancelAdd();
+      handleCancelAdd()
     }
-  };
+  }
 
   /* ==========================================================
      KEYBOARD HANDLER - EDIT
   ========================================================== */
 
   const handleEditKeyDown = (event, row) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
+    if (event.key === 'Enter') {
+      event.preventDefault()
 
-      handleSaveEdit(row);
+      handleSaveEdit(row)
     }
 
-    if (event.key === "Escape") {
-      event.preventDefault();
+    if (event.key === 'Escape') {
+      event.preventDefault()
 
-      handleCancelEdit();
+      handleCancelEdit()
     }
-  };
+  }
 
   /* ==========================================================
      RENDER
@@ -404,20 +397,22 @@ const MasterData = () => {
           PAGE HEADER
       ===================================================== */}
 
-      <div className="page-header">
-        <div className="page-title">
-          <h4>Masters Master</h4>
+      <div className='page-header' style={{ marginBottom: '8px' }}>
+        <div className='add-item d-flex'>
+          <div className='page-title'>
+            <h4>Masters Master</h4>
+          </div>
         </div>
 
         <BreadcrumbNav
           items={[
             {
-              text: "Home",
-              link: portalHome,
+              text: 'Home',
+              link: portalHome
             },
             {
-              text: "Masters Master",
-            },
+              text: 'Masters Master'
+            }
           ]}
         />
       </div>
@@ -426,49 +421,49 @@ const MasterData = () => {
           MAIN CARD
       ===================================================== */}
 
-      <div className="card">
-        <div className="card-body">
+      <div className='card'>
+        <div className='card-body'>
           {/* =================================================
               TITLE
           ================================================= */}
 
-          <div className="text-center mb-3">
-            <h6 className="fw-semibold">Select Master Table :</h6>
+          <div className='text-center mb-3'>
+            <h6 className='fw-semibold'>Select Master Table :</h6>
           </div>
 
-          <div className="row">
+          <div className='row'>
             {/* =================================================
                 LEFT MASTER TABLE LIST
             ================================================= */}
 
-            <div className="col-lg-3">
-              <div className="hrms-master-list">
+            <div className='col-lg-3'>
+              <div className='hrms-master-list'>
                 {loadingTables ? (
-                  <div className="text-center py-3">
+                  <div className='text-center py-3'>
                     <div
-                      className="spinner-border spinner-border-sm text-warning"
-                      role="status"
+                      className='spinner-border spinner-border-sm text-warning'
+                      role='status'
                     />
                   </div>
                 ) : masterTables.length === 0 ? (
-                  <div className="text-muted text-center">
+                  <div className='text-muted text-center'>
                     No master tables found.
                   </div>
                 ) : (
-                  masterTables.map((master) => {
-                    const active = selectedMaster?.tabName === master.tabName;
+                  masterTables.map(master => {
+                    const active = selectedMaster?.tabName === master.tabName
 
                     return (
                       <button
                         key={master.tabName}
-                        type="button"
-                        className={`hrms-master-tab ${active ? "active" : ""}`}
+                        type='button'
+                        className={`hrms-master-tab ${active ? 'active' : ''}`}
                         onClick={() => handleMasterChange(master)}
                         disabled={saving || isAdding || editingId !== null}
                       >
                         {master.title}
                       </button>
-                    );
+                    )
                   })
                 )}
               </div>
@@ -478,17 +473,17 @@ const MasterData = () => {
                 RIGHT DATA TABLE
             ================================================= */}
 
-            <div className="col-lg-9">
-              <div className="table-responsive">
+            <div className='col-lg-9'>
+              <div className='table-responsive'>
                 <table
-                  className="
+                  className='
                     table
                     table-bordered
                     table-hover
                     align-middle
                     mb-0
                     hrms-master-data-table
-                  "
+                  '
                 >
                   {/* =================================================
                       TABLE HEADER
@@ -499,15 +494,15 @@ const MasterData = () => {
                       <th>Description</th>
 
                       <th
-                        className="text-center"
+                        className='text-center'
                         style={{
-                          width: "85px",
+                          width: '85px'
                         }}
                       >
                         <button
-                          type="button"
-                          className="btn btn-link p-0 hrms-add-btn"
-                          title="Add"
+                          type='button'
+                          className='btn btn-link p-0 hrms-add-btn'
+                          title='Add'
                           onClick={handleAdd}
                           disabled={
                             isAdding ||
@@ -516,7 +511,7 @@ const MasterData = () => {
                             loadingData
                           }
                         >
-                          <i className="ti ti-plus" />
+                          <i className='ti ti-plus' />
                         </button>
                       </th>
                     </tr>
@@ -532,62 +527,62 @@ const MasterData = () => {
                     ================================================= */}
 
                     {isAdding && (
-                      <tr className="hrms-new-row">
+                      <tr className='hrms-new-row'>
                         <td>
                           <input
-                            type="text"
-                            className="form-control form-control-sm"
+                            type='text'
+                            className='form-control form-control-sm'
                             value={newDescription}
-                            onChange={(event) => {
-                              const value = event.target.value;
+                            onChange={event => {
+                              const value = event.target.value
 
                               if (value.length <= DESCRIPTION_MAX_LENGTH) {
-                                setNewDescription(value);
+                                setNewDescription(value)
                               }
                             }}
                             onKeyDown={handleAddKeyDown}
-                            placeholder="Enter description"
+                            placeholder='Enter description'
                             maxLength={DESCRIPTION_MAX_LENGTH}
                             autoFocus
                             disabled={saving}
                           />
 
-                          <small className="text-muted">
+                          <small className='text-muted'>
                             {newDescription.length}/{DESCRIPTION_MAX_LENGTH}
                           </small>
                         </td>
 
-                        <td className="text-center">
+                        <td className='text-center'>
                           {/* SAVE */}
 
                           <button
-                            type="button"
-                            className="btn btn-link p-0 hrms-save-btn me-2"
-                            title="Save"
+                            type='button'
+                            className='btn btn-link p-0 hrms-save-btn me-2'
+                            title='Save'
                             onClick={handleSaveAdd}
                             disabled={saving}
                           >
                             {saving ? (
                               <span
-                                className="spinner-border spinner-border-sm"
-                                role="status"
-                                aria-hidden="true"
+                                className='spinner-border spinner-border-sm'
+                                role='status'
+                                aria-hidden='true'
                               />
                             ) : (
-                              <i className="ti ti-check" />
+                              <i className='ti ti-check' />
                             )}
                           </button>
 
                           {/* CANCEL */}
 
                           <button
-                            type="button"
-                            className="btn btn-link p-0 hrms-cancel-btn"
-                            title="Cancel"
+                            type='button'
+                            className='btn btn-link p-0 hrms-cancel-btn'
+                            title='Cancel'
                             onClick={handleCancelAdd}
                             disabled={saving}
                           >
-                            <i className="ti ti-x" />
+                            <i className='ti ti-x' />
                           </button>
                         </td>
                       </tr>
@@ -599,13 +594,13 @@ const MasterData = () => {
 
                     {loadingData ? (
                       <tr>
-                        <td colSpan="2" className="text-center py-4">
+                        <td colSpan='2' className='text-center py-4'>
                           <div
-                            className="spinner-border spinner-border-sm text-warning"
-                            role="status"
+                            className='spinner-border spinner-border-sm text-warning'
+                            role='status'
                           />
 
-                          <span className="ms-2">Loading...</span>
+                          <span className='ms-2'>Loading...</span>
                         </td>
                       </tr>
                     ) : masterData.length === 0 && !isAdding ? (
@@ -614,7 +609,7 @@ const MasterData = () => {
                       ================================================= */
 
                       <tr>
-                        <td colSpan="2" className="text-center text-muted py-4">
+                        <td colSpan='2' className='text-center text-muted py-4'>
                           No records found.
                         </td>
                       </tr>
@@ -623,13 +618,13 @@ const MasterData = () => {
                           EXISTING RECORDS
                       ================================================= */
 
-                      masterData.map((row) => {
-                        const isEditing = editingId === row.id;
+                      masterData.map(row => {
+                        const isEditing = editingId === row.id
 
                         return (
                           <tr
                             key={row.id}
-                            className={isEditing ? "hrms-editing-row" : ""}
+                            className={isEditing ? 'hrms-editing-row' : ''}
                           >
                             {/* =========================================
                                 DESCRIPTION
@@ -638,27 +633,32 @@ const MasterData = () => {
                             <td>
                               {isEditing ? (
                                 <>
-                                <input
-                                  type="text"
-                                  className="form-control form-control-sm"
-                                  value={editDescription}
-                                  onChange={(event) => {
-                                    const value = event.target.value;
+                                  <input
+                                    type='text'
+                                    className='form-control form-control-sm'
+                                    value={editDescription}
+                                    onChange={event => {
+                                      const value = event.target.value
 
-                                    if (value.length <= DESCRIPTION_MAX_LENGTH) {
-                                      setEditDescription(value);
+                                      if (
+                                        value.length <= DESCRIPTION_MAX_LENGTH
+                                      ) {
+                                        setEditDescription(value)
+                                      }
+                                    }}
+                                    onKeyDown={event =>
+                                      handleEditKeyDown(event, row)
                                     }
-                                  }}
-                                  onKeyDown={(event) => handleEditKeyDown(event, row)}
-                                  placeholder="Enter description"
-                                  maxLength={DESCRIPTION_MAX_LENGTH}
-                                  autoFocus
-                                  disabled={saving}
-                                />
+                                    placeholder='Enter description'
+                                    maxLength={DESCRIPTION_MAX_LENGTH}
+                                    autoFocus
+                                    disabled={saving}
+                                  />
 
-                                <small className="text-muted">
-                                  {editDescription.length}/{DESCRIPTION_MAX_LENGTH}
-                                </small>
+                                  <small className='text-muted'>
+                                    {editDescription.length}/
+                                    {DESCRIPTION_MAX_LENGTH}
+                                  </small>
                                 </>
                               ) : (
                                 row.description
@@ -669,7 +669,7 @@ const MasterData = () => {
                                 ACTIONS
                             ========================================= */}
 
-                            <td className="text-center">
+                            <td className='text-center'>
                               {isEditing ? (
                                 <>
                                   {/* ============================
@@ -677,20 +677,20 @@ const MasterData = () => {
                                   ============================ */}
 
                                   <button
-                                    type="button"
-                                    className="btn btn-link p-0 hrms-save-btn me-2"
-                                    title="Save"
+                                    type='button'
+                                    className='btn btn-link p-0 hrms-save-btn me-2'
+                                    title='Save'
                                     onClick={() => handleSaveEdit(row)}
                                     disabled={saving}
                                   >
                                     {saving ? (
                                       <span
-                                        className="spinner-border spinner-border-sm"
-                                        role="status"
-                                        aria-hidden="true"
+                                        className='spinner-border spinner-border-sm'
+                                        role='status'
+                                        aria-hidden='true'
                                       />
                                     ) : (
-                                      <i className="ti ti-check" />
+                                      <i className='ti ti-check' />
                                     )}
                                   </button>
 
@@ -699,13 +699,13 @@ const MasterData = () => {
                                   ============================ */}
 
                                   <button
-                                    type="button"
-                                    className="btn btn-link p-0 hrms-cancel-btn"
-                                    title="Cancel"
+                                    type='button'
+                                    className='btn btn-link p-0 hrms-cancel-btn'
+                                    title='Cancel'
                                     onClick={handleCancelEdit}
                                     disabled={saving}
                                   >
-                                    <i className="ti ti-x" />
+                                    <i className='ti ti-x' />
                                   </button>
                                 </>
                               ) : (
@@ -713,21 +713,30 @@ const MasterData = () => {
                                    EDIT
                                 ============================== */
 
-                                <button
-                                  type="button"
-                                  className="btn btn-link p-0 hrms-edit-btn"
-                                  title="Edit"
+                                // <button
+                                //   type="button"
+                                //   className="btn btn-link p-0 hrms-edit-btn"
+                                //   title="Edit"
+                                //   onClick={() => handleEdit(row)}
+                                //   disabled={
+                                //     isAdding || editingId !== null || saving
+                                //   }
+                                // >
+                                //   <i className="ti ti-pencil" />
+                                // </button>
+
+                                <EditButton
                                   onClick={() => handleEdit(row)}
+                                  ariaLabel='Edit Table Row'
                                   disabled={
                                     isAdding || editingId !== null || saving
                                   }
-                                >
-                                  <i className="ti ti-pencil" />
-                                </button>
+                                  style={{ marginLeft: '14px' }}
+                                />
                               )}
                             </td>
                           </tr>
-                        );
+                        )
                       })
                     )}
                   </tbody>
@@ -738,7 +747,7 @@ const MasterData = () => {
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default MasterData;
+export default MasterData

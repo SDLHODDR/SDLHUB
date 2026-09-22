@@ -13,7 +13,8 @@ import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLDropdownSelect from "../../components/forms/SDLDropdownSelect";
 import SDLReactSelect from "../../../../components/SDLReactSelect";
 import "../../assets/departmentDesignation.css"
-import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
+// import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
+import ViewToggleButton from "../../components/buttons/ViewToggleButton";
 
 const KRAActivity = () => {
   const dispatch = useDispatch();
@@ -263,8 +264,8 @@ const KRAActivity = () => {
 
   return (
     <>
-    <div className="sdl-form-ui">
-      <div className="page-header">
+    <div>
+      <div className="page-header" style={{ marginBottom: "8px" }}>
         <div className="add-item d-flex">
           <div className="page-title">
             <h4>KRA Activity</h4>
@@ -280,20 +281,30 @@ const KRAActivity = () => {
               <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
                 <div className="d-flex align-items-center gap-2 flex-wrap">
                   {showAll && (
-                    <div className="d-flex align-items-center" style={{ minWidth: "270px" }}>
+                    <div  
+                    style={{
+                          width: '330px',
+                          minWidth: '330px',
+                          maxWidth: '330px',
+                          flexShrink: 0
+                        }}>
                       <SDLSearch
                         value={searchQuery}
                         onChange={setSearchQuery}
                         placeholder="Search KRA..."
                         className="mb-0"
-                        style={{ width: "100%" }}
+                        style={{
+                            width: '330px',
+                            minWidth: '330px',
+                            maxWidth: '330px'
+                          }}
                       />
                     </div>
                   )}
                 </div>
 
                 <div className="d-flex align-items-center gap-2">
-                 <div className="fixWidth">
+                 {/* <div className="fixWidth"> */}
                     {/* <SDLDropdownSelect
                       id="kraActivitySelect"
                       options={activityOptions}
@@ -309,17 +320,15 @@ const KRAActivity = () => {
                         onChange={handleSelectActivity}
                         isLoading={loading}
                         isDisabled={loading}
+                                              width='330px'
+
                       />
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
-                    onClick={handleToggleView}
-                    disabled={isSubmitting}
-                    style={{ minWidth: "15px" }}
-                  >
-                    <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
-                  </button>
+                  {/* </div> */}
+                  <ViewToggleButton
+                      showAll={showAll}
+                      onClick={() => setShowAll(prev => !prev)}
+                      disabled={loading}
+                    />
                 </div>
               </div>
 

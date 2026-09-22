@@ -1,124 +1,151 @@
-import { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
-
-import { getDeptActivitiesDataResponse } from "../../../../store/hrms/hrmsDeptActivitySlice";
-import { getDepartmentMaster, createDepartmentMaster } from "../../services/departmentActivityService";
-
-import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
-import { getPortalFromPath } from "../../../../config/portalConfig";
-
-import SDLSearch from "../../../../components/datatable/SDLSearch";
-import SDLDataTable from "../../../../components/datatable/SDLDataTable";
-import { normalizeRecords, getDisplayValue } from "../../../../utils/formatUtils";
-import { departmentActivityColumns } from "../../portalutils/departmentActivityColumns";
-import { useDepartmentActivityHandler } from "../../portalutils/useDepartmentActivityHandler";
-
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useLocation } from 'react-router-dom'
+import { getDeptActivitiesDataResponse } from '../../../../store/hrms/hrmsDeptActivitySlice'
+import {
+  getDepartmentMaster,
+  createDepartmentMaster
+} from '../../services/departmentActivityService'
+import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
+import { getPortalFromPath } from '../../../../config/portalConfig'
+import SDLSearch from '../../../../components/datatable/SDLSearch'
+import SDLDataTable from '../../../../components/datatable/SDLDataTable'
+import {
+  normalizeRecords,
+  getDisplayValue
+} from '../../../../utils/formatUtils'
+import { departmentActivityColumns } from '../../portalutils/departmentActivityColumns'
+import { useDepartmentActivityHandler } from '../../portalutils/useDepartmentActivityHandler'
 // import SDLActivitySelector from "../../components/SDLActivitySelector";
-import SDLDropdownSelect from "../../components/forms/SDLDropdownSelect";
-import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
-import SDLReactSelect from "../../../../components/SDLReactSelect";
+import SDLDropdownSelect from '../../components/forms/SDLDropdownSelect'
+// import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
+import SDLReactSelect from '../../../../components/SDLReactSelect'
+import SaveButton from '../../components/buttons/SaveButton'
+import CancelButton from '../../components/buttons/CancelButton'
+import ViewToggleButton from '../../components/buttons/ViewToggleButton'
 
-
-const ACT_TYPES = { J: "Join", E: "Exit" };
+const ACT_TYPES = { J: 'Join', E: 'Exit' }
 
 const DepartmentActivity = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
-  const location = useLocation();
-  const portal = getPortalFromPath(location.pathname);
-  const portalHome = `/${portal.key}/dashboard`;
+  const location = useLocation()
+  const portal = getPortalFromPath(location.pathname)
+  const portalHome = `/${portal.key}/dashboard`
 
-  const deptActivityData = useSelector((state) => state.hrmsdeptactivitiesData?.data);
+  const deptActivityData = useSelector(
+    state => state.hrmsdeptactivitiesData?.data
+  )
 
-  const [loading, setLoading] = useState(false);
-  const [listDeptMasterData, setListDeptMasterData] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false)
+  const [listDeptMasterData, setListDeptMasterData] = useState([])
+  const [searchQuery, setSearchQuery] = useState('')
 
-  const [showAll, setShowAll] = useState(false);
-  const [selectedActivity, setSelectedActivity] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [deletingId, setDeletingId] = useState(null);
+  const [showAll, setShowAll] = useState(false)
+  const [selectedActivity, setSelectedActivity] = useState('')
+  const [isEditing, setIsEditing] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [deletingId, setDeletingId] = useState(null)
 
   const [form, setForm] = useState({
-    ID: "",
-    DEPT_ID: "",
-    ACT_TYPE: "",
-    DISP_SEQ: "",
-    ACT_DESC: "",
-  });
+    ID: '',
+    DEPT_ID: '',
+    ACT_TYPE: '',
+    DISP_SEQ: '',
+    ACT_DESC: ''
+  })
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({})
 
   useEffect(() => {
-    dispatch(getDeptActivitiesDataResponse());
-  }, [dispatch]);
+    dispatch(getDeptActivitiesDataResponse())
+  }, [dispatch])
 
   const fetchDeptMasterData = useCallback(async () => {
     try {
-      setLoading(true);
-      const response = await getDepartmentMaster();
-      setListDeptMasterData(normalizeRecords(response));
+      setLoading(true)
+      const response = await getDepartmentMaster()
+      setListDeptMasterData(normalizeRecords(response))
     } catch (error) {
-      console.error("Error fetching Department Master Data:", error);
+      console.error('Error fetching Department Master Data:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    fetchDeptMasterData();
-  }, [fetchDeptMasterData]);
+    fetchDeptMasterData()
+  }, [fetchDeptMasterData])
 
   const listData = useMemo(() => {
     try {
       return normalizeRecords(deptActivityData).map((item, index) => ({
         ID: item.ID ?? item.id ?? index,
-        DEPT_ID: item.DEPT_ID ?? item.dept_id ?? item.DEPTID ?? item.deptId ?? "",
-        DEPT_DESC: getDisplayValue(item, ["DEPT_DESC", "dept_desc", "DEPT_MASTER_DESC", "name", "label"], "-"),
-        ACT_TYPE: getDisplayValue(item, ["ACT_TYPE", "act_type", "type"], "-"),
-        ACT_TYPE_TEXT: getDisplayValue(item, ["ACT_TYPE_TEXT", "act_type", "type"], "-"),
-        DISP_SEQ: item.DISP_SEQ ?? item.disp_seq ?? item.dispSeq ?? "",
-        ACT_DESC: getDisplayValue(item, ["ACT_DESC", "act_desc", "activityDesc", "title", "name"], "-"),
-        createdOn: item.created_on || item.createdOn || "-",
-      }));
+        DEPT_ID:
+          item.DEPT_ID ?? item.dept_id ?? item.DEPTID ?? item.deptId ?? '',
+        DEPT_DESC: getDisplayValue(
+          item,
+          ['DEPT_DESC', 'dept_desc', 'DEPT_MASTER_DESC', 'name', 'label'],
+          '-'
+        ),
+        ACT_TYPE: getDisplayValue(item, ['ACT_TYPE', 'act_type', 'type'], '-'),
+        ACT_TYPE_TEXT: getDisplayValue(
+          item,
+          ['ACT_TYPE_TEXT', 'act_type', 'type'],
+          '-'
+        ),
+        DISP_SEQ: item.DISP_SEQ ?? item.disp_seq ?? item.dispSeq ?? '',
+        ACT_DESC: getDisplayValue(
+          item,
+          ['ACT_DESC', 'act_desc', 'activityDesc', 'title', 'name'],
+          '-'
+        ),
+        createdOn: item.created_on || item.createdOn || '-'
+      }))
     } catch (error) {
-      console.error(error);
-      return [];
+      console.error(error)
+      return []
     }
-  }, [deptActivityData]);
+  }, [deptActivityData])
 
   const deptOptions = useMemo(() => {
     return normalizeRecords(listDeptMasterData).map((item, index) => {
-      const id = getDisplayValue(item, ["DEPT_ID", "ID", "id", "dept_id", "DEPTID", "deptId"], index);
-      const label = getDisplayValue(item, ["DEPT_DESC", "dept_desc", "DEPT_MASTER_DESC", "name", "label"], "-");
-      return { id: String(id), label: String(label) };
-    });
-  }, [listDeptMasterData]);
+      const id = getDisplayValue(
+        item,
+        ['DEPT_ID', 'ID', 'id', 'dept_id', 'DEPTID', 'deptId'],
+        index
+      )
+      const label = getDisplayValue(
+        item,
+        ['DEPT_DESC', 'dept_desc', 'DEPT_MASTER_DESC', 'name', 'label'],
+        '-'
+      )
+      return { id: String(id), label: String(label) }
+    })
+  }, [listDeptMasterData])
 
   // (1) Top "Select Department Activity" — keyword-searchable, sourced
   // straight from listData (already-loaded API data), same pattern as
   // KRAActivity's top selector.
   const activityOptions = useMemo(
-    () => listData.map((item) => ({ id: String(item.ID), label: item.ACT_DESC })),
-    [listData],
-  );
+    () => listData.map(item => ({ id: String(item.ID), label: item.ACT_DESC })),
+    [listData]
+  )
 
   // Table-mode search — driven only by the visible SDLSearch box.
   // Independent from the form-mode search below.
   const filteredData = useMemo(() => {
-    if (!searchQuery.trim()) return listData;
+    if (!searchQuery.trim()) return listData
 
-    const query = searchQuery.trim().toLowerCase();
+    const query = searchQuery.trim().toLowerCase()
     return listData.filter(
-      (item) =>
+      item =>
         item.DEPT_DESC.toLowerCase().includes(query) ||
         item.ACT_DESC.toLowerCase().includes(query) ||
         String(item.ACT_TYPE).toLowerCase().includes(query) ||
-        String(item.ACT_TYPE_TEXT).toLowerCase().includes(query),
-    );
-  }, [searchQuery, listData]);
+        String(item.ACT_TYPE_TEXT).toLowerCase().includes(query)
+    )
+  }, [searchQuery, listData])
 
   // (3)+(4) Form-mode search — driven by typing in the Department Master
   // dropdown. Two-step + one extra filter, not a text match against
@@ -128,42 +155,42 @@ const DepartmentActivity = () => {
   //   3. Show DEPARTMENT ACTIVITIES whose DEPT_ID is in that set...
   //   4. ...AND (if a Type is currently selected in the form) whose
   //      ACT_TYPE also matches that selected type.
-  const [masterSearchQuery, setMasterSearchQuery] = useState("");
+  const [masterSearchQuery, setMasterSearchQuery] = useState('')
 
   const matchedDeptIds = useMemo(() => {
-    if (!masterSearchQuery.trim()) return null;
-    const query = masterSearchQuery.trim().toLowerCase();
+    if (!masterSearchQuery.trim()) return null
+    const query = masterSearchQuery.trim().toLowerCase()
     return new Set(
       deptOptions
-        .filter((option) => option.label.toLowerCase().includes(query))
-        .map((option) => option.id),
-    );
-  }, [masterSearchQuery, deptOptions]);
+        .filter(option => option.label.toLowerCase().includes(query))
+        .map(option => option.id)
+    )
+  }, [masterSearchQuery, deptOptions])
 
   const formFilteredData = useMemo(() => {
-    if (!matchedDeptIds) return [];
-    if (matchedDeptIds.size === 0) return [];
-    return listData.filter((item) => {
-      const matchesDept = matchedDeptIds.has(String(item.DEPT_ID));
-      const matchesType = form.ACT_TYPE ? item.ACT_TYPE === form.ACT_TYPE : true;
-      return matchesDept && matchesType;
-    });
-  }, [matchedDeptIds, listData, form.ACT_TYPE]);
+    if (!matchedDeptIds) return []
+    if (matchedDeptIds.size === 0) return []
+    return listData.filter(item => {
+      const matchesDept = matchedDeptIds.has(String(item.DEPT_ID))
+      const matchesType = form.ACT_TYPE ? item.ACT_TYPE === form.ACT_TYPE : true
+      return matchesDept && matchesType
+    })
+  }, [matchedDeptIds, listData, form.ACT_TYPE])
 
   const resetForm = useCallback(() => {
-    setIsEditing(false);
-    setSelectedActivity("");
-    setForm({ ID: "", DEPT_ID: "", ACT_TYPE: "", DISP_SEQ: "", ACT_DESC: "" });
-    setErrors({});
-    setMasterSearchQuery(""); // clear the inline preview table too
-  }, []);
+    setIsEditing(false)
+    setSelectedActivity('')
+    setForm({ ID: '', DEPT_ID: '', ACT_TYPE: '', DISP_SEQ: '', ACT_DESC: '' })
+    setErrors({})
+    setMasterSearchQuery('') // clear the inline preview table too
+  }, [])
 
   const {
     handleFieldChange,
     handleSave,
     handleEditActivity,
     handleSelectActivity,
-    handleDeleteActivity,
+    handleDeleteActivity
   } = useDepartmentActivityHandler({
     form,
     setForm,
@@ -177,102 +204,128 @@ const DepartmentActivity = () => {
     setIsEditing,
     setShowAll,
     resetForm,
-    isEditing,
-  });
+    isEditing
+  })
 
   // (2) Department Master "add new" + live search wiring — same pattern as
   // KRAActivity's handleAddNewKRAMaster.
-  const handleAddNewDeptMaster = useCallback(async (typedText) => {
+  const handleAddNewDeptMaster = useCallback(async typedText => {
     try {
-      const response = await createDepartmentMaster({ DEPT_DESC: typedText });
+      const response = await createDepartmentMaster({ DEPT_DESC: typedText })
 
       // Expected API shape: { status, message, data: { DEPT_ID } } — a
       // single flat object, matching createKRAMaster's shape. Adjust the
       // key names below if your actual endpoint differs.
       if (!response?.status) {
-        throw new Error(response?.message || "Failed to create Department Master");
+        throw new Error(
+          response?.message || 'Failed to create Department Master'
+        )
       }
 
-      const newId = String(response.data?.DEPT_ID ?? "");
+      const newId = String(response.data?.DEPT_ID ?? '')
       if (!newId) {
-        throw new Error("API did not return a DEPT_ID");
+        throw new Error('API did not return a DEPT_ID')
       }
 
-      const newOption = { id: newId, label: typedText };
-      setListDeptMasterData((prev) => [...prev, { DEPT_ID: newId, DEPT_DESC: typedText }]);
-      return newOption;
+      const newOption = { id: newId, label: typedText }
+      setListDeptMasterData(prev => [
+        ...prev,
+        { DEPT_ID: newId, DEPT_DESC: typedText }
+      ])
+      return newOption
     } catch (error) {
       // TEMPORARY fallback: only reached if the API call itself fails.
       // Lets the "add new" flow be exercised end-to-end while the backend
       // endpoint is still being finished. Remove this catch block once the
       // real API is confirmed stable.
-      console.warn("createDepartmentMaster failed, adding locally only:", error);
-      const tempId = `temp-${Date.now()}`;
-      setListDeptMasterData((prev) => [...prev, { DEPT_ID: tempId, DEPT_DESC: typedText }]);
-      return { id: tempId, label: typedText };
+      console.warn('createDepartmentMaster failed, adding locally only:', error)
+      const tempId = `temp-${Date.now()}`
+      setListDeptMasterData(prev => [
+        ...prev,
+        { DEPT_ID: tempId, DEPT_DESC: typedText }
+      ])
+      return { id: tempId, label: typedText }
     }
-  }, []);
+  }, [])
 
-  const masterSearchDebounceRef = useRef(null);
+  const masterSearchDebounceRef = useRef(null)
 
-  const handleDeptMasterSearch = useCallback((text) => {
-    if (masterSearchDebounceRef.current) clearTimeout(masterSearchDebounceRef.current);
+  const handleDeptMasterSearch = useCallback(text => {
+    if (masterSearchDebounceRef.current)
+      clearTimeout(masterSearchDebounceRef.current)
     masterSearchDebounceRef.current = setTimeout(() => {
-      setMasterSearchQuery(text ?? "");
+      setMasterSearchQuery(text ?? '')
       // Deliberately NOT touching `showAll` — stays in form mode, results
       // render as an inline table below the form.
-    }, 250);
-  }, []);
+    }, 250)
+  }, [])
 
   useEffect(() => {
     return () => {
-      if (masterSearchDebounceRef.current) clearTimeout(masterSearchDebounceRef.current);
-    };
-  }, []);
+      if (masterSearchDebounceRef.current)
+        clearTimeout(masterSearchDebounceRef.current)
+    }
+  }, [])
 
   const columns = useMemo(
-    () => departmentActivityColumns({ handleEditActivity, handleDeleteActivity, deletingId }),
-    [handleEditActivity, handleDeleteActivity, deletingId],
-  );
+    () =>
+      departmentActivityColumns({
+        handleEditActivity,
+        handleDeleteActivity,
+        deletingId
+      }),
+    [handleEditActivity, handleDeleteActivity, deletingId]
+  )
 
   const handleToggleView = () => {
-    if (isSubmitting) return;
-    resetForm(); // always reset — clears fields, errors, and inline search — regardless of direction
-    setShowAll((prev) => !prev);
-  };
+    if (isSubmitting) return
+    resetForm() // always reset — clears fields, errors, and inline search — regardless of direction
+    setShowAll(prev => !prev)
+  }
 
   return (
     <>
-    <div className="sdl-form-ui">
-      <div className="page-header">
-        <div className="add-item d-flex">
-          <div className="page-title">
+      <div className='page-header' style={{ marginBottom: '8px' }}>
+        <div className='add-item d-flex'>
+          <div className='page-title'>
             <h4>Department Activity</h4>
           </div>
         </div>
 
         <BreadcrumbNav
           items={[
-            { text: "Home", link: portalHome },
-            { text: "Department Activity" },
+            { text: 'Home', link: portalHome },
+            { text: 'Department Activity' }
           ]}
         />
       </div>
 
-      <div className="row">
-        <div className="col-12">
-          <div className="card">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
-                <div className="d-flex align-items-center gap-2 flex-wrap">
+      <div className='row'>
+        <div className='col-12 px-0'>
+          <div className='card'>
+            <div className='card-body'>
+              <div className='d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3'>
+                <div className='d-flex align-items-center gap-2 flex-wrap'>
                   {showAll && (
-                    <div className="d-flex align-items-center" style={{ minWidth: "270px" }}>
+                    <div
+                      className='d-flex align-items-center'
+                      style={{
+                        width: '330px',
+                        minWidth: '330px',
+                        maxWidth: '330px',
+                        flexShrink: 0
+                      }}
+                    >
                       <SDLSearch
                         value={searchQuery}
                         onChange={setSearchQuery}
-                        placeholder="Search Department Activity..."
-                        className="mb-0"
-                        style={{ width: "100%" }}
+                        placeholder='Search Department Activity...'
+                        className='mb-0'
+                        style={{
+                          width: '330px',
+                          minWidth: '330px',
+                          maxWidth: '330px'
+                        }}
                       />
                     </div>
                   )}
@@ -303,35 +356,33 @@ const DepartmentActivity = () => {
                     <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
                   </button>
                 </div> */}
-                <div className="d-flex align-items-center gap-2">
-                  <div className="fixWidth">
-                    <SDLReactSelect
-                      value={selectedActivity}
-                      options={activityOptions.map((opt) => ({ value: opt.id, label: opt.label }))}
-                      onChange={(id) => handleSelectActivity(id)}
-                      placeholder="Select Department Activity"
-                      isDisabled={loading}
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
-                    onClick={handleToggleView}
-                    disabled={isSubmitting}
-                    style={{ minWidth: "15px" }}
-                  >
-                    <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
-                  </button>
+                <div className='d-flex align-items-center gap-2'>
+                  <SDLReactSelect
+                    value={selectedActivity}
+                    options={activityOptions.map(opt => ({
+                      value: opt.id,
+                      label: opt.label
+                    }))}
+                    onChange={id => handleSelectActivity(id)}
+                    placeholder='Select Department Activity'
+                    isDisabled={loading}
+                    width='330px'
+                  />
+                  <ViewToggleButton
+                                        showAll={showAll}
+                                        onClick={() => setShowAll(prev => !prev)}
+                                        disabled={loading}
+                                      />
                 </div>
               </div>
 
               {!showAll ? (
                 <>
-                  <div className="row mb-3">
+                  <div className='row mb-3'>
                     {/* <div className="col-lg-3 col-md-6"> */}
-                      {/* (2) Department Master — searchable + creatable,
+                    {/* (2) Department Master — searchable + creatable,
                           same pattern as Department Master in DepartmentActivity. */}
-                      {/* <SDLDropdownSelect
+                    {/* <SDLDropdownSelect
                         id="deptMaster"
                         label="Department Master"
                         required
@@ -347,42 +398,60 @@ const DepartmentActivity = () => {
                         placeholder="Select Department"
                       />
                     </div> */}
-                    <div className="col-lg-3 col-md-6">
-                      <div className="mb-3">
-                        <label className="form-label">
-                          Department Master<span className="text-danger ms-1">*</span>
+                    <div className='col-lg-3 col-md-6'>
+                      <div className='mb-3'>
+                        <label className='form-label'>
+                          Department Master
+                          <span className='text-danger ms-1'>*</span>
                         </label>
                         <SDLReactSelect
                           value={form.DEPT_ID}
-                          options={deptOptions.map((opt) => ({ value: opt.id, label: opt.label }))}
-                          onChange={(id) => handleFieldChange("DEPT_ID", id)}
+                          options={deptOptions.map(opt => ({
+                            value: opt.id,
+                            label: opt.label
+                          }))}
+                          onChange={id => handleFieldChange('DEPT_ID', id)}
                           hasError={!!errors.DEPT_ID}
                           isDisabled={loading}
                           allowAddNew
-                          onAddNew={async (typedText) => {
-                            const newOption = await handleAddNewDeptMaster(typedText);
-                            return newOption ? { value: newOption.id, label: newOption.label } : null;
+                          onAddNew={async typedText => {
+                            const newOption = await handleAddNewDeptMaster(
+                              typedText
+                            )
+                            return newOption
+                              ? { value: newOption.id, label: newOption.label }
+                              : null
                           }}
                           onFilterChange={handleDeptMasterSearch}
                           notifyFilterOnSelect
-                          placeholder="Select Department"
+                          placeholder='Select Department'
                         />
-                        {errors.DEPT_ID && <div className="invalid-feedback d-block">{errors.DEPT_ID}</div>}
+                        {errors.DEPT_ID && (
+                          <div className='invalid-feedback d-block'>
+                            {errors.DEPT_ID}
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <div className="col-lg-3 col-md-3">
-                      <div className="mb-3">
-                        <label className="form-label">
-                          Type<span className="text-danger ms-1">*</span>
+                    <div className='col-lg-3 col-md-3'>
+                      <div className='mb-3'>
+                        <label className='form-label'>
+                          Type<span className='text-danger ms-1'>*</span>
                         </label>
                         <SDLReactSelect
                           value={form.ACT_TYPE}
-                          options={Object.entries(ACT_TYPES).map(([code, label]) => ({ value: code, label }))}
-                          onChange={(code) => handleFieldChange("ACT_TYPE", code)}
+                          options={Object.entries(ACT_TYPES).map(
+                            ([code, label]) => ({ value: code, label })
+                          )}
+                          onChange={code => handleFieldChange('ACT_TYPE', code)}
                           hasError={!!errors.ACT_TYPE}
-                          placeholder="Select Type"
+                          placeholder='Select Type'
                         />
-                        {errors.ACT_TYPE && <div className="invalid-feedback d-block">{errors.ACT_TYPE}</div>}
+                        {errors.ACT_TYPE && (
+                          <div className='invalid-feedback d-block'>
+                            {errors.ACT_TYPE}
+                          </div>
+                        )}
                       </div>
                     </div>
                     {/* <div className="col-lg-3 col-md-3">
@@ -407,54 +476,68 @@ const DepartmentActivity = () => {
                       </div>
                     </div> */}
 
-                    <div className="col-lg-3 col-md-6">
-                      <div className="mb-3">
-                        <label className="form-label">
+                    <div className='col-lg-3 col-md-6'>
+                      <div className='mb-3'>
+                        <label className='form-label'>
                           Sequence
-                          <span className="text-danger ms-1">*</span>
+                          <span className='text-danger ms-1'>*</span>
                         </label>
                         <input
-                          type="number"
+                          type='number'
                           min={1}
                           max={100}
-                          className={`form-control ${errors.DISP_SEQ ? "is-invalid" : ""}`}
+                          className={`form-control ${
+                            errors.DISP_SEQ ? 'is-invalid' : ''
+                          }`}
                           value={form.DISP_SEQ}
-                          onChange={(e) => handleFieldChange("DISP_SEQ", e.target.value)}
+                          onChange={e =>
+                            handleFieldChange('DISP_SEQ', e.target.value)
+                          }
                         />
-                        {errors.DISP_SEQ && <div className="invalid-feedback">{errors.DISP_SEQ}</div>}
+                        {errors.DISP_SEQ && (
+                          <div className='invalid-feedback'>
+                            {errors.DISP_SEQ}
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    <div className="col-lg-3 col-md-6">
-                      <div className="mb-3">
-                        <label className="form-label">
+                    <div className='col-lg-3 col-md-6'>
+                      <div className='mb-3'>
+                        <label className='form-label'>
                           Department Activity
-                          <span className="text-danger ms-1">*</span>
+                          <span className='text-danger ms-1'>*</span>
                         </label>
                         <input
-                          type="text"
-                          className={`form-control ${errors.ACT_DESC ? "is-invalid" : ""}`}
+                          type='text'
+                          className={`form-control ${
+                            errors.ACT_DESC ? 'is-invalid' : ''
+                          }`}
                           value={form.ACT_DESC}
                           maxLength={100}
-                          onChange={(e) => handleFieldChange("ACT_DESC", e.target.value)}
+                          onChange={e =>
+                            handleFieldChange('ACT_DESC', e.target.value)
+                          }
                         />
-                        {errors.ACT_DESC && <div className="invalid-feedback">{errors.ACT_DESC}</div>}
+                        {errors.ACT_DESC && (
+                          <div className='invalid-feedback'>
+                            {errors.ACT_DESC}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  <div className="text-end mb-3">
-                    <button
-                      type="button"
-                      className="btn btn-primary me-2"
+                  <div className='text-end mb-3'>
+                    <SaveButton
                       onClick={handleSave}
                       disabled={isSubmitting}
-                    >
-                      {isSubmitting ? "Processing..." : isEditing ? "Update" : "Save"}
-                    </button>
-                    <button type="button" className="btn btn-secondary" onClick={resetForm}>
-                      Cancel
-                    </button>
+                      isSubmitting={isSubmitting}
+                      isEditing={isEditing}
+                      className='me-2'
+                    />
+
+                    <CancelButton onClick={resetForm} />
                   </div>
 
                   {/* (5) Inline preview table — only while there's an
@@ -464,9 +547,9 @@ const DepartmentActivity = () => {
                       re-filters automatically whenever Type changes, since
                       formFilteredData depends on form.ACT_TYPE too. */}
                   {masterSearchQuery.trim() && (
-                    <div className="table-responsive mt-2">
+                    <div className='table-responsive mt-2'>
                       {formFilteredData.length === 0 ? (
-                        <div className="p-3 text-center text-muted border rounded">
+                        <div className='p-3 text-center text-muted border rounded'>
                           No matching Department Activities
                         </div>
                       ) : (
@@ -474,10 +557,10 @@ const DepartmentActivity = () => {
                           data={formFilteredData}
                           columns={columns}
                           loading={false}
-                          emptyMessage="No matching Department Activities"
-                          className="holiday-calendar-grid"
+                          emptyMessage='No matching Department Activities'
+                          className='holiday-calendar-grid'
                           removableSort
-                          tableStyle={{ minWidth: "650px" }}
+                          tableStyle={{ minWidth: '650px' }}
                         />
                       )}
                     </div>
@@ -486,17 +569,19 @@ const DepartmentActivity = () => {
               ) : (
                 <>
                   {listData.length === 0 ? (
-                    <div className="p-4 text-center text-muted">No data found</div>
+                    <div className='p-4 text-center text-muted'>
+                      No data found
+                    </div>
                   ) : (
-                    <div className="table-responsive">
+                    <div className='table-responsive'>
                       <SDLDataTable
                         data={filteredData}
                         columns={columns}
                         loading={false}
-                        emptyMessage="No data found"
-                        className="holiday-calendar-grid"
+                        emptyMessage='No data found'
+                        className='holiday-calendar-grid'
                         removableSort
-                        tableStyle={{ minWidth: "650px" }}
+                        tableStyle={{ minWidth: '650px' }}
                       />
                     </div>
                   )}
@@ -506,9 +591,8 @@ const DepartmentActivity = () => {
           </div>
         </div>
       </div>
-      </div>
     </>
-  );
-};
+  )
+}
 
-export default DepartmentActivity;
+export default DepartmentActivity

@@ -1,51 +1,68 @@
-import { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import { useLocation } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
-import { getPortalFromPath } from "../../../../config/portalConfig";
-import SDLSearch from "../../../../components/datatable/SDLSearch";
-import SDLDataTable from "../../../../components/datatable/SDLDataTable";
-import SDLDropdownSelect from "../../components/forms/SDLDropdownSelect";
-import { getCapabilitiesDataResponse } from "../../../../store/hrms/hrmsCapabilitiesSlice";
-import { normalizeRecords, getDisplayValue } from "../../../../utils/formatUtils";
-import { capabilitiesColumns } from "../../portalutils/capabilitiesColumns";
-import { useCapabilitiesHandler } from "../../portalutils/useCapabilitiesHandler";
-import SDLReactSelect from "../../../../components/SDLReactSelect";
-import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
+import { getPortalFromPath } from '../../../../config/portalConfig'
+import SDLSearch from '../../../../components/datatable/SDLSearch'
+import SDLDataTable from '../../../../components/datatable/SDLDataTable'
+import SDLDropdownSelect from '../../components/forms/SDLDropdownSelect'
+import { getCapabilitiesDataResponse } from '../../../../store/hrms/hrmsCapabilitiesSlice'
+import {
+  normalizeRecords,
+  getDisplayValue
+} from '../../../../utils/formatUtils'
+import { capabilitiesColumns } from '../../portalutils/capabilitiesColumns'
+import { useCapabilitiesHandler } from '../../portalutils/useCapabilitiesHandler'
+import SDLReactSelect from '../../../../components/SDLReactSelect'
+// import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
+import SaveButton from '../../components/buttons/SaveButton'
+import CancelButton from '../../components/buttons/CancelButton'
+import ViewToggleButton from '../../components/buttons/ViewToggleButton'
 
 const Capabilities = () => {
-  const dispatch = useDispatch();
-  const location = useLocation();
-  const portal = getPortalFromPath(location.pathname);
-  const portalHome = `/${portal.key}/dashboard`;
+  const dispatch = useDispatch()
+  const location = useLocation()
+  const portal = getPortalFromPath(location.pathname)
+  const portalHome = `/${portal.key}/dashboard`
 
-  const capabilitiesData = useSelector((state) => state.hrmscapabilitiesData?.data);
-  const loading = useSelector((state) => state.hrmscapabilitiesData?.loading) || false;
+  const capabilitiesData = useSelector(
+    state => state.hrmscapabilitiesData?.data
+  )
+  const loading =
+    useSelector(state => state.hrmscapabilitiesData?.loading) || false
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showAll, setShowAll] = useState(false);
-  const [selectedCapability, setSelectedCapability] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showAll, setShowAll] = useState(false)
+  const [selectedCapability, setSelectedCapability] = useState('')
+  const [isEditing, setIsEditing] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errors, setErrors] = useState({})
 
   const [formData, setFormData] = useState({
-    CAPA_ID: "",
-    CAPA_CODE: "",
-    CAPA_DESC: "",
-  });
+    CAPA_ID: '',
+    CAPA_CODE: '',
+    CAPA_DESC: ''
+  })
 
   useEffect(() => {
-    dispatch(getCapabilitiesDataResponse());
-  }, [dispatch]);
+    dispatch(getCapabilitiesDataResponse())
+  }, [dispatch])
 
   const list = useMemo(() => {
     return normalizeRecords(capabilitiesData).map((item, index) => ({
       CAPA_ID: item.CAPA_ID ?? item.ID ?? item.id ?? index,
-      CAPA_CODE_DISPLAY: getDisplayValue(item, ["CAPA_CODE", "code", "CODE"], ""),
-      CAPA_DESC_DISPLAY: getDisplayValue(item, ["CAPA_DESC", "description", "DESCR"], ""),
-    }));
-  }, [capabilitiesData]);
+      CAPA_CODE_DISPLAY: getDisplayValue(
+        item,
+        ['CAPA_CODE', 'code', 'CODE'],
+        ''
+      ),
+      CAPA_DESC_DISPLAY: getDisplayValue(
+        item,
+        ['CAPA_DESC', 'description', 'DESCR'],
+        ''
+      )
+    }))
+  }, [capabilitiesData])
 
   // There's no separate "Capabilities Master" table — a capability's CODE
   // effectively IS the master, so the option list is just the distinct
@@ -53,147 +70,152 @@ const Capabilities = () => {
   // not available" needs no backend round-trip here: a new code becomes
   // real the moment the whole Capability record is saved via handleSave.
   const capabilityOptions = useMemo(() => {
-    const uniqueCodes = [...new Set(list.map((item) => item.CAPA_CODE_DISPLAY))]
+    const uniqueCodes = [...new Set(list.map(item => item.CAPA_CODE_DISPLAY))]
       .filter(Boolean)
-      .sort();
+      .sort()
 
-    return uniqueCodes.map((code) => ({ id: String(code), label: String(code) }));
-  }, [list]);
+    return uniqueCodes.map(code => ({ id: String(code), label: String(code) }))
+  }, [list])
 
   // Table-mode search — driven only by the visible SDLSearch box.
   const filteredData = useMemo(() => {
-    if (!searchQuery.trim()) return list;
+    if (!searchQuery.trim()) return list
 
-    const query = searchQuery.trim().toLowerCase();
+    const query = searchQuery.trim().toLowerCase()
     return list.filter(
-      (item) =>
+      item =>
         item.CAPA_CODE_DISPLAY.toLowerCase().includes(query) ||
-        item.CAPA_DESC_DISPLAY.toLowerCase().includes(query),
-    );
-  }, [searchQuery, list]);
+        item.CAPA_DESC_DISPLAY.toLowerCase().includes(query)
+    )
+  }, [searchQuery, list])
 
   // Form-mode search — driven by typing in the Capabilities Code dropdown.
   // Two-step, same pattern as KRA/Department Master:
   //   1. Find which CODES match the typed text.
   //   2. Show records whose CAPA_CODE_DISPLAY is in that set.
   // (No second dimension like Department Activity's Type here.)
-  const [codeSearchQuery, setCodeSearchQuery] = useState("");
+  const [codeSearchQuery, setCodeSearchQuery] = useState('')
 
   const matchedCodes = useMemo(() => {
-    if (!codeSearchQuery.trim()) return null;
-    const query = codeSearchQuery.trim().toLowerCase();
+    if (!codeSearchQuery.trim()) return null
+    const query = codeSearchQuery.trim().toLowerCase()
     return new Set(
       capabilityOptions
-        .filter((option) => option.label.toLowerCase().includes(query))
-        .map((option) => option.id),
-    );
-  }, [codeSearchQuery, capabilityOptions]);
+        .filter(option => option.label.toLowerCase().includes(query))
+        .map(option => option.id)
+    )
+  }, [codeSearchQuery, capabilityOptions])
 
   const formFilteredData = useMemo(() => {
-    if (!matchedCodes) return [];
-    if (matchedCodes.size === 0) return [];
-    return list.filter((item) => matchedCodes.has(item.CAPA_CODE_DISPLAY));
-  }, [matchedCodes, list]);
+    if (!matchedCodes) return []
+    if (matchedCodes.size === 0) return []
+    return list.filter(item => matchedCodes.has(item.CAPA_CODE_DISPLAY))
+  }, [matchedCodes, list])
 
   const resetForm = useCallback(() => {
-    setIsEditing(false);
-    setSelectedCapability("");
-    setFormData({ CAPA_ID: "", CAPA_CODE: "", CAPA_DESC: "" });
-    setErrors({});
-    setCodeSearchQuery(""); // clear the inline preview table too
-  }, []);
+    setIsEditing(false)
+    setSelectedCapability('')
+    setFormData({ CAPA_ID: '', CAPA_CODE: '', CAPA_DESC: '' })
+    setErrors({})
+    setCodeSearchQuery('') // clear the inline preview table too
+  }, [])
 
-  const {
-    handleFieldChange,
-    handleSave,
-    handleEdit,
-    handleSelectCapability,
-  } = useCapabilitiesHandler({
-    formData,
-    setFormData,
-    setErrors,
-    setIsSubmitting,
-    dispatch,
-    getCapabilitiesDataResponse,
-    setShowAll,
-    setSelectedCapability,
-    setIsEditing,
-    resetForm,
-    list,
-  });
+  const { handleFieldChange, handleSave, handleEdit, handleSelectCapability } =
+    useCapabilitiesHandler({
+      formData,
+      setFormData,
+      setErrors,
+      setIsSubmitting,
+      dispatch,
+      getCapabilitiesDataResponse,
+      setShowAll,
+      setSelectedCapability,
+      setIsEditing,
+      resetForm,
+      list
+    })
 
   // "Add new" for Capabilities Code — no API call needed, since there's no
   // separate master table to insert into ahead of time. The typed code
   // just becomes the form's CAPA_CODE; it's persisted for real when the
   // Capability record itself is saved via handleSave.
-  const handleAddNewCapabilityCode = useCallback(async (typedText) => {
-    return { id: typedText, label: typedText };
-  }, []);
+  const handleAddNewCapabilityCode = useCallback(async typedText => {
+    return { id: typedText, label: typedText }
+  }, [])
 
-  const codeSearchDebounceRef = useRef(null);
+  const codeSearchDebounceRef = useRef(null)
 
-  const handleCapabilityCodeSearch = useCallback((text) => {
-    if (codeSearchDebounceRef.current) clearTimeout(codeSearchDebounceRef.current);
+  const handleCapabilityCodeSearch = useCallback(text => {
+    if (codeSearchDebounceRef.current)
+      clearTimeout(codeSearchDebounceRef.current)
     codeSearchDebounceRef.current = setTimeout(() => {
-      setCodeSearchQuery(text ?? "");
+      setCodeSearchQuery(text ?? '')
       // Deliberately NOT touching `showAll` — stays in form mode, results
       // render as an inline table below the form.
-    }, 250);
-  }, []);
+    }, 250)
+  }, [])
 
   useEffect(() => {
     return () => {
-      if (codeSearchDebounceRef.current) clearTimeout(codeSearchDebounceRef.current);
-    };
-  }, []);
+      if (codeSearchDebounceRef.current)
+        clearTimeout(codeSearchDebounceRef.current)
+    }
+  }, [])
 
   const handleToggleView = useCallback(() => {
     if (showAll) {
-      resetForm();
-      setShowAll(false);
+      resetForm()
+      setShowAll(false)
     } else {
-      resetForm();
-      setShowAll(true);
+      resetForm()
+      setShowAll(true)
     }
-  }, [showAll, resetForm]);
+  }, [showAll, resetForm])
 
   const columns = useMemo(
     () => capabilitiesColumns({ handleEdit }),
-    [handleEdit],
-  );
+    [handleEdit]
+  )
 
   return (
     <>
-    <div className="sdl-form-ui">
-      <div className="page-header">
-        <div className="add-item d-flex">
-          <div className="page-title">
+      <div className='page-header' style={{ marginBottom: '8px' }}>
+        <div className='add-item d-flex'>
+          <div className='page-title'>
             <h4>Capabilities</h4>
           </div>
         </div>
 
         <BreadcrumbNav
-          items={[
-            { text: "Home", link: portalHome },
-            { text: "Capabilities" },
-          ]}
+          items={[{ text: 'Home', link: portalHome }, { text: 'Capabilities' }]}
         />
       </div>
 
-      <div className="row">
-        <div className="col-12">
-          <div className="card">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
-                <div className="d-flex align-items-center gap-2 flex-wrap">
+      <div className='row'>
+        <div className='col-12 px-0'>
+          <div className='card'>
+            <div className='card-body'>
+              <div className='d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3'>
+                <div className='d-flex align-items-center gap-2 flex-wrap'>
                   {showAll && (
-                    <div className="d-flex align-items-center" style={{ minWidth: "270px" }}>
+                    <div
+                      style={{
+                        width: '330px',
+                        minWidth: '330px',
+                        maxWidth: '330px',
+                        flexShrink: 0
+                      }}
+                    >
                       <SDLSearch
                         value={searchQuery}
                         onChange={setSearchQuery}
-                        placeholder="Search capabilities..."
-                        className="mb-0"
-                        style={{ width: "100%" }}
+                        placeholder='Search capabilities...'
+                        className='mb-0'
+                        style={{
+                          width: '330px',
+                          minWidth: '330px',
+                          maxWidth: '330px'
+                        }}
                       />
                     </div>
                   )}
@@ -226,40 +248,37 @@ const Capabilities = () => {
                    
                   </button>
                 </div> */}
-                <div className="d-flex align-items-center gap-2">
-                  <div className="fixWidth">
-                    
-                    <SDLReactSelect
-                      value={selectedCapability}
-                      options={capabilityOptions.map((opt) => ({ value: opt.id, label: opt.label }))}
-                      onChange={(id) => handleSelectCapability(id)}
-                      placeholder="Select Capabilities"
-                      isDisabled={loading}
+                <div className='d-flex align-items-center gap-2'>
+                  <SDLReactSelect
+                    value={selectedCapability}
+                    options={capabilityOptions.map(opt => ({
+                      value: opt.id,
+                      label: opt.label
+                    }))}
+                    onChange={id => handleSelectCapability(id)}
+                    placeholder='Select Capabilities'
+                    isDisabled={loading}
+                    width='330px'
+                  />
+                  <ViewToggleButton
+                      showAll={showAll}
+                      onClick={() => setShowAll(prev => !prev)}
+                      disabled={loading}
                     />
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
-                    onClick={handleToggleView}
-                    disabled={isSubmitting}
-                    style={{ minWidth: "15px" }}
-                  >
-                    <i className={`fas ${showAll ? "fa-edit" : "fa-table"}`} />
-                  </button>
                 </div>
               </div>
 
               {!showAll ? (
                 <>
-                  <div className="row mb-3">
+                  <div className='row mb-3'>
                     {/* <div className="col-lg-4"> */}
-                      {/* Capabilities Code — searchable + creatable, same
+                    {/* Capabilities Code — searchable + creatable, same
                           pattern as KRA Master / Department Master. Always
                           searchable now regardless of isEditing: selecting
                           an existing code behaves like the old edit-mode
                           <select>, typing a new one behaves like the old
                           add-mode free-text <input>. */}
-                      {/* <SDLDropdownSelect
+                    {/* <SDLDropdownSelect
                         id="capaCode"
                         label="Capabilities Code"
                         options={capabilityOptions}
@@ -273,45 +292,71 @@ const Capabilities = () => {
                         placeholder={isEditing ? "Please Select" : "Enter new capability code"}
                       />
                     </div> */}
-                    <div className="col-lg-4">
-                      <label className="form-label">Capabilities Code</label>
+                    <div className='col-lg-4'>
+                      <label className='form-label'>Capabilities Code</label>
                       <SDLReactSelect
                         value={formData.CAPA_CODE}
-                        options={capabilityOptions.map((opt) => ({ value: opt.id, label: opt.label }))}
-                        onChange={(id) => handleFieldChange("CAPA_CODE", id)}
+                        options={capabilityOptions.map(opt => ({
+                          value: opt.id,
+                          label: opt.label
+                        }))}
+                        onChange={id => handleFieldChange('CAPA_CODE', id)}
                         hasError={!!errors.CAPA_CODE}
                         allowAddNew
-                        onAddNew={async (typedText) => {
-                          const newOption = await handleAddNewCapabilityCode(typedText);
-                          return newOption ? { value: newOption.id, label: newOption.label } : null;
+                        onAddNew={async typedText => {
+                          const newOption = await handleAddNewCapabilityCode(
+                            typedText
+                          )
+                          return newOption
+                            ? { value: newOption.id, label: newOption.label }
+                            : null
                         }}
                         onFilterChange={handleCapabilityCodeSearch}
                         notifyFilterOnSelect
-                        placeholder={isEditing ? "Please Select" : "Enter new capability code"}
+                        placeholder={
+                          isEditing
+                            ? 'Please Select'
+                            : 'Enter new capability code'
+                        }
                       />
-                      {errors.CAPA_CODE && <div className="invalid-feedback d-block">{errors.CAPA_CODE}</div>}
+                      {errors.CAPA_CODE && (
+                        <div className='invalid-feedback d-block'>
+                          {errors.CAPA_CODE}
+                        </div>
+                      )}
                     </div>
 
-                    <div className="col-lg-6">
-                      <label className="form-label">Description</label>
+                    <div className='col-lg-6'>
+                      <label className='form-label'>Description</label>
                       <input
-                        type="text"
-                        className={`form-control ${errors.CAPA_DESC ? "is-invalid" : ""}`}
+                        type='text'
+                        className={`form-control ${
+                          errors.CAPA_DESC ? 'is-invalid' : ''
+                        }`}
                         value={formData.CAPA_DESC}
-                        onChange={(e) => handleFieldChange("CAPA_DESC", e.target.value)}
-                        maxLength="500"
+                        onChange={e =>
+                          handleFieldChange('CAPA_DESC', e.target.value)
+                        }
+                        maxLength='500'
                       />
-                      {errors.CAPA_DESC && <div className="invalid-feedback">{errors.CAPA_DESC}</div>}
+                      {errors.CAPA_DESC && (
+                        <div className='invalid-feedback'>
+                          {errors.CAPA_DESC}
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  <div className="text-end mb-3">
-                    <button type="button" className="btn btn-primary me-2" onClick={handleSave} disabled={isSubmitting}>
-                      {isSubmitting ? "Processing..." : isEditing ? "Update" : "Save"}
-                    </button>
-                    <button type="button" className="btn btn-secondary" onClick={resetForm}>
-                      Cancel
-                    </button>
+                  <div className='text-end mb-3'>
+                    <SaveButton
+                      onClick={handleSave}
+                      disabled={isSubmitting}
+                      isSubmitting={isSubmitting}
+                      isEditing={isEditing}
+                      className='me-2'
+                    />
+
+                    <CancelButton onClick={resetForm} />
                   </div>
 
                   {/* Inline preview table — only while there's an active
@@ -319,9 +364,9 @@ const Capabilities = () => {
                       mode. Disappears once the search is cleared or the
                       form is reset/submitted (see resetForm). */}
                   {codeSearchQuery.trim() && (
-                    <div className="table-responsive mt-2">
+                    <div className='table-responsive mt-2'>
                       {formFilteredData.length === 0 ? (
-                        <div className="p-3 text-center text-muted border rounded">
+                        <div className='p-3 text-center text-muted border rounded'>
                           No matching capabilities
                         </div>
                       ) : (
@@ -329,7 +374,7 @@ const Capabilities = () => {
                           data={formFilteredData}
                           columns={columns}
                           loading={false}
-                          emptyMessage="No matching capabilities"
+                          emptyMessage='No matching capabilities'
                           removableSort
                         />
                       )}
@@ -339,10 +384,16 @@ const Capabilities = () => {
               ) : (
                 <>
                   {filteredData.length === 0 ? (
-                    <div className="p-4 text-center text-muted">No records found</div>
+                    <div className='p-4 text-center text-muted'>
+                      No records found
+                    </div>
                   ) : (
-                    <div className="table-responsive">
-                      <SDLDataTable data={filteredData} columns={columns} loading={loading} />
+                    <div className='table-responsive'>
+                      <SDLDataTable
+                        data={filteredData}
+                        columns={columns}
+                        loading={loading}
+                      />
                     </div>
                   )}
                 </>
@@ -351,9 +402,8 @@ const Capabilities = () => {
           </div>
         </div>
       </div>
-      </div>
     </>
-  );
-};
+  )
+}
 
-export default Capabilities;
+export default Capabilities

@@ -1,46 +1,64 @@
-import SDLActionButtons from "../../../components/SDLActionButtons";
-import { buildOptionsFromRow } from "./questionOptionsUtils";
-import { getQuestionMasterActions } from "./questionMasterActions";
+// import SDLActionButtons from "../../../components/SDLActionButtons";
+import { buildOptionsFromRow } from './questionOptionsUtils'
+import { getQuestionMasterActions } from './questionMasterActions'
+import EditButton from '../components/buttons/EditButton'
+import DeleteButton from '../components/buttons/DeleteButton'
 
-const serialBody = (rowData, options) => options.rowIndex + 1;
+const serialBody = (rowData, options) => options.rowIndex + 1
 
-export const questionMasterColumns = ({ handleEdit, handleDelete, deletingId }) => [
+export const questionMasterColumns = ({
+  handleEdit,
+  handleDelete,
+  deletingId
+}) => [
   {
-    header: "#",
+    header: '#',
     body: serialBody,
-    style: { width: "70px", textAlign: "center" },
+    style: {
+      width: '40px',
+      minWidth: '40px',
+      maxWidth: '40px',
+      textAlign: 'center'
+    },
+    headerStyle: {
+      width: '40px',
+      minWidth: '40px',
+      maxWidth: '40px',
+      textAlign: 'center'
+    }
   },
   {
-    header: "Group",
-    body: (r) => r.GROUP_NAME || r.QSGRP_DESC || "",
-    style: { width: "200px" },
+    header: 'Group',
+    body: r => r.GROUP_NAME || r.QSGRP_DESC || '',
+    style: { width: '150px' }
   },
   {
-    header: "Sub Group",
+    header: 'Sub Group',
     // Fixed: listData now outputs SUBGROUP_NAME (renamed from a QSGRP_DESC
     // key that was colliding with the Group field's own name). QSSGRP_DESC
     // / SUBGROUP_DESC are kept as fallbacks in case this column is ever
     // reused against raw, un-normalized API rows.
-    body: (r) => r.SUBGROUP_NAME || r.QSSGRP_DESC || r.SUBGROUP_DESC || "",
-    style: { width: "200px" },
+    body: r => r.SUBGROUP_NAME || r.QSSGRP_DESC || r.SUBGROUP_DESC || '',
+    style: { width: '100px' }
   },
   {
-    header: "Question",
-    body: (r) => r.QUES_DESCR || r.QUESTION || "",
-    style: { minWidth: "300px" },
+    header: 'Question',
+    body: r => r.QUES_DESCR || r.QUESTION || '',
+    style: { minWidth: '200px' }
   },
   {
-    header: "Type",
-    body: (r) => r.RATING || r.rating || r.answer_type || r.ANSWER_TYPE || "",
-    style: { width: "120px" },
+    header: 'Type',
+    body: r => r.RATING || r.rating || r.answer_type || r.ANSWER_TYPE || '',
+    style: { width: '150px' }
   },
   {
-    header: "Options",
-    body: (r) => buildOptionsFromRow(r).filter(Boolean).join(", "),
+    header: 'Options',
+    body: r => buildOptionsFromRow(r).filter(Boolean).join(', '),
+    style: { width: '150px' }
   },
   {
-    header: "Action",
-    body: (r) => (
+    header: 'Action',
+    body: r => (
       // <div className="d-flex gap-2">
       //   <button
       //     type="button"
@@ -64,14 +82,23 @@ export const questionMasterColumns = ({ handleEdit, handleDelete, deletingId }) 
       //     )}
       //   </button>
       // </div>
-      <SDLActionButtons
-        row={r}
-        actions={getQuestionMasterActions({
-          handleEdit,
-          handleDelete,
-          deletingId,
-        })}
-      />
-    ),
-  },
-];
+      // <SDLActionButtons
+      //   row={r}
+      //   actions={getQuestionMasterActions({
+      //     handleEdit,
+      //     handleDelete,
+      //     deletingId,
+      //   })}
+      // />
+      <div className='d-flex align-items-center justify-content-center gap-2'>
+        <EditButton onClick={() => handleEdit(r)} ariaLabel='Edit Question' />
+
+        <DeleteButton
+          onClick={() => handleDelete(r)}
+          loading={deletingId === r.ID}
+          ariaLabel='Delete Question'
+        />
+      </div>
+    )
+  }
+]
