@@ -5,7 +5,56 @@ import { saveBankDetails } from "../../../../services/profile/profileService";
 import {
   notifySuccess,
   notifyError,
+  notifyWarning,
 } from "../../../../services/alertService";
+
+/* =========================================================
+   RENDER PENDING BANK DETAILS IN POPUP (Clean Card Format)
+========================================================= */
+
+const renderPendingBankDetailsHtml = (message, pendingData) => {
+  if (!pendingData || Object.keys(pendingData).length === 0) {
+    return `<div style="font-size: 0.95rem; color: #4b5563; line-height: 1.5;">${message}</div>`;
+  }
+
+  const fields = [
+    { label: "Bank Name", value: pendingData.bank_name },
+    { label: "Branch", value: pendingData.bank_branch },
+    { label: "IFSC Code", value: pendingData.bank_ifsc },
+    { label: "Account Number", value: pendingData.bank_acno },
+    { label: "Bank Nominee", value: pendingData.bank_nominee },
+  ];
+
+  const detailRows = fields
+    .filter((f) => Boolean(f.value))
+    .map(
+      (f) => `
+      <tr style="border-bottom: 1px solid #edf2f7;">
+        <td style="padding: 7px 12px; font-weight: 500; color: #64748b; width: 40%;">${f.label}</td>
+        <td style="padding: 7px 12px; font-weight: 600; color: #1e293b;">${f.value}</td>
+      </tr>`
+    )
+    .join("");
+
+  return `
+    <div style="text-align: left; font-size: 0.9rem;">
+      <p style="color: #475569; margin-bottom: 14px; text-align: center; line-height: 1.5;">
+        ${message}
+      </p>
+
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+        <div style="background: #f1f5f9; padding: 8px 12px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: #475569; letter-spacing: 0.04em; border-bottom: 1px solid #e2e8f0;">
+          Pending Bank Request Details
+        </div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem;">
+          <tbody>
+            ${detailRows}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+};
 
 const bankDetailsTab = ({ profile }) => {
   /* =========================================================
@@ -19,7 +68,6 @@ const bankDetailsTab = ({ profile }) => {
   ========================================================= */
 
   const [showBankForm, setShowBankForm] = useState(false);
-
   const [bankSaving, setBankSaving] = useState(false);
 
   const [bankForm, setBankForm] = useState({
@@ -80,20 +128,14 @@ const bankDetailsTab = ({ profile }) => {
   const handleEditBank = () => {
     const currentBank = {
       bank_name: normalizeBankName(emp?.BANK_NAME),
-
       bank_branch: normalizeBankBranch(emp?.AC_BRANCH_NAME),
-
       bank_ifsc: normalizeBankIfsc(emp?.AC_IFSC_NO),
-
       bank_acno: normalizeBankAccount(emp?.BANK_ACCT),
-
       bank_nominee: normalizeBankNominee(emp?.BANK_NOMINEE),
     };
 
     setBankForm(currentBank);
-
     setOriginalBankForm(currentBank);
-
     setShowBankForm(true);
   };
 
@@ -121,13 +163,9 @@ const bankDetailsTab = ({ profile }) => {
 
     const currentBank = {
       bank_name: normalizeBankName(bankForm.bank_name),
-
       bank_branch: normalizeBankBranch(bankForm.bank_branch),
-
       bank_ifsc: normalizeBankIfsc(bankForm.bank_ifsc),
-
       bank_acno: normalizeBankAccount(bankForm.bank_acno),
-
       bank_nominee: normalizeBankNominee(bankForm.bank_nominee),
     };
 
@@ -164,10 +202,6 @@ const bankDetailsTab = ({ profile }) => {
       return;
     }
 
-    /* =======================================================
-       IFSC LENGTH VALIDATION
-    ======================================================= */
-
     if (currentBank.bank_ifsc.length !== 11) {
       notifyError("IFSC must be 11 characters.");
       return;
@@ -187,25 +221,11 @@ const bankDetailsTab = ({ profile }) => {
     ======================================================= */
 
     const originalBank = {
-      bank_name: normalizeBankName(
-        originalBankForm.bank_name
-      ),
-
-      bank_branch: normalizeBankBranch(
-        originalBankForm.bank_branch
-      ),
-
-      bank_ifsc: normalizeBankIfsc(
-        originalBankForm.bank_ifsc
-      ),
-
-      bank_acno: normalizeBankAccount(
-        originalBankForm.bank_acno
-      ),
-
-      bank_nominee: normalizeBankNominee(
-        originalBankForm.bank_nominee
-      ),
+      bank_name: normalizeBankName(originalBankForm.bank_name),
+      bank_branch: normalizeBankBranch(originalBankForm.bank_branch),
+      bank_ifsc: normalizeBankIfsc(originalBankForm.bank_ifsc),
+      bank_acno: normalizeBankAccount(originalBankForm.bank_acno),
+      bank_nominee: normalizeBankNominee(originalBankForm.bank_nominee),
     };
 
     const hasChanges =
@@ -216,10 +236,7 @@ const bankDetailsTab = ({ profile }) => {
       currentBank.bank_nominee !== originalBank.bank_nominee;
 
     if (!hasChanges) {
-      notifyError(
-        "No changes found in bank details."
-      );
-
+      notifyError("No changes found in bank details.");
       return;
     }
 
@@ -230,52 +247,48 @@ const bankDetailsTab = ({ profile }) => {
     setBankSaving(true);
 
     try {
-  const payload = {
-    bank_name: currentBank.bank_name,
-    bank_branch: currentBank.bank_branch,
-    bank_ifsc: currentBank.bank_ifsc,
-    bank_acno: currentBank.bank_acno,
-    bank_nominee: currentBank.bank_nominee,
-  };
+      const payload = {
+        bank_name: currentBank.bank_name,
+        bank_branch: currentBank.bank_branch,
+        bank_ifsc: currentBank.bank_ifsc,
+        bank_acno: currentBank.bank_acno,
+        bank_nominee: currentBank.bank_nominee,
+      };
 
-  console.log("BANK UPDATE PAYLOAD:", payload);
+      const res = await saveBankDetails(payload);
 
-  const res = await saveBankDetails(payload);
+      if (res?.status) {
+        setShowBankForm(false);
+        notifySuccess(
+          res?.message ||
+            "Bank details update request submitted successfully for authorization."
+        );
+        return;
+      }
 
-  console.log("BANK UPDATE RESPONSE:", res);
+      notifyError(
+        res?.message || "Unable to submit bank details update request."
+      );
+    } catch (error) {
+      console.error("BANK UPDATE ERROR:", error);
 
-  if (res?.status) {
-    setShowBankForm(false);
+      const responseData = error?.response?.data || error?.data;
+      const apiMessage =
+        responseData?.message ||
+        error?.message ||
+        "Unable to submit bank details update request.";
 
-    notifySuccess(
-      res?.message ||
-        "Bank details update request submitted successfully for authorization."
-    );
-
-    return;
-  }
-
-  notifyError(
-    res?.message ||
-      "Unable to submit bank details update request."
-  );
-
-} catch (error) {
-
-  console.error("BANK UPDATE ERROR:", error);
-
-  const apiMessage =
-    error?.response?.data?.message ||
-    error?.data?.message ||
-    error?.message ||
-    "Unable to submit bank details update request.";
-
-  notifyError(apiMessage);
-
-} finally {
-
-  setBankSaving(false);
-}
+      if (error?.response?.status === 409 || error?.status === 409) {
+        const pendingDetails = responseData?.data?.pending_data;
+        notifyWarning(
+          renderPendingBankDetailsHtml(apiMessage, pendingDetails)
+        );
+      } else {
+        notifyError(apiMessage);
+      }
+    } finally {
+      setBankSaving(false);
+    }
   };
 
   /* =========================================================
@@ -290,10 +303,7 @@ const bankDetailsTab = ({ profile }) => {
 
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
-          <h6 className="mb-1">
-            Bank & Other Details
-          </h6>
-
+          <h6 className="mb-1">Bank & Other Details</h6>
           <small className="text-muted">
             Bank detail changes require authorization.
           </small>
@@ -320,100 +330,70 @@ const bankDetailsTab = ({ profile }) => {
               <td style={{ width: "220px" }}>
                 <strong>Bank Name:</strong>
               </td>
-
-              <td>
-                {emp?.BANK_NAME || "Not Given"}
-              </td>
+              <td>{emp?.BANK_NAME || "Not Given"}</td>
             </tr>
 
             <tr>
               <td>
                 <strong>Account Number:</strong>
               </td>
-
-              <td>
-                {emp?.BANK_ACCT || "Not Given"}
-              </td>
+              <td>{emp?.BANK_ACCT || "Not Given"}</td>
             </tr>
 
             <tr>
               <td>
                 <strong>IFSC:</strong>
               </td>
-
-              <td>
-                {emp?.AC_IFSC_NO || "Not Given"}
-              </td>
+              <td>{emp?.AC_IFSC_NO || "Not Given"}</td>
             </tr>
 
             <tr>
               <td>
                 <strong>Branch:</strong>
               </td>
-
-              <td>
-                {emp?.AC_BRANCH_NAME || "Not Given"}
-              </td>
+              <td>{emp?.AC_BRANCH_NAME || "Not Given"}</td>
             </tr>
 
             <tr>
               <td>
                 <strong>Bank Nominee:</strong>
               </td>
-
-              <td>
-                {emp?.BANK_NOMINEE || "Not Given"}
-              </td>
+              <td>{emp?.BANK_NOMINEE || "Not Given"}</td>
             </tr>
 
             <tr>
               <td>
                 <strong>Pan Number:</strong>
               </td>
-
-              <td>
-                {emp?.IT_NO || "Not Given"}
-              </td>
+              <td>{emp?.IT_NO || "Not Given"}</td>
             </tr>
 
             <tr>
               <td>
                 <strong>Aadhaar Number:</strong>
               </td>
-
-              <td>
-                {emp?.AADHAR_NO || "Not Given"}
-              </td>
+              <td>{emp?.AADHAR_NO || "Not Given"}</td>
             </tr>
 
             <tr>
               <td>
                 <strong>PF (UAN):</strong>
               </td>
-
-              <td>
-                {emp?.UAN_NO || "Not Given"}
-              </td>
+              <td>{emp?.UAN_NO || "Not Given"}</td>
             </tr>
 
             <tr>
               <td>
                 <strong>ESI Number:</strong>
               </td>
-
-              <td>
-                {emp?.ESIC_NO || "NA"}
-              </td>
+              <td>{emp?.ESIC_NO || "NA"}</td>
             </tr>
 
             <tr>
               <td>
                 <strong>Working Site:</strong>
               </td>
-
-              <td>
-                {emp?.WORK_SITE || "Not Given"}
-              </td>
+              <td>{emp?.WORK_SITE || "Not Given"}</td>
             </tr>
           </tbody>
         </table>
@@ -436,17 +416,13 @@ const bankDetailsTab = ({ profile }) => {
         >
           <div className="modal-dialog modal-lg modal-dialog-centered">
             <div className="modal-content">
-
               {/* =============================================
                   MODAL HEADER
               ============================================= */}
 
               <div className="modal-header">
                 <div>
-                  <h5 className="modal-title mb-1">
-                    Update Bank Details
-                  </h5>
-
+                  <h5 className="modal-title mb-1">Update Bank Details</h5>
                   <small className="text-muted">
                     Changes will be sent for authorization.
                   </small>
@@ -463,9 +439,7 @@ const bankDetailsTab = ({ profile }) => {
                   }}
                   disabled={bankSaving}
                 >
-                  <span aria-hidden="true">
-                    ×
-                  </span>
+                  <span aria-hidden="true">×</span>
                 </button>
               </div>
 
@@ -474,30 +448,21 @@ const bankDetailsTab = ({ profile }) => {
               ============================================= */}
 
               <div className="modal-body">
-
                 <div className="alert alert-warning d-flex align-items-center mb-4">
                   <i className="ti ti-info-circle me-2"></i>
-
                   <span>
-                    Your current bank details will remain
-                    unchanged until the request is authorized.
+                    Your current bank details will remain unchanged until the
+                    request is authorized.
                   </span>
                 </div>
 
                 <div className="row g-3">
-
-                  {/* =========================================
-                      BANK NAME
-                  ========================================= */}
-
+                  {/* BANK NAME */}
                   <div className="col-md-6">
                     <label className="form-label">
                       Bank Name
-                      <span className="text-danger">
-                        {" "}*
-                      </span>
+                      <span className="text-danger"> *</span>
                     </label>
-
                     <input
                       type="text"
                       className="form-control"
@@ -510,18 +475,12 @@ const bankDetailsTab = ({ profile }) => {
                     />
                   </div>
 
-                  {/* =========================================
-                      BRANCH
-                  ========================================= */}
-
+                  {/* BRANCH */}
                   <div className="col-md-6">
                     <label className="form-label">
                       Bank Branch
-                      <span className="text-danger">
-                        {" "}*
-                      </span>
+                      <span className="text-danger"> *</span>
                     </label>
-
                     <input
                       type="text"
                       className="form-control"
@@ -534,32 +493,22 @@ const bankDetailsTab = ({ profile }) => {
                     />
                   </div>
 
-                  {/* =========================================
-                      IFSC
-                  ========================================= */}
-
+                  {/* IFSC */}
                   <div className="col-md-6">
                     <label className="form-label">
                       IFSC
-                      <span className="text-danger">
-                        {" "}*
-                      </span>
+                      <span className="text-danger"> *</span>
                     </label>
-
                     <input
                       type="text"
                       className="form-control text-uppercase"
                       name="bank_ifsc"
                       value={bankForm.bank_ifsc}
                       onChange={(e) => {
-                        const value =
-                          e.target.value
-                            .toUpperCase()
-                            .replace(
-                              /[^A-Z0-9]/g,
-                              ""
-                            )
-                            .slice(0, 11);
+                        const value = e.target.value
+                          .toUpperCase()
+                          .replace(/[^A-Z0-9]/g, "")
+                          .slice(0, 11);
 
                         setBankForm((prev) => ({
                           ...prev,
@@ -572,27 +521,19 @@ const bankDetailsTab = ({ profile }) => {
                     />
                   </div>
 
-                  {/* =========================================
-                      ACCOUNT NUMBER
-                  ========================================= */}
-
+                  {/* ACCOUNT NUMBER */}
                   <div className="col-md-6">
                     <label className="form-label">
                       Account Number
-                      <span className="text-danger">
-                        {" "}*
-                      </span>
+                      <span className="text-danger"> *</span>
                     </label>
-
                     <input
                       type="text"
                       className="form-control"
                       name="bank_acno"
                       value={bankForm.bank_acno}
                       onChange={(e) => {
-                        const value =
-                          e.target.value
-                            .replace(/\D/g, "");
+                        const value = e.target.value.replace(/\D/g, "");
 
                         setBankForm((prev) => ({
                           ...prev,
@@ -606,15 +547,9 @@ const bankDetailsTab = ({ profile }) => {
                     />
                   </div>
 
-                  {/* =========================================
-                      NOMINEE
-                  ========================================= */}
-
+                  {/* NOMINEE */}
                   <div className="col-md-6">
-                    <label className="form-label">
-                      Bank Nominee
-                    </label>
-
+                    <label className="form-label">Bank Nominee</label>
                     <input
                       type="text"
                       className="form-control"
@@ -626,7 +561,6 @@ const bankDetailsTab = ({ profile }) => {
                       autoComplete="off"
                     />
                   </div>
-
                 </div>
               </div>
 
@@ -635,7 +569,6 @@ const bankDetailsTab = ({ profile }) => {
               ============================================= */}
 
               <div className="modal-footer">
-
                 <button
                   type="button"
                   className="btn btn-primary me-2"
@@ -649,7 +582,6 @@ const bankDetailsTab = ({ profile }) => {
                         role="status"
                         aria-hidden="true"
                       ></span>
-
                       Submitting...
                     </>
                   ) : (
@@ -668,9 +600,7 @@ const bankDetailsTab = ({ profile }) => {
                 >
                   Cancel
                 </button>
-
               </div>
-
             </div>
           </div>
         </div>
