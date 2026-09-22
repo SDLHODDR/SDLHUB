@@ -6,6 +6,7 @@ import {
   deleteAllowance,
 } from "../services/orgonogramService";
 import { notifyError, notifySuccess, confirmAction } from "../../../services/alertService";
+import { formatDateForApi } from "../../../utils/formatUtils";
 
 const asArray = (res) =>
   Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : [];
@@ -19,9 +20,9 @@ const useAllowancesTabHandler = (organogramId, locId) => {
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
-  const [isAdding, setIsAdding] = useState(false);
-  const [selectedAllowIds, setSelectedAllowIds] = useState([]);
-  const [newEffecFrom, setNewEffecFrom] = useState(null);
+  const [editingAllowanceId, setEditingAllowanceId] = useState(null);
+  const [selectedAllowId, setSelectedAllowId] = useState("");
+  const [effectiveFrom, setEffectiveFrom] = useState(null);
 
   const loadAllowances = useCallback(async () => {
     if (!locId || !organogramId) {
@@ -44,20 +45,27 @@ const useAllowancesTabHandler = (organogramId, locId) => {
   }, [locId, organogramId]);
 
   useEffect(() => {
-    loadAllowances();
+    const loadTask = Promise.resolve().then(loadAllowances);
+    return () => loadTask.catch(() => {});
   }, [loadAllowances]);
 
-  const loadAllowanceOptions = useCallback(async () => {
+  const loadAllowanceOptions = useCallback(async (currentAllowance = null) => {
     if (!locId) return;
     try {
         setLoadingOptions(true);
         const res = await getAllowanceOptions({ LOC_ID: locId });
-        console.log("=========RES=======", res);
         const rows = asArray(res.data);
-        console.log("=========ROWS=======", rows);
-        setAllowanceOptions(
-        rows.map((r) => ({ id: r.ALLOW_ID, label: r.ALLOW_DESC ?? "" }))
-        );
+        const options = rows.map((r) => ({ value: r.ALLOW_ID, label: r.ALLOW_DESC ?? "" }));
+        if (
+          currentAllowance?.ALLOW_ID &&
+          !options.some((option) => String(option.value) === String(currentAllowance.ALLOW_ID))
+        ) {
+          options.unshift({
+            value: currentAllowance.ALLOW_ID,
+            label: currentAllowance.ALLOW_DESC ?? "",
+          });
+        }
+        setAllowanceOptions(options);
     } catch (error) {
         console.error("Load allowance options error:", error);
         notifyError(error?.message || "Unable to load allowance options.");
@@ -66,63 +74,67 @@ const useAllowancesTabHandler = (organogramId, locId) => {
     }
     }, [locId]);
 
-  // Fetched fresh every time "Add Allowance" opens — the exclusion
-  // list (already-assigned allowances) changes after every save.
-  const startAddAllowance = useCallback(() => {
-    setIsAdding(true);
-    setSelectedAllowIds([]);
-    setNewEffecFrom(null);
+  useEffect(() => {
+    const loadTask = Promise.resolve().then(loadAllowanceOptions);
+    return () => loadTask.catch(() => {});
+  }, [loadAllowanceOptions]);
+
+  const startEditingAllowance = useCallback((row) => {
+    setEditingAllowanceId(row.ID);
+    setSelectedAllowId(row.ALLOW_ID ?? "");
+    setEffectiveFrom(row.EFFEC_FROM instanceof Date ? row.EFFEC_FROM : null);
+    loadAllowanceOptions(row);
+  }, [loadAllowanceOptions]);
+
+  const startAddingAllowance = useCallback(() => {
+    setEditingAllowanceId(null);
+    setSelectedAllowId("");
+    setEffectiveFrom(null);
     loadAllowanceOptions();
   }, [loadAllowanceOptions]);
 
-  const cancelAddAllowance = useCallback(() => {
-    setIsAdding(false);
-    setSelectedAllowIds([]);
-    setNewEffecFrom(null);
+  const cancelEditingAllowance = useCallback(() => {
+    setEditingAllowanceId(null);
+    setSelectedAllowId("");
+    setEffectiveFrom(null);
   }, []);
 
-  const saveNewAllowanceRow = useCallback(async () => {
-    if (!selectedAllowIds.length) {
-      notifyError("Select at least one allowance.");
+  const saveAllowanceForm = useCallback(async () => {
+    if (!selectedAllowId) {
+      notifyError("Allowance is required.");
       return;
     }
-    if (!newEffecFrom) {
+    if (!effectiveFrom) {
       notifyError("Effective From date is required.");
       return;
     }
 
     try {
       setSaving(true);
-      // Multiple ids selected -> one save call each, same EFFEC_FROM.
-      const results = await Promise.all(
-        selectedAllowIds.map((allowId) =>
-          saveAllowance({
-            ORG_LOC_ID: locId,
-            ORG_ID: organogramId,
-            ALLOW_ID: allowId,
-            EFFEC_FROM: newEffecFrom,
-          })
-        )
-      );
-
-      const failed = results.filter((r) => !r?.status);
-      if (failed.length) {
-        notifyError(`${failed.length} of ${results.length} allowance(s) failed to save.`);
-      } else {
-        notifySuccess("Allowance(s) added.");
+      const res = await saveAllowance({
+        ID: editingAllowanceId || undefined,
+        ORG_LOC_ID: locId,
+        ORG_ID: organogramId,
+        ALLOW_ID: selectedAllowId,
+        EFFEC_FROM: formatDateForApi(effectiveFrom),
+      });
+      if (!res?.status) {
+        notifyError(res?.message || "Unable to save allowance.");
+        return false;
       }
 
-      setIsAdding(false);
-      setSelectedAllowIds([]);
-      setNewEffecFrom(null);
-      loadAllowances();
+      notifySuccess(res?.message || (editingAllowanceId ? "Allowance updated." : "Allowance added."));
+      cancelEditingAllowance();
+      await loadAllowances();
+      return true;
     } catch (error) {
       console.error("Save allowance error:", error);
       notifyError(error?.message || "Unable to save allowance.");
+      return false;
     } finally {
       setSaving(false);
     }
-  }, [locId, organogramId, selectedAllowIds, newEffecFrom, loadAllowances]);
+  }, [locId, organogramId, editingAllowanceId, selectedAllowId, effectiveFrom, loadAllowances, cancelEditingAllowance]);
 
   const removeAllowanceRow = useCallback(
     (row) => {
@@ -149,8 +161,6 @@ const useAllowancesTabHandler = (organogramId, locId) => {
     },
     [loadAllowances]
   );
-  console.log("================allowanceOptions============", allowanceOptions);
-
   return {
     allowanceRows,
     allowanceOptions,
@@ -158,14 +168,15 @@ const useAllowancesTabHandler = (organogramId, locId) => {
     loadingOptions,
     saving,
     deletingId,
-    isAdding,
-    selectedAllowIds,
-    setSelectedAllowIds,
-    newEffecFrom,
-    setNewEffecFrom,
-    startAddAllowance,
-    cancelAddAllowance,
-    saveNewAllowanceRow,
+    editingAllowanceId,
+    selectedAllowId,
+    setSelectedAllowId,
+    effectiveFrom,
+    setEffectiveFrom,
+    startEditingAllowance,
+    startAddingAllowance,
+    cancelEditingAllowance,
+    saveAllowanceForm,
     removeAllowanceRow,
   };
 };

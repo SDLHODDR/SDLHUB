@@ -81,6 +81,8 @@ const menuStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
+  
+
 /**
  * Thin wrapper around react-select that behaves like a native <select>:
  * - value: raw id/string (not an {value,label} object)
@@ -98,6 +100,22 @@ const menuStyles = {
  * Every other caller that doesn't pass onAddNew gets the plain Select as
  * before, so this is fully backward compatible.
  */
+// const SDLReactSelect = ({
+//   value,
+//   options,
+//   onChange,
+//   placeholder = "Please Select",
+//   hasError = false,
+//   isClearable = true,
+//   isLoading = false,
+//   isDisabled = false,
+//   allowAddNew = false,
+//   onAddNew,
+//   onFilterChange,
+//   isCreating = false,
+//   notifyFilterOnSelect = false, // opt-in: also call onFilterChange(label) on click-select, not just on typing
+// }) => {
+// AFTER
 const SDLReactSelect = ({
   value,
   options,
@@ -111,10 +129,24 @@ const SDLReactSelect = ({
   onAddNew,
   onFilterChange,
   isCreating = false,
-  notifyFilterOnSelect = false, // opt-in: also call onFilterChange(label) on click-select, not just on typing
-}) => {
+  notifyFilterOnSelect = false,
+  width,                        // NEW
+  styles: stylesOverride = {},  // NEW
+}) => {  
+  
   const selectedOption =
     options.find((opt) => String(opt.value) === String(value)) || null;
+
+  // NEW
+  const mergedStyles = {
+    ...getStyles(hasError),
+    ...menuStyles,
+    control: (base, state) => ({
+      ...getStyles(hasError).control(base, state),
+      ...(width ? { width } : {}),
+    }),
+    ...stylesOverride,
+  };
 
   const handleChange = (selectedOpt, actionMeta) => {
     onChange(selectedOpt ? selectedOpt.value : "", selectedOpt || null);
@@ -155,7 +187,8 @@ const SDLReactSelect = ({
         placeholder={placeholder}
         isClearable={isClearable}
         isDisabled={isDisabled}
-        styles={{ ...getStyles(hasError), ...menuStyles }}
+        //styles={{ ...getStyles(hasError), ...menuStyles }}
+        styles={mergedStyles}
         menuPortalTarget={document.body}
         menuPosition="fixed"
       />
@@ -172,7 +205,8 @@ const SDLReactSelect = ({
       isClearable={isClearable}
       isLoading={isLoading}
       isDisabled={isDisabled}
-      styles={{ ...getStyles(hasError), ...menuStyles }}
+      //styles={{ ...getStyles(hasError), ...menuStyles }}
+      styles={mergedStyles}
       menuPortalTarget={document.body}
       menuPosition="fixed"
     />
