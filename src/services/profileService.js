@@ -39,17 +39,20 @@ export const getSalaryStructure = () =>
    FAMILY
 ============================ */
 
-export const saveFamilyMember = (payload) =>
-  coreRequest({
-    url: PORTALAPI.MYPROFILE.SAVE_FAMILY_MEMBER,
+export const saveFamilyMember = (payload) => {
+  const isFormData = payload instanceof FormData;
+
+  return coreRequest({
+    url: PORTALAPI.PROFILE.SAVE_FAMILY_MEMBER,
     method: "POST",
-    dedupe: true,
+    dedupe: !isFormData, // Disable deduplication for FormData
     data: payload,
   });
+};
 
 export const deleteFamilyMember = (payload) =>
   coreRequest({
-    url: PORTALAPI.MYPROFILE.DELETE_FAMILY_MEMBER,
+    url: PORTALAPI.PROFILE.DELETE_FAMILY_MEMBER,
     method: "POST",
     dedupe: true,
     data: payload,
