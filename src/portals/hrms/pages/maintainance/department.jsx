@@ -19,7 +19,12 @@ import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
 import { getPortalFromPath } from '../../../../config/portalConfig'
 import SDLSearch from '../../../../components/datatable/SDLSearch'
 import SDLDataTable from '../../../../components/datatable/SDLDataTable'
-import { Dropdown } from 'primereact/dropdown'
+import SaveButton from '../../components/buttons/SaveButton'
+import EditButton from '../../components/buttons/EditButton'
+import CancelButton from '../../components/buttons/CancelButton'
+import SDLReactSelect from '../../../../components/SDLReactSelect'
+import SDLInput from '../../../../components/SDLInput'
+import ViewToggleButton from '../../components/buttons/ViewToggleButton'
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload
@@ -90,6 +95,8 @@ const Department = () => {
   const [accountOptions, setAccountOptions] = useState([])
   const [costCenterOptions, setCostCenterOptions] = useState([])
 
+  const TOP_CONTROL_WIDTH = '330px'
+
   const refreshDepartmentData = useCallback(async () => {
     try {
       const slicePath = '../../../../store/hrms/hrmsDepartmentSlice'
@@ -135,8 +142,6 @@ const Department = () => {
 
         console.log('========== COST CENTERS ==========')
         console.log(costCentersResponse)
-        // setAccountOptions(normalizeRecords(accountsResponse))
-        // setCostCenterOptions(normalizeRecords(costCentersResponse))
 
         const accounts =
           accountsResponse?.data?.accounts || accountsResponse?.accounts || []
@@ -156,39 +161,17 @@ const Department = () => {
     fetchAccountAndCostCenterData()
   }, [])
 
-  // const accountDescriptionMap = useMemo(
-  //   () =>
-  //     Object.fromEntries(
-  //       accountOptions.map(option => [option.ACCT_CODE, option.DESCR])
-  //     ),
-  //   [accountOptions]
-  // )
-
-  // const costCenterDescriptionMap = useMemo(
-  //   () =>
-  //     Object.fromEntries(
-  //       costCenterOptions.map(option => [option.CCTR_CODE, option.DESCR])
-  //     ),
-  //   [costCenterOptions]
-  // )
-
   const accountDescriptionMap = useMemo(() => {
-  return Object.fromEntries(
-    accountOptions.map(item => [
-      String(item.ACCT_CODE),
-      item.DESCR
-    ])
-  )
-}, [accountOptions])
+    return Object.fromEntries(
+      accountOptions.map(item => [String(item.ACCT_CODE), item.DESCR])
+    )
+  }, [accountOptions])
 
-const costCenterDescriptionMap = useMemo(() => {
-  return Object.fromEntries(
-    costCenterOptions.map(item => [
-      String(item.CCTR_CODE),
-      item.DESCR
-    ])
-  )
-}, [costCenterOptions])
+  const costCenterDescriptionMap = useMemo(() => {
+    return Object.fromEntries(
+      costCenterOptions.map(item => [String(item.CCTR_CODE), item.DESCR])
+    )
+  }, [costCenterOptions])
 
   const listData = useMemo(() => {
     try {
@@ -215,42 +198,19 @@ const costCenterDescriptionMap = useMemo(() => {
             '-'
           ),
 
-          // ACCT_CODE: getDisplayValue(item, ['ACCT_CODE', 'acct_code'], '-'),
+          ACCT_CODE: getDisplayValue(item, ['ACCT_CODE', 'acct_code'], '-'),
 
-          // CCTR_CODE: getDisplayValue(item, ['CCTR_CODE', 'cctr_code'], '-'),
+          ACCT_DESC:
+            accountDescriptionMap[
+              String(getDisplayValue(item, ['ACCT_CODE', 'acct_code'], ''))
+            ] || '-',
 
-          ACCT_CODE: getDisplayValue(
-  item,
-  ['ACCT_CODE', 'acct_code'],
-  '-'
-),
+          CCTR_CODE: getDisplayValue(item, ['CCTR_CODE', 'cctr_code'], '-'),
 
-ACCT_DESC:
-  accountDescriptionMap[
-    String(
-      getDisplayValue(item, ['ACCT_CODE', 'acct_code'], '')
-    )
-  ] || '-',
-
-CCTR_CODE: getDisplayValue(
-  item,
-  ['CCTR_CODE', 'cctr_code'],
-  '-'
-),
-
-CCTR_DESC:
-  costCenterDescriptionMap[
-    String(
-      getDisplayValue(item, ['CCTR_CODE', 'cctr_code'], '')
-    )
-  ] || '-',
-          // ACCT_CODE: acctCode,
-
-// ACCT_DESC: accountDescriptionMap[acctCode] || '-',
-
-// CCTR_CODE: cctrCode,
-
-// CCTR_DESC: costCenterDescriptionMap[cctrCode] || '-',
+          CCTR_DESC:
+            costCenterDescriptionMap[
+              String(getDisplayValue(item, ['CCTR_CODE', 'cctr_code'], ''))
+            ] || '-',
 
           SHORT_CODE: getDisplayValue(item, ['SHORT_CODE', 'short_code'], '-')
         }
@@ -259,10 +219,11 @@ CCTR_DESC:
       console.error(error)
       return []
     }
-  }, [listDepartmentMasterData, 
+  }, [
+    listDepartmentMasterData,
     accountDescriptionMap,
-  costCenterDescriptionMap
-])
+    costCenterDescriptionMap
+  ])
 
   /* ================= SEARCH FILTER ================= */
   const filteredData = useMemo(() => {
@@ -493,27 +454,17 @@ CCTR_DESC:
     {
       header: 'Action',
       body: row => (
-        <div className='d-flex align-items-center justify-content-center'>
-          <button
-            type='button'
-            className='btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center'
-            onClick={() => handleEditDept(row)}
-            aria-label='Edit Department'
-          >
-            <i className='ti ti-edit' />
-          </button>
-        </div>
-      ),
-      style: {
-        width: '100px',
-        textAlign: 'center'
-      }
+        <EditButton
+          onClick={() => handleEditDept(row)}
+          ariaLabel='Edit Department'
+        />
+      )
     }
   ]
 
   return (
     <>
-      <div className='page-header'>
+      <div className='page-header' style={{ marginBottom: '8px' }}>
         <div className='add-item d-flex'>
           <div className='page-title'>
             <h4>Department</h4>
@@ -534,187 +485,113 @@ CCTR_DESC:
       </div>
 
       <div className='row'>
-        <div className='col-12'>
+        <div className='col-12 px-0'>
           <div className='card'>
             <div className='card-body'>
               <div className='d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3'>
                 <div className='d-flex align-items-center gap-2 flex-wrap'>
                   {showAll && (
                     <div
-                      className='d-flex align-items-center'
-                      style={{ minWidth: '260px' }}
+                      style={{
+                        width: '330px',
+                        minWidth: '330px',
+                        maxWidth: '330px',
+                        flexShrink: 0
+                      }}
                     >
                       <SDLSearch
                         value={searchQuery}
                         onChange={setSearchQuery}
                         placeholder='Search Department...'
                         className='mb-0'
-                        style={{ width: '100%' }}
+                        style={{
+                          width: '330px',
+                          minWidth: '330px',
+                          maxWidth: '330px'
+                        }}
                       />
                     </div>
                   )}
                 </div>
 
                 <div className='d-flex align-items-center gap-2'>
-                  {/* <select
-                    className='form-select'
-                    value={selectedDept}
-                    onChange={e => handleSelectDept(e.target.value)}
-                    style={{ minWidth: '200px' }}
-                    disabled={loading}
-                  >
-                    <option value=''>Select Department</option>
-                    {listData.map(item => (
-                      <option key={item.ID} value={item.ID}>
-                        {item.DEPT_DESC}
-                      </option>
-                    ))}
-                  </select> */}
-                  <Dropdown
+                  <SDLReactSelect
                     value={selectedDept}
                     options={listData.map(item => ({
                       value: item.ID,
                       label: `${item.DEPT_CODE} - ${item.DEPT_DESC}`
                     }))}
-                    onChange={e => handleSelectDept(e.value)}
+                    onChange={handleSelectDept}
                     placeholder='Select Department'
-                    className='w-100'
-                    filter
-                    filterBy='label'
-                    showClear
-                    disabled={loading}
-                    emptyMessage='No departments found'
-                    emptyFilterMessage='No departments found'
+                    isDisabled={loading}
+                    width='330px'
                   />
-                  <button
-                    type='button'
-                    className='btn btn-outline-secondary d-flex align-items-center gap-2'
+
+                  <ViewToggleButton
+                    showAll={showAll}
                     onClick={() => setShowAll(prev => !prev)}
-                    // style={{ minWidth: '120px' }}
-                  >
-                    <i className={`fas ${showAll ? 'fa-edit' : 'fa-table'}`} />
-                    {/* {showAll ? 'Form' : 'Table'} */}
-                  </button>
+                    disabled={loading}
+                  />
                 </div>
               </div>
 
               {!showAll ? (
                 <>
-                  <div className='row'>
+                  <div className='row g-3'>
                     {/* Department Code */}
                     <div className='col-lg-4 col-md-4'>
-                      <div className='mb-3'>
-                        <label className='form-label'>
-                          Department Code
-                          <span className='text-danger ms-1'>*</span>
-                        </label>
-
-                        <input
-                          type='text'
-                          className={`form-control ${
-                            errors.DEPT_CODE ? 'is-invalid' : ''
-                          }`}
-                          value={formData.DEPT_CODE}
-                          maxLength={5}
-                          onChange={e =>
-                            handleFieldChange('DEPT_CODE', e.target.value)
-                          }
-                        />
-
-                        {errors.DEPT_CODE && (
-                          <div className='invalid-feedback'>
-                            {errors.DEPT_CODE}
-                          </div>
-                        )}
-                      </div>
+                      <SDLInput
+                        label='Department Code'
+                        required
+                        value={formData.DEPT_CODE}
+                        maxLength={5}
+                        onChange={e =>
+                          handleFieldChange('DEPT_CODE', e.target.value)
+                        }
+                        error={errors.DEPT_CODE}
+                      />
                     </div>
 
                     {/* Short Code */}
                     <div className='col-lg-4 col-md-4'>
-                      <div className='mb-3'>
-                        <label className='form-label'>Short Code</label>
-
-                        <input
-                          type='text'
-                          className='form-control'
-                          value={formData.SHORT_CODE}
-                          onChange={e =>
-                            handleFieldChange('SHORT_CODE', e.target.value)
-                          }
-                        />
-                      </div>
+                      <SDLInput
+                        label='Short Code'
+                        value={formData.SHORT_CODE}
+                        onChange={e =>
+                          handleFieldChange('SHORT_CODE', e.target.value)
+                        }
+                      />
                     </div>
 
                     {/* Department Name */}
                     <div className='col-lg-4 col-md-4'>
-                      <div className='mb-3'>
-                        <label className='form-label'>
-                          Department Name
-                          <span className='text-danger ms-1'>*</span>
-                        </label>
-
-                        <input
-                          type='text'
-                          className={`form-control ${
-                            errors.DEPT_DESC ? 'is-invalid' : ''
-                          }`}
-                          value={formData.DEPT_DESC}
-                          onChange={e =>
-                            handleFieldChange('DEPT_DESC', e.target.value)
-                          }
-                        />
-
-                        {errors.DEPT_DESC && (
-                          <div className='invalid-feedback'>
-                            {errors.DEPT_DESC}
-                          </div>
-                        )}
-                      </div>
+                      <SDLInput
+                        label='Department Name'
+                        required
+                        value={formData.DEPT_DESC}
+                        onChange={e =>
+                          handleFieldChange('DEPT_DESC', e.target.value)
+                        }
+                        error={errors.DEPT_DESC}
+                      />
                     </div>
 
                     {/* Account Name */}
                     <div className='col-lg-4 col-md-4'>
                       <div className='mb-3'>
-                        <label className='form-label'>
-                          Account Name
-                        </label>
+                        <label className='form-label'>Account Name</label>
 
-                        <select
-                          className='form-select'
-                          value={formData.ACCT_CODE}
-                          onChange={e =>
-                            handleFieldChange('ACCT_CODE', e.target.value)
-                          }
-                        >
-                          <option value=''>Select Account</option>
-
-                          {accountOptions.map(item => (
-                            <option
-                              key={item.ACCT_CODE || item.value}
-                              value={item.ACCT_CODE || item.value}
-                            >
-                              {/* {item.DESCR || item.label || item.ACCT_CODE} */}
-                              {item.ACCT_CODE} - {item.DESCR}
-                            </option>
-                          ))}
-                        </select>
-                        {/* <Dropdown
+                        <SDLReactSelect
                           value={formData.ACCT_CODE}
                           options={accountOptions.map(item => ({
-                            value: item.ACCT_CODE,
-                            label: item.DESCR
+                            value: item.ACCT_CODE || item.value,
+                            label: `${item.ACCT_CODE} - ${item.DESCR}`
                           }))}
-                          onChange={e =>
-                            handleFieldChange('ACCT_CODE', e.value)
+                          onChange={value =>
+                            handleFieldChange('ACCT_CODE', value)
                           }
                           placeholder='Select Account'
-                          className='w-100'
-                          filter
-                          filterBy='label'
-                          showClear
-                          emptyMessage='No accounts found'
-                          emptyFilterMessage='No accounts found'
-                        /> */}
+                        />
                       </div>
                     </div>
 
@@ -723,66 +600,30 @@ CCTR_DESC:
                       <div className='mb-3'>
                         <label className='form-label'>Cost Center</label>
 
-                        <select
-                          className='form-select'
-                          value={formData.CCTR_CODE}
-                          onChange={e =>
-                            handleFieldChange('CCTR_CODE', e.target.value)
-                          }
-                        >
-                          <option value=''>Select Cost Center</option>
-
-                          {costCenterOptions.map(item => (
-                            <option
-                              key={item.CCTR_CODE || item.value}
-                              value={item.CCTR_CODE || item.value}
-                            >
-                              {/* {item.DESCR || item.label || item.CCTR_CODE} */}
-                              {item.CCTR_CODE} - {item.DESCR}
-                            </option>
-                          ))}
-                        </select>
-                        {/* <Dropdown
+                        <SDLReactSelect
                           value={formData.CCTR_CODE}
                           options={costCenterOptions.map(item => ({
-                            value: item.CCTR_CODE,
-                            label: item.DESCR
+                            value: item.CCTR_CODE || item.value,
+                            label: `${item.CCTR_CODE} - ${item.DESCR}`
                           }))}
-                          onChange={e =>
-                            handleFieldChange('CCTR_CODE', e.value)
+                          onChange={value =>
+                            handleFieldChange('CCTR_CODE', value)
                           }
                           placeholder='Select Cost Center'
-                          className='w-100'
-                          filter
-                          filterBy='label'
-                          showClear
-                          emptyMessage='No cost centers found'
-                          emptyFilterMessage='No cost centers found'
-                        /> */}
+                        />
                       </div>
                     </div>
                   </div>
 
                   <div className='text-end mb-3'>
-                    <button
-                      type='button'
-                      className='btn btn-primary me-2'
+                    <SaveButton
                       onClick={handleSave}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting
-                        ? 'Processing...'
-                        : isEditing
-                        ? 'Update'
-                        : 'Save'}
-                    </button>
-                    <button
-                      type='button'
-                      className='btn btn-secondary'
-                      onClick={resetForm}
-                    >
-                      Cancel
-                    </button>
+                      isSubmitting={isSubmitting}
+                      isEditing={isEditing}
+                      className='me-2'
+                    />
+
+                    <CancelButton onClick={resetForm} />
                   </div>
                 </>
               ) : (

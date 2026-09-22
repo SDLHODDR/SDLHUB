@@ -2,20 +2,36 @@ import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 
 const baseStyles = {
-  control: (base, state) => ({
-    ...base,
-    minHeight: "38px",
-    height: "38px",
-    borderColor: state.isFocused ? "#ff9800" : "#ced4da",
-    boxShadow: state.isFocused
-      ? "0 0 0 0.15rem rgba(255, 152, 0, 0.15)"
-      : "none",
-    fontSize: "13px",
-    borderRadius: "4px",
-    "&:hover": {
-      borderColor: state.isFocused ? "#ff9800" : "#adb5bd",
-    },
-  }),
+  // control: (base, state) => ({
+  //   ...base,
+  //   minHeight: "38px",
+  //   height: "38px",
+  //   borderColor: state.isFocused ? "#ff9800" : "#ced4da",
+  //   boxShadow: state.isFocused
+  //     ? "0 0 0 0.15rem rgba(255, 152, 0, 0.15)"
+  //     : "none",
+  //   fontSize: "13px",
+  //   borderRadius: "4px",
+  //   "&:hover": {
+  //     borderColor: state.isFocused ? "#ff9800" : "#adb5bd",
+  //   },
+  // })
+  control: (provided, state) => ({
+  ...provided,
+  minHeight: "38px",
+  fontSize: "13px",
+
+  borderColor: state.isFocused ? "#ff9800" : "#6c757d",
+  borderWidth: "1px",
+  borderStyle: "solid",
+
+  boxShadow: state.isFocused ? "0 0 0 0.2rem rgba(255, 152, 0, 0.15)" : "none",
+
+  "&:hover": {
+    borderColor: state.isFocused ? "#ff9800" : "#6c757d",
+  },
+}),
+  
   valueContainer: (base) => ({
     ...base,
     padding: "2px 8px",
@@ -58,7 +74,7 @@ const getStyles = (hasError) => ({
       ? "#dc3545"
       : state.isFocused
         ? "#ff9800"
-        : "#ced4da",
+        : "#6c757d",
     boxShadow: hasError
       ? "0 0 0 0.15rem rgba(220, 53, 69, 0.10)"
       : state.isFocused
@@ -69,9 +85,14 @@ const getStyles = (hasError) => ({
         ? "#dc3545"
         : state.isFocused
           ? "#ff9800"
-          : "#adb5bd",
+          : "#6c757d",
     },
   }),
+});
+
+const getComponentStyles = (hasError, width) => ({
+  ...getStyles(hasError),
+
 });
 
 // Required whenever menuPortalTarget is used — react-select renders the
@@ -118,7 +139,7 @@ const menuStyles = {
 // AFTER
 const SDLReactSelect = ({
   value,
-  options,
+  options = [],
   onChange,
   placeholder = "Please Select",
   hasError = false,
@@ -129,11 +150,9 @@ const SDLReactSelect = ({
   onAddNew,
   onFilterChange,
   isCreating = false,
-  notifyFilterOnSelect = false,
-  width,                        // NEW
-  styles: stylesOverride = {},  // NEW
-}) => {  
-  
+  notifyFilterOnSelect = false, // opt-in: also call onFilterChange(label) on click-select, not just on typing
+  width = "100%",
+}) => {
   const selectedOption =
     options.find((opt) => String(opt.value) === String(value)) || null;
 
@@ -176,6 +195,14 @@ const SDLReactSelect = ({
 
   if (allowAddNew) {
     return (
+      <div
+      style={{
+        width,
+        minWidth: width,
+        maxWidth: width,
+        flexShrink: 0,
+      }}
+    >
       <CreatableSelect
         value={selectedOption}
         options={options}
@@ -191,11 +218,19 @@ const SDLReactSelect = ({
         styles={mergedStyles}
         menuPortalTarget={document.body}
         menuPosition="fixed"
-      />
+      /></div>
     );
   }
 
   return (
+    <div
+    style={{
+      width,
+      minWidth: width,
+      maxWidth: width,
+      flexShrink: 0,
+    }}
+  >
     <Select
       value={selectedOption}
       options={options}
@@ -205,11 +240,10 @@ const SDLReactSelect = ({
       isClearable={isClearable}
       isLoading={isLoading}
       isDisabled={isDisabled}
-      //styles={{ ...getStyles(hasError), ...menuStyles }}
-      styles={mergedStyles}
+      styles={{ ...getStyles(hasError, width), ...menuStyles }}
       menuPortalTarget={document.body}
       menuPosition="fixed"
-    />
+    /></div>
   );
 };
 

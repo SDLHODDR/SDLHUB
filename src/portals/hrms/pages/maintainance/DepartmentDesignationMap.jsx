@@ -3,17 +3,15 @@ import { useLocation } from 'react-router-dom'
 import { getPortalFromPath } from '../../../../config/portalConfig'
 import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
 import SDLSearch from '../../../../components/datatable/SDLSearch'
-
 import {
   getDepartmentDesignationMap,
   getDesignationsMaster,
   saveDepartmentDesignationMap
 } from '../../services/departmentService'
 import { notifySuccess, notifyError } from '../../../../services/alertService'
-
-import Select from 'react-select'
-import { MultiSelect } from 'primereact/multiselect'
-import "../../assets/departmentDesignation.css"
+import '../../assets/departmentDesignation.css'
+import SDLReactMultiSelect from '../../../../components/SDLReactMultiSelect'
+import UpdateButton from '../../components/buttons/UpdateButton'
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload
@@ -54,6 +52,8 @@ const DepartmentDesignationMap = () => {
   const location = useLocation()
   const portal = getPortalFromPath(location.pathname)
   const portalHome = `/${portal.key}/dashboard`
+
+  const TOP_CONTROL_WIDTH = '330px'
 
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -111,17 +111,6 @@ const DepartmentDesignationMap = () => {
   useEffect(() => {
     void fetchData()
   }, [fetchData])
-
-  // useEffect(() => {
-  //   if (!editingRow || !editSectionRef.current) return
-
-  //   setTimeout(() => {
-  //     editSectionRef.current.scrollIntoView({
-  //       behavior: 'smooth',
-  //       block: 'end'
-  //     })
-  //   }, 100)
-  // }, [editingRow])
 
   const listData = useMemo(() => {
     const normalized = rows.map((item, idx) => ({
@@ -208,7 +197,7 @@ const DepartmentDesignationMap = () => {
 
   return (
     <>
-      <div className='page-header'>
+      <div className='page-header' style={{ marginBottom: '8px' }}>
         <div className='add-item d-flex'>
           <div className='page-title'>
             <h4>Department - Designation Map</h4>
@@ -227,12 +216,25 @@ const DepartmentDesignationMap = () => {
         <div className='col-12'>
           <div className='card'>
             <div className='card-body'>
-              <div className='d-flex justify-content-between align-items-center mb-3'>
-                <div style={{ minWidth: 300 }}>
+              <div className='d-flex justify-content-end align-items-center mb-3'>
+                <div
+                  style={{
+                    width: TOP_CONTROL_WIDTH,
+                    minWidth: TOP_CONTROL_WIDTH,
+                    maxWidth: TOP_CONTROL_WIDTH,
+                    flexShrink: 0
+                  }}
+                >
                   <SDLSearch
                     value={searchQuery}
                     onChange={setSearchQuery}
                     placeholder='Search Department...'
+                    className='mb-0'
+                    style={{
+                      width: TOP_CONTROL_WIDTH,
+                      minWidth: TOP_CONTROL_WIDTH,
+                      maxWidth: TOP_CONTROL_WIDTH
+                    }}
                   />
                 </div>
               </div>
@@ -247,11 +249,6 @@ const DepartmentDesignationMap = () => {
                 >
                   <thead className='table-light'>
                     <tr>
-                      {/* <th style={{ width: 60 }}>Sr.</th>
-                      <th style={{ width: 120 }}>Department Code</th>
-                      <th>Department</th>
-                      <th>Designations</th>
-                      <th style={{ width: 120 }}>Update</th> */}
                       <th style={{ width: '60px' }}>Sr.</th>
                       <th style={{ width: '120px' }}>Department Code</th>
                       <th style={{ width: '180px' }}>Department</th>
@@ -272,99 +269,7 @@ const DepartmentDesignationMap = () => {
                           <td>{idx + 1}</td>
                           <td>{row.DEPT_CODE}</td>
                           <td>{row.DEPT_NAME}</td>
-                          {/* <td>
-                            <div className="p-2 border rounded d-flex flex-wrap gap-2">
-                              {(row.DESIGNATIONS || []).length === 0 ? (
-                                <small className="text-muted">No designations</small>
-                              ) : (
-                                (row.DESIGNATIONS || []).map((d, i) => {
-                                  const label = d.DESIG_NAME ?? d.name ?? d.designation ?? d;
-                                  return (
-                                    <span key={i} className="badge bg-primary text-white py-1 px-2">
-                                      {label}
-                                    </span>
-                                  );
-                                })
-                              )}
-                            </div>
-                          </td> */}
-                          {/* <td>
-                            {editingRow?.ID === row.ID ? (
-                              <div
-                                className='d-flex align-items-center gap-2'
-                                style={{
-                                  width: '100%',
-                                  minWidth: 0
-                                }}
-                              >
-                                <MultiSelect
-                                  value={selectedDesigs}
-                                  options={designations}
-                                  onChange={e => setSelectedDesigs(e.value)}
-                                  optionLabel='label'
-                                  optionValue='value'
-                                  placeholder='Select Designations'
-                                  className='flex-grow-1'
-                                  style={{
-                                    width: '100%',
-                                    minWidth: 0
-                                  }}
-                                  display='chip'
-                                  filter
-                                  filterBy='label'
-                                  showClear
-                                  disabled={saving}
-                                  emptyMessage='No designations available'
-                                  emptyFilterMessage='No designations found'
-                                />
 
-                                <button
-                                  type='button'
-                                  className='btn btn-sm btn-primary'
-                                  onClick={handleSave}
-                                  disabled={saving}
-                                  style={{ flexShrink: 0 }}
-                                >
-                                  {saving ? 'Saving...' : 'Save'}
-                                </button>
-
-                                <button
-                                  type='button'
-                                  className='btn btn-sm btn-secondary'
-                                  onClick={cancelEdit}
-                                  disabled={saving}
-                                  style={{ flexShrink: 0 }}
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            ) : (
-                              <div className='p-2 border rounded d-flex flex-wrap gap-2'>
-                                {(row.DESIGNATIONS || []).length === 0 ? (
-                                  <small className='text-muted'>
-                                    No designations
-                                  </small>
-                                ) : (
-                                  row.DESIGNATIONS.map((d, i) => {
-                                    const label =
-                                      d.DESIG_NAME ??
-                                      d.name ??
-                                      d.designation ??
-                                      d
-
-                                    return (
-                                      <span
-                                        key={i}
-                                        className='badge bg-primary text-white py-1 px-2'
-                                      >
-                                        {label}
-                                      </span>
-                                    )
-                                  })
-                                )}
-                              </div>
-                            )}
-                          </td> */}
                           <td style={{ minWidth: 0 }}>
                             {editingRow?.ID === row.ID ? (
                               <div
@@ -373,48 +278,14 @@ const DepartmentDesignationMap = () => {
                                   minWidth: 0
                                 }}
                               >
-                                <MultiSelect
+                                <SDLReactMultiSelect
                                   value={selectedDesigs}
                                   options={designations}
-                                  onChange={e => setSelectedDesigs(e.value)}
-                                  optionLabel='label'
-                                  optionValue='value'
+                                  onChange={setSelectedDesigs}
                                   placeholder='Select Designations'
-                                  className='w-100 department-designation-multiselect'
-                                  display='chip'
-                                  filter
-                                  filterBy='label'
-                                  showClear
-                                  disabled={saving}
-                                  emptyMessage='No designations available'
-                                  emptyFilterMessage='No designations found'
-                                  style={{
-                                    width: '100%',
-                                    minWidth: 0,
-                                    maxWidth: '100%',
-                                      // minHeight: '38px'
-                                  }}
+                                  isDisabled={saving}
+                                  hasError={false}
                                 />
-
-                                <div className='d-flex gap-2 mt-2'>
-                                  <button
-                                    type='button'
-                                    className='btn btn-sm btn-primary'
-                                    onClick={handleSave}
-                                    disabled={saving}
-                                  >
-                                    {saving ? 'Saving...' : 'Save'}
-                                  </button>
-
-                                  <button
-                                    type='button'
-                                    className='btn btn-sm btn-secondary'
-                                    onClick={cancelEdit}
-                                    disabled={saving}
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
                               </div>
                             ) : (
                               <div className='p-2 border rounded d-flex flex-wrap gap-2'>
@@ -444,24 +315,15 @@ const DepartmentDesignationMap = () => {
                             )}
                           </td>
                           <td className='text-center'>
-                            <td className='text-center'>
-                              {editingRow?.ID === row.ID ? null : (
-                                <button
-                                  type='button'
-                                  className='btn btn-outline-primary'
-                                  onClick={() => startEdit(row)}
-                                  disabled={saving}
-                                >
-                                  Update
-                                </button>
-                              )}
-                            </td>
-                            {/* <button
-                              className='btn btn-outline-primary'
-                              onClick={() => startEdit(row)}
-                            >
-                              Update
-                            </button> */}
+                            <UpdateButton
+                              onClick={() =>
+                                editingRow?.ID === row.ID
+                                  ? handleSave()
+                                  : startEdit(row)
+                              }
+                              disabled={saving}
+                              isSubmitting={saving && editingRow?.ID === row.ID}
+                            />
                           </td>
                         </tr>
                       ))
@@ -469,57 +331,6 @@ const DepartmentDesignationMap = () => {
                   </tbody>
                 </table>
               </div>
-
-              {/* {editingRow && (
-                <div ref={editSectionRef} className='card mt-3'>
-                  <div className='card-body'>
-                    <h6 className='mb-3'>
-                      Update Designations for:{' '}
-                      {editingRow.DEPT_NAME || editingRow.DEPT_CODE}
-                    </h6>
-                    <div className='mb-3'>
-                      <MultiSelect
-                        value={selectedDesigs}
-                        options={designations}
-                        onChange={e => setSelectedDesigs(e.value)}
-                        optionLabel='label'
-                        optionValue='value'
-                        placeholder='Select Designations'
-                        className='w-100'
-                        display='chip'
-                        filter
-                        filterBy='label'
-                        showClear
-                        disabled={loading || saving}
-                        emptyMessage='No designations available'
-                        emptyFilterMessage='No designations found'
-                      />
-                    </div>
-                    {designations.length === 0 && (
-                      <div className='text-muted small'>
-                        Designation list not available.
-                      </div>
-                    )}
-
-                    <div className='text-end'>
-                      <button
-                        className='btn btn-primary me-2'
-                        onClick={handleSave}
-                        disabled={saving}
-                      >
-                        {saving ? 'Saving...' : 'Save'}
-                      </button>
-                      <button
-                        className='btn btn-secondary'
-                        onClick={cancelEdit}
-                        disabled={saving}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )} */}
             </div>
           </div>
         </div>

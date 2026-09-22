@@ -1,5 +1,7 @@
-import SDLActionButtons from "../../../components/SDLActionButtons";
-import { getDepartmentActivityActions } from "./departmentActivityActions";
+// import SDLActionButtons from "../../../components/SDLActionButtons";
+// import { getDepartmentActivityActions } from "./departmentActivityActions";
+import EditButton from '../components/buttons/EditButton';
+import DeleteButton from '../components/buttons/DeleteButton';
 
 const serialBody = (rowData, options) =>
   options.rowIndex + 1 + (options.props.first || 0);
@@ -8,7 +10,18 @@ export const departmentActivityColumns = ({ handleEditActivity, handleDeleteActi
   {
     header: "#",
     body: serialBody,
-    style: { width: "70px", textAlign: "center" },
+    style: {
+      width: '40px',
+      minWidth: '40px',
+      maxWidth: '40px',
+      textAlign: 'center'
+    },
+    headerStyle: {
+      width: '40px',
+      minWidth: '40px',
+      maxWidth: '40px',
+      textAlign: 'center'
+    },
   },
   {
     field: "DEPT_DESC",
@@ -67,15 +80,27 @@ export const departmentActivityColumns = ({ handleEditActivity, handleDeleteActi
       //     )}
       //   </button>
       // </div>
-      <SDLActionButtons
-        row={row}
-        actions={getDepartmentActivityActions({
-          handleEditActivity,
-          handleDeleteActivity,
-          deletingId,
-        })}
+      // <SDLActionButtons
+      //   row={row}
+      //   actions={getDepartmentActivityActions({
+      //     handleEditActivity,
+      //     handleDeleteActivity,
+      //     deletingId,
+      //   })}
+      // />
+      <div className="d-flex align-items-center justify-content-center gap-2">
+      <EditButton
+        onClick={() => handleEditActivity(row)}
+        ariaLabel="Edit Department Activity"
       />
+
+      <DeleteButton
+        onClick={() => handleDeleteActivity(row)}
+        loading={deletingId === row.ID}
+        ariaLabel="Delete Department Activity"
+      />
+    </div>
     ),
-    style: { width: "170px", textAlign: "center" },
+    style: { width: "100px", textAlign: "center" },
   },
 ];
