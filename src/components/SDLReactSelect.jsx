@@ -157,15 +157,15 @@ const SDLReactSelect = ({
     options.find((opt) => String(opt.value) === String(value)) || null;
 
   // NEW
-  const mergedStyles = {
-    ...getStyles(hasError),
-    ...menuStyles,
-    control: (base, state) => ({
-      ...getStyles(hasError).control(base, state),
-      ...(width ? { width } : {}),
-    }),
-    ...stylesOverride,
-  };
+  // const mergedStyles = {
+  //   ...getStyles(hasError),
+  //   ...menuStyles,
+  //   control: (base, state) => ({
+  //     ...getStyles(hasError).control(base, state),
+  //     ...(width ? { width } : {}),
+  //   }),
+  //   ...stylesOverride,
+  // };
 
   const handleChange = (selectedOpt, actionMeta) => {
     onChange(selectedOpt ? selectedOpt.value : "", selectedOpt || null);
@@ -214,8 +214,8 @@ const SDLReactSelect = ({
         placeholder={placeholder}
         isClearable={isClearable}
         isDisabled={isDisabled}
-        //styles={{ ...getStyles(hasError), ...menuStyles }}
-        styles={mergedStyles}
+        styles={{ ...getStyles(hasError), ...menuStyles }}
+        // styles={mergedStyles}
         menuPortalTarget={document.body}
         menuPosition="fixed"
       /></div>
@@ -240,7 +240,7 @@ const SDLReactSelect = ({
       isClearable={isClearable}
       isLoading={isLoading}
       isDisabled={isDisabled}
-      styles={{ ...getStyles(hasError, width), ...menuStyles }}
+      styles={{ ...getStyles(hasError), ...menuStyles }}
       menuPortalTarget={document.body}
       menuPosition="fixed"
     /></div>
