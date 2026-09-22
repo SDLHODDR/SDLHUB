@@ -5,7 +5,7 @@ import SDLReactSelect from "../../../components/SDLReactSelect";
 import useApprLevelTabHandler from "./useApprLevelTabHandler";
 import { getApprLevelColumns, renderApprLevelColumns } from "./apprLevelColumns";
 
-const AppraisalLevelsTab = ({ organogramId, showAll }) => {
+const AppraisalLevelsTab = ({ organogramId, showAll, onCancelEdit }) => {
   const {
     apprLevels,
     apprOptions,
@@ -28,6 +28,12 @@ const AppraisalLevelsTab = ({ organogramId, showAll }) => {
       setSelectedAppraiser(null);
       setEffectiveFrom(null);
     }
+  };
+
+  const handleCancel = () => {
+    setSelectedAppraiser(null);
+    setEffectiveFrom(null);
+    onCancelEdit?.();
   };
 
   return (
@@ -63,7 +69,15 @@ const AppraisalLevelsTab = ({ organogramId, showAll }) => {
               onClick={handleAdd}
               disabled={!selectedAppraiser || !effectiveFrom || isLoading}
             >
-              Add
+              Save
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary ms-2"
+              onClick={handleCancel}
+              disabled={isLoading}
+            >
+              Cancel
             </button>
           </div>
         </div>

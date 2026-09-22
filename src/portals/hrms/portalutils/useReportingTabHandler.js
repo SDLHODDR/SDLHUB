@@ -4,15 +4,18 @@ import {
   getReportingParentOptions,
   saveOrgLocReporting,
 } from "../services/orgonogramService";
-import { notifyError, notifySuccess, notifyWarning } from "../../../services/alertService";
+import { notifyError, notifySuccess } from "../../../services/alertService";
 import { formatDateForApi } from "../../../utils/formatUtils";
 
-const useReportingTabHandler = (locId) => {
+const useReportingTabHandler = (locId, organogramId) => {
   const [reportingRows, setReportingRows] = useState([]);
   const [parentOptions, setParentOptions] = useState([]);
 
   const [loadingRows, setLoadingRows] = useState(false);
   const [savingRow, setSavingRow] = useState(false);
+  const [selectedParentLocId, setSelectedParentLocId] = useState("");
+  const [newEffectiveFrom, setNewEffectiveFrom] = useState(null);
+  const [editingReportingId, setEditingReportingId] = useState(null);
 
   const loadReporting = useCallback(async () => {
     if (!locId) {
@@ -54,89 +57,73 @@ const useReportingTabHandler = (locId) => {
   }, [locId]);
 
   useEffect(() => {
-    loadReporting();
+    const loadTask = Promise.resolve().then(loadReporting);
+    return () => loadTask.catch(() => {});
   }, [loadReporting]);
 
-  // Guard: only the open assignment (blank EFFEC_TO) is editable,
-  // matching the legacy PHP `if (trim($alw['EFFEC_TO']) == '')` check.
-  const handleRowEditInit = useCallback((e) => {
-    if (e.data.EFFEC_TO) {
-      notifyWarning?.(
-        "This record is closed and cannot be edited."
-      );
-      return false; // some PrimeReact versions honor this; see note below
-    }
+  const startEditingReporting = useCallback((row) => {
+    setEditingReportingId(row.ID);
+    setSelectedParentLocId(row.PARENT_LOCID ?? "");
+    setNewEffectiveFrom(row.EFFEC_FROM instanceof Date ? row.EFFEC_FROM : null);
   }, []);
 
-  const handleRowEditComplete = useCallback(
-    async (e) => {
-      const { newData, index } = e;
+  const cancelEditingReporting = useCallback(() => {
+    setEditingReportingId(null);
+    setSelectedParentLocId("");
+    setNewEffectiveFrom(null);
+  }, []);
 
-      if (newData.EFFEC_TO) {
-        // Belt-and-braces — should already be blocked at init, but
-        // don't let a closed row slip through on save either.
-        notifyWarning?.("This record is closed and cannot be edited.");
-        return;
-      }
+  const saveReporting = useCallback(async (parentLocId, effectiveFrom) => {
+    if (!parentLocId) {
+      notifyError("Reporting manager is required.");
+      return false;
+    }
+    if (!effectiveFrom) {
+      notifyError("Effective From date is required.");
+      return false;
+    }
 
-      setReportingRows((prev) => {
-        const next = [...prev];
-        next[index] = newData;
-        return next;
+    try {
+      setSavingRow(true);
+      const res = await saveOrgLocReporting({
+        ID: editingReportingId || undefined,
+        ORG_LOC_ID: locId,
+        PARENT_ORGID: organogramId,
+        PARENT_LOCID: parentLocId,
+        EFFEC_FROM: formatDateForApi(effectiveFrom),
+        EFFEC_TO: "",
       });
-
-      try {
-        setSavingRow(true);
-        const res = await saveOrgLocReporting({
-          ORG_LOC_ID: locId,
-          PARENT_ORGID: newData.PARENT_ORGID,
-          PARENT_LOCID: newData.PARENT_LOCID,
-          EFFEC_FROM: formatDateForApi(newData.EFFEC_FROM),
-          EFFEC_TO: formatDateForApi(newData.EFFEC_TO),
-        });
-        if (res?.status) {
-          notifySuccess(res?.message || "Reporting updated.");
-          loadReporting();
-        } else {
-          notifyError(res?.message || "Unable to update reporting.");
-        }
-      } catch (error) {
-        console.error("Save reporting row error:", error);
-        notifyError(error?.message || "Unable to update reporting.");
-      } finally {
-        setSavingRow(false);
+      if (!res?.status) {
+        notifyError(res?.message || "Unable to save reporting manager.");
+        return false;
       }
-    },
-    [locId, loadReporting]
-  );
 
-  const handleRowEditCancel = useCallback(() => {}, []);
-
-  // Guarantee the row's currently assigned parent location is always
-  // present as a dropdown option, even if it's missing from the fetched
-  // list for some reason — same defensive pattern as
-  // getGeoMappingOptionsForRow in Locations.
-  const getParentOptionsForRow = useCallback(
-    (row) => {
-      const hasCurrentValue = parentOptions.some(
-        (opt) => String(opt.value) === String(row.PARENT_LOCID)
-      );
-      if (row.PARENT_LOCID && !hasCurrentValue) {
-        return [{ label: row.ORGNM ?? "", value: row.PARENT_LOCID }, ...parentOptions];
-      }
-      return parentOptions;
-    },
-    [parentOptions]
-  );
+      notifySuccess(res?.message || (editingReportingId ? "Reporting updated." : "Reporting manager added."));
+      cancelEditingReporting();
+      await loadReporting();
+      return true;
+    } catch (error) {
+      console.error("Save reporting manager error:", error);
+      notifyError(error?.message || "Unable to save reporting manager.");
+      return false;
+    } finally {
+      setSavingRow(false);
+    }
+  }, [locId, organogramId, editingReportingId, loadReporting, cancelEditingReporting]);
 
   return {
     reportingRows,
     loadingRows,
     savingRow,
-    handleRowEditInit,
-    handleRowEditComplete,
-    handleRowEditCancel,
-    getParentOptionsForRow,
+    parentOptions,
+    selectedParentLocId,
+    setSelectedParentLocId,
+    newEffectiveFrom,
+    setNewEffectiveFrom,
+    editingReportingId,
+    startEditingReporting,
+    cancelEditingReporting,
+    saveReporting,
   };
 };
 
