@@ -2131,3 +2131,37 @@ div.p-datepicker table td.p-datepicker-today>span.p-highlight {
   border: 1px solid #d5cdcd;
   border-top:0;
 }
+
+/* Global application font */
+html,
+body,
+#root {
+  font-family: "Nunito", sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: "Nunito", sans-serif;
+}
+
+/* HRMS - Standard PrimeReact table font */
+.p-datatable,
+.p-datatable .p-datatable-table,
+.p-datatable .p-datatable-thead > tr > th,
+.p-datatable .p-datatable-tbody > tr > td {
+  font-family: "Nunito", sans-serif;
+    vertical-align: middle;
+}
+.p-datatable .p-datatable-tbody > tr > td:last-child {
+  text-align: center;
+}
+
+.form-control {
+  border: 1px solid #6c757d;
+}
+
+.form-control:focus {
+  border-color: #ff9800;
+}

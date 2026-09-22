@@ -1,10 +1,11 @@
-import { formatDashDate } from "../../eportal/utils/formatUtils";
+import { formatDashDate } from '../../eportal/utils/formatUtils'
+import EditButton from '../components/buttons/EditButton'
 
 export const policyColumns = ({ handleEdit }) => [
   {
-    field: "COMP_DESC",
-    header: "Company Name",
-    style: { width: "30%" },
+    field: 'COMP_DESC',
+    header: 'Company Name',
+    style: { width: '30%' }
   },
   // {
   //   field: "DEPT_DESC",
@@ -17,19 +18,19 @@ export const policyColumns = ({ handleEdit }) => [
   //   style: { width: "14%" },
   // },
   {
-    field: "POLICY_NAME",
-    header: "Policy Name",
-    style: { width: "24%" },
+    field: 'POLICY_NAME',
+    header: 'Policy Name',
+    style: { width: '24%' }
   },
   {
-    header: "Start Date",
-    style: { width: "15%", textAlign: "center" },
-    body: (row) => formatDashDate(row.START_DATE_DISPLAY)
+    header: 'Start Date',
+    style: { textAlign: 'center' },
+    body: row => formatDashDate(row.START_DATE_DISPLAY)
   },
   {
-    header: "End Date",
-    style: { width: "15%", textAlign: "center" },
-    body: (row) => formatDashDate(row.END_DATE_DISPLAY)
+    header: 'End Date',
+    style: { textAlign: 'center' },
+    body: row => formatDashDate(row.END_DATE_DISPLAY)
   },
   // {
   //   field: "START_DATE_DISPLAY",
@@ -47,32 +48,35 @@ export const policyColumns = ({ handleEdit }) => [
   //   style: { width: "18%" },
   // },
   {
-    header: "Download Document",
-    body: (row) =>
+    header: 'Download Document',
+    body: row =>
       row.DOC_PATH ? (
-        <a href={row.DOC_PATH} target="_blank" rel="noopener noreferrer" aria-label="Download policy document">
-          <i className="fas fa-download icon-xl" />
+        <a
+          href={row.DOC_PATH}
+          target='_blank'
+          rel='noopener noreferrer'
+          aria-label='Download policy document'
+          className='btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center mx-auto'
+          style={{
+            width: '30px',
+            height: '30px',
+            padding: 0
+          }}
+        >
+          <i className='fas fa-download icon-xl' />
         </a>
       ) : (
-        "-"
-      ),
-    style: { width: "15%", textAlign: "center" },
+        '-'
+      )
   },
   {
-    header: "Status",
-    body: (row) =>
-      row.STATUS === "A" ? (
-        <span className="text-muted">Published</span>
+    header: 'Status',
+    body: row =>
+      row.STATUS === 'A' ? (
+        <span className='text-muted'>Published</span>
       ) : (
-        <button
-          type="button"
-          className="btn btn-sm btn-outline-primary"
-          onClick={() => handleEdit(row)}
-          aria-label="Edit Policy"
-        >
-          <i className="fa fa-pencil" />
-        </button>
+        <EditButton onClick={() => handleEdit(row)} ariaLabel='Edit Policy' />
       ),
-    style: { width: "9%", textAlign: "center" },
-  },
-];
+    style: { textAlign: 'center' }
+  }
+]

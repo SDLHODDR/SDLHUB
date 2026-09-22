@@ -75,7 +75,7 @@ const getStyles = (hasError) => ({
       ? "#dc3545"
       : state.isFocused
         ? "#ff9800"
-        : "#ced4da",
+        : "#6c757d",
     boxShadow: hasError
       ? "0 0 0 0.15rem rgba(220, 53, 69, 0.10)"
       : state.isFocused
@@ -86,10 +86,17 @@ const getStyles = (hasError) => ({
         ? "#dc3545"
         : state.isFocused
           ? "#ff9800"
-          : "#adb5bd",
+          : "#6c757d",
     },
   }),
 });
+
+const menuStyles = {
+  menuPortal: (base) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+};
 
 // Custom option row: checkbox + label, checkbox state driven by
 // react-select's own isSelected (no extra state needed).
@@ -112,7 +119,7 @@ const CheckboxOption = (props) => (
  */
 const SDLReactMultiSelect = ({
   value = [],
-  options,
+  options = [],
   onChange,
   placeholder = "Please Select",
   hasError = false,
@@ -136,10 +143,12 @@ const SDLReactMultiSelect = ({
       placeholder={placeholder}
       isLoading={isLoading}
       isDisabled={isDisabled}
-      styles={getStyles(hasError)}
+      styles={{...getStyles(hasError), ...menuStyles}}
       components={{ Option: CheckboxOption }}
       closeMenuOnSelect={false}
       hideSelectedOptions={false}
+      menuPortalTarget={document.body}
+      menuPosition="fixed"
     />
   );
 };

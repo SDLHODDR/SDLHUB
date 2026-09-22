@@ -1,11 +1,12 @@
-import SDLActionButtons from "../../../components/SDLActionButtons";
-import { getCapabilitiesActions } from "./capabilitiesActions";
+// import SDLActionButtons from "../../../components/SDLActionButtons";
+// import { getCapabilitiesActions } from "./capabilitiesActions";
+import EditButton from '../components/buttons/EditButton';
 
 export const capabilitiesColumns = ({ handleEdit }) => [
   {
     header: "#",
     body: (row, meta) => meta.rowIndex + 1,
-    style: { width: "70px", textAlign: "center" },
+    style: { width: "50px", textAlign: "center" },
   },
   {
     header: "Skill",
@@ -19,13 +20,16 @@ export const capabilitiesColumns = ({ handleEdit }) => [
   {
     header: "Action",
     body: (row) => (
-       <SDLActionButtons
-        row={row}
-        actions={getCapabilitiesActions({
-          handleEdit,
-        })}
-      />
+      //  <SDLActionButtons
+      //   row={row}
+      //   actions={getCapabilitiesActions({
+      //     handleEdit,
+      //   })}
+      // />
+      <div className='d-flex align-items-center justify-content-center'>
+        <EditButton onClick={() => handleEdit(row)} ariaLabel='Edit Capability' />
+      </div>
     ),
-    style: { width: "100px", textAlign: "center" },
+    style: { width: "70px", textAlign: "center" },
   },
 ];

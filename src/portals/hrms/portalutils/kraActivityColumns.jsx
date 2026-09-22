@@ -1,8 +1,16 @@
-import SDLActionButtons from "../../../components/SDLActionButtons";
-import { getKraActivityActions } from "./kraActivityActions";
+// import SDLActionButtons from "../../../components/SDLActionButtons";
+// import { getKraActivityActions } from "./kraActivityActions";
+import EditButton from "../components/buttons/EditButton";
+import DeleteButton from "../components/buttons/DeleteButton";
 
-const serialBody = (rowData, options) =>
-  options.rowIndex + 1 + (options.props.first || 0);
+// const serialBody = (rowData, options) =>
+//   options.rowIndex + 1 + (options.props.first || 0);
+
+const serialBody = (rowData, options) => (
+  <div className="d-flex justify-content-center">
+    {options.rowIndex + 1 + (options.props.first || 0)}
+  </div>
+);
 
 const titleBody = (row) => <>{row.ACTT_DESC}</>;
 
@@ -12,10 +20,21 @@ export const kraActivityColumns = ({
   deletingId,
 }) => [
   {
-    header: "#",
-    body: serialBody,
-    style: { width: "70px", textAlign: "center" },
+  header: "#",
+  body: serialBody,
+  style: {
+    width: "40px",
+    minWidth: "40px",
+    maxWidth: "40px",
+    textAlign: "center",
   },
+  headerStyle: {
+    width: "40px",
+    minWidth: "40px",
+    maxWidth: "40px",
+    textAlign: "center",
+  },
+},
   {
     field: "KRA_DESC",
     header: "KRA Master",
@@ -29,41 +48,47 @@ export const kraActivityColumns = ({
     sortable: true,
     style: { width: "220px" },
   },
+  // {
+  //   header: "Action",
+  //   body: (row) => (
+  //     <SDLActionButtons
+  //       row={row}
+  //       actions={getKraActivityActions({
+  //         handleEditActivity,
+  //         handleDeleteActivity,
+  //         deletingId,
+  //       })}
+  //     />
+  //   ),
+  //   style: { width: "140px", textAlign: "center" },
+  // },
   {
-    header: "Action",
-    body: (row) => (
-      // <div className="d-flex align-items-center justify-content-center gap-2">
-      //   <button
-      //     type="button"
-      //     className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
-      //     onClick={() => handleEditActivity(row)}
-      //     aria-label="Edit KRA Activity"
-      //   >
-      //     <i className="ti ti-edit" />
-      //   </button>
-      //   <button
-      //     type="button"
-      //     className="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center"
-      //     aria-label="Delete KRA Activity"
-      //     onClick={() => handleDeleteActivity(row)}
-      //     disabled={deletingId === row.ID}
-      //   >
-      //     {deletingId === row.ID ? (
-      //       <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-      //     ) : (
-      //       <i className="ti ti-trash" />
-      //     )}
-      //   </button>
-      // </div>
-      <SDLActionButtons
-        row={row}
-        actions={getKraActivityActions({
-          handleEditActivity,
-          handleDeleteActivity,
-          deletingId,
-        })}
+  header: "Action",
+  body: (row) => (
+    <div className="d-flex align-items-center justify-content-center gap-2">
+      <EditButton
+        onClick={() => handleEditActivity(row)}
+        ariaLabel="Edit KRA Activity"
       />
-    ),
-    style: { width: "140px", textAlign: "center" },
+
+      <DeleteButton
+        onClick={() => handleDeleteActivity(row)}
+        loading={deletingId === row.ID}
+        ariaLabel="Delete KRA Activity"
+      />
+    </div>
+  ),
+  style: {
+    width: "40px",
+    minWidth: "40px",
+    maxWidth: "40px",
+    textAlign: "center",
   },
+  headerStyle: {
+    width: "40px",
+    minWidth: "40px",
+    maxWidth: "40px",
+    textAlign: "center",
+  },
+},
 ];
