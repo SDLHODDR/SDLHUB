@@ -2,8 +2,6 @@ import { useMemo, useState, useCallback, useEffect } from "react";
 import OrganogramTab from "./OrganogramTab";
 import LocationsTab from "./LocationsTab";
 import AppraisalLevelsTab from "./AppraisalLevelsTab";
-import ReportingTab from "./ReportingTab";
-import AllowancesTab from "./AllowancesTab";
 
 // showAll is the shared top-toggle state for tabs with list/form views.
 const useSDLTabComponentHandler = (organogramId, onOrganogramSaved, showAll, onCancelEdit) => {
@@ -12,26 +10,21 @@ const useSDLTabComponentHandler = (organogramId, onOrganogramSaved, showAll, onC
     if (organogramId) {
       base.push(
         { key: "locations", label: "Locations" },
-        { key: "appraisalLevels", label: "Appraisal Levels" },
-        { key: "reporting", label: "Reporting" },
-        { key: "allowances", label: "Allowances" }
+        { key: "appraisalLevels", label: "Appraisal Levels" }
       );
     }
     return base;
   }, [organogramId]);
 
   const [selectedTab, setSelectedTab] = useState("organogram");
-  const [tabContext, setTabContext] = useState(null);
 
-  const handleTabChange = useCallback((tabKey, context = null) => {
+  const handleTabChange = useCallback((tabKey) => {
     setSelectedTab(tabKey);
-    setTabContext(context);
   }, []);
 
   useEffect(() => {
     if (!organogramId && selectedTab !== "organogram") {
       setSelectedTab("organogram");
-      setTabContext(null);
     }
   }, [organogramId, selectedTab]);
 
@@ -48,7 +41,6 @@ const useSDLTabComponentHandler = (organogramId, onOrganogramSaved, showAll, onC
         return (
           <LocationsTab
             organogramId={organogramId}
-            onNavigateToTab={handleTabChange}
             onOrganogramSaved={onOrganogramSaved}
             showAll={showAll}
             onCancelEdit={onCancelEdit}
@@ -62,29 +54,10 @@ const useSDLTabComponentHandler = (organogramId, onOrganogramSaved, showAll, onC
             onCancelEdit={onCancelEdit}
           />
         );
-      case "reporting":
-        return (
-          <ReportingTab
-            organogramId={organogramId}
-            locId={tabContext?.LOC_ID}
-            showAll={showAll}
-            onCancelEdit={onCancelEdit}
-          />
-        );
-      case "allowances":
-        return (
-          <AllowancesTab
-            organogramId={organogramId}
-            locId={tabContext?.LOC_ID}
-            allowId={tabContext?.ALLOW_ID}
-            showAll={showAll}
-            onCancelEdit={onCancelEdit}
-          />
-        );
       default:
         return null;
     }
-  }, [selectedTab, organogramId, tabContext, handleTabChange, onOrganogramSaved, showAll, onCancelEdit]);
+  }, [selectedTab, organogramId, onOrganogramSaved, showAll, onCancelEdit]);
 
   return { tabs, selectedTab, handleTabChange, tabContent };
 };

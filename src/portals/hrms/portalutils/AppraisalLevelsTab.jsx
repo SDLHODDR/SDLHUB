@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Calendar } from "primereact/calendar";
 import SDLReactSelect from "../../../components/SDLReactSelect";
@@ -11,10 +11,10 @@ const AppraisalLevelsTab = ({ organogramId, showAll, onCancelEdit }) => {
     apprOptions,
     loadingApprLevels,
     savingRow,
-    handleAddApprLevel,
+    handleSaveApprLevels,
   } = useApprLevelTabHandler(organogramId);
 
-  const [selectedAppraiser, setSelectedAppraiser] = useState(null);
+  const [appraisalRows, setAppraisalRows] = useState([]);
   const [effectiveFrom, setEffectiveFrom] = useState(null);
 
   const isLoading = loadingApprLevels || savingRow;
@@ -22,64 +22,88 @@ const AppraisalLevelsTab = ({ organogramId, showAll, onCancelEdit }) => {
 
   const columns = renderApprLevelColumns(getApprLevelColumns());
 
-  const handleAdd = async () => {
-    const saved = await handleAddApprLevel(selectedAppraiser, effectiveFrom);
+  useEffect(() => {
+    setAppraisalRows(apprOptions.map((option) => ({
+      appraiser: option.selected,
+    })));
+  }, [apprOptions]);
+
+  const handleSave = async () => {
+    const saved = await handleSaveApprLevels(appraisalRows, effectiveFrom);
     if (saved) {
-      setSelectedAppraiser(null);
+      setAppraisalRows((current) => current.map((row) => ({ appraiser: row.appraiser })));
       setEffectiveFrom(null);
     }
   };
 
   const handleCancel = () => {
-    setSelectedAppraiser(null);
+    setAppraisalRows((current) => current.map((row) => ({ appraiser: row.appraiser })));
     setEffectiveFrom(null);
     onCancelEdit?.();
+  };
+
+  const updateRow = (index, field, value) => {
+    setAppraisalRows((current) => current.map((row, rowIndex) => (
+      rowIndex === index ? { ...row, [field]: value } : row
+    )));
   };
 
   return (
     <div>
       {isEditing && (
-        <div className="row align-items-end mb-3">
-          <div className="col-xl-5 col-lg-6 col-md-8">
-            <label className="form-label">Add Appraisal Level</label>
-            <SDLReactSelect
-              value={selectedAppraiser}
-              options={apprOptions}
-              onChange={setSelectedAppraiser}
-              placeholder="Select Appraiser"
-              isLoading={loadingApprLevels}
-              isDisabled={isLoading}
-            />
-          </div>
-          <div className="col-xl-3 col-lg-4 col-md-5">
-            <label className="form-label">Effective From</label>
-            <Calendar
-              value={effectiveFrom}
-              onChange={(e) => setEffectiveFrom(e.value)}
-              dateFormat="dd-M-yy"
-              showIcon
-              className="w-100"
-              disabled={isLoading}
-            />
-          </div>
-          <div className="col-auto">
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleAdd}
-              disabled={!selectedAppraiser || !effectiveFrom || isLoading}
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary ms-2"
-              onClick={handleCancel}
-              disabled={isLoading}
-            >
-              Cancel
-            </button>
-          </div>
+        <div className="mb-4">
+          {appraisalRows.map((row, index) => (
+            <div className="row align-items-end mb-3" key={index}>
+              <div className="col-12">
+                <label className="form-label">Appraisal Level {index + 1}</label>
+                <SDLReactSelect
+                  value={row.appraiser}
+                  options={apprOptions}
+                  onChange={(value) => updateRow(index, "appraiser", value)}
+                  placeholder="Select Appraisal Level"
+                  isLoading={loadingApprLevels}
+                  isDisabled={isLoading}
+                />
+              </div>
+            </div>
+          ))}
+
+          {apprOptions.length > 0 && (
+            <div className="row mb-3">
+              <div className="col-xl-5 col-lg-6 col-md-8">
+                <label className="form-label">Effective From</label>
+                <Calendar
+                  value={effectiveFrom}
+                  onChange={(e) => setEffectiveFrom(e.value)}
+                  dateFormat="dd-M-yy"
+                  showIcon
+                  className="w-100"
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+          )}
+
+          {apprOptions.length > 0 && (
+            <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleSave}
+                disabled={appraisalRows.some((row) => !row.appraiser) || !effectiveFrom || isLoading}
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleCancel}
+                disabled={isLoading}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
       )}
 
