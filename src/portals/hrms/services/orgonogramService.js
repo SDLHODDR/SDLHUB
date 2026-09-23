@@ -192,12 +192,12 @@ export const getApprLevelOptions = async (payload = {}) => {
   });
 };
 
-// Save a single row's content edit (appraiser + dates)
+// Save appraisal levels in bulk (all appraiser IDs + shared dates)
 export const saveApprLevel = async (payload = {}) => {
   return hrmsRequest({
     url: HRMS_API.MASTERDATA.SAVE_APPR_LEVEL,
     method: "POST",
-    data: payload, // { ORG_ID, APPR_LEVEL, APPR_ORGID, EFFEC_FROM, EFFEC_TO }
+    data: payload, // { ORG_ID, APPR_LEVEL: [], APPR_ORGID: [], EFFEC_FROM, EFFEC_TO }
   });
 };
 

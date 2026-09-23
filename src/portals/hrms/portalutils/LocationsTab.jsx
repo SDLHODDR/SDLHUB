@@ -1,8 +1,13 @@
 import { DataTable } from "primereact/datatable";
+import { useState } from "react";
+import Modal from "react-bootstrap/Modal";
 import useLocationsTabHandler from "./useLocationsTabHandler";
 import { getLocationsColumns, renderLocationsColumns } from "./locationsColumns";
+import ReportingTab from "./ReportingTab";
+import AllowancesTab from "./AllowancesTab";
 
-const LocationsTab = ({ organogramId, onNavigateToTab, onOrganogramSaved, showAll, onCancelEdit }) => {
+const LocationsTab = ({ organogramId, onOrganogramSaved, showAll, onCancelEdit }) => {
+  const [modalState, setModalState] = useState(null);
   const {
     organogramDetails,
     locations,
@@ -32,10 +37,12 @@ const LocationsTab = ({ organogramId, onNavigateToTab, onOrganogramSaved, showAl
 
   const columns = renderLocationsColumns(columnDefs, {
     onShowAllowance: (allowId, locId) =>
-      onNavigateToTab?.("allowances", { LOC_ID: locId, ALLOW_ID: allowId }),
+      setModalState({ type: "allowances", locId, allowId }),
     onShowReporting: (locId) =>
-      onNavigateToTab?.("reporting", { LOC_ID: locId }),
+      setModalState({ type: "reporting", locId }),
   });
+
+  const closeModal = () => setModalState(null);
 
   return (
     <div>
@@ -74,6 +81,32 @@ const LocationsTab = ({ organogramId, onNavigateToTab, onOrganogramSaved, showAl
           </button>
         </div>
       )}
+
+      <Modal show={!!modalState} onHide={closeModal} size="xl" centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {modalState?.type === "reporting" ? "Reporting Manager" : "Allowances & Reimbursement"}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {modalState?.type === "reporting" ? (
+            <ReportingTab
+              organogramId={organogramId}
+              locId={modalState.locId}
+              showAll={false}
+              onCancelEdit={closeModal}
+            />
+          ) : (
+            <AllowancesTab
+              organogramId={organogramId}
+              locId={modalState?.locId}
+              allowId={modalState?.allowId}
+              showAll={false}
+              onCancelEdit={closeModal}
+            />
+          )}
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
