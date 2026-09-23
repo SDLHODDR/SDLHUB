@@ -21,7 +21,7 @@ const useAllowancesTabHandler = (organogramId, locId) => {
   const [deletingId, setDeletingId] = useState(null);
 
   const [editingAllowanceId, setEditingAllowanceId] = useState(null);
-  const [selectedAllowId, setSelectedAllowId] = useState("");
+  const [selectedAllowIds, setSelectedAllowIds] = useState([]);
   const [effectiveFrom, setEffectiveFrom] = useState(null);
 
   const loadAllowances = useCallback(async () => {
@@ -54,7 +54,7 @@ const useAllowancesTabHandler = (organogramId, locId) => {
     try {
         setLoadingOptions(true);
         const res = await getAllowanceOptions({ LOC_ID: locId });
-        const rows = asArray(res.data);
+        const rows = asArray(res);
         const options = rows.map((r) => ({ value: r.ALLOW_ID, label: r.ALLOW_DESC ?? "" }));
         if (
           currentAllowance?.ALLOW_ID &&
@@ -81,26 +81,26 @@ const useAllowancesTabHandler = (organogramId, locId) => {
 
   const startEditingAllowance = useCallback((row) => {
     setEditingAllowanceId(row.ID);
-    setSelectedAllowId(row.ALLOW_ID ?? "");
+    setSelectedAllowIds(row.ALLOW_ID ? [row.ALLOW_ID] : []);
     setEffectiveFrom(row.EFFEC_FROM instanceof Date ? row.EFFEC_FROM : null);
     loadAllowanceOptions(row);
   }, [loadAllowanceOptions]);
 
   const startAddingAllowance = useCallback(() => {
     setEditingAllowanceId(null);
-    setSelectedAllowId("");
+    setSelectedAllowIds([]);
     setEffectiveFrom(null);
     loadAllowanceOptions();
   }, [loadAllowanceOptions]);
 
   const cancelEditingAllowance = useCallback(() => {
     setEditingAllowanceId(null);
-    setSelectedAllowId("");
+    setSelectedAllowIds([]);
     setEffectiveFrom(null);
   }, []);
 
   const saveAllowanceForm = useCallback(async () => {
-    if (!selectedAllowId) {
+    if (!selectedAllowIds.length) {
       notifyError("Allowance is required.");
       return;
     }
@@ -111,19 +111,22 @@ const useAllowancesTabHandler = (organogramId, locId) => {
 
     try {
       setSaving(true);
-      const res = await saveAllowance({
+      const response = await saveAllowance({
         ID: editingAllowanceId || undefined,
         ORG_LOC_ID: locId,
         ORG_ID: organogramId,
-        ALLOW_ID: selectedAllowId,
+        ALLOW_ID: selectedAllowIds,
         EFFEC_FROM: formatDateForApi(effectiveFrom),
       });
-      if (!res?.status) {
-        notifyError(res?.message || "Unable to save allowance.");
+      if (!response?.status) {
+        notifyError(response?.message || "Unable to save allowance.");
         return false;
       }
 
-      notifySuccess(res?.message || (editingAllowanceId ? "Allowance updated." : "Allowance added."));
+      notifySuccess(
+        response.message ||
+          (editingAllowanceId ? "Allowance updated." : "Allowance added.")
+      );
       cancelEditingAllowance();
       await loadAllowances();
       return true;
@@ -134,30 +137,28 @@ const useAllowancesTabHandler = (organogramId, locId) => {
     } finally {
       setSaving(false);
     }
-  }, [locId, organogramId, editingAllowanceId, selectedAllowId, effectiveFrom, loadAllowances, cancelEditingAllowance]);
+  }, [locId, organogramId, editingAllowanceId, selectedAllowIds, effectiveFrom, loadAllowances, cancelEditingAllowance]);
 
   const removeAllowanceRow = useCallback(
-    (row) => {
-      confirmAction?.({
-        message: `Delete allowance "${row.ALLOW_DESC}"?`,
-        onConfirm: async () => {
-          try {
-            setDeletingId(row.ID);
-            const res = await deleteAllowance({ ID: row.ID });
-            if (res?.status) {
-              notifySuccess(res?.message || "Allowance deleted.");
-              loadAllowances();
-            } else {
-              notifyError(res?.message || "Unable to delete allowance.");
-            }
-          } catch (error) {
-            console.error("Delete allowance error:", error);
-            notifyError(error?.message || "Unable to delete allowance.");
-          } finally {
-            setDeletingId(null);
-          }
-        },
-      });
+    async (row) => {
+      const result = await confirmAction(`Delete allowance "${row.ALLOW_DESC}"?`);
+      if (!result?.isConfirmed) return;
+
+      try {
+        setDeletingId(row.ID);
+        const res = await deleteAllowance({ ID: row.ID });
+        if (res?.status) {
+          notifySuccess(res?.message || "Allowance deleted.");
+          await loadAllowances();
+        } else {
+          notifyError(res?.message || "Unable to delete allowance.");
+        }
+      } catch (error) {
+        console.error("Delete allowance error:", error);
+        notifyError(error?.message || "Unable to delete allowance.");
+      } finally {
+        setDeletingId(null);
+      }
     },
     [loadAllowances]
   );
@@ -169,8 +170,8 @@ const useAllowancesTabHandler = (organogramId, locId) => {
     saving,
     deletingId,
     editingAllowanceId,
-    selectedAllowId,
-    setSelectedAllowId,
+    selectedAllowIds,
+    setSelectedAllowIds,
     effectiveFrom,
     setEffectiveFrom,
     startEditingAllowance,

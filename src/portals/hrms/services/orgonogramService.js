@@ -236,7 +236,7 @@ export const saveOrgLocReporting = async (payload = {}) => {
   return hrmsRequest({
     url: HRMS_API.MASTERDATA.SAVE_ORG_LOC_REPORTING,
     method: "POST",
-    data: payload, // { ORG_LOC_ID, PARENT_ORGID, PARENT_LOCID, EFFEC_FROM, EFFEC_TO }
+    data: payload, // { repid, orgid, locid, PARENT_LOCID, EFFEC_FROM, EFFEC_TO }
   });
 };
 
@@ -262,7 +262,7 @@ export const saveAllowance = async (payload = {}) => {
   return hrmsRequest({
     url: HRMS_API.MASTERDATA.SAVE_ALLOWANCE,
     method: "POST",
-    data: payload, // { ORG_LOC_ID, ORG_ID, ALLOW_ID, EFFEC_FROM }
+    data: payload, // { ORG_LOC_ID, ORG_ID, ALLOW_ID: [], EFFEC_FROM }
   });
 };
 

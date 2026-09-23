@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Calendar } from "primereact/calendar";
-import SDLReactSelect from "../../../components/SDLReactSelect";
-import { parseDDMonYY } from "../../../utils/formatUtils";
+import SDLReactMultiSelect from "../../../components/SDLReactMultiSelect";
 import useAllowancesTabHandler from "./useAllowancesTabHandler";
 import { getAllowancesColumns, renderAllowancesColumns } from "./allowancesColumns";
 
@@ -15,11 +14,10 @@ const AllowancesTab = ({ organogramId, locId, showAll, onCancelEdit }) => {
     saving,
     deletingId,
     editingAllowanceId,
-    selectedAllowId,
-    setSelectedAllowId,
+    selectedAllowIds,
+    setSelectedAllowIds,
     effectiveFrom,
     setEffectiveFrom,
-    startEditingAllowance,
     cancelEditingAllowance,
     saveAllowanceForm,
     removeAllowanceRow,
@@ -38,14 +36,6 @@ const AllowancesTab = ({ organogramId, locId, showAll, onCancelEdit }) => {
 
   const isEditing = !showAll || formOpen;
 
-  const handleEdit = (row) => {
-    startEditingAllowance({
-      ...row,
-      EFFEC_FROM: parseDDMonYY(row.EFFEC_FROM) || row.EFFEC_FROM,
-    });
-    setFormOpen(true);
-  };
-
   const handleCancel = () => {
     cancelEditingAllowance();
     setFormOpen(false);
@@ -55,7 +45,6 @@ const AllowancesTab = ({ organogramId, locId, showAll, onCancelEdit }) => {
   const columnDefs = getAllowancesColumns();
 
   const columns = renderAllowancesColumns(columnDefs, {
-    onEdit: handleEdit,
     onDelete: removeAllowanceRow,
     deletingId,
   });
@@ -66,10 +55,10 @@ const AllowancesTab = ({ organogramId, locId, showAll, onCancelEdit }) => {
         <div className="row align-items-end mb-3">
           <div className="col-xl-5 col-lg-6 col-md-8">
             <label className="form-label">Allowance</label>
-            <SDLReactSelect
-              value={selectedAllowId}
+            <SDLReactMultiSelect
+              value={selectedAllowIds}
               options={allowanceOptions}
-              onChange={setSelectedAllowId}
+              onChange={setSelectedAllowIds}
               placeholder="Select Allowance"
               isLoading={loadingOptions}
               isDisabled={saving}
@@ -82,6 +71,8 @@ const AllowancesTab = ({ organogramId, locId, showAll, onCancelEdit }) => {
               onChange={(e) => setEffectiveFrom(e.value)}
               dateFormat="dd-M-yy"
               showIcon
+              appendTo="self"
+              baseZIndex={2000}
               className="w-100"
               disabled={saving}
             />
@@ -91,7 +82,7 @@ const AllowancesTab = ({ organogramId, locId, showAll, onCancelEdit }) => {
               type="button"
               className="btn btn-primary"
               onClick={saveAllowanceForm}
-              disabled={!selectedAllowId || !effectiveFrom || saving}
+              disabled={!selectedAllowIds.length || !effectiveFrom || saving}
             >
               {saving ? "Saving..." : editingAllowanceId ? "Update" : "Save"}
             </button>

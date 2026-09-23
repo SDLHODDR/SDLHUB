@@ -1,6 +1,5 @@
 import { DataTable } from "primereact/datatable";
 import { useState } from "react";
-import Modal from "react-bootstrap/Modal";
 import useLocationsTabHandler from "./useLocationsTabHandler";
 import { getLocationsColumns, renderLocationsColumns } from "./locationsColumns";
 import ReportingTab from "./ReportingTab";
@@ -13,6 +12,7 @@ const LocationsTab = ({ organogramId, onOrganogramSaved, showAll, onCancelEdit }
     locations,
     loadingDetails,
     loadingLocations,
+    reloadLocations,
     getGeoMappingOptionsForRow,
     savingAll,
     handleCancelEdits,
@@ -82,11 +82,23 @@ const LocationsTab = ({ organogramId, onOrganogramSaved, showAll, onCancelEdit }
         </div>
       )}
 
-      <Modal show={!!modalState} onHide={handleCloseModal} size="xl" centered>
-        <Modal.Header>
-          <Modal.Title>
-            {modalState?.type === "reporting" ? "Reporting Manager" : "Allowances & Reimbursement"}
-          </Modal.Title>
+      {modalState && (
+        <div
+          className="modal fade show d-block"
+          tabIndex="-1"
+          aria-hidden="false"
+          aria-modal="true"
+          role="dialog"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-dialog-centered modal-xl">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  {modalState.type === "reporting"
+                    ? "Reporting Manager"
+                    : "Allowances & Reimbursement"}
+                </h5>
           <button
             type="button"
             className="btn-close custom-btn-close p-0"
@@ -95,26 +107,30 @@ const LocationsTab = ({ organogramId, onOrganogramSaved, showAll, onCancelEdit }
           >
             <i className="ti ti-x" />
           </button>
-        </Modal.Header>
-        <Modal.Body>
-          {modalState?.type === "reporting" ? (
-            <ReportingTab
-              organogramId={organogramId}
-              locId={modalState.locId}
-              showAll={false}
-              onCancelEdit={handleCloseModal}
-            />
-          ) : (
-            <AllowancesTab
-              organogramId={organogramId}
-              locId={modalState?.locId}
-              allowId={modalState?.allowId}
-              showAll={false}
-              onCancelEdit={handleCloseModal}
-            />
-          )}
-        </Modal.Body>
-      </Modal>
+              </div>
+              <div className="modal-body">
+                {modalState.type === "reporting" ? (
+                  <ReportingTab
+                    organogramId={organogramId}
+                    locId={modalState.locId}
+                    showAll={false}
+                    onCancelEdit={handleCloseModal}
+                    onSaved={reloadLocations}
+                  />
+                ) : (
+                  <AllowancesTab
+                    organogramId={organogramId}
+                    locId={modalState.locId}
+                    allowId={modalState.allowId}
+                    showAll={false}
+                    onCancelEdit={handleCloseModal}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -27,7 +27,7 @@ export const getAllowancesColumns = () => [
   },
 ];
 
-export const renderAllowancesColumns = (columnDefs, { onEdit, onDelete, deletingId }) => [
+export const renderAllowancesColumns = (columnDefs, { onDelete, deletingId }) => [
   ...columnDefs.map((col) => (
     <Column
       key={col.key}
@@ -43,9 +43,6 @@ export const renderAllowancesColumns = (columnDefs, { onEdit, onDelete, deleting
     style={{ width: "5%" }}
     body={(row) => (
       <div className="d-flex gap-2 justify-content-center">
-        <button type="button" className="btn btn-sm btn-outline-primary" title="Edit allowance" onClick={() => onEdit?.(row)}>
-          <i className="fas fa-edit" />
-        </button>
         {String(row.EFFEC_TO || "").trim() === "" && (
           <button
             type="button"
