@@ -42,7 +42,7 @@ const LocationsTab = ({ organogramId, onOrganogramSaved, showAll, onCancelEdit }
       setModalState({ type: "reporting", locId }),
   });
 
-  const closeModal = () => setModalState(null);
+  const handleCloseModal = () => setModalState(null);
 
   return (
     <div>
@@ -82,11 +82,19 @@ const LocationsTab = ({ organogramId, onOrganogramSaved, showAll, onCancelEdit }
         </div>
       )}
 
-      <Modal show={!!modalState} onHide={closeModal} size="xl" centered>
-        <Modal.Header closeButton>
+      <Modal show={!!modalState} onHide={handleCloseModal} size="xl" centered>
+        <Modal.Header>
           <Modal.Title>
             {modalState?.type === "reporting" ? "Reporting Manager" : "Allowances & Reimbursement"}
           </Modal.Title>
+          <button
+            type="button"
+            className="btn-close custom-btn-close p-0"
+            onClick={handleCloseModal}
+            aria-label="Close"
+          >
+            <i className="ti ti-x" />
+          </button>
         </Modal.Header>
         <Modal.Body>
           {modalState?.type === "reporting" ? (
@@ -94,7 +102,7 @@ const LocationsTab = ({ organogramId, onOrganogramSaved, showAll, onCancelEdit }
               organogramId={organogramId}
               locId={modalState.locId}
               showAll={false}
-              onCancelEdit={closeModal}
+              onCancelEdit={handleCloseModal}
             />
           ) : (
             <AllowancesTab
@@ -102,7 +110,7 @@ const LocationsTab = ({ organogramId, onOrganogramSaved, showAll, onCancelEdit }
               locId={modalState?.locId}
               allowId={modalState?.allowId}
               showAll={false}
-              onCancelEdit={closeModal}
+              onCancelEdit={handleCloseModal}
             />
           )}
         </Modal.Body>
