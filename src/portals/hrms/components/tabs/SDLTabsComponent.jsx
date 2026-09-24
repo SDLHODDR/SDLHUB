@@ -17,9 +17,11 @@ const SDLTabsComponent = ({
     return <div className="text-muted">No tabs available.</div>;
   }
 
-  const navClass = `nav nav-pills tab-style-5 d-sm-flex d-block ${
-    tabs.length > 1 ? "nav-justified" : ""
-  }`;
+  // const navClass = `nav nav-pills tab-style-5 d-sm-flex d-block ${
+  //   tabs.length > 1 ? "nav-justified" : ""
+  // }`;
+
+  const navClass = "nav sdl-tabs d-flex";
 
   return (
     <>
@@ -27,7 +29,7 @@ const SDLTabsComponent = ({
       <ul className={navClass} id="pills-tab" role="tablist">
         {tabs.map((tab) => (
           <li className="nav-item" key={tab.key} role="presentation">
-            <button
+            {/* <button
               type="button"
               className={`nav-link ${selectedTab === tab.key ? "active" : ""}`}
               role="tab"
@@ -35,7 +37,16 @@ const SDLTabsComponent = ({
               onClick={() => onTabChange?.(tab.key)}
             >
               {tab.label}
-            </button>
+            </button> */}
+            <button
+  type="button"
+  className={`nav-link ${selectedTab === tab.key ? "active" : ""}`}
+  role="tab"
+  aria-selected={selectedTab === tab.key}
+  onClick={() => onTabChange?.(tab.key)}
+>
+  {tab.label}
+</button>
           </li>
         ))}
       </ul>

@@ -61,8 +61,8 @@ export const useQuestionMasterHandler = ({
     const actDescRaw = String(form.QUES_DESCR ?? "").trim();
     if (!actDescRaw) {
       newErrors.QUES_DESCR = "Question is required";
-    } else if (actDescRaw.length > 1000) {
-      newErrors.QUES_DESCR = "Question must not exceed 1000 characters";
+    } else if (actDescRaw.length > 100) {
+      newErrors.QUES_DESCR = "Question must not exceed 100 characters";
     }
 
     if (ANSWER_TYPES_WITH_OPTIONS.includes(form.ANSWER_TYPE)) {

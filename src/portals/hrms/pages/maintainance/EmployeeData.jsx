@@ -1,11 +1,16 @@
 import React, { useMemo, useState, useEffect } from 'react'
-import Select from 'react-select'
+import { useLocation } from 'react-router-dom'
+// import Select from 'react-select'
 import {
   getEmployees,
   getEmployeeById,
   getEmployeeMasters
 } from '../../services/employeeDataService'
 import JDDataTable from '../../components/data-table/JDDataTable'
+import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
+import { getPortalFromPath } from '../../../../config/portalConfig'
+import SDLReactSelect from '../../../../components/SDLReactSelect'
+import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
 
 const INITIAL_EMPLOYEE_DATA = {
   // Employee selection
@@ -128,6 +133,9 @@ const INITIAL_EMPLOYEE_DATA = {
 }
 
 const EmployeeData = () => {
+  const location = useLocation()
+  const portal = getPortalFromPath(location.pathname)
+  const portalHome = `/${portal.key}/dashboard`
   /*
    * -------------------------------------------------------------
    * STATE
@@ -259,49 +267,49 @@ const EmployeeData = () => {
 
   const inputClass = 'form-control'
 
-  const selectStyles = {
-    control: provided => ({
-      ...provided,
-      minHeight: '38px',
-      height: '38px',
-      borderColor: '#ced4da',
-      borderRadius: '4px',
-      boxShadow: 'none',
-      fontSize: '14px'
-    }),
+  // const selectStyles = {
+  //   control: provided => ({
+  //     ...provided,
+  //     minHeight: '38px',
+  //     height: '38px',
+  //     borderColor: '#ced4da',
+  //     borderRadius: '4px',
+  //     boxShadow: 'none',
+  //     fontSize: '14px'
+  //   }),
 
-    valueContainer: provided => ({
-      ...provided,
-      height: '38px',
-      padding: '0 12px'
-    }),
+  //   valueContainer: provided => ({
+  //     ...provided,
+  //     height: '38px',
+  //     padding: '0 12px'
+  //   }),
 
-    indicatorsContainer: provided => ({
-      ...provided,
-      height: '38px'
-    }),
+  //   indicatorsContainer: provided => ({
+  //     ...provided,
+  //     height: '38px'
+  //   }),
 
-    placeholder: provided => ({
-      ...provided,
-      color: '#6c757d',
-      fontSize: '14px'
-    }),
+  //   placeholder: provided => ({
+  //     ...provided,
+  //     color: '#6c757d',
+  //     fontSize: '14px'
+  //   }),
 
-    singleValue: provided => ({
-      ...provided,
-      fontSize: '14px'
-    }),
+  //   singleValue: provided => ({
+  //     ...provided,
+  //     fontSize: '14px'
+  //   }),
 
-    input: provided => ({
-      ...provided,
-      fontSize: '14px'
-    }),
+  //   input: provided => ({
+  //     ...provided,
+  //     fontSize: '14px'
+  //   }),
 
-    option: provided => ({
-      ...provided,
-      fontSize: '14px'
-    })
-  }
+  //   option: provided => ({
+  //     ...provided,
+  //     fontSize: '14px'
+  //   })
+  // }
 
   const titleOptions = useMemo(
     () =>
@@ -819,66 +827,10 @@ const EmployeeData = () => {
    */
 
   const styles = {
-    page: {
-      width: '100%',
-      padding: '0 8px 20px'
-    },
-
-    header: {
-      fontSize: '18px',
-      fontWeight: '500',
-      color: '#333',
-      padding: '12px 24px',
-      borderBottom: '1px solid #ddd',
-      minHeight: '60px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between'
-    },
-
-    employeeSelect: {
-      width: '380px'
-    },
-
-    card: {
-      width: '100%',
-      marginTop: '18px',
-      border: '1px solid #ddd',
-      background: '#fff'
-    },
-
-    tabsContainer: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      background: '#126184',
-      paddingLeft: '0'
-    },
-
-    tab: {
-      padding: '10px 17px',
-      color: '#fff',
-      cursor: 'pointer',
-      fontSize: '12px',
-      border: 'none',
-      background: 'transparent',
-      whiteSpace: 'nowrap'
-    },
-
-    activeTab: {
-      color: '#126184',
-      background: '#fff',
-      border: 'none',
-      boxShadow: 'inset 0 3px 0 #126184'
-    },
-
-    content: {
-      padding: '18px 18px 12px'
-    },
-
     sectionTitle: {
       fontSize: '14px',
       fontWeight: '600',
-      color: '#126184',
+      color: '#17324d',
       marginBottom: '15px',
       borderBottom: '1px solid #e5e5e5',
       paddingBottom: '8px'
@@ -965,6 +917,34 @@ const EmployeeData = () => {
     )
   }
 
+  // const renderSelect = (name, label, options, config = {}) => {
+  //   const { required = false, placeholder = `Select ${label}` } = config
+
+  //   return (
+  //     <div style={styles.field}>
+  //       <label style={styles.label}>
+  //         {label}
+  //         {required && <span style={styles.required}>*</span>}
+  //       </label>
+
+  //       <Select
+  //         options={options}
+  //         value={
+  //           options.find(
+  //             option =>
+  //               String(option.value) === String(employeeData[name] || '')
+  //           ) || null
+  //         }
+  //         onChange={option => handleFieldChange(name, option?.value || '')}
+  //         placeholder={placeholder}
+  //         isSearchable
+  //         isClearable
+  //         styles={selectStyles}
+  //       />
+  //     </div>
+  //   )
+  // }
+
   const renderSelect = (name, label, options, config = {}) => {
     const { required = false, placeholder = `Select ${label}` } = config
 
@@ -975,20 +955,20 @@ const EmployeeData = () => {
           {required && <span style={styles.required}>*</span>}
         </label>
 
-        <Select
+        <SDLReactSelect
+          value={employeeData[name] || ''}
           options={options}
-          value={
-            options.find(
-              option =>
-                String(option.value) === String(employeeData[name] || '')
-            ) || null
-          }
-          onChange={option => handleFieldChange(name, option?.value || '')}
+          onChange={value => handleFieldChange(name, value)}
           placeholder={placeholder}
-          isSearchable
           isClearable
-          styles={selectStyles}
+          width='100%'
         />
+
+        {fieldErrors[name] && (
+          <div className='invalid-feedback' style={{ display: 'block' }}>
+            {fieldErrors[name]}
+          </div>
+        )}
       </div>
     )
   }
@@ -1023,15 +1003,15 @@ const EmployeeData = () => {
     <div>
       <div style={styles.sectionTitle}>Personal Information</div>
 
-      <div className='row'>
+      <div className='row mb-3'>
         {/* TITLE + FIRST NAME */}
         <div className='col-lg-4 col-md-6'>
           <div className='row'>
-            <div className='col-3'>
+            <div className='col-5'>
               {renderSelect('TITLE', 'Title', titleOptions, { required: true })}
             </div>
 
-            <div className='col-9'>
+            <div className='col-7'>
               {renderInput('FIRST_NAME', 'First Name', { required: true })}
             </div>
           </div>
@@ -1256,15 +1236,10 @@ const EmployeeData = () => {
     <div>
       <div style={styles.sectionTitle}>Basic Details</div>
 
-      {/* EMPLOYEE CODE */}
       <div
-        style={{
-          fontSize: '12px',
-          fontWeight: '600',
-          marginBottom: '14px'
-        }}
+        style={{ marginBottom: '15px', fontWeight: '600', fontSize: '14px' }}
       >
-        Employee Code: {employeeData.EMPLOYEE_CODE || '-'}
+        Employee Code: {employeeData.EMP_CODE || '-'}
       </div>
 
       {/* ROW 1 */}
@@ -1380,9 +1355,8 @@ const EmployeeData = () => {
     <div>
       <div style={styles.sectionTitle}>Office Details</div>
 
-      {/* Employee Code */}
       <div
-        style={{ marginBottom: '15px', fontSize: '13px', fontWeight: '600' }}
+        style={{ marginBottom: '15px', fontWeight: '600', fontSize: '14px' }}
       >
         Employee Code: {employeeData.EMP_CODE || '-'}
       </div>
@@ -1502,6 +1476,11 @@ const EmployeeData = () => {
   const renderTenureDetailsTab = () => (
     <div>
       <div style={styles.sectionTitle}>Tenure Details</div>
+      <div
+        style={{ marginBottom: '15px', fontWeight: '600', fontSize: '14px' }}
+      >
+        Employee Code: {employeeData.EMP_CODE || '-'}
+      </div>
 
       <div className='row'>
         <div className='col-lg-4 col-md-6'>
@@ -1889,6 +1868,11 @@ const EmployeeData = () => {
   const renderReferenceTab = () => (
     <div>
       <div style={styles.sectionTitle}>Reference Details</div>
+      <div
+        style={{ marginBottom: '15px', fontWeight: '600', fontSize: '14px' }}
+      >
+        Employee Code: {employeeData.EMP_CODE || '-'}
+      </div>
 
       <JDDataTable
         data={employeeData.REFERENCE_DETAILS || []}
@@ -1963,6 +1947,11 @@ const EmployeeData = () => {
   const renderFamilyDetailsTab = () => (
     <div>
       <div style={styles.sectionTitle}>Family Details</div>
+      <div
+        style={{ marginBottom: '15px', fontWeight: '600', fontSize: '14px' }}
+      >
+        Employee Code: {employeeData.EMP_CODE || '-'}
+      </div>
 
       <JDDataTable
         data={employeeData.FAMILY_DETAILS || []}
@@ -2187,6 +2176,11 @@ const EmployeeData = () => {
     return (
       <div>
         <div style={styles.sectionTitle}>KRA</div>
+        <div
+          style={{ marginBottom: '15px', fontWeight: '600', fontSize: '14px' }}
+        >
+          Employee Code: {employeeData.EMP_CODE || '-'}
+        </div>
 
         <JDDataTable
           data={kraData}
@@ -2267,56 +2261,61 @@ const EmployeeData = () => {
    */
 
   return (
-    <div style={styles.page}>
-      {/* PAGE HEADER */}
-      <div style={styles.header}>
-        <div>Employee Information</div>
+    <>
+      <div className='page-header' style={{ marginBottom: '8px' }}>
+        <div className='add-item d-flex'>
+          <div className='page-title'>
+            <h4>Employee Information</h4>
+          </div>
+        </div>
 
-        <div style={styles.employeeSelect}>
-          <Select
-            options={employeeOptions}
-            value={
-              employeeOptions.find(
-                option => String(option.value) === String(selectedEmployeeId)
-              ) || null
+        <BreadcrumbNav
+          items={[
+            {
+              text: 'Home',
+              link: portalHome
+            },
+            {
+              text: 'Employee Data'
             }
-            onChange={handleEmployeeChange}
-            placeholder='Select Employee'
-            isSearchable
-            isClearable
-            isLoading={loading}
-            styles={selectStyles}
-          />
-        </div>
+          ]}
+        />
       </div>
 
-      {/* EMPLOYEE FORM */}
-      <div style={styles.card}>
-        {/* TABS */}
-        <div style={styles.tabsContainer}>
-          {visibleTabs.map(([key, label]) => {
-            const isActive = activeTab === key
+      <div className='row'>
+        <div className='col-12 px-0'>
+          <div className='card'>
+            <div className='card-body'>
+              {/* EMPLOYEE SELECT */}
+              <div className='d-flex justify-content-end align-items-center mb-3'>
+                <SDLReactSelect
+                  value={selectedEmployeeId}
+                  options={employeeOptions}
+                  onChange={(value, option) => handleEmployeeChange(option)}
+                  placeholder='Select Employee'
+                  isSearchable
+                  isClearable
+                  isLoading={loading}
+                  width='330px'
+                />
+              </div>
 
-            return (
-              <button
-                key={key}
-                type='button'
-                onClick={() => setActiveTab(key)}
-                style={{
-                  ...styles.tab,
-                  ...(isActive ? styles.activeTab : {})
-                }}
-              >
-                {label}
-              </button>
-            )
-          })}
+              {/* TABS */}
+              <SDLTabsComponent
+                tabs={visibleTabs.map(([key, label]) => ({
+                  key,
+                  label
+                }))}
+                selectedTab={activeTab}
+                onTabChange={setActiveTab}
+                tabContent={renderTabContent()}
+                loading={false}
+              />
+            </div>
+          </div>
         </div>
-
-        {/* TAB CONTENT */}
-        <div style={styles.content}>{renderTabContent()}</div>
       </div>
-    </div>
+    </>
   )
 }
 

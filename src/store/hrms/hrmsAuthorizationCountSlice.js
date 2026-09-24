@@ -18,7 +18,7 @@ export const getHRMSAuthroizationTaskCount = createAsyncThunk(
   async (payload) => {
     try {
       const response = await fetchHRMSAuthorizationData(payload);
-      console.log("========authorizationDataSLice Response========", response);
+      // console.log("========authorizationDataSLice Response========", response);
       if(!response.status) {
         return {
           response: "error",

@@ -33,7 +33,7 @@ export const organogramColumns = ({ onEdit }) => [
     field: "ID",
     header: "ID",
     sortable: true,
-    style: { width: "100px" },
+    style: { width: "6%" },
   },
   // {
   //   field: "FINENT",
@@ -45,18 +45,19 @@ export const organogramColumns = ({ onEdit }) => [
     field: "DIVSN_TXT",
     header: "Division",
     sortable: true,
-    style: { width: "120px" },
+    style: { width: "8%" },
   },
   {
     field: "DEPT_TXT",
     header: "Department",
     sortable: true,
-    style: { width: "150px" },
+    style: { width: "8%" },
   },
   {
     field: "DESI_TXT",
     header: "Designation",
     sortable: true,
+        style: { width: "12%" },
   },
   {
     key: "FILL_STATUS",
@@ -64,30 +65,31 @@ export const organogramColumns = ({ onEdit }) => [
     sortable: true,
     field: "FILL_COUNT", // enables PrimeReact's default sort on this column
     body: fillBody,
-    style: { width: "150px" },
+    style: { width: "12%" },
   },
   {
     key: "STATUS_DISPLAY",
     header: "Status",
     body: statusBody,
-    style: { width: "90px" },
+    style: { width: "6%" },
   },
   {
     field: "CHG_ON",
     header: "Last Changed",
     sortable: true,
-    style: { width: "110px" },
+    style: { width: "10%" },
   },
   {
     field: "OPTIONS",
     header: "Organogram",
     sortable: true,
+        style: { width: "25%" },
   },
   {
     header: "Action",
     body: (row) => (
       <SDLActionButtons row={row} actions={getOrganogramActions({ onEdit })} />
     ),
-    style: { width: "100px", textAlign: "center" },
+    style: { width: "10%", textAlign: "center" },
   },
 ];
