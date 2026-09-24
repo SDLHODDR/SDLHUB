@@ -38,7 +38,7 @@ const HeaderTop = () => {
   //   dispatch(getAuthroizationTaskCount());
   // }, [dispatch]);
 
-  console.log("============ActivePortal============", activePortal);
+  // console.log("============ActivePortal============", activePortal);
 
   useEffect(() => {
     switch (activePortal.key) {

@@ -1,9 +1,7 @@
 import { useMemo, useState, useEffect, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
-import Select from 'react-select'
 import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
 import { getPortalFromPath } from '../../../../config/portalConfig'
-import SDLSearch from '../../../../components/datatable/SDLSearch'
 import {
   getDepartmentMasterData,
   getDesignationsMaster
@@ -26,13 +24,18 @@ import {
   getQuestionGroupList,
   getDivisionList,
   getInductionList,
-  getOrganogramList, sendJobDescriptionForAuth
+  getOrganogramList,
+  sendJobDescriptionForAuth
 } from '../../services/jobDescriptionService'
 import { notifySuccess, notifyError } from '../../../../services/alertService'
 import SDLtextEditor from '../../../../components/editor/SDLtextEditor'
 import '../../assets/jobDescription.css'
-import { MultiSelect } from 'primereact/multiselect'
 import JDDataTable from '../../components/data-table/JDDataTable'
+import SDLReactSelect from '../../../../components/SDLReactSelect'
+import SDLReactMultiSelect from '../../../../components/SDLReactMultiSelect'
+import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
+import SaveButton from '../../components/buttons/SaveButton'
+import CancelButton from '../../components/buttons/CancelButton'
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload
@@ -1335,36 +1338,37 @@ const JobDescription = () => {
   }
 
   const handleSendForAuth = async () => {
-  if (!formData.id) {
-    notifyError('Please save the job description before sending for authorization.')
-    return
-  }
-
-  try {
-    const response = await sendJobDescriptionForAuth({
-      id: formData.id
-    })
-
-    if (response?.status) {
-      notifySuccess(
-        response?.message ||
-          'Job description sent for authorization successfully.'
-      )
-    } else {
+    if (!formData.id) {
       notifyError(
-        response?.message ||
-          'Unable to send job description for authorization.'
+        'Please save the job description before sending for authorization.'
+      )
+      return
+    }
+
+    try {
+      const response = await sendJobDescriptionForAuth({
+        id: formData.id
+      })
+
+      if (response?.status) {
+        notifySuccess(
+          response?.message ||
+            'Job description sent for authorization successfully.'
+        )
+      } else {
+        notifyError(
+          response?.message ||
+            'Unable to send job description for authorization.'
+        )
+      }
+    } catch (error) {
+      console.error('Send job description for authorization error:', error)
+
+      notifyError(
+        error?.message || 'Unable to send job description for authorization.'
       )
     }
-  } catch (error) {
-    console.error('Send job description for authorization error:', error)
-
-    notifyError(
-      error?.message ||
-        'Unable to send job description for authorization.'
-    )
   }
-}
 
   const handleEditResponsibility = item => {
     setEditingResponsibilityId(item.ID)
@@ -1787,31 +1791,11 @@ const JobDescription = () => {
   }
 
   return (
-    <div className='job-description'>
-      <style>
-        {`
-        .ck-editor__editable {
-          min-height: 300px;
-          max-height: 500px;
-        }
-
-        .division-multiselect {
-      min-height: 50px;
-    }
-
-    .division-multiselect .p-multiselect-label {
-      min-height: 50px;
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
-      `}
-      </style>
+    <>
       {/* ============================
         PAGE HEADER
         ============================ */}
-      <div className='page-header'>
+      <div className='page-header' style={{ marginBottom: '8px' }}>
         <div className='add-item d-flex'>
           <div className='page-title'>
             <h4>Job Description</h4>
@@ -1835,70 +1819,47 @@ const JobDescription = () => {
         MAIN CARD
         ============================ */}
       <div className='row'>
-        <div className='col-12'>
-          <div className='card' style={jdStyles.card}>
+        <div className='col-12 px-0'>
+          <div className='card'>
             <div className='card-body'>
               {/* ============================
                 JOB DESCRIPTION SELECT
                 ============================ */}
               <div className='row align-items-end mb-3'>
                 <div className='col-12'>
-                  <label style={jdStyles.label}>Job Description</label>
-
                   <div className='d-flex justify-content-end'>
-                    <div style={{ width: '50%' }}>
-                      <Select
-                        options={jobList
-                          .map(item => ({
-                            value: item.ID,
-                            label: `${item.ID} - ${item.SH_DESC}${
-                              item.DIVISION_NAMES
-                                ? ` (${item.DIVISION_NAMES})`
-                                : ''
-                            }`
-                          }))
-                          .sort((a, b) => Number(a.value) - Number(b.value))}
-                        value={
-                          selectedJobId
-                            ? jobList
-                                .map(item => ({
-                                  value: item.ID,
-                                  label: `${item.ID} - ${item.SH_DESC}${
-                                    item.DIVISION_NAMES
-                                      ? ` (${item.DIVISION_NAMES})`
-                                      : ''
-                                  }`
-                                }))
-                                .sort(
-                                  (a, b) => Number(a.value) - Number(b.value)
-                                )
-                                .find(
-                                  option =>
-                                    String(option.value) ===
-                                    String(selectedJobId)
-                                ) || null
-                            : null
+                    <SDLReactSelect
+                      value={selectedJobId}
+                      options={jobList
+                        .map(item => ({
+                          value: item.ID,
+                          label: `${item.ID} - ${item.SH_DESC}${
+                            item.DIVISION_NAMES
+                              ? ` (${item.DIVISION_NAMES})`
+                              : ''
+                          }`
+                        }))
+                        .sort((a, b) => Number(a.value) - Number(b.value))}
+                      onChange={(value, option) => {
+                        if (!option) {
+                          resetForm()
+                          return
                         }
-                        onChange={option => {
-                          if (!option) {
-                            resetForm()
-                            return
-                          }
 
-                          const selectedJob = jobList.find(
-                            item => String(item.ID) === String(option.value)
-                          )
+                        const selectedJob = jobList.find(
+                          item => String(item.ID) === String(option.value)
+                        )
 
-                          if (selectedJob) {
-                            startEditJob(selectedJob)
-                          }
-                        }}
-                        placeholder='Select Job Description'
-                        isSearchable
-                        isClearable
-                        isLoading={loading}
-                      />
-                    </div>
+                        if (selectedJob) {
+                          startEditJob(selectedJob)
+                        }
+                      }}
+                      placeholder='Select Job Description'
+                      isSearchable
+                      isClearable
+                      isLoading={loading}
+                      width='390px'
+                    />
                   </div>
                 </div>
               </div>
@@ -1912,21 +1873,14 @@ const JobDescription = () => {
                     TABS
                     ============================ */}
 
-                  <ul className='nav nav-tabs nav-tabs-bottom mb-3 profile-tabs'>
-                    {visibleTabs.map(([key, label]) => (
-                      <li className='nav-item' key={key}>
-                        <button
-                          type='button'
-                          className={`nav-link ${
-                            activeTab === key ? 'active' : ''
-                          }`}
-                          onClick={() => setActiveTab(key)}
-                        >
-                          {label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                  <SDLTabsComponent
+                    tabs={visibleTabs.map(([key, label]) => ({
+                      key,
+                      label
+                    }))}
+                    selectedTab={activeTab}
+                    onTabChange={setActiveTab}
+                  />
 
                   {/* ============================
                     TAB CONTENT
@@ -1974,26 +1928,17 @@ const JobDescription = () => {
                                 <span style={jdStyles.required}>*</span>
                               </label>
 
-                              <Select
+                              <SDLReactSelect
+                                value={formData.DEPT_ID}
                                 options={departmentOptions}
-                                value={
-                                  departmentOptions.find(
-                                    o =>
-                                      String(o.value) ===
-                                      String(formData.DEPT_ID)
-                                  ) || null
-                                }
-                                onChange={option =>
-                                  handleFieldChange(
-                                    'DEPT_ID',
-                                    option?.value || ''
-                                  )
+                                onChange={value =>
+                                  handleFieldChange('DEPT_ID', value || '')
                                 }
                                 isSearchable
                                 isClearable
                                 placeholder='Select Department'
+                                width='100%'
                               />
-
                               {errors.DEPT_ID && (
                                 <div className='text-danger small mt-1'>
                                   {errors.DEPT_ID}
@@ -2008,24 +1953,16 @@ const JobDescription = () => {
                                 <span style={jdStyles.required}>*</span>
                               </label>
 
-                              <Select
+                              <SDLReactSelect
+                                value={formData.DESIG_ID}
                                 options={designationOptions}
-                                value={
-                                  designationOptions.find(
-                                    o =>
-                                      String(o.value) ===
-                                      String(formData.DESIG_ID)
-                                  ) || null
-                                }
-                                onChange={option =>
-                                  handleFieldChange(
-                                    'DESIG_ID',
-                                    option?.value || ''
-                                  )
+                                onChange={value =>
+                                  handleFieldChange('DESIG_ID', value || '')
                                 }
                                 isSearchable
                                 isClearable
                                 placeholder='Select Designation'
+                                width='100%'
                               />
 
                               {errors.DESIG_ID && (
@@ -2042,24 +1979,16 @@ const JobDescription = () => {
                                 <span style={jdStyles.required}>*</span>
                               </label>
 
-                              <Select
+                              <SDLReactSelect
+                                value={formData.LVL_ID}
                                 options={levelOptions}
-                                value={
-                                  levelOptions.find(
-                                    o =>
-                                      String(o.value) ===
-                                      String(formData.LVL_ID)
-                                  ) || null
-                                }
-                                onChange={option =>
-                                  handleFieldChange(
-                                    'LVL_ID',
-                                    option?.value || ''
-                                  )
+                                onChange={value =>
+                                  handleFieldChange('LVL_ID', value || '')
                                 }
                                 isSearchable
                                 isClearable
                                 placeholder='Select Employee Level'
+                                width='100%'
                               />
 
                               {errors.LVL_ID && (
@@ -2184,24 +2113,16 @@ const JobDescription = () => {
                                 <span style={jdStyles.required}>*</span>
                               </label>
 
-                              <Select
+                              <SDLReactSelect
+                                value={formData.MIN_QUAL}
                                 options={educationLevelOptions}
-                                value={
-                                  educationLevelOptions.find(
-                                    o =>
-                                      String(o.value) ===
-                                      String(formData.MIN_QUAL)
-                                  ) || null
-                                }
-                                onChange={option =>
-                                  handleFieldChange(
-                                    'MIN_QUAL',
-                                    option?.value || ''
-                                  )
+                                onChange={value =>
+                                  handleFieldChange('MIN_QUAL', value || '')
                                 }
                                 isSearchable
                                 isClearable
                                 placeholder='Select Minimum Qualification'
+                                width='100%'
                               />
 
                               {errors.MIN_QUAL && (
@@ -2218,24 +2139,16 @@ const JobDescription = () => {
                                 <span style={jdStyles.required}>*</span>
                               </label>
 
-                              <Select
+                              <SDLReactSelect
+                                value={formData.MAX_QUAL}
                                 options={educationLevelOptions}
-                                value={
-                                  educationLevelOptions.find(
-                                    o =>
-                                      String(o.value) ===
-                                      String(formData.MAX_QUAL)
-                                  ) || null
-                                }
-                                onChange={option =>
-                                  handleFieldChange(
-                                    'MAX_QUAL',
-                                    option?.value || ''
-                                  )
+                                onChange={value =>
+                                  handleFieldChange('MAX_QUAL', value || '')
                                 }
                                 isSearchable
                                 isClearable
                                 placeholder='Select Maximum Qualification'
+                                width='100%'
                               />
 
                               {errors.MAX_QUAL && (
@@ -2362,20 +2275,15 @@ const JobDescription = () => {
                         <div className='mb-3'>
                           <label className='form-label'>KRA*</label>
 
-                          <MultiSelect
+                          <SDLReactMultiSelect
                             value={formData.KRA || []}
                             options={kraOptions}
-                            onChange={e => handleFieldChange('KRA', e.value)}
-                            optionLabel='label'
-                            optionValue='value'
+                            onChange={value =>
+                              handleFieldChange('KRA', value || [])
+                            }
                             placeholder='Select KRA(s)'
-                            className='w-100'
-                            display='chip'
-                            filter
-                            filterBy='label'
-                            showClear
-                            emptyMessage='No KRA available'
-                            emptyFilterMessage='No KRA found'
+                            isClearable
+                            width='100%'
                           />
                         </div>
 
@@ -2421,27 +2329,22 @@ const JobDescription = () => {
                               <span style={jdStyles.required}>*</span>
                             </label>
 
-                            <Select
+                            <SDLReactSelect
+                              value={formData.EDUCATION?.QUA_ID || ''}
                               options={qualificationOptions}
-                              value={
-                                qualificationOptions.find(
-                                  option =>
-                                    String(option.value) ===
-                                    String(formData.EDUCATION?.QUA_ID)
-                                ) || null
-                              }
-                              onChange={option =>
+                              onChange={value =>
                                 setFormData(prev => ({
                                   ...prev,
                                   EDUCATION: {
                                     ...prev.EDUCATION,
-                                    QUA_ID: option?.value || ''
+                                    QUA_ID: value || ''
                                   }
                                 }))
                               }
                               isSearchable
                               isClearable
                               placeholder='Select Qualification'
+                              width='100%'
                             />
                           </div>
 
@@ -2515,25 +2418,20 @@ const JobDescription = () => {
                             <label style={jdStyles.label}>
                               Skill Code<span style={jdStyles.required}>*</span>
                             </label>
-                            <Select
+                            <SDLReactSelect
+                              value={skillForm.code}
                               options={skillOptions}
-                              value={
-                                skillOptions.find(
-                                  option =>
-                                    String(option.value) ===
-                                    String(skillForm.code)
-                                ) || null
-                              }
-                              onChange={option => {
+                              onChange={(value, option) => {
                                 setSkillForm(prev => ({
                                   ...prev,
-                                  code: option?.value || '',
+                                  code: value || '',
                                   details: option?.description || ''
                                 }))
                               }}
                               isSearchable
                               isClearable
                               placeholder='Select Skill'
+                              width='100%'
                             />
                           </div>
 
@@ -2562,24 +2460,19 @@ const JobDescription = () => {
                               <span style={jdStyles.required}>*</span>
                             </label>
 
-                            <Select
+                            <SDLReactSelect
+                              value={skillForm.level}
                               options={skillLevelOptions}
-                              value={
-                                skillLevelOptions.find(
-                                  option =>
-                                    String(option.value) ===
-                                    String(skillForm.level)
-                                ) || null
-                              }
-                              onChange={option =>
+                              onChange={value =>
                                 setSkillForm(prev => ({
                                   ...prev,
-                                  level: option?.value || ''
+                                  level: value || ''
                                 }))
                               }
                               isSearchable
                               isClearable
                               placeholder='Expertise Level'
+                              width='100%'
                             />
                           </div>
                         </div>
@@ -2633,24 +2526,19 @@ const JobDescription = () => {
                               Allowance<span style={jdStyles.required}>*</span>
                             </label>
 
-                            <Select
+                            <SDLReactSelect
+                              value={allowanceForm.listing}
                               options={allowanceOptions}
-                              value={
-                                allowanceOptions.find(
-                                  option =>
-                                    String(option.value) ===
-                                    String(allowanceForm.listing)
-                                ) || null
-                              }
-                              onChange={option =>
+                              onChange={value =>
                                 setAllowanceForm(prev => ({
                                   ...prev,
-                                  listing: option?.value || ''
+                                  listing: value || ''
                                 }))
                               }
                               isSearchable
                               isClearable
                               placeholder='Select Allowance'
+                              width='100%'
                             />
                           </div>
 
@@ -2677,41 +2565,24 @@ const JobDescription = () => {
                               Frequency<span style={jdStyles.required}>*</span>
                             </label>
 
-                            <Select
+                            <SDLReactSelect
+                              value={allowanceForm.frequency}
                               options={frequencyList.map(item => ({
                                 value:
                                   item.value ?? item.FREQUENCY ?? item.EXP_TYPE,
                                 label:
                                   item.label ?? item.FREQUENCY ?? item.EXP_TYPE
                               }))}
-                              // value={null}
-                              value={
-                                frequencyList
-                                  .map(item => ({
-                                    value:
-                                      item.value ??
-                                      item.FREQUENCY ??
-                                      item.EXP_TYPE,
-                                    label:
-                                      item.label ??
-                                      item.FREQUENCY ??
-                                      item.EXP_TYPE
-                                  }))
-                                  .find(
-                                    option =>
-                                      String(option.value) ===
-                                      String(allowanceForm.frequency)
-                                  ) || null
-                              }
-                              onChange={option =>
+                              onChange={value =>
                                 setAllowanceForm(prev => ({
                                   ...prev,
-                                  frequency: option?.value || ''
+                                  frequency: value || ''
                                 }))
                               }
                               isSearchable
                               isClearable
                               placeholder='Select Frequency'
+                              width='100%'
                             />
                           </div>
 
@@ -2720,41 +2591,22 @@ const JobDescription = () => {
                               Exp Type<span style={jdStyles.required}>*</span>
                             </label>
 
-                            <Select
-                              // options={expenseTypeOptions}
-                              // value={
-                              //   expenseTypeOptions.find(
-                              //     option =>
-                              //       String(option.value) ===
-                              //       String(allowanceForm.expenseType)
-                              //   ) || null
-                              // }
+                            <SDLReactSelect
+                              value={allowanceForm.expenseType}
                               options={[
                                 { value: 'A', label: 'Allowance' },
                                 { value: 'R', label: 'Reimbursement' }
                               ]}
-                              value={
-                                allowanceForm.expenseType
-                                  ? {
-                                      value: allowanceForm.expenseType,
-                                      label:
-                                        allowanceForm.expenseType === 'A'
-                                          ? 'Allowance'
-                                          : allowanceForm.expenseType === 'R'
-                                          ? 'Reimbursement'
-                                          : allowanceForm.expenseType
-                                    }
-                                  : null
-                              }
-                              onChange={option =>
+                              onChange={value =>
                                 setAllowanceForm(prev => ({
                                   ...prev,
-                                  expenseType: option?.value || ''
+                                  expenseType: value || ''
                                 }))
                               }
                               isSearchable
                               isClearable
                               placeholder='Select Exp Type'
+                              width='100%'
                             />
                           </div>
 
@@ -2857,32 +2709,22 @@ const JobDescription = () => {
                               CTC Head<span style={jdStyles.required}>*</span>
                             </label>
 
-                            <Select
+                            <SDLReactSelect
+                              value={ctcForm.head}
                               options={ctcHeadList.map(item => ({
                                 value: item.AD_ID ?? item.ad_id,
                                 label: getCTCHeadLabel(item)
                               }))}
-                              value={
-                                ctcHeadList
-                                  .map(item => ({
-                                    value: item.AD_ID ?? item.ad_id,
-                                    label: getCTCHeadLabel(item)
-                                  }))
-                                  .find(
-                                    option =>
-                                      String(option.value) ===
-                                      String(ctcForm.head)
-                                  ) || null
-                              }
-                              onChange={option =>
+                              onChange={value =>
                                 setCtcForm(prev => ({
                                   ...prev,
-                                  head: option?.value || ''
+                                  head: value || ''
                                 }))
                               }
                               isSearchable
                               isClearable
                               placeholder='Select CTC Head'
+                              width='100%'
                             />
                           </div>
 
@@ -2891,24 +2733,19 @@ const JobDescription = () => {
                               Formula<span style={jdStyles.required}>*</span>
                             </label>
 
-                            <Select
+                            <SDLReactSelect
+                              value={ctcForm.formula}
                               options={formulaOptions}
-                              value={
-                                formulaOptions.find(
-                                  option =>
-                                    String(option.value) ===
-                                    String(ctcForm.formula)
-                                ) || null
-                              }
-                              onChange={option =>
+                              onChange={value =>
                                 setCtcForm(prev => ({
                                   ...prev,
-                                  formula: option?.value || ''
+                                  formula: value || ''
                                 }))
                               }
                               isSearchable
                               isClearable
                               placeholder='Select Formula'
+                              width='100%'
                             />
                           </div>
 
@@ -3043,22 +2880,17 @@ const JobDescription = () => {
                           <div className='col-lg-4 col-md-6'>
                             <label style={jdStyles.label}>Question Group</label>
 
-                            <Select
+                            <SDLReactSelect
+                              value={selectedQuestionGroup}
                               options={questionGroupOptions}
-                              value={
-                                questionGroupOptions.find(
-                                  option =>
-                                    String(option.value) ===
-                                    String(selectedQuestionGroup)
-                                ) || null
-                              }
-                              onChange={option => {
-                                setSelectedQuestionGroup(option?.value || '')
+                              onChange={value => {
+                                setSelectedQuestionGroup(value || '')
                                 setQuestionCurrentPage(1)
                               }}
                               isSearchable
                               isClearable
                               placeholder='Select Question Group'
+                              width='100%'
                             />
                           </div>
                         </div>
@@ -3381,22 +3213,17 @@ const JobDescription = () => {
                     {showAllTabs && activeTab === 'division' && (
                       <div>
                         <label style={jdStyles.label}>Division Mapping</label>
-                        <MultiSelect
+
+                        <SDLReactMultiSelect
                           value={formData.DIVISION_MAPPING || []}
                           options={divisionOptions}
-                          onChange={e =>
-                            handleFieldChange('DIVISION_MAPPING', e.value)
+                          onChange={value =>
+                            handleFieldChange('DIVISION_MAPPING', value || [])
                           }
-                          optionLabel='label'
-                          optionValue='value'
                           placeholder='Select Division(s)'
-                          className='w-100 division-multiselect'
-                          display='chip'
-                          filter
-                          filterBy='label'
-                          showClear
-                          emptyMessage='No divisions available'
-                          emptyFilterMessage='No divisions found'
+                          hasError={false}
+                          isClearable
+                          width='100%'
                         />
                       </div>
                     )}
@@ -3411,27 +3238,22 @@ const JobDescription = () => {
                           <div className='col-lg-4 mb-3'>
                             <label style={jdStyles.label}>Induction</label>
 
-                            <Select
+                            <SDLReactSelect
+                              value={formData.INDUCTION?.INDUC_ID || ''}
                               options={inductionOptions}
-                              value={
-                                inductionOptions.find(
-                                  option =>
-                                    String(option.value) ===
-                                    String(formData.INDUCTION?.INDUC_ID)
-                                ) || null
-                              }
-                              onChange={option =>
+                              onChange={value =>
                                 setFormData(prev => ({
                                   ...prev,
                                   INDUCTION: {
                                     ...prev.INDUCTION,
-                                    INDUC_ID: option?.value || ''
+                                    INDUC_ID: value || ''
                                   }
                                 }))
                               }
                               isSearchable
                               isClearable
                               placeholder='Select Induction'
+                              width='100%'
                             />
                           </div>
 
@@ -3442,27 +3264,22 @@ const JobDescription = () => {
                               <span style={jdStyles.required}>*</span>
                             </label>
 
-                            <Select
+                            <SDLReactSelect
+                              value={formData.INDUCTION?.ORG_ID || ''}
                               options={organogramOptions}
-                              value={
-                                organogramOptions.find(
-                                  option =>
-                                    String(option.value) ===
-                                    String(formData.INDUCTION?.ORG_ID)
-                                ) || null
-                              }
-                              onChange={option =>
+                              onChange={value =>
                                 setFormData(prev => ({
                                   ...prev,
                                   INDUCTION: {
                                     ...prev.INDUCTION,
-                                    ORG_ID: option?.value || ''
+                                    ORG_ID: value || ''
                                   }
                                 }))
                               }
                               isSearchable
                               isClearable
                               placeholder='Select Organogram'
+                              width='100%'
                             />
                           </div>
 
@@ -3540,39 +3357,32 @@ const JobDescription = () => {
                     ACTION BUTTONS
                     ============================ */}
                   <div className='d-flex justify-content-end mt-3'>
-  <button
-    className='btn btn-primary me-2'
-    type='submit'
-    disabled={saving}
-  >
-    {saving ? 'Saving...' : 'Save'}
-  </button>
+                    <SaveButton
+                      type='submit'
+                      disabled={saving}
+                      isSubmitting={saving}
+                      isEditing={Boolean(formData.id)}
+                      className='me-2'
+                    />
 
-  <button
-    className='btn btn-success me-2'
-    type='button'
-    onClick={handleSendForAuth}
-    disabled={saving || !formData.id}
-  >
-    Send for Auth
-  </button>
+                    <button
+                      className='btn btn-success me-2'
+                      type='button'
+                      onClick={handleSendForAuth}
+                      disabled={saving || !formData.id}
+                    >
+                      Send for Auth
+                    </button>
 
-  <button
-    className='btn btn-secondary'
-    type='button'
-    onClick={resetForm}
-    disabled={saving}
-  >
-    Cancel
-  </button>
-</div>
+                    <CancelButton onClick={resetForm} disabled={saving} />
+                  </div>
                 </form>
               )}
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

@@ -5,6 +5,8 @@ import { getLocationsColumns, renderLocationsColumns } from "./locationsColumns"
 import ReportingTab from "./ReportingTab";
 import AllowancesTab from "./AllowancesTab";
 import { isOrganogramReadOnly } from "./organogramStatus";
+import SaveButton from '../components/buttons/SaveButton'
+import CancelButton from '../components/buttons/CancelButton'
 
 const LocationsTab = ({ organogramId, organogramStatus, onOrganogramSaved, showAll, onCancelEdit }) => {
   const [modalState, setModalState] = useState(null);
@@ -18,8 +20,8 @@ const LocationsTab = ({ organogramId, organogramStatus, onOrganogramSaved, showA
     savingAll,
     handleCancelEdits,
     handleBulkSave,
-    updateBulkRowField,
-  } = useLocationsTabHandler(organogramId, onOrganogramSaved);
+    updateBulkRowField
+  } = useLocationsTabHandler(organogramId, onOrganogramSaved)
 
   // Mode is driven entirely by the shared top toggle (Organogram.jsx) —
   // no local button or state needed anymore. showAll=true -> plain list
@@ -27,14 +29,14 @@ const LocationsTab = ({ organogramId, organogramStatus, onOrganogramSaved, showA
   // pickers/dropdown, matching KRA's default form mode.
   const isEditing = !showAll && !isOrganogramReadOnly(organogramStatus);
 
-  const isLoading = loadingDetails || loadingLocations;
+  const isLoading = loadingDetails || loadingLocations
 
   const columnDefs = getLocationsColumns({
     organogramDetails,
     getGeoMappingOptions: getGeoMappingOptionsForRow,
     isEditing,
-    updateBulkRowField,
-  });
+    updateBulkRowField
+  })
 
   const columns = renderLocationsColumns(columnDefs, {
     onShowAllowance: (allowId, locId) =>
@@ -48,38 +50,31 @@ const LocationsTab = ({ organogramId, organogramStatus, onOrganogramSaved, showA
   return (
     <div>
       <DataTable
-        key={isEditing ? "edit" : "view"}
+        key={isEditing ? 'edit' : 'view'}
         value={locations}
         loading={isLoading}
-        dataKey="SNO"
-        size="small"
-        emptyMessage="No positions defined for this organogram."
+        dataKey='SNO'
+        size='small'
+        emptyMessage='No positions defined for this organogram.'
       >
         {columns}
       </DataTable>
 
       {isEditing && (
-        <div className="d-flex justify-content-end gap-2 mt-3">
-          <button
-            type="button"
-            className="btn btn-primary"
+        <div className='d-flex justify-content-end gap-2 mt-3'>
+          <SaveButton
             onClick={() => handleBulkSave(false)}
             disabled={savingAll}
-          >
-            {savingAll ? "Saving..." : "Save"}
-          </button>
+            isSubmitting={savingAll}
+          />
 
-          <button
-            type="button"
-            className="btn btn-secondary"
+          <CancelButton
             onClick={() => {
-              handleCancelEdits();
-              onCancelEdit?.();
+              handleCancelEdits()
+              onCancelEdit?.()
             }}
             disabled={savingAll}
-          >
-            Cancel
-          </button>
+          />
         </div>
       )}
 
@@ -135,7 +130,7 @@ const LocationsTab = ({ organogramId, organogramStatus, onOrganogramSaved, showA
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default LocationsTab;
+export default LocationsTab
