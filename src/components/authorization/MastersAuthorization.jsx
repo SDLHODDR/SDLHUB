@@ -1,41 +1,129 @@
 import { useParams } from "react-router-dom";
 import BreadcrumbNav from "../../portals/eportal/components/breadcrumb-nav/BreadcrumbNav";
-//import JoiningAuthorizationModal from "../../portals/hrms/modal/JoiningAuthorizationModal";
 import SDLDataTable from "../datatable/SDLDataTable";
 import SDLSearch from "../datatable/SDLSearch";
 import "../../portals/eportal/assets/css/companyPolicies.css";
 import { formatDashDate } from "../../portals/eportal/utils/formatUtils";
-//import { useJMiscellaneousAuthorizationHandler } from "./useJMiscellaneousAuthorizationHandler";
-//import { getMiscellaneousAuthorizationColumns } from "./getMiscellaneousAuthorizationColumns";
 
-// Map TASK_ID -> page title / API endpoint / column config
-const JOINING_TASK_CONFIG = {
+import { useMastersAuthorizationHandler } from "./useMastersAuthorizationHandler";
+import { getMastersAuthorizationColumns } from "./MastersAuthorizationColumns";
+import FamilyAuthorizationModal from "./FamilyAuthorizationModal";
+import BankAuthorizationModal from "./BankAuthorizationModal";
+import PersonalInfoAuthorizationModal from "./PersonalInfoAuthorizationModal";
 
-  55: { title: "Change Bank Info - Request", endpoint: "/changeBankInfo/bank-info" },
- 
+// Map TASK_ID -> Page Title & Endpoints for Masters
+const MASTER_TASK_CONFIG = {
+  53: {
+    title: "Change Personal Info - Authorization",
+    type: "PERSONAL",
+    endpoint: "/api/hrms/masters/personal-info",
+  },
+  54: {
+    title: "Change Family Info - Authorization",
+    type: "FAMILY",
+    endpoint: "/api/hrms/masters/family-info",
+  },
+  55: {
+    title: "Change Bank Info - Authorization",
+    type: "BANK",
+    endpoint: "/api/hrms/masters/bank-info",
+  },
 };
 
 const MastersAuthorization = () => {
-    const { tid } = useParams();
-    const config = JOINING_TASK_CONFIG[tid];
+  const { tid } = useParams();
+  const config = MASTER_TASK_CONFIG[tid] || {
+    title: "Master Changes Authorization",
+    type: "GENERAL",
+  };
 
-  
-   
+  const {
+    loading,
+    searchQuery,
+    setSearchQuery,
+    filteredData,
+    selectedRecord,
+    showModal,
+    openModal,
+    closeModal,
+    refreshList,
+  } = useMastersAuthorizationHandler(tid);
 
-    if (loading) return <div>Loading...</div>;
+  const columns = getMastersAuthorizationColumns(formatDashDate, tid);
 
-    // useEffect(() => {
-    //     if (!config) return;
-    //     // fetch(config.endpoint)... load table data specific to this tid
-    // }, [tid, config]);
+  return (
+    <>
+      <div className="page-header">
+        <div className="page-title">
+          <h4>{config.title}</h4>
+        </div>
+        <BreadcrumbNav
+          items={[
+            { text: "Home", link: "/hrms/dashboard" },
+            { text: "Masters Authorization", link: "#" },
+            { text: config.title },
+          ]}
+        />
+      </div>
 
-    console.log("=============FilteredData============", filteredData);
+      <div className="card">
+        <div className="card-body">
+          <div className="row mb-3">
+            <div className="col-lg-4 col-md-6 col-12">
+              <SDLSearch
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search Requests..."
+                style={{ width: "270px" }}
+              />
+            </div>
+          </div>
 
-    return (
-        <>
-           
-        </>
-    );
+          <div className="company-policies-table">
+            <SDLDataTable
+              data={filteredData}
+              columns={columns}
+              loading={loading}
+              emptyMessage="No Pending Master Requests Found"
+              className="company-policies-grid"
+              removableSort
+              onRowClick={(e) => openModal(e.data)}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Personal Info / Address Detail Authorization Modal */}
+      {config.type === "PERSONAL" && (
+        <PersonalInfoAuthorizationModal
+          show={showModal}
+          record={selectedRecord}
+          onClose={closeModal}
+          onSuccess={refreshList}
+        />
+      )}
+
+      {/* Family Detail Authorization Modal */}
+      {config.type === "FAMILY" && (
+        <FamilyAuthorizationModal
+          show={showModal}
+          record={selectedRecord}
+          onClose={closeModal}
+          onSuccess={refreshList}
+        />
+      )}
+
+      {/* Bank Detail Authorization Modal */}
+      {config.type === "BANK" && (
+        <BankAuthorizationModal
+          show={showModal}
+          record={selectedRecord}
+          onClose={closeModal}
+          onSuccess={refreshList}
+        />
+      )}
+    </>
+  );
 };
 
 export default MastersAuthorization;
