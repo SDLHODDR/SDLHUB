@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo, useCallback  } from "react";
 import { useLocation } from "react-router-dom";
-import { Dropdown } from "primereact/dropdown";
 
 import BreadcrumbNav from "../../../eportal/components/breadcrumb-nav/BreadcrumbNav";
 import SDLReactSelect from "../../../../components/SDLReactSelect";
@@ -84,8 +83,18 @@ const Organogram = () => {
     }));
   }, [orgonogram]);
 
+  const selectedOrganogramRecord = useMemo(
+    () => orgonogram.find((row) => String(row.ID) === String(selectedOrganogram)),
+    [orgonogram, selectedOrganogram]
+  );
+  const organogramStatus = selectedOrganogramRecord?.STATUS
+    ?? selectedOrganogramRecord?.status
+    ?? selectedOrganogramRecord?.STATUSTXT
+    ?? "N";
+
   const { tabs, selectedTab, handleTabChange, tabContent } = useSDLTabComponentHandler(
     selectedOrganogram,
+    organogramStatus,
     loadOrgonogram,
     showAll,
     handleCancelEdit

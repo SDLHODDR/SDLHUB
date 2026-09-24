@@ -4,8 +4,9 @@ import useLocationsTabHandler from "./useLocationsTabHandler";
 import { getLocationsColumns, renderLocationsColumns } from "./locationsColumns";
 import ReportingTab from "./ReportingTab";
 import AllowancesTab from "./AllowancesTab";
+import { isOrganogramReadOnly } from "./organogramStatus";
 
-const LocationsTab = ({ organogramId, onOrganogramSaved, showAll, onCancelEdit }) => {
+const LocationsTab = ({ organogramId, organogramStatus, onOrganogramSaved, showAll, onCancelEdit }) => {
   const [modalState, setModalState] = useState(null);
   const {
     organogramDetails,
@@ -24,7 +25,7 @@ const LocationsTab = ({ organogramId, onOrganogramSaved, showAll, onCancelEdit }
   // no local button or state needed anymore. showAll=true -> plain list
   // (matches KRA's list mode); showAll=false -> editable form with
   // pickers/dropdown, matching KRA's default form mode.
-  const isEditing = !showAll;
+  const isEditing = !showAll && !isOrganogramReadOnly(organogramStatus);
 
   const isLoading = loadingDetails || loadingLocations;
 
@@ -112,6 +113,7 @@ const LocationsTab = ({ organogramId, onOrganogramSaved, showAll, onCancelEdit }
                 {modalState.type === "reporting" ? (
                   <ReportingTab
                     organogramId={organogramId}
+                    organogramStatus={organogramStatus}
                     locId={modalState.locId}
                     showAll={false}
                     onCancelEdit={handleCloseModal}
@@ -120,6 +122,7 @@ const LocationsTab = ({ organogramId, onOrganogramSaved, showAll, onCancelEdit }
                 ) : (
                   <AllowancesTab
                     organogramId={organogramId}
+                    organogramStatus={organogramStatus}
                     locId={modalState.locId}
                     allowId={modalState.allowId}
                     showAll={false}

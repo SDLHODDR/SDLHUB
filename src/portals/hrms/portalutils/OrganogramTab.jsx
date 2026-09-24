@@ -1,8 +1,9 @@
 import useOrganogramFormHandler from "./useOrganogramFormHandler";
 import SDLReactSelect from "../../../components/SDLReactSelect";
+import { isOrganogramReadOnly } from "./organogramStatus";
 //import Select from "react-select";
 
-const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
+const OrganogramTab = ({ organogramId, organogramStatus, onOrganogramSaved }) => {
   //const isEditMode = !!organogramId;
 
   const {
@@ -27,6 +28,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
     isEditMode,
     canSendForAuth,
   } = useOrganogramFormHandler(organogramId, onOrganogramSaved);
+  const isReadOnly = isOrganogramReadOnly(organogramStatus || formData.STATUS);
 
   return (
     <div>
@@ -47,7 +49,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               onChange={(value) => handleFieldChange("FIN_ENTITY_ID", value)}
               hasError={!!errors.FIN_ENTITY_ID}
               isLoading={loadingMasters}
-              isDisabled={loadingMasters}
+              isDisabled={loadingMasters || isReadOnly}
             />
             {errors.FIN_ENTITY_ID && (
               <div className="invalid-feedback d-block">
@@ -70,7 +72,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               onChange={(value) => handleFieldChange("COMPANY_ID", value)}
               hasError={!!errors.COMPANY_ID}
               isLoading={loadingMasters}
-              isDisabled={loadingMasters}
+              isDisabled={loadingMasters || isReadOnly}
             />
             {errors.COMPANY_ID && (
               <div className="invalid-feedback d-block">
@@ -93,7 +95,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               onChange={(value) => handleFieldChange("DEPARTMENT_ID", value)}
               hasError={!!errors.DEPARTMENT_ID}
               isLoading={loadingMasters}
-              isDisabled={loadingMasters}
+              isDisabled={loadingMasters || isReadOnly}
             />
             {errors.DEPARTMENT_ID && (
               <div className="invalid-feedback d-block">
@@ -114,7 +116,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               onChange={(value) => handleFieldChange("DESIGNATION_ID", value)}
               hasError={!!errors.DESIGNATION_ID}
               isLoading={loadingDesignations}
-              isDisabled={!formData.DEPARTMENT_ID || loadingDesignations}
+              isDisabled={!formData.DEPARTMENT_ID || loadingDesignations || isReadOnly}
             />
             {errors.DESIGNATION_ID && (
               <div className="invalid-feedback d-block">
@@ -140,7 +142,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               onChange={(value) => handleFieldChange("ORG_LEVEL_ID", value)}
               hasError={!!errors.ORG_LEVEL_ID}
               isLoading={loadingMasters}
-              isDisabled={loadingMasters}
+              isDisabled={loadingMasters || isReadOnly}
               width="180px"
             />
             {errors.ORG_LEVEL_ID && (
@@ -162,7 +164,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               onChange={(value) => handleFieldChange("JD_LABEL_ID", value)}
               hasError={!!errors.JD_LABEL_ID}
               isLoading={loadingJdLabels}
-              isDisabled={!formData.DESIGNATION_ID || loadingJdLabels}
+              isDisabled={!formData.DESIGNATION_ID || loadingJdLabels || isReadOnly}
             />
             {errors.JD_LABEL_ID && (
               <div className="invalid-feedback d-block">
@@ -185,7 +187,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               onChange={(value) => handleFieldChange("DIVISION_ID", value)}
               hasError={!!errors.DIVISION_ID}
               isLoading={loadingMasters}
-              isDisabled={loadingMasters}
+              isDisabled={loadingMasters || isReadOnly}
             />
             {errors.DIVISION_ID && (
               <div className="invalid-feedback d-block">
@@ -208,7 +210,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               onChange={(value) => handleFieldChange("EMP_LEVEL_ID", value)}
               hasError={!!errors.EMP_LEVEL_ID}
               isLoading={loadingMasters}
-              isDisabled={loadingMasters}
+              isDisabled={loadingMasters || isReadOnly}
             />
             {errors.EMP_LEVEL_ID && (
               <div className="invalid-feedback d-block">
@@ -229,6 +231,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               className={`form-control ${errors.POSITION_COUNT ? "is-invalid" : ""}`}
               style={{ width: "180px" }}
               value={formData.POSITION_COUNT}
+              disabled={isReadOnly}
               onChange={(e) => {
                 const val = e.target.value;
                 if (val === "" || (/^\d+$/.test(val) && val.length <= 3)) {
@@ -254,6 +257,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
               className={`form-control ${errors.POSITION_OCCUPIED ? "is-invalid" : ""}`}
               style={{ width: "180px" }}
               value={formData.POSITION_OCCUPIED}
+              disabled={isReadOnly}
               onChange={(e) => {
                 const val = e.target.value;
                 if (val === "" || (/^\d+$/.test(val) && val.length <= 3)) {
@@ -272,7 +276,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
         </div>
       </div>
 
-      <div className="d-flex justify-content-end gap-2 mt-3">
+      {!isReadOnly && <div className="d-flex justify-content-end gap-2 mt-3">
         <button
           type="button"
           className="btn btn-primary"
@@ -313,7 +317,7 @@ const OrganogramTab = ({ organogramId, onOrganogramSaved }) => {
         >
           Cancel
         </button>
-      </div>
+      </div>}
     </div>
   );
 };
