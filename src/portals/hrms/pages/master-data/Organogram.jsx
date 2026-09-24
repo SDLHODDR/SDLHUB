@@ -83,13 +83,22 @@ const Organogram = () => {
     }))
   }, [orgonogram])
 
-  const { tabs, selectedTab, handleTabChange, tabContent } =
-    useSDLTabComponentHandler(
-      selectedOrganogram,
-      loadOrgonogram,
-      showAll,
-      handleCancelEdit
-    )
+  const selectedOrganogramRecord = useMemo(
+    () => orgonogram.find((row) => String(row.ID) === String(selectedOrganogram)),
+    [orgonogram, selectedOrganogram]
+  );
+  const organogramStatus = selectedOrganogramRecord?.STATUS
+    ?? selectedOrganogramRecord?.status
+    ?? selectedOrganogramRecord?.STATUSTXT
+    ?? "N";
+
+  const { tabs, selectedTab, handleTabChange, tabContent } = useSDLTabComponentHandler(
+    selectedOrganogram,
+    organogramStatus,
+    loadOrgonogram,
+    showAll,
+    handleCancelEdit
+  );
 
   /* ==========================================================
       TOGGLE: list <-> form

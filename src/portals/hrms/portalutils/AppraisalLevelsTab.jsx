@@ -4,8 +4,9 @@ import { Calendar } from "primereact/calendar";
 import SDLReactSelect from "../../../components/SDLReactSelect";
 import useApprLevelTabHandler from "./useApprLevelTabHandler";
 import { getApprLevelColumns, renderApprLevelColumns } from "./apprLevelColumns";
+import { isOrganogramReadOnly } from "./organogramStatus";
 
-const AppraisalLevelsTab = ({ organogramId, showAll, onCancelEdit }) => {
+const AppraisalLevelsTab = ({ organogramId, organogramStatus, showAll, onCancelEdit }) => {
   const {
     apprLevels,
     apprOptions,
@@ -18,7 +19,7 @@ const AppraisalLevelsTab = ({ organogramId, showAll, onCancelEdit }) => {
   const [effectiveFrom, setEffectiveFrom] = useState(null);
 
   const isLoading = loadingApprLevels || savingRow;
-  const isEditing = !showAll;
+  const isEditing = !showAll && !isOrganogramReadOnly(organogramStatus);
 
   const columns = renderApprLevelColumns(getApprLevelColumns());
 

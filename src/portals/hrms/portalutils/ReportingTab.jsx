@@ -5,8 +5,9 @@ import SDLReactSelect from "../../../components/SDLReactSelect";
 import { parseDDMonYY } from "../../../utils/formatUtils";
 import useReportingTabHandler from "./useReportingTabHandler";
 import { getReportingColumns, renderReportingColumns } from "./reportingColumns";
+import { isOrganogramReadOnly } from "./organogramStatus";
 
-const ReportingTab = ({ organogramId, locId, repId, showAll, onCancelEdit, onSaved }) => {
+const ReportingTab = ({ organogramId, organogramStatus, locId, repId, showAll, onCancelEdit, onSaved }) => {
   const {
     reportingRows,
     loadingRows,
@@ -69,7 +70,7 @@ const ReportingTab = ({ organogramId, locId, repId, showAll, onCancelEdit, onSav
     return <div className="text-muted py-3">No data found. Open Reporting from a Locations row.</div>;
   }
 
-  const isEditing = !showAll || formOpen;
+  const isEditing = (!showAll || formOpen) && !isOrganogramReadOnly(organogramStatus);
   const isUpdating = Boolean(editingReportingId || repId);
 
   const handleEdit = (row) => {

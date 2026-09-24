@@ -9,9 +9,13 @@ import {
   getEmployeeLevels,
   getOrganogramLevels,
   getOrganogramDetails,
+  getOrganogramLocations,
+  getOrganogramApprLevels,
+  getOrgLocReportingRows,
   saveOrganogram,
 } from "../services/orgonogramService";
 import { notifyError, notifySuccess } from "../../../services/alertService";
+import { normalizeOrganogramStatus } from "./organogramStatus";
 
 const INITIAL_FORM_STATE = {
   FIN_ENTITY_ID: "",
@@ -24,6 +28,7 @@ const INITIAL_FORM_STATE = {
   ORG_LEVEL_ID: "",
   POSITION_COUNT: "",
   POSITION_OCCUPIED: "",
+  STATUS: "N",
 };
 
 // Maps the raw HR_ORGANOGRAM row (from $res in the old PHP) onto our formData shape.
@@ -40,6 +45,7 @@ const mapOrganogramRowToFormData = (row = {}) => ({
   ORG_LEVEL_ID: row.OLVL_ID ?? "",
   POSITION_COUNT: row.POSI_COUNT ?? "",
   POSITION_OCCUPIED: row.FILL_COUNT || "0",
+  STATUS: normalizeOrganogramStatus(row.STATUS ?? row.status),
 });
 
 const mapToOptions = (list = [], labelKey = "LABEL", valueKey = "ID") =>
@@ -240,11 +246,62 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
     if (!validate()) return;
     try {
       setSaving(true);
+      let status = sendForAuth ? "T" : "N";
+
+      if (sendForAuth && organogramId) {
+          const [locationsRes, appraisalRes] = await Promise.all([
+            getOrganogramLocations({ ID: organogramId }),
+            getOrganogramApprLevels({ ID: organogramId }),
+          ]);
+        const locations = Array.isArray(locationsRes)
+          ? locationsRes
+          : Array.isArray(locationsRes?.data)
+            ? locationsRes.data
+            : [];
+        const appraisalLevels = Array.isArray(appraisalRes)
+          ? appraisalRes
+          : Array.isArray(appraisalRes?.data)
+            ? appraisalRes.data
+            : [];
+        const activeLocations = locations.filter((row) => {
+          const rowStatus = normalizeOrganogramStatus(row.STATUS ?? row.status);
+          return !["I", "INACTIVE", "0"].includes(rowStatus)
+            && !row.TO_DATE
+            && !row.EFFEC_TO;
+        });
+          const locationsWithReporting = await Promise.all(
+            activeLocations.map(async (row) => {
+              if (row.HAS_REPORTING || row.PARENT_LOCID || row.PARENT_ID) return true;
+              if (!row.ID) return false;
+              const reportingRes = await getOrgLocReportingRows({ LOC_ID: row.ID });
+              const responseRows = Array.isArray(reportingRes)
+                ? reportingRes
+                : Array.isArray(reportingRes?.data)
+                  ? reportingRes.data
+                  : [];
+              return responseRows.some((parent) => {
+                const parentStatus = normalizeOrganogramStatus(parent.STATUS ?? parent.status);
+                return !["I", "INACTIVE", "0"].includes(parentStatus)
+                  && (parent.PARENT_LOCID || parent.PARENT_ID)
+                  && !parent.EFFEC_TO
+                  && !parent.TO_DATE;
+              });
+            })
+          );
+          const isReadyForAuthorization =
+            activeLocations.length === Number(formData.POSITION_OCCUPIED || 0)
+            && locationsWithReporting.every(Boolean)
+            && appraisalLevels.length > 0;
+
+          if (!isReadyForAuthorization) status = "N";
+      }
+
       const payload = {
         ...formData,
+        STATUS: status,
         ...(organogramId && { ID: organogramId }),
         mode: isEditMode ? "edit" : "add",
-        sendForAuth, // true when "Save & Send for Auth" clicked
+        sendForAuth,
       };
       const res = await saveOrganogram(payload);
 
@@ -252,11 +309,12 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
         // Edit mode already knows its ID. Add mode needs it back from the API.
         // TODO: confirm the actual key your backend returns the new ID under —
         // assuming res.data.ID below; change if it's e.g. res.data.ORGANOGRAM_ID.
-        const savedId = organogramId ?? res?.data?.ID ?? res?.data?.id ?? null;
+        const savedId = organogramId ?? res?.data?.ID ?? res?.task_id ?? res?.data?.id ?? null;
 
+        const didSendForAuth = status === "T";
         notifySuccess(
           res?.message ||
-          (sendForAuth
+          (didSendForAuth
               ? "Organogram saved and sent for authorization."
               : "Organogram saved successfully."),
           { onClose: () => onOrganogramSaved?.(savedId) }
@@ -284,10 +342,9 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
 
   // status values are examples — match these to your actual enum
   const canSendForAuth = useMemo(() => {
-    const status = formData?.status;
-    //return !status || status === "DRAFT" || status === "REJECTED";
-    return !status || status === "N";
-  }, [formData?.status]);
+    const status = normalizeOrganogramStatus(formData?.STATUS);
+    return status === "N" || status === "R" || status === "REJECTED";
+  }, [formData?.STATUS]);
 
   return {
     formData,

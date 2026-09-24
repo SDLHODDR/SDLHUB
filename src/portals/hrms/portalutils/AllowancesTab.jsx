@@ -4,8 +4,9 @@ import { Calendar } from "primereact/calendar";
 import SDLReactMultiSelect from "../../../components/SDLReactMultiSelect";
 import useAllowancesTabHandler from "./useAllowancesTabHandler";
 import { getAllowancesColumns, renderAllowancesColumns } from "./allowancesColumns";
+import { isOrganogramReadOnly } from "./organogramStatus";
 
-const AllowancesTab = ({ organogramId, locId, showAll, onCancelEdit }) => {
+const AllowancesTab = ({ organogramId, organogramStatus, locId, showAll, onCancelEdit }) => {
   const {
     allowanceRows,
     allowanceOptions,
@@ -34,7 +35,7 @@ const AllowancesTab = ({ organogramId, locId, showAll, onCancelEdit }) => {
     return <div className="text-muted py-3">No data found. Open Allowances from a Locations row.</div>;
   }
 
-  const isEditing = !showAll || formOpen;
+  const isEditing = (!showAll || formOpen) && !isOrganogramReadOnly(organogramStatus);
 
   const handleCancel = () => {
     cancelEditingAllowance();
