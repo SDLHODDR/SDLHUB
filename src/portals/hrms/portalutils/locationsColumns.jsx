@@ -42,14 +42,14 @@ export const getLocationsColumns = ({
   {
     key: "GEO_LOCATION_DISPLAY",
     header: "Geo Location",
-    style: { width: "10%" },
+    style: { width: "15%" },
     sortable: true,
     body: (row) => getGeoLocationDisplay(row, organogramDetails),
   },
   {
     key: "FROM_DATE",
     header: "From Date",
-    style: { width: "8%" },
+    style: { width: "10%" },
     sortable: true,
     body: (row) => {
       if (!isEditing) return row.FROM_DATE || "No Data";
@@ -71,7 +71,7 @@ export const getLocationsColumns = ({
   {
     key: "TO_DATE",
     header: "To Date",
-    style: { width: "8%" },
+    style: { width: "10%" },
     sortable: true,
     body: (row) => {
       if (!isEditing) return row.TO_DATE || "No Data";
@@ -89,14 +89,14 @@ export const getLocationsColumns = ({
   {
     key: "GEO_ID",
     header: "Geo Label",
-    style: { width: "16%", minWidth: "180px" },
+    style: { width: "8%" },
     sortable: true,
     body: (row) => {
       if (!isEditing) return row.GEO_MAPPING_LABEL || row.DIVSN_DESC || row.GEODESC || "No Data";
       const fieldError = row._errors?.GEO_ID;
       const geoOptions = getGeoMappingOptions(row);
       return (
-        <div style={{ minWidth: "160px" }}>
+        <div>
           <SDLReactSelect
             value={row.GEO_ID}
             options={geoOptions}
@@ -112,14 +112,14 @@ export const getLocationsColumns = ({
   {
     key: "NM",
     header: "Employee",
-    style: { width: "10%" },
+    style: { width: "12%" },
     sortable: true,
     body: (row) => row.NM || "No Data",
   },
   {
     key: "REPORT_TO_DISPLAY",
     header: "Report To",
-    style: { width: "14%" },
+    style: { width: "10%" },
     sortable: true,
     body: (row) => row.REPORT_TO_DISPLAY || "No Data",
   },

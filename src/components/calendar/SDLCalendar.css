@@ -5,6 +5,8 @@
 .sdl-calendar-wrapper {
   position: relative;
   width: 100%;
+  border: 1px solid #6c757d;
+  border-radius: 4px;
 }
 
 /* =========================================================

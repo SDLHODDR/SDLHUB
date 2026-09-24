@@ -18,6 +18,7 @@ import SDLReactSelect from '../../../../components/SDLReactSelect'
 import SaveButton from '../../components/buttons/SaveButton'
 import CancelButton from '../../components/buttons/CancelButton'
 import ViewToggleButton from '../../components/buttons/ViewToggleButton'
+import SDLInput from '../../../../components/SDLInput'
 
 const Capabilities = () => {
   const dispatch = useDispatch()
@@ -261,10 +262,10 @@ const Capabilities = () => {
                     width='330px'
                   />
                   <ViewToggleButton
-                      showAll={showAll}
-                      onClick={() => setShowAll(prev => !prev)}
-                      disabled={loading}
-                    />
+                    showAll={showAll}
+                    onClick={() => setShowAll(prev => !prev)}
+                    disabled={loading}
+                  />
                 </div>
               </div>
 
@@ -327,23 +328,24 @@ const Capabilities = () => {
                     </div>
 
                     <div className='col-lg-6'>
-                      <label className='form-label'>Description</label>
-                      <input
-                        type='text'
-                        className={`form-control ${
-                          errors.CAPA_DESC ? 'is-invalid' : ''
-                        }`}
+                      <SDLInput
+                        label='Description'
                         value={formData.CAPA_DESC}
-                        onChange={e =>
-                          handleFieldChange('CAPA_DESC', e.target.value)
-                        }
-                        maxLength='500'
+                        onChange={e => {
+                          const value = e.target.value
+
+                          handleFieldChange('CAPA_DESC', value)
+
+                          if (value.length > 200) {
+                            setErrors(prev => ({
+                              ...prev,
+                              CAPA_DESC:
+                                'Description cannot exceed 200 characters'
+                            }))
+                          }
+                        }}
+                        error={errors.CAPA_DESC}
                       />
-                      {errors.CAPA_DESC && (
-                        <div className='invalid-feedback'>
-                          {errors.CAPA_DESC}
-                        </div>
-                      )}
                     </div>
                   </div>
 

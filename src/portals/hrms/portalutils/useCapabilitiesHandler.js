@@ -28,7 +28,9 @@ export const useCapabilitiesHandler = ({
     }
     if (!formData.CAPA_DESC || String(formData.CAPA_DESC).trim() === "") {
       newErrors.CAPA_DESC = "Description is required";
-    }
+    } else if (!formData.CAPA_DESC.length > 200) {
+    newErrors.CAPA_DESC = "Description cannot exceed 200 characters";
+  }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

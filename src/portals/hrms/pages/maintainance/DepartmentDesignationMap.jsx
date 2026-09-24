@@ -250,9 +250,9 @@ const DepartmentDesignationMap = () => {
                   <thead className='table-light'>
                     <tr>
                       <th style={{ width: '60px' }}>Sr.</th>
-                      <th style={{ width: '120px' }}>Department Code</th>
+                      <th style={{ width: '60px' }}>Code</th>
                       <th style={{ width: '180px' }}>Department</th>
-                      <th style={{ width: '55%' }}>Designations</th>
+                      <th style={{ width: '65%' }}>Designations</th>
                       <th style={{ width: '120px' }}>Update</th>
                     </tr>
                   </thead>
