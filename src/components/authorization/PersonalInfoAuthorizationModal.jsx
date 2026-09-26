@@ -415,7 +415,7 @@ const PersonalInfoAuthorizationModal = ({
           <div className="modal-footer d-flex justify-content-between">
             <button
               type="button"
-              className="btn btn-light"
+              className="btn btn-secondary"
               onClick={onClose}
               disabled={isSubmitting}
             >
