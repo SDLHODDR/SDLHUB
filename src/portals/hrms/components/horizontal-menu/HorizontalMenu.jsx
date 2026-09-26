@@ -1,203 +1,184 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 import { getHrmsMenu } from "../../services/hrmsMenuService";
 import { notifyError } from "../../../../services/alertService";
 
+const STORAGE_KEY = "HRMS_MENU_CACHE";
+
+/*
+|--------------------------------------------------------------------------
+| ROUTE FORMATTER (Pure function outside component to avoid recreation)
+|--------------------------------------------------------------------------
+*/
+const cleanRoutePath = (route) => {
+  if (!route || typeof route !== "string") return "/hrms";
+
+  const clean = route
+    .trim()
+    .replace(/^\/+/, "")
+    .replace(/\\/g, "/")
+    .replace(/\/+/g, "/")
+    .replace(/\.php$/i, "")
+    .replaceAll("_", "-");
+
+  return `/hrms/${clean}`;
+};
+
 const HorizontalMenu = () => {
   const location = useLocation();
 
-  const [menus, setMenus] = useState([]);
+  /*
+  |--------------------------------------------------------------------------
+  | INSTANT INITIALIZATION FROM LOCAL CACHE
+  |--------------------------------------------------------------------------
+  */
+  const [menus, setMenus] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem(STORAGE_KEY);
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const [openMenu, setOpenMenu] = useState(null);
 
   /*
   |--------------------------------------------------------------------------
-  | FORMAT ROUTE
+  | PRE-PROCESS & NORMALIZE MENU DATA (Pre-computes routes once)
   |--------------------------------------------------------------------------
   */
-
-  const formatRoute = (route) => {
-    if (!route || typeof route !== "string") return "/hrms";
-
-    const cleanRoute = route
-      .trim()
-      .replace(/^\/+/, "")
-      .replace(/\\/g, "/")
-      .replace(/\/+/g, "/")
-      .replace(".php", "")
-      .replaceAll("_", "-");
-
-    return `/hrms/${cleanRoute}`;
-  };
+  const processedMenus = useMemo(() => {
+    return menus.map((menu) => ({
+      ...menu,
+      children: (menu.children || []).map((child) => ({
+        ...child,
+        targetRoute: cleanRoutePath(child.url || child.route || child.path),
+      })),
+    }));
+  }, [menus]);
 
   /*
   |--------------------------------------------------------------------------
-  | LOAD MENU
+  | LOAD MENU IN BACKGROUND (Stale-While-Revalidate)
   |--------------------------------------------------------------------------
   */
-
   useEffect(() => {
+    let isMounted = true;
+
     const loadMenus = async () => {
       try {
         const res = await getHrmsMenu();
 
-        if (res?.status) {
-          setMenus(res.data || []);
-        } else {
-          notifyError(
-            res?.message || "Unable to load HRMS menus."
-          );
+        if (res?.status && isMounted) {
+          const freshData = res.data || [];
+          setMenus(freshData);
+          try {
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(freshData));
+          } catch (e) {
+            console.warn("Unable to save menu cache:", e);
+          }
+        } else if (!res?.status && isMounted) {
+          notifyError(res?.message || "Unable to load HRMS menus.");
         }
       } catch (err) {
-        notifyError(
-          err?.message || "Unable to load HRMS menus."
-        );
+        if (isMounted) {
+          notifyError(err?.message || "Unable to load HRMS menus.");
+        }
       }
     };
 
     loadMenus();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   /*
   |--------------------------------------------------------------------------
-  | CHECK ACTIVE CHILD
+  | CLOSE MENU ON ROUTE CHANGE
   |--------------------------------------------------------------------------
   */
-
-  console.log("==========================Menus====================", menus);
-
-  const isChildActive = (route) => {
-    const formattedRoute = formatRoute(route);
-
-    return (
-      location.pathname === formattedRoute ||
-      location.pathname.startsWith(formattedRoute + "/")
-    );
-  };
+  useEffect(() => {
+    setOpenMenu(null);
+  }, [location.pathname]);
 
   /*
   |--------------------------------------------------------------------------
-  | TOGGLE MENU
+  | HANDLERS
   |--------------------------------------------------------------------------
   */
+  const toggleMenu = useCallback((menuId) => {
+    setOpenMenu((prev) => (prev === menuId ? null : menuId));
+  }, []);
 
-  const toggleMenu = (menuId) => {
-    setOpenMenu((prev) =>
-      prev === menuId ? null : menuId
-    );
-  };
+  const closeMobileMenu = useCallback(() => {
+    document.querySelector(".main-wrapper")?.classList.remove("slide-nav");
+    document.querySelector(".sidebar-overlay")?.classList.remove("opened");
+    document.documentElement.classList.remove("menu-opened");
+  }, []);
+
+  const isChildActive = useCallback(
+    (targetRoute) => {
+      return (
+        location.pathname === targetRoute ||
+        location.pathname.startsWith(targetRoute + "/")
+      );
+    },
+    [location.pathname]
+  );
 
   /*
   |--------------------------------------------------------------------------
-  | CLOSE MOBILE MENU
+  | RENDER MENU LIST
   |--------------------------------------------------------------------------
   */
-
-  const closeMobileMenu = () => {
-    document
-      .querySelector(".main-wrapper")
-      ?.classList.remove("slide-nav");
-
-    document
-      .querySelector(".sidebar-overlay")
-      ?.classList.remove("opened");
-
-    document.documentElement.classList.remove(
-      "menu-opened"
-    );
-  };
-
-  /*
-  |--------------------------------------------------------------------------
-  | MENU ITEMS
-  |--------------------------------------------------------------------------
-  */
-
   const renderMenuItems = (mobile = false) => {
-    return menus.map((menu) => {
-      const hasChildren =
-        Array.isArray(menu.children) &&
-        menu.children.length > 0;
-
-      /*
-       * IMPORTANT:
-       *
-       * Do NOT automatically use active route to open
-       * the menu.
-       *
-       * The user controls open/close state.
-       */
-
+    return processedMenus.map((menu) => {
+      const hasChildren = menu.children.length > 0;
       const isOpen = openMenu === menu.id;
 
       return (
         <li
-          key={`hrms-menu-${menu.id}`}
-          className={`submenu ${
-            isOpen ? "submenu-open" : ""
-          }`}
+          key={`hrms-menu-${mobile ? "mob" : "desk"}-${menu.id}`}
+          className={`submenu ${isOpen ? "submenu-open" : ""}`}
         >
-          {/* ==================================================
-              PARENT MENU
-          ================================================== */}
-
           <a
             href="#"
-            className={`hrms-menu-link ${
-              isOpen ? "hrms-menu-open" : ""
-            }`}
+            className={`hrms-menu-link ${isOpen ? "hrms-menu-open" : ""}`}
             onClick={(e) => {
               e.preventDefault();
-
               if (hasChildren) {
                 toggleMenu(menu.id);
               }
             }}
           >
-            <i
-              className={
-                menu.icon ||
-                "ti ti-layout-grid fs-16 me-2"
-              }
-            />
-
+            <i className={menu.icon || "ti ti-layout-grid fs-16 me-2"} />
             <span>{menu.label}</span>
-
             {hasChildren && (
               <span
-                className={`menu-arrow ${
-                  isOpen ? "hrms-arrow-open" : ""
-                }`}
+                className={`menu-arrow ${isOpen ? "hrms-arrow-open" : ""}`}
               />
             )}
           </a>
 
-          {/* ==================================================
-              CHILD MENU
-          ================================================== */}
-
           {hasChildren && (
             <ul
               className="hrms-submenu"
-              style={{
-                display: isOpen ? "block" : "none",
-              }}
+              style={{ display: isOpen ? "block" : "none" }}
             >
               {menu.children.map((child, index) => {
-                const childRoute = child.url || child.route || child.path;
-                const active = isChildActive(childRoute);
-                const childKey = `hrms-submenu-${menu.id}-${child.id || "child"}-${child.label || "item"}-${childRoute || index}`;
-                const uniqueKey = `${childKey}-${index}`;
+                const active = isChildActive(child.targetRoute);
 
                 return (
                   <li
-                    key={uniqueKey}
-                    className={
-                      active ? "hrms-child-active" : ""
-                    }
+                    key={`hrms-sub-${menu.id}-${child.id || index}`}
+                    className={active ? "hrms-child-active" : ""}
                   >
                     <Link
-                      to={formatRoute(childRoute)}
+                      to={child.targetRoute}
                       onClick={() => {
                         if (mobile) {
                           closeMobileMenu();
@@ -218,54 +199,26 @@ const HorizontalMenu = () => {
 
   return (
     <>
-      {/* =====================================================
-          MOBILE SIDEBAR
-      ===================================================== */}
-
-      <div
-        className="sidebar hrms-mobile-sidebar"
-        id="sidebar"
-      >
+      {/* MOBILE SIDEBAR */}
+      <div className="sidebar hrms-mobile-sidebar" id="sidebar">
         <div className="sidebar-inner slimscroll">
-          <div
-            id="sidebar-menu"
-            className="sidebar-menu"
-          >
-            <ul>
-              {renderMenuItems(true)}
-            </ul>
+          <div id="sidebar-menu" className="sidebar-menu">
+            <ul>{renderMenuItems(true)}</ul>
           </div>
         </div>
       </div>
 
-      {/* =====================================================
-          DESKTOP HORIZONTAL MENU
-      ===================================================== */}
-
-      <div
-        className="sidebar sidebar-horizontal"
-        id="horizontal-menu"
-      >
-        <div
-          id="sidebar-menu-3"
-          className="sidebar-menu"
-        >
+      {/* DESKTOP HORIZONTAL MENU */}
+      <div className="sidebar sidebar-horizontal" id="horizontal-menu">
+        <div id="sidebar-menu-3" className="sidebar-menu">
           <div className="main-menu">
-            <ul className="nav-menu">
-              {renderMenuItems(false)}
-            </ul>
+            <ul className="nav-menu">{renderMenuItems(false)}</ul>
           </div>
         </div>
       </div>
 
-      {/* =====================================================
-          OVERLAY
-      ===================================================== */}
-
-      <div
-        className="sidebar-overlay"
-        onClick={closeMobileMenu}
-      />
+      {/* OVERLAY */}
+      <div className="sidebar-overlay" onClick={closeMobileMenu} />
     </>
   );
 };
