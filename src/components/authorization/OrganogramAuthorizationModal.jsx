@@ -172,11 +172,11 @@ const OrganogramAuthorizationModal = ({
             )}
           </div>
 
-          <div className="modal-footer d-flex justify-content-between">
-            <button type="button" className="btn btn-light" onClick={onClose} disabled={isSubmitting}>
-              Cancel
-            </button>
-            {selectedTab === "organogram" && (
+          {selectedTab === "organogram" && (
+            <div className="modal-footer d-flex justify-content-between">
+              <button type="button" className="btn btn-light" onClick={onClose} disabled={isSubmitting}>
+                Cancel
+              </button>
               <div className="d-flex gap-2">
                 <button
                   type="button"
@@ -195,8 +195,8 @@ const OrganogramAuthorizationModal = ({
                   {submittingAction === "A" ? "Processing..." : "Approve"}
                 </button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

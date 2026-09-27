@@ -97,7 +97,9 @@ const ReportingTab = ({ organogramId, organogramStatus, locId, repId, showAll, o
   };
 
   const columnDefs = getReportingColumns();
-  const columns = renderReportingColumns(columnDefs, { onEdit: handleEdit });
+  const columns = renderReportingColumns(columnDefs, {
+    onEdit: isOrganogramReadOnly(organogramStatus) ? undefined : handleEdit,
+  });
 
   return (
     <div>

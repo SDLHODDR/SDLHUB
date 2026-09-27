@@ -44,20 +44,24 @@ export const renderReportingColumns = (columnDefs, { onEdit } = {}) => [
       body={col.body}
     />
   )),
-  <Column
-    key="__actions"
-    header=""
-    style={{ width: "8%" }}
-    body={(row) => (
-      <button
-        type="button"
-        className="btn btn-sm btn-outline-primary"
-        onClick={() => onEdit?.(row)}
-        title="Edit reporting"
-        aria-label="Edit reporting"
-      >
-        <i className="fas fa-edit" />
-      </button>
-    )}
-  />,
+  ...(onEdit
+    ? [
+        <Column
+          key="__actions"
+          header=""
+          style={{ width: "8%" }}
+          body={(row) => (
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-primary"
+              onClick={() => onEdit(row)}
+              title="Edit reporting"
+              aria-label="Edit reporting"
+            >
+              <i className="fas fa-edit" />
+            </button>
+          )}
+        />,
+      ]
+    : []),
 ];
