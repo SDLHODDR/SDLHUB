@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
 import OrganogramTab from "../../portals/hrms/portalutils/OrganogramTab";
 import LocationsTab from "../../portals/hrms/portalutils/LocationsTab";
 import AppraisalLevelsTab from "../../portals/hrms/portalutils/AppraisalLevelsTab";
@@ -9,6 +10,7 @@ import {
   notifySuccess,
   confirmAction,
 } from "../../services/alertService";
+import { getHRMSAuthroizationTaskCount } from "../../store/hrms/hrmsAuthorizationCountSlice";
 
 const READ_ONLY_STATUS = "T";
 
@@ -18,6 +20,7 @@ const OrganogramAuthorizationModal = ({
   onClose,
   onSuccess,
 }) => {
+  const dispatch = useDispatch();
   const [selectedTab, setSelectedTab] = useState("organogram");
   const [remarks, setRemarks] = useState("");
   const [remarkError, setRemarkError] = useState("");
@@ -68,6 +71,7 @@ const OrganogramAuthorizationModal = ({
       const response = await processOrganogramAuthorization(payload);
 
       if (response?.status) {
+        dispatch(getHRMSAuthroizationTaskCount());
         notifySuccess(response?.message || "Organogram authorization processed successfully.");
         onClose();
         onSuccess?.();
@@ -174,9 +178,15 @@ const OrganogramAuthorizationModal = ({
 
           {selectedTab === "organogram" && (
             <div className="modal-footer d-flex justify-content-between">
-              <button type="button" className="btn btn-light" onClick={onClose} disabled={isSubmitting}>
-                Cancel
-              </button>
+              
+              <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
               <div className="d-flex gap-2">
                 <button
                   type="button"
@@ -192,7 +202,7 @@ const OrganogramAuthorizationModal = ({
                   onClick={() => handleDecision("A")}
                   disabled={isSubmitting}
                 >
-                  {submittingAction === "A" ? "Processing..." : "Approve"}
+                  {submittingAction === "A" ? "Processing..." : "Accept"}
                 </button>
               </div>
             </div>

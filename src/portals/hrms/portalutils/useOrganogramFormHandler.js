@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useDispatch } from "react-redux";
 import {
   getFinEntities,
   getCompanies,
@@ -15,6 +16,7 @@ import {
   saveOrganogram,
 } from "../services/orgonogramService";
 import { notifyError, notifySuccess } from "../../../services/alertService";
+import { getHRMSAuthroizationTaskCount } from "../../../store/hrms/hrmsAuthorizationCountSlice";
 import { normalizeOrganogramStatus } from "./organogramStatus";
 
 const INITIAL_FORM_STATE = {
@@ -54,6 +56,7 @@ const mapToOptions = (list = [], labelKey = "LABEL", valueKey = "ID") =>
     : [];
 
 const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
@@ -306,6 +309,7 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
       const res = await saveOrganogram(payload);
 
       if (res?.status) {
+        dispatch(getHRMSAuthroizationTaskCount());
         // Edit mode already knows its ID. Add mode needs it back from the API.
         // TODO: confirm the actual key your backend returns the new ID under —
         // assuming res.data.ID below; change if it's e.g. res.data.ORGANOGRAM_ID.
@@ -333,7 +337,7 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
     } finally {
       setSaving(false);
     }
-  }, [formData, validate, organogramId, onOrganogramSaved, isEditMode]);
+  }, [dispatch, formData, validate, organogramId, onOrganogramSaved, isEditMode]);
 
   const handleCancel = useCallback(() => {
     setFormData(organogramId ? INITIAL_FORM_STATE : INITIAL_FORM_STATE);
