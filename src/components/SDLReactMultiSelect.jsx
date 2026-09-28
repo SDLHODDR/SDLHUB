@@ -45,7 +45,8 @@ const baseStyles = {
   }),
   multiValue: (base) => ({
     ...base,
-    backgroundColor: "#176b87",
+    // backgroundColor: "#176b87",
+    backgroundColor: "#17a2b8",
     borderRadius: "3px",
   }),
   multiValueLabel: (base) => ({
