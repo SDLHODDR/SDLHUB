@@ -5,6 +5,7 @@ import SDLReactMultiSelect from "../../../components/SDLReactMultiSelect";
 import useAllowancesTabHandler from "./useAllowancesTabHandler";
 import { getAllowancesColumns, renderAllowancesColumns } from "./allowancesColumns";
 import { isOrganogramReadOnly } from "./organogramStatus";
+import { DATE_PICKER_FORMAT, DATE_PICKER_LOCALE } from "../../../utils/formatUtils";
 
 const AllowancesTab = ({ organogramId, organogramStatus, locId, showAll, onCancelEdit }) => {
   const {
@@ -70,7 +71,8 @@ const AllowancesTab = ({ organogramId, organogramStatus, locId, showAll, onCance
             <Calendar
               value={effectiveFrom}
               onChange={(e) => setEffectiveFrom(e.value)}
-              dateFormat="dd-M-yy"
+              dateFormat={DATE_PICKER_FORMAT}
+              locale={DATE_PICKER_LOCALE}
               showIcon
               appendTo="self"
               baseZIndex={2000}

@@ -1,4 +1,5 @@
 import { Column } from "primereact/column";
+import { formatDate } from "../../../utils/formatUtils";
 
 export const getApprLevelColumns = () => [
   {
@@ -17,7 +18,7 @@ export const getApprLevelColumns = () => [
     key: "EFFEC_FROM",
     header: "Effec From",
     style: { width: "20%" },
-    body: (row) => row.EFFEC_FROM || "",
+    body: (row) => formatDate(row.EFFEC_FROM),
   },
 ];
 

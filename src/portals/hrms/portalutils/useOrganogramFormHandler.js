@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useDispatch } from "react-redux";
 import {
   getFinEntities,
   getCompanies,
@@ -15,6 +16,7 @@ import {
   saveOrganogram,
 } from "../services/orgonogramService";
 import { notifyError, notifySuccess } from "../../../services/alertService";
+import { getHRMSAuthroizationTaskCount } from "../../../store/hrms/hrmsAuthorizationCountSlice";
 import { normalizeOrganogramStatus } from "./organogramStatus";
 
 const INITIAL_FORM_STATE = {
@@ -54,10 +56,11 @@ const mapToOptions = (list = [], labelKey = 'LABEL', valueKey = 'ID') =>
     : []
 
 const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
-  const [formData, setFormData] = useState(INITIAL_FORM_STATE)
-  const [errors, setErrors] = useState({})
-  const [saving, setSaving] = useState(false)
-  const [loadingDetails, setLoadingDetails] = useState(false)
+  const dispatch = useDispatch();
+  const [formData, setFormData] = useState(INITIAL_FORM_STATE);
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   const [finEntityOptions, setFinEntityOptions] = useState([])
   const [companyOptions, setCompanyOptions] = useState([])
@@ -304,30 +307,37 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
 
   const handleSave = useCallback(
     async (sendForAuth = false) => {
+
       if (!validate()) return
+
       try {
         setSaving(true)
+        
         const payload = {
           ...formData,
+          STATUS: status,
           ...(organogramId && { ID: organogramId }),
-          mode: isEditMode ? 'edit' : 'add',
-          sendForAuth // true when "Save & Send for Auth" clicked
-        }
+          mode: isEditMode ? "edit" : "add",
+          sendForAuth,
+        };
+
         const res = await saveOrganogram(payload)
 
         if (res?.status) {
+          dispatch(getHRMSAuthroizationTaskCount());
           // Edit mode already knows its ID. Add mode needs it back from the API.
           // TODO: confirm the actual key your backend returns the new ID under —
           // assuming res.data.ID below; change if it's e.g. res.data.ORGANOGRAM_ID.
-          const savedId = organogramId ?? res?.data?.ID ?? res?.data?.id ?? null
+          const savedId = organogramId ?? res?.data?.ID ?? res?.task_id ?? res?.data?.id ?? null;
 
+          const didSendForAuth = status === "T";
           notifySuccess(
             res?.message ||
-              (sendForAuth
-                ? 'Organogram saved and sent for authorization.'
-                : 'Organogram saved successfully.'),
+            (didSendForAuth
+                ? "Organogram saved and sent for authorization."
+                : "Organogram saved successfully."),
             { onClose: () => onOrganogramSaved?.(savedId) }
-          )
+          );
         } else {
           notifyError(res?.message || 'Unable to save organogram.', {
             onClose: onOrganogramSaved
@@ -341,9 +351,7 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
       } finally {
         setSaving(false)
       }
-    },
-    [formData, validate, organogramId, onOrganogramSaved, isEditMode]
-  )
+    }, [dispatch, formData, validate, organogramId, onOrganogramSaved, isEditMode]);
 
   const handleCancel = useCallback(() => {
     setFormData(organogramId ? INITIAL_FORM_STATE : INITIAL_FORM_STATE)

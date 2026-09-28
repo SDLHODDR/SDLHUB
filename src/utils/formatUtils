@@ -1,18 +1,79 @@
-export const formatDate = (dateStr) => {
-    if (!dateStr) return "-";
-    
-    const date = new Date(dateStr);
-    if (isNaN(date)) return "-";
+import { addLocale } from "primereact/api";
 
-    return date.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-    });
+export const DATE_PICKER_LOCALE = "sdlhub-en-GB";
+export const DATE_PICKER_FORMAT = "dd-M-yy";
+
+addLocale(DATE_PICKER_LOCALE, {
+  firstDayOfWeek: 1,
+  dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+  dayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  dayNamesMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+  monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  monthNamesShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"],
+  today: "Today",
+  clear: "Clear",
+  weekHeader: "Wk",
+});
+
+const MONTH_MAP = { JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5, JUL: 6, AUG: 7, SEP: 8, SEPT: 8, OCT: 9, NOV: 10, DEC: 11 };
+const MONTH_NAMES = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+const DISPLAY_MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+
+const makeLocalDate = (year, month, day) => {
+  const normalizedYear = year < 100 ? 2000 + year : year;
+  const date = new Date(normalizedYear, month, day);
+  if (
+    date.getFullYear() !== normalizedYear ||
+    date.getMonth() !== month ||
+    date.getDate() !== day
+  ) return null;
+  return date;
 };
 
-const MONTH_MAP = { JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5, JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11 };
-const MONTH_NAMES = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+export const parseDateValue = (value) => {
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime())
+      ? null
+      : new Date(value.getFullYear(), value.getMonth(), value.getDate());
+  }
+  if (!value) return null;
+
+  const rawValue = String(value).trim();
+  const isoDate = rawValue.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (isoDate) {
+    return makeLocalDate(Number(isoDate[1]), Number(isoDate[2]) - 1, Number(isoDate[3]));
+  }
+
+  const dayMonthName = rawValue.match(/^(\d{1,2})[-\s/]([A-Za-z]{3,9})[-\s/](\d{2,4})/);
+  if (dayMonthName) {
+    const month = MONTH_MAP[dayMonthName[2].slice(0, 4).toUpperCase()]
+      ?? MONTH_MAP[dayMonthName[2].slice(0, 3).toUpperCase()];
+    if (month === undefined) return null;
+    return makeLocalDate(Number(dayMonthName[3]), month, Number(dayMonthName[1]));
+  }
+
+  const dayMonthNumeric = rawValue.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})/);
+  if (dayMonthNumeric) {
+    return makeLocalDate(
+      Number(dayMonthNumeric[3]),
+      Number(dayMonthNumeric[2]) - 1,
+      Number(dayMonthNumeric[1]),
+    );
+  }
+
+  const parsed = new Date(rawValue);
+  return Number.isNaN(parsed.getTime())
+    ? null
+    : new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+};
+
+export const formatDate = (value) => {
+  const date = parseDateValue(value);
+  if (!date) return "-";
+
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${day}-${DISPLAY_MONTH_NAMES[date.getMonth()]}-${date.getFullYear()}`;
+};
 
 export const parseDDMonYY = (str) => {
   if (!str || typeof str !== "string") return null;

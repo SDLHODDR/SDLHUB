@@ -62,7 +62,13 @@ export const HRMS_API = {
 
     AUTHORIZE_BANK_DETAILS: "/authorization/authorizeBankDetails.php",
 
-    AUTHORIZE_PERSONAL_INFO: "/authorization/authorizePersonalInfo.php"
+    AUTHORIZE_PERSONAL_INFO: "/authorization/authorizePersonalInfo.php",
+    AUTHORIZE_ORGANOGRAM: "/authorization/authorizeOrganogram.php",
+  },
+
+  NOTIFICATIONS: {
+    LIST: "/notifications/getNotifications.php",
+    MARK_READ: "/notifications/markNotificationRead.php",
   },
 
   MASTERDATA: {

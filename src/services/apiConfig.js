@@ -52,6 +52,11 @@ export const PORTALAPI = {
     TASKTABLEDATA: "/getTable.php"
   },
 
+  NOTIFICATIONS: {
+    LIST: "/notifications/getNotifications.php",
+    MARK_READ: "/notifications/markNotificationRead.php",
+  },
+
   MYPROFILE: {
     GET_PROFILE_DATA: "/common/myProfile/getProfileData.php", // Get profile Data
     UPLOAD_PROFILE_IMAGE: "/common/myProfile/uploadProfileImage.php", // Upload profile Data

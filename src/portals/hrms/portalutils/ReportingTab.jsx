@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Calendar } from "primereact/calendar";
 import SDLReactSelect from "../../../components/SDLReactSelect";
-import { parseDDMonYY } from "../../../utils/formatUtils";
+import {
+  DATE_PICKER_FORMAT,
+  DATE_PICKER_LOCALE,
+  parseDateValue,
+} from "../../../utils/formatUtils";
 import useReportingTabHandler from "./useReportingTabHandler";
 import { getReportingColumns, renderReportingColumns } from "./reportingColumns";
 import { isOrganogramReadOnly } from "./organogramStatus";
@@ -27,40 +31,6 @@ const ReportingTab = ({ organogramId, organogramStatus, locId, repId, showAll, o
 
   const [formOpen, setFormOpen] = useState(false);
 
-  const toCalendarDate = (value) => {
-    if (value instanceof Date) {
-      return Number.isNaN(value.getTime()) ? null : value;
-    }
-    if (!value) return null;
-
-    const rawValue = String(value).trim();
-    const fullDdMonDate = rawValue.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})(?:\s|$)/);
-    if (fullDdMonDate) {
-      const fullDate = new Date(
-        Number(fullDdMonDate[3]),
-        new Date(`${fullDdMonDate[2]} 1, 2000`).getMonth(),
-        Number(fullDdMonDate[1])
-      );
-      return Number.isNaN(fullDate.getTime()) ? null : fullDate;
-    }
-
-    const ddMonDate = parseDDMonYY(rawValue.slice(0, 9));
-    if (ddMonDate) return ddMonDate;
-
-    const isoDate = rawValue.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (isoDate) {
-      const date = new Date(
-        Number(isoDate[1]),
-        Number(isoDate[2]) - 1,
-        Number(isoDate[3])
-      );
-      return Number.isNaN(date.getTime()) ? null : date;
-    }
-
-    const date = new Date(rawValue);
-    return Number.isNaN(date.getTime()) ? null : date;
-  };
-
   useEffect(() => {
     setFormOpen(false);
     cancelEditingReporting();
@@ -76,8 +46,8 @@ const ReportingTab = ({ organogramId, organogramStatus, locId, repId, showAll, o
   const handleEdit = (row) => {
     startEditingReporting({
       ...row,
-      EFFEC_FROM: toCalendarDate(row.EFFEC_FROM),
-      EFFEC_TO: toCalendarDate(row.EFFEC_TO),
+      EFFEC_FROM: parseDateValue(row.EFFEC_FROM),
+      EFFEC_TO: parseDateValue(row.EFFEC_TO),
     });
     setFormOpen(true);
   };
@@ -97,7 +67,9 @@ const ReportingTab = ({ organogramId, organogramStatus, locId, repId, showAll, o
   };
 
   const columnDefs = getReportingColumns();
-  const columns = renderReportingColumns(columnDefs, { onEdit: handleEdit });
+  const columns = renderReportingColumns(columnDefs, {
+    onEdit: isOrganogramReadOnly(organogramStatus) ? undefined : handleEdit,
+  });
 
   return (
     <div>
@@ -119,7 +91,8 @@ const ReportingTab = ({ organogramId, organogramStatus, locId, repId, showAll, o
             <Calendar
               value={newEffectiveFrom}
               onChange={(e) => setNewEffectiveFrom(e.value)}
-              dateFormat="dd-M-yy"
+              dateFormat={DATE_PICKER_FORMAT}
+              locale={DATE_PICKER_LOCALE}
               showIcon
               appendTo="self"
               baseZIndex={2000}
@@ -132,7 +105,8 @@ const ReportingTab = ({ organogramId, organogramStatus, locId, repId, showAll, o
             <Calendar
               value={newEffectiveTo}
               onChange={(e) => setNewEffectiveTo(e.value)}
-              dateFormat="dd-M-yy"
+              dateFormat={DATE_PICKER_FORMAT}
+              locale={DATE_PICKER_LOCALE}
               showIcon
               appendTo="self"
               baseZIndex={2000}

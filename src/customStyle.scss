@@ -336,6 +336,15 @@ ul.tabs.owl-carousel.pos-category {
     min-width: 60px;
   }
 
+  .header .mobile-notification .sdlhub-notification {
+    min-width: 60px;
+  }
+
+  .header .mobile-notification .sdlhub-notification__trigger {
+    width: 60px;
+    height: 60px;
+  }
+
   .header .mobile-notification .authorization-dropdown button {
     width: 60px;
     height: 60px;
@@ -2210,4 +2219,212 @@ textarea {
   background: #fff !important;
   color: #212529 !important;
   border-color: transparent !important;
+}
+
+.sdlhub-notification {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sdlhub-notification__trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.sdlhub-notification__count {
+  position: absolute;
+  top: 1px;
+  right: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #dc3545;
+  color: #fff;
+  font-size: 10px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.sdlhub-notification__panel {
+  position: absolute;
+  z-index: 1060;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(370px, calc(100vw - 24px));
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(20, 30, 50, 0.18);
+  color: #202938;
+}
+
+.sdlhub-notification__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sdlhub-notification__header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.sdlhub-notification__close {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #687386;
+  cursor: pointer;
+}
+
+.sdlhub-notification__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sdlhub-notification__tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: #fff;
+  color: #687386;
+  cursor: pointer;
+}
+
+.sdlhub-notification__tabs button.is-active {
+  border-bottom-color: #176b87;
+  color: #176b87;
+  font-weight: 600;
+}
+
+.sdlhub-notification__tabs button span {
+  min-width: 18px;
+  padding: 1px 5px;
+  border-radius: 10px;
+  background: #edf2f4;
+  font-size: 11px;
+  text-align: center;
+}
+
+.sdlhub-notification__content {
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.sdlhub-notification__content .notification-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sdlhub-notification__content .notification-message {
+  border-bottom: 1px solid #edf0f2;
+}
+
+.sdlhub-notification__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  width: 100%;
+  padding: 13px 15px;
+  border: 0;
+  background: #fff;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sdlhub-notification__item:hover,
+.sdlhub-notification__item.is-unread {
+  background: #f7fafb;
+}
+
+.sdlhub-notification__type {
+  display: grid;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e7f2f4;
+  color: #176b87;
+}
+
+.sdlhub-notification__message {
+  display: grid;
+  flex: 1;
+  gap: 5px;
+  min-width: 0;
+}
+
+.sdlhub-notification__description {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #364152;
+  font-size: 13px;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.sdlhub-notification__meta {
+  color: #778294;
+  font-size: 11px;
+}
+
+.sdlhub-notification__state {
+  margin: 0;
+  padding: 28px 18px;
+  color: #687386;
+  font-size: 13px;
+  text-align: center;
+}
+
+.sdlhub-notification__state p {
+  margin-bottom: 10px;
+}
+
+.sdlhub-notification__error {
+  margin: 0;
+  padding: 8px 14px;
+  background: #fff3f2;
+  color: #a83228;
+  font-size: 12px;
+}
+
+.sdlhub-notification__spinner {
+  align-self: center;
+  width: 15px;
+  height: 15px;
+  border: 2px solid #d7e2e6;
+  border-top-color: #176b87;
+  border-radius: 50%;
+  animation: sdlhub-notification-spin 0.7s linear infinite;
+}
+
+@keyframes sdlhub-notification-spin {
+  to { transform: rotate(360deg); }
 }

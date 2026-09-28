@@ -7,9 +7,7 @@ import { formatDashDate } from "../../portals/eportal/utils/formatUtils";
 
 import { useMastersAuthorizationHandler } from "./useMastersAuthorizationHandler";
 import { getMastersAuthorizationColumns } from "./MastersAuthorizationColumns";
-import FamilyAuthorizationModal from "./FamilyAuthorizationModal";
-import BankAuthorizationModal from "./BankAuthorizationModal";
-import PersonalInfoAuthorizationModal from "./PersonalInfoAuthorizationModal";
+import MastersAuthorizationModal from "./MastersAuthorizationModal";
 
 // Map TASK_ID -> Page Title & Endpoints for Masters
 const MASTER_TASK_CONFIG = {
@@ -27,6 +25,11 @@ const MASTER_TASK_CONFIG = {
     title: "Change Bank Info - Authorization",
     type: "BANK",
     endpoint: "/api/hrms/masters/bank-info",
+  },
+  56: {
+    title: "Organogram - Authorization",
+    type: "ORGANOGRAM",
+    endpoint: "/api/hrms/masters/organogram",
   },
 };
 
@@ -93,35 +96,13 @@ const MastersAuthorization = () => {
         </div>
       </div>
 
-      {/* Personal Info / Address Detail Authorization Modal */}
-      {config.type === "PERSONAL" && (
-        <PersonalInfoAuthorizationModal
-          show={showModal}
-          record={selectedRecord}
-          onClose={closeModal}
-          onSuccess={refreshList}
-        />
-      )}
-
-      {/* Family Detail Authorization Modal */}
-      {config.type === "FAMILY" && (
-        <FamilyAuthorizationModal
-          show={showModal}
-          record={selectedRecord}
-          onClose={closeModal}
-          onSuccess={refreshList}
-        />
-      )}
-
-      {/* Bank Detail Authorization Modal */}
-      {config.type === "BANK" && (
-        <BankAuthorizationModal
-          show={showModal}
-          record={selectedRecord}
-          onClose={closeModal}
-          onSuccess={refreshList}
-        />
-      )}
+      <MastersAuthorizationModal
+        type={config.type}
+        show={showModal}
+        record={selectedRecord}
+        onClose={closeModal}
+        onSuccess={refreshList}
+      />
     </>
   );
 };
