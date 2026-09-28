@@ -137,12 +137,6 @@ const Department = () => {
           getCostCenters()
         ])
 
-        console.log('========== ACCOUNTS ==========')
-        console.log(accountsResponse)
-
-        console.log('========== COST CENTERS ==========')
-        console.log(costCentersResponse)
-
         const accounts =
           accountsResponse?.data?.accounts || accountsResponse?.accounts || []
 

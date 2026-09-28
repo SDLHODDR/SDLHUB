@@ -1,7 +1,10 @@
+import { ariaLabel } from "primereact/api";
+
 const ViewToggleButton = ({
   showAll,
   onClick,
   disabled = false,
+  ariaLabel="Table view",
   className = "",
   ...props
 }) => {
@@ -17,6 +20,7 @@ const ViewToggleButton = ({
         padding: 0,
       }}
       aria-label={showAll ? "Switch to form view" : "Switch to table view"}
+      title={ariaLabel}
       title={showAll ? "Switch to form view" : "Switch to table view"}
       {...props}
     >

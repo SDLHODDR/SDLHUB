@@ -36,6 +36,7 @@ import SDLReactMultiSelect from '../../../../components/SDLReactMultiSelect'
 import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
 import SaveButton from '../../components/buttons/SaveButton'
 import CancelButton from '../../components/buttons/CancelButton'
+import SDLInput from '../../../../components/SDLInput'
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload
@@ -979,12 +980,226 @@ const JobDescription = () => {
     }
   }
 
+  const basicTextFields = ['SH_DESC']
+
+  const basicNumericDecimalFields = ['MIN_EXP', 'MAX_EXP', 'MIN_SAL', 'MAX_SAL']
+
+  const basicNumericFields = ['MIN_AGE', 'MAX_AGE']
+
+  const basicMaxLengths = {
+    SH_DESC: 50,
+    MIN_EXP: 5,
+    MAX_EXP: 5,
+    MIN_AGE: 2,
+    MAX_AGE: 2,
+    MIN_SAL: 10,
+    MAX_SAL: 10,
+    DESCR: 100
+  }
+
   const handleFieldChange = (name, value) => {
+    let updatedValue = value
+    let error = ''
+
+    // JD Label
+    if (name === 'SH_DESC') {
+      if (!/^[A-Za-z.'\-_(),\s]*$/.test(value)) {
+        updatedValue = value.replace(/[^A-Za-z.'\-_(),\s]/g, '')
+        error = "Only letters, spaces and . ' - _ , ( ) are allowed"
+      }
+
+      if (updatedValue.length > 50) {
+        updatedValue = updatedValue.slice(0, 50)
+        error = 'Maximum 50 characters are allowed'
+      }
+    }
+
+    // Numeric fields with decimal support
+    if (basicNumericDecimalFields.includes(name)) {
+      if (!/^[0-9.]*$/.test(value)) {
+        updatedValue = value.replace(/[^0-9.]/g, '')
+        error = 'Only numbers and decimal point are allowed'
+      }
+
+      if ((updatedValue.match(/\./g) || []).length > 1) {
+        updatedValue = updatedValue.replace(/\.(?=.*\.)/g, '')
+        error = 'Only one decimal point is allowed'
+      }
+
+      if (updatedValue.length > basicMaxLengths[name]) {
+        updatedValue = updatedValue.slice(0, basicMaxLengths[name])
+        error = `Maximum ${basicMaxLengths[name]} characters are allowed`
+      }
+    }
+
+    // Numeric fields without decimal
+    if (basicNumericFields.includes(name)) {
+      if (!/^\d*$/.test(value)) {
+        updatedValue = value.replace(/\D/g, '')
+        error = 'Only numbers are allowed'
+      }
+
+      if (updatedValue.length > basicMaxLengths[name]) {
+        updatedValue = updatedValue.slice(0, basicMaxLengths[name])
+        error = `Maximum ${basicMaxLengths[name]} digits are allowed`
+      }
+    }
+
+    // Description
+    if (name === 'DESCR') {
+      if (!/^[A-Za-z0-9.'\-,()\s]*$/.test(value)) {
+        updatedValue = value.replace(/[^A-Za-z0-9.'\-,()\s]/g, '')
+        error = "Only letters, numbers, spaces and . ' - , ( ) are allowed"
+      }
+
+      if (updatedValue.length > 100) {
+        updatedValue = updatedValue.slice(0, 100)
+        error = 'Maximum 100 characters are allowed'
+      }
+    }
+
+    // Education Comments
+    if (name === 'EDUCATION_COMMENTS') {
+      if (!/^[A-Za-z0-9.'\-,()\s]*$/.test(value)) {
+        updatedValue = value.replace(/[^A-Za-z0-9.'\-,()\s]/g, '')
+        error = "Only letters, numbers, spaces and . ' - , ( ) are allowed"
+      }
+
+      if (updatedValue.length > 50) {
+        updatedValue = updatedValue.slice(0, 50)
+        error = 'Maximum 50 characters are allowed'
+      }
+
+      // EDUCATION is a nested object
+      setFormData(prev => ({
+        ...prev,
+        EDUCATION: {
+          ...prev.EDUCATION,
+          COMMENTS: updatedValue
+        }
+      }))
+
+      setErrors(prev => ({
+        ...prev,
+        [name]: error
+      }))
+
+      return
+    }
+
+    // Skills - Skill Details
+    if (name === 'SKILL_DETAILS') {
+      if (!/^[A-Za-z0-9.'\-,\s]*$/.test(value)) {
+        updatedValue = value.replace(/[^A-Za-z0-9.'\-,\s]/g, '')
+        error = "Only letters, numbers, spaces and . ' - , are allowed"
+      }
+
+      if (updatedValue.length > 50) {
+        updatedValue = updatedValue.slice(0, 50)
+        error = 'Maximum 50 characters are allowed'
+      }
+
+      setSkillForm(prev => ({
+        ...prev,
+        details: updatedValue
+      }))
+
+      setErrors(prev => ({
+        ...prev,
+        [name]: error
+      }))
+
+      return
+    }
+
+    // Allowance/Reimbursement - Amount
+    if (name === 'ALLOWANCE_AMOUNT') {
+      if (!/^\d*$/.test(value)) {
+        updatedValue = value.replace(/\D/g, '')
+        error = 'Only numbers are allowed'
+      }
+
+      if (updatedValue.length > 10) {
+        updatedValue = updatedValue.slice(0, 10)
+        error = 'Maximum 10 digits are allowed'
+      }
+
+      setAllowanceForm(prev => ({
+        ...prev,
+        amount: updatedValue
+      }))
+
+      setErrors(prev => ({
+        ...prev,
+        [name]: error
+      }))
+
+      return
+    }
+
+    // CTC Heads - Value
+    if (name === 'CTC_VALUE') {
+      if (!/^\d*$/.test(value)) {
+        updatedValue = value.replace(/\D/g, '')
+        error = 'Only numbers are allowed'
+      }
+
+      if (updatedValue.length > 10) {
+        updatedValue = updatedValue.slice(0, 10)
+        error = 'Maximum 10 digits are allowed'
+      }
+
+      setCtcForm(prev => ({
+        ...prev,
+        value: updatedValue
+      }))
+
+      setErrors(prev => ({
+        ...prev,
+        [name]: error
+      }))
+
+      return
+    }
+
+    // Induction - Sequence
+    if (name === 'INDUCTION_SEQUENCE') {
+      if (!/^[A-Za-z0-9\s]*$/.test(value)) {
+        updatedValue = value.replace(/[^A-Za-z0-9\s]/g, '')
+        error = 'Only letters and numbers are allowed'
+      }
+
+      if (updatedValue.length > 50) {
+        updatedValue = updatedValue.slice(0, 50)
+        error = 'Maximum 50 characters are allowed'
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        INDUCTION: {
+          ...prev.INDUCTION,
+          DISP_SEQ: updatedValue
+        }
+      }))
+
+      setErrors(prev => ({
+        ...prev,
+        [name]: error
+      }))
+
+      return
+    }
+
+    // Normal fields
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: updatedValue
     }))
-    setErrors(prev => ({ ...prev, [name]: '' }))
+
+    setErrors(prev => ({
+      ...prev,
+      [name]: error
+    }))
   }
 
   // array helpers for dynamic tab rows
@@ -1021,6 +1236,62 @@ const JobDescription = () => {
     }
     if (!String(formData.LVL_ID || '').trim()) {
       newErrors.LVL_ID = 'Band/Level is required'
+    }
+
+    // JD Label
+    if (
+      formData.SH_DESC &&
+      !/^[A-Za-z.'\-_(),\s]{1,50}$/.test(formData.SH_DESC)
+    ) {
+      newErrors.SH_DESC =
+        "JD Label can contain only letters, spaces and . ' - _ , ( ) with maximum 50 characters"
+    }
+
+    // Decimal numeric fields
+    basicNumericDecimalFields.forEach(field => {
+      const value = String(formData[field] || '')
+
+      if (value && !/^\d+(\.\d+)?$/.test(value)) {
+        newErrors[field] = 'Enter a valid number with only one decimal point'
+      }
+
+      if (value.length > basicMaxLengths[field]) {
+        newErrors[
+          field
+        ] = `Maximum ${basicMaxLengths[field]} characters are allowed`
+      }
+    })
+
+    // Age fields
+    basicNumericFields.forEach(field => {
+      const value = String(formData[field] || '')
+
+      if (value && !/^\d+$/.test(value)) {
+        newErrors[field] = 'Only numbers are allowed'
+      }
+
+      if (value.length > basicMaxLengths[field]) {
+        newErrors[
+          field
+        ] = `Maximum ${basicMaxLengths[field]} digits are allowed`
+      }
+    })
+
+    // Description
+    const description = String(formData.DESCR || '')
+
+    if (description && !/^[A-Za-z0-9.'\-,()\s]{1,100}$/.test(description)) {
+      newErrors.DESCR =
+        "Description can contain only letters, numbers, spaces and . ' - , ( ) with maximum 100 characters"
+    }
+
+    const comments = String(formData.EDUCATION?.COMMENTS || '')
+
+    if (!comments.trim()) {
+      newErrors.EDUCATION_COMMENTS = 'Comments is required'
+    } else if (!/^[A-Za-z0-9.'\-,()\s]{1,50}$/.test(comments)) {
+      newErrors.EDUCATION_COMMENTS =
+        "Comments can contain only letters, numbers, spaces and . ' - , ( ) with maximum 50 characters"
     }
 
     setErrors(newErrors)
@@ -1897,28 +2168,15 @@ const JobDescription = () => {
                           <div className='row'>
                             {/* JD LABEL */}
                             <div className='col-lg-6 col-md-6 mb-3'>
-                              <label style={jdStyles.label}>
-                                JD Label
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-
-                              <input
-                                type='text'
-                                className={`form-control ${
-                                  errors.SH_DESC ? 'is-invalid' : ''
-                                }`}
+                              <SDLInput
+                                label='JD Label'
+                                required
                                 value={formData.SH_DESC}
                                 onChange={e =>
                                   handleFieldChange('SH_DESC', e.target.value)
                                 }
-                                maxLength={100}
+                                error={errors.SH_DESC}
                               />
-
-                              {errors.SH_DESC && (
-                                <div className='invalid-feedback'>
-                                  {errors.SH_DESC}
-                                </div>
-                              )}
                             </div>
 
                             {/* DEPARTMENT */}
@@ -2000,109 +2258,91 @@ const JobDescription = () => {
 
                             {/* MIN EXPERIENCE */}
                             <div className='col-lg-3 col-md-6 mb-3'>
-                              <label style={jdStyles.label}>
-                                Minimum Experience
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-
-                              <input
-                                type='number'
-                                className='form-control'
+                              <SDLInput
+                                label='Minimum Experience'
+                                required
+                                type='text'
                                 value={formData.MIN_EXP}
                                 onChange={e =>
                                   handleFieldChange('MIN_EXP', e.target.value)
                                 }
-                                min={0}
+                                error={errors.MIN_EXP}
+                                inputMode='decimal'
                               />
                             </div>
 
                             {/* MAX EXPERIENCE */}
                             <div className='col-lg-3 col-md-6 mb-3'>
-                              <label style={jdStyles.label}>
-                                Maximum Experience
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-
-                              <input
-                                type='number'
-                                className='form-control'
+                              <SDLInput
+                                label='Maximum Experience'
+                                required
+                                type='text'
                                 value={formData.MAX_EXP}
                                 onChange={e =>
                                   handleFieldChange('MAX_EXP', e.target.value)
                                 }
-                                min={0}
+                                error={errors.MAX_EXP}
+                                inputMode='decimal'
                               />
                             </div>
 
                             {/* MIN AGE */}
                             <div className='col-lg-3 col-md-6 mb-3'>
-                              <label style={jdStyles.label}>
-                                Minimum Age
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-
-                              <input
-                                type='number'
-                                className='form-control'
+                              <SDLInput
+                                label='Minimum Age'
+                                required
+                                type='text'
                                 value={formData.MIN_AGE}
                                 onChange={e =>
                                   handleFieldChange('MIN_AGE', e.target.value)
                                 }
-                                min={0}
+                                error={errors.MIN_AGE}
+                                inputMode='numeric'
                               />
                             </div>
 
                             {/* MAX AGE */}
                             <div className='col-lg-3 col-md-6 mb-3'>
-                              <label style={jdStyles.label}>
-                                Maximum Age
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-
-                              <input
-                                type='number'
-                                className='form-control'
+                              <SDLInput
+                                label='Maximum Age'
+                                required
+                                type='text'
                                 value={formData.MAX_AGE}
                                 onChange={e =>
                                   handleFieldChange('MAX_AGE', e.target.value)
                                 }
-                                min={0}
+                                error={errors.MAX_AGE}
+                                inputMode='numeric'
                               />
                             </div>
 
                             {/* MIN CTC */}
                             <div className='col-lg-3 col-md-6 mb-3'>
-                              <label style={jdStyles.label}>
-                                Minimum CTC
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-
-                              <input
-                                type='number'
-                                className='form-control'
+                              <SDLInput
+                                label='Minimum CTC'
+                                required
+                                type='text'
                                 value={formData.MIN_SAL}
                                 onChange={e =>
                                   handleFieldChange('MIN_SAL', e.target.value)
                                 }
-                                min={0}
+                                error={errors.MIN_SAL}
+                                inputMode='decimal'
                               />
                             </div>
 
                             {/* MAX CTC */}
                             <div className='col-lg-3 col-md-6 mb-3'>
-                              <label style={jdStyles.label}>
-                                Maximum CTC
-                                <span style={jdStyles.required}>*</span>
-                              </label>
-
-                              <input
-                                type='number'
-                                className='form-control'
+                              <SDLInput
+                                label='Maximum CTC'
+                                required
+                                type='text'
                                 value={formData.MAX_SAL}
                                 onChange={e =>
                                   handleFieldChange('MAX_SAL', e.target.value)
                                 }
-                                min={0}
+                                error={errors.MAX_SAL}
+                                inputMode='decimal'
                               />
                             </div>
 
@@ -2186,7 +2426,9 @@ const JobDescription = () => {
                           </label>
 
                           <textarea
-                            className='form-control'
+                            className={`form-control ${
+                              errors.DESCR ? 'is-invalid' : ''
+                            }`}
                             style={{
                               height: '305px',
                               resize: 'vertical'
@@ -2198,7 +2440,7 @@ const JobDescription = () => {
                           />
 
                           {errors.DESCR && (
-                            <div className='text-danger small mt-1'>
+                            <div className='invalid-feedback d-block'>
                               {errors.DESCR}
                             </div>
                           )}
@@ -2349,24 +2591,18 @@ const JobDescription = () => {
                           </div>
 
                           <div className='col-lg-6 mb-3'>
-                            <label style={jdStyles.label}>
-                              Comments
-                              <span style={jdStyles.required}>*</span>
-                            </label>
-
-                            <input
+                            <SDLInput
+                              label='Comments'
+                              required
                               type='text'
-                              className='form-control'
                               value={formData.EDUCATION?.COMMENTS || ''}
                               onChange={e =>
-                                setFormData(prev => ({
-                                  ...prev,
-                                  EDUCATION: {
-                                    ...prev.EDUCATION,
-                                    COMMENTS: e.target.value
-                                  }
-                                }))
+                                handleFieldChange(
+                                  'EDUCATION_COMMENTS',
+                                  e.target.value
+                                )
                               }
+                              error={errors.EDUCATION_COMMENTS}
                             />
                           </div>
                         </div>
@@ -2436,20 +2672,18 @@ const JobDescription = () => {
                           </div>
 
                           <div className='col-md-5 mb-3'>
-                            <label style={jdStyles.label}>
-                              Skill Details
-                              <span style={jdStyles.required}>*</span>
-                            </label>
-
-                            <input
-                              className='form-control'
+                            <SDLInput
+                              label='Skill Details'
+                              required
+                              type='text'
                               value={skillForm.details}
                               onChange={e =>
-                                setSkillForm(prev => ({
-                                  ...prev,
-                                  details: e.target.value
-                                }))
+                                handleFieldChange(
+                                  'SKILL_DETAILS',
+                                  e.target.value
+                                )
                               }
+                              error={errors.SKILL_DETAILS}
                               placeholder='Skill Details'
                             />
                           </div>
@@ -2543,20 +2777,18 @@ const JobDescription = () => {
                           </div>
 
                           <div className='col-md-6 mb-3'>
-                            <label style={jdStyles.label}>
-                              Amount<span style={jdStyles.required}>*</span>
-                            </label>
-
-                            <input
-                              type='number'
-                              className='form-control'
+                            <SDLInput
+                              label='Amount'
+                              required
+                              type='text'
                               value={allowanceForm.amount}
                               onChange={e =>
-                                setAllowanceForm(prev => ({
-                                  ...prev,
-                                  amount: e.target.value
-                                }))
+                                handleFieldChange(
+                                  'ALLOWANCE_AMOUNT',
+                                  e.target.value
+                                )
                               }
+                              error={errors.ALLOWANCE_AMOUNT}
                             />
                           </div>
 
@@ -2750,19 +2982,15 @@ const JobDescription = () => {
                           </div>
 
                           <div className='col-md-2 mb-3'>
-                            <label style={jdStyles.label}>
-                              Value<span style={jdStyles.required}>*</span>
-                            </label>
-
-                            <input
-                              className='form-control'
+                            <SDLInput
+                              label='Value'
+                              required
+                              type='text'
                               value={ctcForm.value}
                               onChange={e =>
-                                setCtcForm(prev => ({
-                                  ...prev,
-                                  value: e.target.value
-                                }))
+                                handleFieldChange('CTC_VALUE', e.target.value)
                               }
+                              error={errors.CTC_VALUE}
                             />
                           </div>
 
@@ -3285,24 +3513,18 @@ const JobDescription = () => {
 
                           {/* SEQUENCE */}
                           <div className='col-lg-4 mb-3'>
-                            <label style={jdStyles.label}>
-                              Sequence
-                              <span style={jdStyles.required}>*</span>
-                            </label>
-
-                            <input
-                              type='number'
-                              className='form-control'
+                            <SDLInput
+                              label='Sequence'
+                              required
+                              type='text'
                               value={formData.INDUCTION?.DISP_SEQ || ''}
                               onChange={e =>
-                                setFormData(prev => ({
-                                  ...prev,
-                                  INDUCTION: {
-                                    ...prev.INDUCTION,
-                                    DISP_SEQ: e.target.value
-                                  }
-                                }))
+                                handleFieldChange(
+                                  'INDUCTION_SEQUENCE',
+                                  e.target.value
+                                )
                               }
+                              error={errors.INDUCTION_SEQUENCE}
                             />
                           </div>
                         </div>
