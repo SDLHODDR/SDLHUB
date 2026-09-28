@@ -1,5 +1,6 @@
 import SDLActionButtons from "../../../components/SDLActionButtons";
 import { getOrganogramActions } from "./organogramActions";
+import { formatDate } from "../../../utils/formatUtils";
 
 const serialBody = (rowData, options) =>
   options.rowIndex + 1 + (options.props.first || 0);
@@ -77,6 +78,7 @@ export const organogramColumns = ({ onEdit }) => [
     field: "CHG_ON",
     header: "Last Changed",
     sortable: true,
+    body: (row) => formatDate(row.CHG_ON),
     style: { width: "10%" },
   },
   {

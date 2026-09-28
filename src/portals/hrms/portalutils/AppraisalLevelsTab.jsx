@@ -5,6 +5,7 @@ import SDLReactSelect from "../../../components/SDLReactSelect";
 import useApprLevelTabHandler from "./useApprLevelTabHandler";
 import { getApprLevelColumns, renderApprLevelColumns } from "./apprLevelColumns";
 import { isOrganogramReadOnly } from "./organogramStatus";
+import { DATE_PICKER_FORMAT, DATE_PICKER_LOCALE } from "../../../utils/formatUtils";
 
 const AppraisalLevelsTab = ({ organogramId, organogramStatus, showAll, onCancelEdit }) => {
   const {
@@ -76,7 +77,8 @@ const AppraisalLevelsTab = ({ organogramId, organogramStatus, showAll, onCancelE
                 <Calendar
                   value={effectiveFrom}
                   onChange={(e) => setEffectiveFrom(e.value)}
-                  dateFormat="dd-M-yy"
+                  dateFormat={DATE_PICKER_FORMAT}
+                  locale={DATE_PICKER_LOCALE}
                   showIcon
                   className="w-100"
                   disabled={isLoading}

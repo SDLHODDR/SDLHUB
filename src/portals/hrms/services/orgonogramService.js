@@ -6,6 +6,7 @@ export const getOrgonograms = async (payload = {}) => {
     url: HRMS_API.MASTERDATA.GET_ORGANOGRAM_DATA,
     method: "POST",
     data: payload,
+    dedupe: true,
   });
 };
 
@@ -20,6 +21,7 @@ export const getFinEntities = async (payload = {}) => {
     url: HRMS_API.MASTERDATA.GET_FIN_ENTITY,
     method: "POST",
     data: payload,
+    dedupe: true,
   });
 };
 
@@ -28,6 +30,7 @@ export const getCompanies = async (payload = {}) => {
     url: HRMS_API.MASTERDATA.GET_COMPANY,
     method: "POST",
     data: payload,
+    dedupe: true,
   });
 };
 
@@ -36,6 +39,7 @@ export const getDepartments = async (payload = {}) => {
     url: HRMS_API.MASTERDATA.GET_DEPARTMENT,
     method: "POST",
     data: payload,
+    dedupe: true,
   });
 };
 
@@ -62,6 +66,7 @@ export const getDivisions = async (payload = {}) => {
     url: HRMS_API.MASTERDATA.GET_DIVISION,
     method: "POST",
     data: payload,
+    dedupe: true,
   });
 };
 
@@ -70,6 +75,7 @@ export const getEmployeeLevels = async (payload = {}) => {
     url: HRMS_API.MASTERDATA.GET_EMPLOYEE_LEVEL,
     method: "POST",
     data: payload,
+    dedupe: true,
   });
 };
 
@@ -78,6 +84,7 @@ export const getOrganogramLevels = async (payload = {}) => {
     url: HRMS_API.MASTERDATA.GET_ORGANOGRAM_LEVEL,
     method: "POST",
     data: payload,
+    dedupe: true,
   });
 };
 

@@ -11,6 +11,7 @@ import hrmsCapabilitiesReducer from "./hrms/hrmsCapabilitiesSlice";
 import hrmsDeptActivitiesReducer from "./hrms/hrmsDeptActivitySlice";
 import hrmsPoliciesReducer from "./hrms/hrmsPolicySlice";
 import hrmsAuthorizationCountReducer from "./hrms/hrmsAuthorizationCountSlice";
+import notificationReducer from "./notifications/notificationSlice";
 
 export const store = configureStore({
   reducer: {
@@ -21,6 +22,7 @@ export const store = configureStore({
     eportalLRData: ePortalLeavesReducer,
     
     hrmsAuthCounts: hrmsAuthorizationCountReducer,
+    notifications: notificationReducer,
     hrmsAuthData: hrmsAuthorizationDataReducer,
     hrmsKRAAcivityData: hrmsKRAActivityReducer,
     hrmsquestionMasterData: hrmsQuestionMasterReducer, // <-- key must match the selector exactly

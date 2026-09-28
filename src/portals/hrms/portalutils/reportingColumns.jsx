@@ -1,4 +1,5 @@
 import { Column } from "primereact/column";
+import { formatDate } from "../../../utils/formatUtils";
 //import { Dropdown } from "primereact/dropdown";
 
 export const getReportingColumns = () => [
@@ -24,13 +25,13 @@ export const getReportingColumns = () => [
     key: "EFFEC_FROM",
     header: "Effec From",
     style: { width: "17%" },
-    body: (row) => row.EFFEC_FROM || "",
+    body: (row) => formatDate(row.EFFEC_FROM),
   },
   {
     key: "EFFEC_TO",
     header: "Effec To",
     style: { width: "18%" },
-    body: (row) => row.EFFEC_TO || "",
+    body: (row) => formatDate(row.EFFEC_TO),
   },
 ];
 

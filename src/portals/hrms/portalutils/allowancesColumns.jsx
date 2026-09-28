@@ -1,4 +1,5 @@
 import { Column } from "primereact/column";
+import { formatDate } from "../../../utils/formatUtils";
 
 export const getAllowancesColumns = () => [
   {
@@ -17,13 +18,13 @@ export const getAllowancesColumns = () => [
     key: "FROM_DATE",
     header: "From Date",
     style: { width: "20%" },
-    body: (row) => row.EFFEC_FROM || "",
+    body: (row) => formatDate(row.EFFEC_FROM),
   },
   {
     key: "TO_DATE",
     header: "To Date",
     style: { width: "20%" },
-    body: (row) => row.EFFEC_TO || "",
+    body: (row) => formatDate(row.EFFEC_TO),
   },
 ];
 

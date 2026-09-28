@@ -174,7 +174,7 @@ const HorizontalMenu = () => {
 
                 return (
                   <li
-                    key={`hrms-sub-${menu.id}-${child.id || index}`}
+                    key={`hrms-sub-${menu.id}-${child.id ?? "no-id"}-${index}`}
                     className={active ? "hrms-child-active" : ""}
                   >
                     <Link

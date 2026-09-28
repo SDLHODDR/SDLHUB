@@ -66,6 +66,11 @@ export const HRMS_API = {
     AUTHORIZE_ORGANOGRAM: "/authorization/authorizeOrganogram.php",
   },
 
+  NOTIFICATIONS: {
+    LIST: "/notifications/getNotifications.php",
+    MARK_READ: "/notifications/markNotificationRead.php",
+  },
+
   MASTERDATA: {
     GET_MASTER_DATA: "/masterdata/master/getMasterData.php",
     GET_MASTER_TABLES: "/masterdata/master/getMasterTables.php",
