@@ -11,6 +11,7 @@ import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
 import { getPortalFromPath } from '../../../../config/portalConfig'
 import SDLReactSelect from '../../../../components/SDLReactSelect'
 import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
+import SDLInput from '../../../../components/SDLInput'
 
 const INITIAL_EMPLOYEE_DATA = {
   // Employee selection
@@ -225,91 +226,460 @@ const EmployeeData = () => {
     'PERMANENT_PINCODE',
     'TELEPHONE',
     'MOBILE_NUMBER',
-    'EMERGENCY_CONTACT'
+    'EMERGENCY_CONTACT',
+      'TENURE_PERIOD'
   ]
 
   const emailFields = ['PERSONAL_EMAIL', 'COMPANY_EMAIL']
 
+  const basicDetailsNumericFields = [
+  'AADHAAR_NO',
+  'ESI_NO',
+  'UAN_NO'
+]
+
+const basicDetailsAlphaNumericFields = [
+  'PAN_NO',
+  'DRIVING_LICENSE_NO',
+  'PASSPORT_NO',
+  'PF_NO',
+  'FPF_NO',
+  'MEMBER_ID',
+  'CITIZEN_NO'
+]
+
+const basicDetailsAlphaFields = [
+  'MOTHER_TONGUE',
+  'PF_NOMINEE'
+]
+
+const bankNumericFields = [
+  'BANK_ACNO'
+]
+
+const bankAlphaNumericFields = [
+  'BANK_IFSC'
+]
+
+const bankAlphaFields = [
+  'BANK_NAME',
+  'BANK_BRANCH',
+  'BANK_NOMINEE'
+]
+
+const qualificationAlphaFields = [
+  'QUALIFICATION_INSTITUTE',
+  'QUALIFICATION_COURSE',
+  'QUALIFICATION_REMARK'
+]
+
+const qualificationGradeFields = [
+  'QUALIFICATION_GRADE'
+]
+
+const experienceAlphaNumericFields = [
+  'PREVIOUS_COMPANY',
+  'PREVIOUS_DESIGNATION',
+  'PREVIOUS_JOB_DESCRIPTION',
+  'PREVIOUS_LEAVE_REASON'
+]
+
+const experienceCompanyFields = [
+  'PREVIOUS_COMPANY'
+]
+
+const experienceSalaryFields = [
+  'PREVIOUS_GROSS_SALARY'
+]
+
+const basicDetailsMaxLengths = {
+  AADHAAR_NO: 12,
+  PAN_NO: 10,
+  DRIVING_LICENSE_NO: 16,
+  PASSPORT_NO: 8,
+  ESI_NO: 10,
+  MOTHER_TONGUE: 10,
+  PF_NO: 22,
+  FPF_NO: 22,
+  PF_NOMINEE: 100,
+  MEMBER_ID: 22,
+  UAN_NO: 12,
+  CITIZEN_NO: 12
+}
+
+const bankMaxLengths = {
+  BANK_NAME: 25,
+  BANK_BRANCH: 15,
+  BANK_ACNO: 18,
+  BANK_IFSC: 11,
+  BANK_NOMINEE: 100
+}
+
+const qualificationMaxLengths = {
+  QUALIFICATION_INSTITUTE: 40,
+  QUALIFICATION_COURSE: 10,
+  QUALIFICATION_GRADE: 5,
+  QUALIFICATION_REMARK: 50
+}
+
+const experienceMaxLengths = {
+  PREVIOUS_COMPANY: 20,
+  PREVIOUS_DESIGNATION: 20,
+  PREVIOUS_GROSS_SALARY: 10,
+  PREVIOUS_JOB_DESCRIPTION: 100,
+  PREVIOUS_LEAVE_REASON: 100
+}
+
   const handleFieldChange = (name, value) => {
-    let updatedValue = value
+  let updatedValue = value
+  let error = ''
 
-    if (nameAndCityFields.includes(name)) {
-      updatedValue = value.replace(/[^A-Za-z\s]/g, '').slice(0, 15)
+  // -----------------------------
+  // NAME + CITY FIELDS
+  // -----------------------------
+  if (nameAndCityFields.includes(name)) {
+    if (value.length > 15) {
+      error = 'Maximum 15 characters allowed'
     }
 
-    if (numericFields.includes(name)) {
-      updatedValue = value.replace(/\D/g, '')
+    if (/[^A-Za-z\s]/.test(value)) {
+      error = 'Only alphabets are allowed'
     }
 
-    if (name === 'MOBILE_NUMBER') {
-      updatedValue = value.replace(/\D/g, '').slice(0, 10)
-    }
-
-    if (emailFields.includes(name)) {
-      if (updatedValue && !updatedValue.includes('@')) {
-        setFieldErrors(prev => ({
-          ...prev,
-          [name]: 'Email must contain @'
-        }))
-      } else {
-        setFieldErrors(prev => ({
-          ...prev,
-          [name]: ''
-        }))
-      }
-    }
-
-    setEmployeeData(prev => ({
-      ...prev,
-      [name]: updatedValue
-    }))
+    // Keep only valid characters and maximum length
+    updatedValue = value
+      .replace(/[^A-Za-z\s]/g, '')
+      .slice(0, 15)
   }
 
+  // -----------------------------
+  // NUMERIC FIELDS
+  // -----------------------------
+  if (numericFields.includes(name)) {
+    if (/\D/.test(value)) {
+      error = 'Only numbers are allowed'
+    }
+
+    let maxLength = 10
+
+    if (
+      name === 'CURRENT_PINCODE' ||
+      name === 'PERMANENT_PINCODE'
+    ) {
+      maxLength = 6
+    }
+
+    if (name === 'TELEPHONE') {
+      maxLength = 11
+    }
+
+    if (
+      name === 'MOBILE_NUMBER' ||
+      name === 'EMERGENCY_CONTACT'
+    ) {
+      maxLength = 10
+    }
+
+    if (name === 'TENURE_PERIOD') {
+    maxLength = 2
+  }
+
+    if (value.length > maxLength) {
+      error = `Maximum ${maxLength} digits allowed`
+    }
+
+    updatedValue = value
+      .replace(/\D/g, '')
+      .slice(0, maxLength)
+  }
+
+  // -----------------------------
+  // EMAIL FIELDS
+  // -----------------------------
+  if (emailFields.includes(name)) {
+    if (/\s/.test(value)) {
+      error = 'Spaces are not allowed'
+    }
+
+    if (value.length > 15) {
+      error = 'Maximum 15 characters allowed'
+    }
+
+    updatedValue = value
+      .replace(/\s/g, '')
+      .slice(0, 15)
+  }
+
+  // -----------------------------
+// EMAIL FIELDS
+// -----------------------------
+if (emailFields.includes(name)) {
+  if (/\s/.test(value)) {
+    error = 'Spaces are not allowed'
+  }
+
+  if (value.length > 15) {
+    error = 'Maximum 15 characters allowed'
+  }
+
+  updatedValue = value
+    .replace(/\s/g, '')
+    .slice(0, 15)
+}
+
+// -----------------------------
+// BASIC DETAILS - NUMERIC
+// -----------------------------
+if (basicDetailsNumericFields.includes(name)) {
+  const maxLength = basicDetailsMaxLengths[name]
+
+  if (/\D/.test(value)) {
+    error = 'Only numbers are allowed'
+  }
+
+  if (value.length > maxLength) {
+    error = `Maximum ${maxLength} digits allowed`
+  }
+
+  updatedValue = value
+    .replace(/\D/g, '')
+    .slice(0, maxLength)
+}
+
+// -----------------------------
+// BASIC DETAILS - ALPHANUMERIC
+// -----------------------------
+if (basicDetailsAlphaNumericFields.includes(name)) {
+  const maxLength = basicDetailsMaxLengths[name]
+
+  if (/[^A-Za-z0-9]/.test(value)) {
+    error = 'Only letters and numbers are allowed'
+  }
+
+  if (value.length > maxLength) {
+    error = `Maximum ${maxLength} characters allowed`
+  }
+
+  updatedValue = value
+    .replace(/[^A-Za-z0-9]/g, '')
+    .slice(0, maxLength)
+}
+
+// -----------------------------
+// BASIC DETAILS - ALPHABETIC
+// -----------------------------
+if (basicDetailsAlphaFields.includes(name)) {
+  const maxLength = basicDetailsMaxLengths[name]
+
+  if (/[^A-Za-z\s]/.test(value)) {
+    error = 'Only letters are allowed'
+  }
+
+  if (value.length > maxLength) {
+    error = `Maximum ${maxLength} characters allowed`
+  }
+
+  updatedValue = value
+    .replace(/[^A-Za-z\s]/g, '')
+    .slice(0, maxLength)
+}
+
+// -----------------------------
+// BANK DETAILS - NUMERIC
+// -----------------------------
+if (bankNumericFields.includes(name)) {
+  const maxLength = bankMaxLengths[name]
+
+  if (/\D/.test(value)) {
+    error = 'Only numbers are allowed'
+  }
+
+  if (value.length > maxLength) {
+    error = `Maximum ${maxLength} digits allowed`
+  }
+
+  updatedValue = value
+    .replace(/\D/g, '')
+    .slice(0, maxLength)
+}
+
+// -----------------------------
+// BANK DETAILS - ALPHANUMERIC
+// -----------------------------
+if (bankAlphaNumericFields.includes(name)) {
+  const maxLength = bankMaxLengths[name]
+
+  if (/[^A-Za-z0-9]/.test(value)) {
+    error = 'Only letters and numbers are allowed'
+  }
+
+  if (value.length > maxLength) {
+    error = `Maximum ${maxLength} characters allowed`
+  }
+
+  updatedValue = value
+    .replace(/[^A-Za-z0-9]/g, '')
+    .slice(0, maxLength)
+}
+
+// -----------------------------
+// BANK DETAILS - ALPHABETIC
+// -----------------------------
+if (bankAlphaFields.includes(name)) {
+  const maxLength = bankMaxLengths[name]
+
+  if (/[^A-Za-z\s]/.test(value)) {
+    error = 'Only letters are allowed'
+  }
+
+  if (value.length > maxLength) {
+    error = `Maximum ${maxLength} characters allowed`
+  }
+
+  updatedValue = value
+    .replace(/[^A-Za-z\s]/g, '')
+    .slice(0, maxLength)
+}
+
+// -----------------------------
+// QUALIFICATION DETAILS - ALPHABETIC
+// -----------------------------
+if (qualificationAlphaFields.includes(name)) {
+  const maxLength = qualificationMaxLengths[name]
+
+  if (/[^A-Za-z.'\s]/.test(value)) {
+    error = 'Only letters are allowed'
+  }
+
+  if (value.length > maxLength) {
+    error = `Maximum ${maxLength} characters allowed`
+  }
+
+  updatedValue = value
+    .replace(/[^A-Za-z.'\s]/g, '')
+    .slice(0, maxLength)
+}
+
+// -----------------------------
+// QUALIFICATION DETAILS - GRADE
+// -----------------------------
+if (qualificationGradeFields.includes(name)) {
+  const maxLength = qualificationMaxLengths[name]
+
+  if (!/^[A-Za-z0-9.]*$/.test(value)) {
+    error = 'Only letters, numbers and decimal point are allowed'
+  }
+
+  // Only one decimal point is allowed
+  if ((value.match(/\./g) || []).length > 1) {
+    error = 'Only one decimal point is allowed'
+  }
+
+  if (value.length > maxLength) {
+    error = `Maximum ${maxLength} characters allowed`
+  }
+
+  updatedValue = value
+    .replace(/[^A-Za-z0-9.]/g, '')
+    .slice(0, maxLength)
+
+  // Keep only the first decimal point if multiple are entered
+  const decimalParts = updatedValue.split('.')
+
+  if (decimalParts.length > 2) {
+    updatedValue = `${decimalParts[0]}.${decimalParts
+      .slice(1)
+      .join('')}`
+  }
+}
+
+// -----------------------------
+// EXPERIENCE - ORGANIZATION NAME
+// -----------------------------
+if (experienceCompanyFields.includes(name)) {
+  const maxLength = experienceMaxLengths[name]
+
+  if (/[^A-Za-z0-9.'\s]/.test(value)) {
+    error = "Only letters, numbers, spaces and \"'\" are allowed"
+  }
+
+  if (value.length > maxLength) {
+    error = `Maximum ${maxLength} characters allowed`
+  }
+
+  updatedValue = value
+    .replace(/[^A-Za-z0-9.'\s]/g, '')
+    .slice(0, maxLength)
+}
+
+// -----------------------------
+// EXPERIENCE - ALPHANUMERIC
+// -----------------------------
+if (experienceAlphaNumericFields.includes(name)) {
+  const maxLength = experienceMaxLengths[name]
+
+  if (/[^A-Za-z0-9\s]/.test(value)) {
+    error = 'Only letters and numbers are allowed'
+  }
+
+  if (value.length > maxLength) {
+    error = `Maximum ${maxLength} characters allowed`
+  }
+
+  updatedValue = value
+    .replace(/[^A-Za-z0-9\s]/g, '')
+    .slice(0, maxLength)
+}
+
+// -----------------------------
+// EXPERIENCE - GROSS SALARY
+// -----------------------------
+if (experienceSalaryFields.includes(name)) {
+  const maxLength = experienceMaxLengths[name]
+
+  if (!/^[0-9.]*$/.test(value)) {
+    error = 'Only numbers and decimal point are allowed'
+  }
+
+  if ((value.match(/\./g) || []).length > 1) {
+    error = 'Only one decimal point is allowed'
+  }
+
+  if (value.length > maxLength) {
+    error = `Maximum ${maxLength} characters allowed`
+  }
+
+  updatedValue = value
+    .replace(/[^0-9.]/g, '')
+    .slice(0, maxLength)
+
+  const decimalParts = updatedValue.split('.')
+
+  if (decimalParts.length > 2) {
+    updatedValue = `${decimalParts[0]}.${decimalParts
+      .slice(1)
+      .join('')}`
+  }
+}
+
+  // -----------------------------
+  // UPDATE VALUE
+  // -----------------------------
+  setEmployeeData(prev => ({
+    ...prev,
+    [name]: updatedValue
+  }))
+
+  // -----------------------------
+  // UPDATE ERROR
+  // -----------------------------
+  setFieldErrors(prev => ({
+    ...prev,
+    [name]: error
+  }))
+}
+
   const inputClass = 'form-control'
-
-  // const selectStyles = {
-  //   control: provided => ({
-  //     ...provided,
-  //     minHeight: '38px',
-  //     height: '38px',
-  //     borderColor: '#ced4da',
-  //     borderRadius: '4px',
-  //     boxShadow: 'none',
-  //     fontSize: '14px'
-  //   }),
-
-  //   valueContainer: provided => ({
-  //     ...provided,
-  //     height: '38px',
-  //     padding: '0 12px'
-  //   }),
-
-  //   indicatorsContainer: provided => ({
-  //     ...provided,
-  //     height: '38px'
-  //   }),
-
-  //   placeholder: provided => ({
-  //     ...provided,
-  //     color: '#6c757d',
-  //     fontSize: '14px'
-  //   }),
-
-  //   singleValue: provided => ({
-  //     ...provided,
-  //     fontSize: '14px'
-  //   }),
-
-  //   input: provided => ({
-  //     ...provided,
-  //     fontSize: '14px'
-  //   }),
-
-  //   option: provided => ({
-  //     ...provided,
-  //     fontSize: '14px'
-  //   })
-  // }
 
   const titleOptions = useMemo(
     () =>
@@ -878,72 +1248,26 @@ const EmployeeData = () => {
    */
 
   const renderInput = (name, label, options = {}) => {
-    const {
-      required = false,
-      type = 'text',
-      disabled = false,
-      placeholder = ''
-    } = options
+  const {
+    required = false,
+    type = 'text',
+    disabled = false,
+    placeholder = ''
+  } = options
 
-    return (
-      <div style={styles.field}>
-        <label style={styles.label}>
-          {label}
-          {required && <span style={styles.required}>*</span>}
-        </label>
-
-        <input
-          type={type}
-          className={`${inputClass} ${fieldErrors[name] ? 'is-invalid' : ''}`}
-          value={employeeData[name] || ''}
-          disabled={disabled}
-          placeholder={placeholder}
-          maxLength={
-            nameAndCityFields.includes(name)
-              ? 15
-              : name === 'MOBILE_NUMBER'
-              ? 10
-              : undefined
-          }
-          onChange={e => handleFieldChange(name, e.target.value)}
-        />
-
-        {fieldErrors[name] && (
-          <div className='invalid-feedback' style={{ display: 'block' }}>
-            {fieldErrors[name]}
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  // const renderSelect = (name, label, options, config = {}) => {
-  //   const { required = false, placeholder = `Select ${label}` } = config
-
-  //   return (
-  //     <div style={styles.field}>
-  //       <label style={styles.label}>
-  //         {label}
-  //         {required && <span style={styles.required}>*</span>}
-  //       </label>
-
-  //       <Select
-  //         options={options}
-  //         value={
-  //           options.find(
-  //             option =>
-  //               String(option.value) === String(employeeData[name] || '')
-  //           ) || null
-  //         }
-  //         onChange={option => handleFieldChange(name, option?.value || '')}
-  //         placeholder={placeholder}
-  //         isSearchable
-  //         isClearable
-  //         styles={selectStyles}
-  //       />
-  //     </div>
-  //   )
-  // }
+  return (
+    <SDLInput
+      label={label}
+      required={required}
+      type={type}
+      value={employeeData[name] || ''}
+      disabled={disabled}
+      placeholder={placeholder}
+      error={fieldErrors[name] || ''}
+      onChange={e => handleFieldChange(name, e.target.value)}
+    />
+  )
+}
 
   const renderSelect = (name, label, options, config = {}) => {
     const { required = false, placeholder = `Select ${label}` } = config
@@ -1583,7 +1907,7 @@ const EmployeeData = () => {
           {renderInput('BANK_BRANCH', 'Bank Branch', { readOnly: true })}
         </div>
 
-        <div className='col-lg-4 col-md-6'>
+        <div className='col-lg-4 col-md-6 mb-3'>
           {renderInput('BANK_ACNO', 'Account Number', { readOnly: true })}
         </div>
 
