@@ -4,7 +4,7 @@ import { formatDate } from "../../../utils/formatUtils";
 export const getApprLevelColumns = () => [
   {
     key: "APPR_LEVEL",
-    header: "No",
+    header: "Level",
     style: { width: "10%" },
     body: (row) => row.APPR_LEVEL,
   },

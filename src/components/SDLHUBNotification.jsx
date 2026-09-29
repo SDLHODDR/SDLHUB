@@ -11,6 +11,7 @@ const SDLHUBNotification = () => {
   const wrapperRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("unread");
+  const [selectedNotification, setSelectedNotification] = useState(null);
   const { items, unreadCount, status, error, markingReadIds } = useSelector(
     (state) => state.notifications,
   );
@@ -25,7 +26,13 @@ const SDLHUBNotification = () => {
       if (!wrapperRef.current?.contains(event.target)) setIsOpen(false);
     };
     const closeOnEscape = (event) => {
-      if (event.key === "Escape") setIsOpen(false);
+      if (event.key === "Escape") {
+        if (selectedNotification) {
+          setSelectedNotification(null);
+        } else {
+          setIsOpen(false);
+        }
+      }
     };
     document.addEventListener("mousedown", closeOnOutsideClick);
     document.addEventListener("keydown", closeOnEscape);
@@ -33,7 +40,7 @@ const SDLHUBNotification = () => {
       document.removeEventListener("mousedown", closeOnOutsideClick);
       document.removeEventListener("keydown", closeOnEscape);
     };
-  }, [isOpen]);
+  }, [isOpen, selectedNotification]);
 
   const unreadItems = useMemo(
     () => items.filter((item) => !(item.VIEWED_ON ?? item.viewed_on)),
@@ -46,9 +53,16 @@ const SDLHUBNotification = () => {
   const visibleItems = activeTab === "unread" ? unreadItems : archivedItems;
 
   const handleOpenNotification = (item) => {
-    const id = item.ID ?? item.id;
-    if (activeTab === "unread" && id != null) {
-      dispatch(markNotificationRead(id));
+    setSelectedNotification(item);
+  };
+
+  const handleMarkSelectedRead = async () => {
+    const id = selectedNotification?.ID ?? selectedNotification?.id;
+    if (id == null) return;
+
+    const result = await dispatch(markNotificationRead(id));
+    if (markNotificationRead.fulfilled.match(result)) {
+      setSelectedNotification(null);
     }
   };
 
@@ -161,6 +175,66 @@ const SDLHUBNotification = () => {
           </div>
         </section>
       )}
+
+      {isOpen && selectedNotification && (() => {
+        const isSelectedUnread = !(selectedNotification.VIEWED_ON ?? selectedNotification.viewed_on);
+        const selectedId = selectedNotification.ID ?? selectedNotification.id;
+        const isMarkingSelectedRead = markingReadIds.includes(String(selectedId));
+
+        return (
+          <div
+            className="sdlhub-notification__modal-backdrop"
+            onClick={() => setSelectedNotification(null)}
+          >
+            <section
+              className="sdlhub-notification__modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="sdlhub-notification-modal-title"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <header className="sdlhub-notification__modal-header">
+                <h2 id="sdlhub-notification-modal-title">Notification</h2>
+                <button
+                  type="button"
+                  className="sdlhub-notification__close"
+                  aria-label="Close notification"
+                  onClick={() => setSelectedNotification(null)}
+                >
+                  <i className="ti ti-x" aria-hidden="true" />
+                </button>
+              </header>
+              <div className="sdlhub-notification__modal-meta">
+                {selectedNotification.ATTN_TYPE ?? selectedNotification.attn_type ?? "Notification"}
+                {(selectedNotification.ASON_DATE ?? selectedNotification.ason_date) &&
+                  ` · ${formatDate(selectedNotification.ASON_DATE ?? selectedNotification.ason_date)}`}
+              </div>
+              <div className="sdlhub-notification__modal-message">
+                {selectedNotification.DESCR ?? selectedNotification.descr}
+              </div>
+              <footer className="sdlhub-notification__modal-actions">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => setSelectedNotification(null)}
+                >
+                  Cancel
+                </button>
+                {isSelectedUnread && (
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    disabled={isMarkingSelectedRead}
+                    onClick={handleMarkSelectedRead}
+                  >
+                    {isMarkingSelectedRead ? "Marking as read..." : "Mark as read"}
+                  </button>
+                )}
+              </footer>
+            </section>
+          </div>
+        );
+      })()}
     </div>
   );
 };

@@ -2425,6 +2425,68 @@ textarea {
   animation: sdlhub-notification-spin 0.7s linear infinite;
 }
 
+.sdlhub-notification__modal-backdrop {
+  position: fixed;
+  z-index: 1070;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(19, 31, 40, 0.48);
+}
+
+.sdlhub-notification__modal {
+  display: flex;
+  flex-direction: column;
+  width: min(520px, 100%);
+  max-height: min(620px, 100%);
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 18px 48px rgba(20, 30, 50, 0.24);
+  color: #202938;
+}
+
+.sdlhub-notification__modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sdlhub-notification__modal-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.sdlhub-notification__modal-meta {
+  padding: 12px 18px 0;
+  color: #778294;
+  font-size: 12px;
+}
+
+.sdlhub-notification__modal-message {
+  overflow-y: auto;
+  min-height: 80px;
+  padding: 12px 18px 20px;
+  color: #364152;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sdlhub-notification__modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 18px;
+  border-top: 1px solid #e5e7eb;
+}
+
 @keyframes sdlhub-notification-spin {
   to { transform: rotate(360deg); }
 }
