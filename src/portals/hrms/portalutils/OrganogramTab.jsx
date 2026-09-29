@@ -49,7 +49,7 @@ const OrganogramTab = ({ organogramId, organogramStatus, onOrganogramSaved }) =>
             onChange={value => handleFieldChange('FIN_ENTITY_ID', value)}
             hasError={!!errors.FIN_ENTITY_ID}
             isLoading={loadingMasters}
-            isDisabled={loadingMasters}
+            isDisabled={isReadOnly || loadingMasters}
             width='100%'
           />
           {errors.FIN_ENTITY_ID && (
@@ -71,7 +71,7 @@ const OrganogramTab = ({ organogramId, organogramStatus, onOrganogramSaved }) =>
             onChange={value => handleFieldChange('COMPANY_ID', value)}
             hasError={!!errors.COMPANY_ID}
             isLoading={loadingMasters}
-            isDisabled={loadingMasters}
+            isDisabled={isReadOnly || loadingMasters}
             width='100%'
           />
           {errors.COMPANY_ID && (
@@ -91,7 +91,7 @@ const OrganogramTab = ({ organogramId, organogramStatus, onOrganogramSaved }) =>
             onChange={value => handleFieldChange('DEPARTMENT_ID', value)}
             hasError={!!errors.DEPARTMENT_ID}
             isLoading={loadingMasters}
-            isDisabled={loadingMasters}
+            isDisabled={isReadOnly || loadingMasters}
             width='100%'
           />
           {errors.DEPARTMENT_ID && (
@@ -111,7 +111,7 @@ const OrganogramTab = ({ organogramId, organogramStatus, onOrganogramSaved }) =>
             onChange={value => handleFieldChange('DESIGNATION_ID', value)}
             hasError={!!errors.DESIGNATION_ID}
             isLoading={loadingDesignations}
-            isDisabled={!formData.DEPARTMENT_ID || loadingDesignations}
+            isDisabled={isReadOnly || !formData.DEPARTMENT_ID || loadingDesignations}
             width='100%'
           />
           {errors.DESIGNATION_ID && (
@@ -135,7 +135,7 @@ const OrganogramTab = ({ organogramId, organogramStatus, onOrganogramSaved }) =>
             onChange={value => handleFieldChange('ORG_LEVEL_ID', value)}
             hasError={!!errors.ORG_LEVEL_ID}
             isLoading={loadingMasters}
-            isDisabled={loadingMasters}
+            isDisabled={isReadOnly || loadingMasters}
             width='100%'
           />
           {errors.ORG_LEVEL_ID && (
@@ -155,7 +155,7 @@ const OrganogramTab = ({ organogramId, organogramStatus, onOrganogramSaved }) =>
             onChange={value => handleFieldChange('JD_LABEL_ID', value)}
             hasError={!!errors.JD_LABEL_ID}
             isLoading={loadingJdLabels}
-            isDisabled={!formData.DESIGNATION_ID || loadingJdLabels}
+            isDisabled={isReadOnly || !formData.DESIGNATION_ID || loadingJdLabels}
             width='100%'
           />
           {errors.JD_LABEL_ID && (
@@ -175,7 +175,7 @@ const OrganogramTab = ({ organogramId, organogramStatus, onOrganogramSaved }) =>
             onChange={value => handleFieldChange('DIVISION_ID', value)}
             hasError={!!errors.DIVISION_ID}
             isLoading={loadingMasters}
-            isDisabled={loadingMasters}
+            isDisabled={isReadOnly || loadingMasters}
             width='100%'
           />
           {errors.DIVISION_ID && (
@@ -196,7 +196,7 @@ const OrganogramTab = ({ organogramId, organogramStatus, onOrganogramSaved }) =>
             onChange={value => handleFieldChange('EMP_LEVEL_ID', value)}
             hasError={!!errors.EMP_LEVEL_ID}
             isLoading={loadingMasters}
-            isDisabled={loadingMasters}
+            isDisabled={isReadOnly || loadingMasters}
             width='100%'
           />
           {errors.EMP_LEVEL_ID && (
@@ -216,6 +216,7 @@ const OrganogramTab = ({ organogramId, organogramStatus, onOrganogramSaved }) =>
             onChange={e => handleFieldChange('POSITION_COUNT', e.target.value)}
             error={errors.POSITION_COUNT}
             inputMode='numeric'
+            disabled={isReadOnly}
           />
         </div>
 
@@ -229,11 +230,12 @@ const OrganogramTab = ({ organogramId, organogramStatus, onOrganogramSaved }) =>
             }
             error={errors.POSITION_OCCUPIED}
             inputMode='numeric'
+            disabled={isReadOnly}
           />
         </div>
       </div>
 
-      <div className='d-flex justify-content-end gap-2 mt-3'>
+      {!isReadOnly && <div className='d-flex justify-content-end gap-2 mt-3'>
         <SaveButton
           onClick={() => handleSave(false)}
           disabled={saving}
@@ -261,7 +263,7 @@ const OrganogramTab = ({ organogramId, organogramStatus, onOrganogramSaved }) =>
         )}
 
         <CancelButton onClick={handleCancel} disabled={saving} />
-      </div>
+      </div>}
     </div>
   )
 }
