@@ -1,0 +1,1 @@
+export const TELEGRAM_ENABLED = import.meta.env.VITE_ENABLE_TELEGRAM !== "false";

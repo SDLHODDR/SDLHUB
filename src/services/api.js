@@ -60,6 +60,15 @@ export const eppAPI = axios.create({
   },
 });
 
+export const telegramPSRAPI = axios.create({
+  baseURL:
+    import.meta.env.VITE_TELEGRAM_API_URL || `${BASE_URL}/psr_telegram/api`,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 /* ============================
    HELPER: IDENTIFY SAFE CALLS
 ============================ */
@@ -185,3 +194,4 @@ attachInterceptor(secureAPI);
 attachInterceptor(eportalAPI);
 attachInterceptor(hrmsAPI);
 attachInterceptor(eppAPI);
+attachInterceptor(telegramPSRAPI);
