@@ -8,9 +8,17 @@ import { formatDashDate } from "../../portals/eportal/utils/formatUtils";
 import { useMastersAuthorizationHandler } from "./useMastersAuthorizationHandler";
 import { getMastersAuthorizationColumns } from "./MastersAuthorizationColumns";
 import MastersAuthorizationModal from "./MastersAuthorizationModal";
+import FamilyAuthorizationModal from "./FamilyAuthorizationModal";
+import BankAuthorizationModal from "./BankAuthorizationModal";
+import PersonalInfoAuthorizationModal from "./PersonalInfoAuthorizationModal";
+import JobDescriptionAuthorizationModal from "./JobDescriptionAuthorizationModal";
 
 // Map TASK_ID -> Page Title & Endpoints for Masters
 const MASTER_TASK_CONFIG = {
+  57: {
+    title: "Master Changes Authorization",
+    type: "JOB_DESCRIPTION",
+  },
   53: {
     title: "Change Personal Info - Authorization",
     type: "PERSONAL",
@@ -103,6 +111,44 @@ const MastersAuthorization = () => {
         onClose={closeModal}
         onSuccess={refreshList}
       />
+      {config.type === "JOB_DESCRIPTION" && (
+        <JobDescriptionAuthorizationModal
+          show={showModal}
+          record={selectedRecord}
+          onClose={closeModal}
+          onSuccess={refreshList}
+        />
+      )}
+
+      {/* Personal Info / Address Detail Authorization Modal */}
+      {config.type === "PERSONAL" && (
+        <PersonalInfoAuthorizationModal
+          show={showModal}
+          record={selectedRecord}
+          onClose={closeModal}
+          onSuccess={refreshList}
+        />
+      )}
+
+      {/* Family Detail Authorization Modal */}
+      {config.type === "FAMILY" && (
+        <FamilyAuthorizationModal
+          show={showModal}
+          record={selectedRecord}
+          onClose={closeModal}
+          onSuccess={refreshList}
+        />
+      )}
+
+      {/* Bank Detail Authorization Modal */}
+      {config.type === "BANK" && (
+        <BankAuthorizationModal
+          show={showModal}
+          record={selectedRecord}
+          onClose={closeModal}
+          onSuccess={refreshList}
+        />
+      )}
     </>
   );
 };

@@ -58,6 +58,16 @@ const HeaderTop = () => {
   }, [dispatch, activePortal]);
 
   useEffect(() => {
+    const refreshHrmsTaskCount = () => {
+      if (activePortal.key === "hrms") {
+        dispatch(getHRMSAuthroizationTaskCount());
+      }
+    };
+    window.addEventListener("hrms-auth-tasks-changed", refreshHrmsTaskCount);
+    return () => window.removeEventListener("hrms-auth-tasks-changed", refreshHrmsTaskCount);
+  }, [dispatch, activePortal.key]);
+
+  useEffect(() => {
     if (user?.profile_image) {
       setHeaderImage(`${user.profile_image}?v=${new Date().getTime()}`);
     }
