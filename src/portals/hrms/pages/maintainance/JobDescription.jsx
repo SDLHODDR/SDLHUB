@@ -31,11 +31,14 @@ import { notifySuccess, notifyError } from '../../../../services/alertService'
 import SDLtextEditor from '../../../../components/editor/SDLtextEditor'
 import '../../assets/jobDescription.css'
 import JDDataTable from '../../components/data-table/JDDataTable'
+import SDLSearch from '../../../../components/datatable/SDLSearch'
+import SDLDataTable from '../../../../components/datatable/SDLDataTable'
 import SDLReactSelect from '../../../../components/SDLReactSelect'
 import SDLReactMultiSelect from '../../../../components/SDLReactMultiSelect'
 import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
 import SaveButton from '../../components/buttons/SaveButton'
 import CancelButton from '../../components/buttons/CancelButton'
+import ViewToggleButton from '../../components/buttons/ViewToggleButton'
 import SDLInput from '../../../../components/SDLInput'
 
 const normalizeRecords = payload => {
@@ -92,6 +95,7 @@ const getDisplayValue = (item, keys, fallback = '') => {
 
 const INITIAL_FORM_DATA = {
   id: '',
+  STATUS: 'N',
   SH_DESC: '',
   DESCR: '',
   DEPT_ID: '',
@@ -142,6 +146,20 @@ const INITIAL_FORM_DATA = {
   UPLOAD_DOC: null
 }
 
+const upsertListRecord = (records, record, recordId) => {
+  const list = Array.isArray(records) ? records : []
+  if (!recordId) return [...list, record]
+
+  const index = list.findIndex(
+    item => String(item.ID ?? item.id ?? '') === String(recordId)
+  )
+  if (index === -1) return [...list, record]
+
+  return list.map((item, itemIndex) =>
+    itemIndex === index ? { ...item, ...record } : item
+  )
+}
+
 const JobDescription = () => {
   const location = useLocation()
   const portal = getPortalFromPath(location.pathname)
@@ -154,6 +172,7 @@ const JobDescription = () => {
   const [designations, setDesignations] = useState([])
   const [levels, setLevels] = useState([])
   const [selectedJobId, setSelectedJobId] = useState('')
+  const [showListView, setShowListView] = useState(false)
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState({})
   const [formData, setFormData] = useState(INITIAL_FORM_DATA)
@@ -329,11 +348,51 @@ const JobDescription = () => {
     const q = searchQuery.trim().toLowerCase()
     return jobList.filter(
       item =>
+        String(item.ID).toLowerCase().includes(q) ||
         item.SH_DESC.toLowerCase().includes(q) ||
         item.DEPT_NAME.toLowerCase().includes(q) ||
-        item.DESIG_NAME.toLowerCase().includes(q)
+        item.DESIG_NAME.toLowerCase().includes(q) ||
+        item.LVL_DESC.toLowerCase().includes(q) ||
+        String(item.STATUS || '').toLowerCase().includes(q)
     )
   }, [jobList, searchQuery])
+
+  const jobListColumns = useMemo(() => {
+    return [
+      { field: 'ID', header: 'ID', sortable: true, style: { width: '8%' } },
+      {
+        field: 'SH_DESC',
+        header: 'JD Label',
+        sortable: true,
+        style: { width: '27%' }
+      },
+      {
+        field: 'DEPT_NAME',
+        header: 'Department',
+        sortable: true,
+        style: { width: '18%' }
+      },
+      {
+        field: 'DESIG_NAME',
+        header: 'Designation',
+        sortable: true,
+        style: { width: '20%' }
+      },
+      {
+        field: 'LVL_DESC',
+        header: 'Employee Level',
+        sortable: true,
+        style: { width: '15%' }
+      },
+      {
+        field: 'STATUS',
+        header: 'Status',
+        sortable: true,
+        body: row => String(row.STATUS || 'N').toUpperCase(),
+        style: { width: '12%', textAlign: 'center' }
+      }
+    ]
+  }, [])
 
   const departmentOptions = useMemo(
     () =>
@@ -658,6 +717,7 @@ const JobDescription = () => {
   }, [selectedQuestionGroup])
 
   const resetForm = () => {
+    setShowListView(false)
     setSelectedJobId('')
     setSelectedQuestionGroup('')
     setQuestionCurrentPage(1)
@@ -676,6 +736,7 @@ const JobDescription = () => {
   }
 
   const startNewJob = () => {
+    setShowListView(false)
     resetForm()
 
     setSelectedJobId('')
@@ -690,6 +751,7 @@ const JobDescription = () => {
 
   const startEditJob = async job => {
     try {
+      setShowListView(false)
       setLoading(true)
 
       // First select the job
@@ -758,6 +820,7 @@ const JobDescription = () => {
         ...INITIAL_FORM_DATA,
 
         id: selectedJob.ID || '',
+        STATUS: selectedJob.STATUS ?? selectedJob.status ?? 'N',
 
         SH_DESC: selectedJob.SH_DESC || '',
         DESCR: selectedJob.DESCR || '',
@@ -830,12 +893,17 @@ const JobDescription = () => {
 
         CTC_HEADS_LIST: Array.isArray(selectedJob.CTC_HEADS_LIST)
           ? selectedJob.CTC_HEADS_LIST.map(ctc => ({
-              ID: ctc.ID ?? '',
-              CTC_HEAD: ctc.AD_CODE ?? ctc.AD_ID ?? '',
-              KEY: ctc.KEY ?? '',
-              VAL: ctc.VAL ?? '',
-              EFFEC_FROM: ctc.EFFEC_FROM ?? '',
-              EFFEC_TO: ctc.EFFEC_TO ?? ''
+              ...ctc,
+              ID: ctc.ID ?? ctc.id ?? '',
+              AD_ID: ctc.AD_ID ?? ctc.ad_id ?? '',
+              AD_CODE: ctc.AD_CODE ?? ctc.ad_code ?? '',
+              CTC_HEAD:
+                ctc.AD_CODE ?? ctc.ad_code ?? ctc.AD_ID ?? ctc.ad_id ?? '',
+              KEY: ctc.KEY ?? ctc.key ?? '',
+              TEMPVAL: ctc.TEMPVAL ?? ctc.tempval ?? '',
+              VAL: ctc.VAL ?? ctc.val ?? '',
+              EFFEC_FROM: ctc.EFFEC_FROM ?? ctc.effec_from ?? '',
+              EFFEC_TO: ctc.EFFEC_TO ?? ctc.effec_to ?? ''
             }))
           : [],
 
@@ -932,6 +1000,7 @@ const JobDescription = () => {
         ...prev,
 
         id: job.ID ?? '',
+        STATUS: job.STATUS ?? job.status ?? 'N',
 
         SH_DESC: job.SH_DESC ?? '',
         DESCR: job.DESCR ?? '',
@@ -1285,141 +1354,577 @@ const JobDescription = () => {
         "Description can contain only letters, numbers, spaces and . ' - , ( ) with maximum 100 characters"
     }
 
+    const qualificationId = formData.EDUCATION?.QUA_ID
     const comments = String(formData.EDUCATION?.COMMENTS || '')
 
-    if (!comments.trim()) {
+    // Education is optional when creating a JD. Only validate its comments
+    // when a qualification has actually been selected.
+    if (qualificationId && !comments.trim()) {
       newErrors.EDUCATION_COMMENTS = 'Comments is required'
-    } else if (!/^[A-Za-z0-9.'\-,()\s]{1,50}$/.test(comments)) {
+    } else if (
+      comments &&
+      !/^[A-Za-z0-9.'\-,()\s]{1,50}$/.test(comments)
+    ) {
       newErrors.EDUCATION_COMMENTS =
         "Comments can contain only letters, numbers, spaces and . ' - , ( ) with maximum 50 characters"
     }
+
+      console.log('Validation errors generated:', newErrors)
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSave = async event => {
-    event.preventDefault && event.preventDefault()
+  // const handleSave = async event => {
+  //   event.preventDefault && event.preventDefault()
 
-    // If a responsibility is currently being edited,
-    // save only that responsibility.
-    // if (editingResponsibilityId !== null) {
-    //   await handleSaveResponsibility()
-    //   return
-    // }
+  //   if (activeTab === 'responsibilities') {
+  //     await handleSaveResponsibility()
+  //     return
+  //   }
 
-    if (activeTab === 'responsibilities') {
-      await handleSaveResponsibility()
-      return
-    }
+  //   if (!validateForm()) return
 
-    if (!validateForm()) return
+  //   setSaving(true)
 
-    setSaving(true)
+  //   try {
+  //     /*
+  //    Prepare Skills -------------------------------------------------
+  //    */
+  //     let skillsToSave = [...(formData.SKILLS_LIST || [])]
 
-    try {
-      /*
-     Prepare Skills -------------------------------------------------
-     */
-      let skillsToSave = [...(formData.SKILLS_LIST || [])]
+  //     if (skillForm.code) {
+  //       const skillRecord = {
+  //         ID: editingSkillId || '',
+  //         CAPA_ID: skillForm.code,
+  //         CAPA_DESC: skillForm.details,
+  //         CAPALVL_ID: skillForm.level
+  //       }
 
-      if (skillForm.code) {
-        const skillRecord = {
-          ID: editingSkillId || '',
-          CAPA_ID: skillForm.code,
-          CAPA_DESC: skillForm.details,
-          CAPALVL_ID: skillForm.level
-        }
+  //       if (editingSkillId) {
+  //         skillsToSave = skillsToSave.map(item =>
+  //           String(item.ID) === String(editingSkillId)
+  //             ? { ...item, ...skillRecord }
+  //             : item
+  //         )
+  //       } else {
+  //         skillsToSave.push(skillRecord)
+  //       }
+  //     }
 
-        if (editingSkillId) {
-          skillsToSave = skillsToSave.map(item =>
-            String(item.ID) === String(editingSkillId)
-              ? { ...item, ...skillRecord }
-              : item
-          )
-        } else {
-          skillsToSave.push(skillRecord)
-        }
+  //     /*
+  //    Prepare Allowances
+  //    */
+  //     let allowancesToSave = [...(formData.ALLOWANCES_LIST || [])]
+
+  //     if (allowanceForm.listing) {
+  //       const allowanceRecord = {
+  //         ID: editingAllowanceId || '',
+  //         ALLOW_ID: allowanceForm.listing,
+  //         ALLOW_AMOUNT: allowanceForm.amount,
+  //         ADD_INFO: allowanceForm.frequency,
+  //         EXP_TYPE: allowanceForm.expenseType,
+  //         FROMDT: allowanceForm.fromDate,
+  //         TODT: allowanceForm.toDate
+  //       }
+
+  //       if (editingAllowanceId) {
+  //         allowancesToSave = allowancesToSave.map(item =>
+  //           String(item.ID) === String(editingAllowanceId)
+  //             ? { ...item, ...allowanceRecord }
+  //             : item
+  //         )
+  //       } else {
+  //         allowancesToSave.push(allowanceRecord)
+  //       }
+  //     }
+
+  //     /*
+  //    Prepare CTC Heads
+  //    */
+  //     let ctcHeadsToSave = [...(formData.CTC_HEADS_LIST || [])]
+
+  //     if (ctcForm.head) {
+  //       const ctcRecord = {
+  //         ID: editingCtcId || '',
+  //         AD_ID: ctcForm.head,
+  //         KEY: ctcForm.formula,
+  //         TEMPVAL: ctcForm.formula,
+  //         VAL: ctcForm.value,
+  //         EFFEC_FROM: ctcForm.from,
+  //         EFFEC_TO: ctcForm.to
+  //       }
+
+  //       if (editingCtcId) {
+  //         ctcHeadsToSave = ctcHeadsToSave.map(item =>
+  //           String(item.ID) === String(editingCtcId)
+  //             ? { ...item, ...ctcRecord }
+  //             : item
+  //         )
+  //       } else {
+  //         ctcHeadsToSave.push(ctcRecord)
+  //       }
+  //     }
+
+  //     let educationToSave = [...(formData.EDUCATION_LIST || [])]
+
+  //     if (formData.EDUCATION?.QUA_ID) {
+  //       const educationRecord = {
+  //         ID: editingEducationId || '',
+  //         QUA_ID: formData.EDUCATION.QUA_ID,
+  //         COMMENTS: formData.EDUCATION.COMMENTS || ''
+  //       }
+
+  //       if (editingEducationId) {
+  //         educationToSave = educationToSave.map(item =>
+  //           String(item.ID) === String(editingEducationId)
+  //             ? { ...item, ...educationRecord }
+  //             : item
+  //         )
+  //       } else {
+  //         educationToSave.push(educationRecord)
+  //       }
+  //     }
+
+  //     /*
+  //    Main payload
+  //    */
+  //     const payload = {
+  //       id: formData.id,
+  //       shdesc: formData.SH_DESC,
+  //       desc: formData.DESCR,
+  //       deptid: formData.DEPT_ID,
+  //       desigid: formData.DESIG_ID,
+  //       lvlid: formData.LVL_ID,
+  //       minexp: formData.MIN_EXP,
+  //       maxexp: formData.MAX_EXP,
+  //       minage: formData.MIN_AGE,
+  //       maxage: formData.MAX_AGE,
+  //       minqual: formData.MIN_QUAL,
+  //       maxqual: formData.MAX_QUAL,
+  //       exp: formData.EXP,
+  //       Age_Range: formData.AGE_RANGE,
+  //       minsal: formData.MIN_SAL,
+  //       maxsal: formData.MAX_SAL,
+  //       rep_jdid: formData.REPT_JDID,
+
+  //       kra: JSON.stringify(formData.KRA || []),
+
+  //       education: JSON.stringify(educationToSave),
+
+  //       skills: JSON.stringify(skillsToSave),
+
+  //       allowances: JSON.stringify(allowancesToSave),
+
+  //       ctc_heads: JSON.stringify(ctcHeadsToSave),
+
+  //       question_template: JSON.stringify(formData.QUESTION_TEMPLATE || []),
+
+  //       dept_references: JSON.stringify(formData.DEPT_REFERENCES || []),
+
+  //       division_mapping: JSON.stringify(formData.DIVISION_MAPPING || []),
+
+  //       induction: JSON.stringify(formData.INDUCTION || {})
+  //     }
+
+  //     const response = await saveJobDescription(payload)
+
+  //     if (response?.status) {
+  //       notifySuccess(
+  //         response?.message || 'Job description saved successfully.'
+  //       )
+
+  //       /*
+  //        * Clear temporary row forms after successful save.
+  //        */
+  //       setEditingSkillId(null)
+  //       setSkillForm({
+  //         code: '',
+  //         details: '',
+  //         level: ''
+  //       })
+
+  //       setEditingAllowanceId(null)
+  //       setAllowanceForm({
+  //         listing: '',
+  //         amount: '',
+  //         frequency: '',
+  //         expenseType: '',
+  //         fromDate: '',
+  //         toDate: ''
+  //       })
+
+  //       setEditingCtcId(null)
+  //       setCtcForm({
+  //         head: '',
+  //         formula: '',
+  //         value: '',
+  //         from: '',
+  //         to: ''
+  //       })
+
+  //       setEditingEducationId(null)
+
+  //       /*
+  //        * Reload main job list.
+  //        */
+  //       await loadData()
+
+  //       const refreshed = await getJobDescriptionById(response.data.id)
+
+  //       const updatedJob =
+  //         refreshed?.data?.jobDescription || refreshed?.jobDescription || null
+
+  //       if (updatedJob) {
+  //         setFormData(prev => ({
+  //           ...prev,
+  //           KRA: Array.isArray(updatedJob.KRA_LIST)
+  //             ? updatedJob.KRA_LIST.map(item => item.KRA_ID)
+  //             : [],
+  //           KRA_LIST: Array.isArray(updatedJob.KRA_LIST)
+  //             ? updatedJob.KRA_LIST
+  //             : [],
+  //           RESPONSIBILITIES_LIST: Array.isArray(
+  //             updatedJob.RESPONSIBILITIES_LIST
+  //           )
+  //             ? updatedJob.RESPONSIBILITIES_LIST
+  //             : [],
+  //           EDUCATION_LIST: Array.isArray(updatedJob.EDUCATION_LIST)
+  //             ? updatedJob.EDUCATION_LIST
+  //             : [],
+  //           ALLOWANCES_LIST: Array.isArray(updatedJob.ALLOWANCES_LIST)
+  //             ? updatedJob.ALLOWANCES_LIST
+  //             : [],
+  //           CTC_HEADS_LIST: Array.isArray(updatedJob.CTC_HEADS_LIST)
+  //             ? updatedJob.CTC_HEADS_LIST
+  //             : [],
+  //           DEPT_REFERENCE_LIST: Array.isArray(updatedJob.DEPT_REFERENCE_LIST)
+  //             ? updatedJob.DEPT_REFERENCE_LIST
+  //             : [],
+  //           DIVISION_MAPPING_LIST: Array.isArray(
+  //             updatedJob.DIVISION_MAPPING_LIST
+  //           )
+  //             ? updatedJob.DIVISION_MAPPING_LIST
+  //             : [],
+  //           INDUCTION_LIST: Array.isArray(updatedJob.INDUCTION_LIST)
+  //             ? updatedJob.INDUCTION_LIST
+  //             : []
+  //         }))
+  //       }
+
+  //       /*
+  //        * Reload the complete selected JD so all tables
+  //        * immediately show the saved records.
+  //        */
+  //       if (formData.id) {
+  //         const refreshed = await getJobDescriptionById(formData.id)
+
+  //         const updatedJob =
+  //           refreshed?.data?.jobDescription || refreshed?.jobDescription || null
+
+  //         if (updatedJob) {
+  //           setFormData(prev => ({
+  //             ...prev,
+
+  //             KRA: Array.isArray(updatedJob.KRA_LIST)
+  //               ? updatedJob.KRA_LIST.map(item => item.KRA_ID)
+  //               : [],
+
+  //             KRA_LIST: Array.isArray(updatedJob.KRA_LIST)
+  //               ? updatedJob.KRA_LIST
+  //               : [],
+
+  //             EDUCATION_LIST: Array.isArray(updatedJob.EDUCATION_LIST)
+  //               ? updatedJob.EDUCATION_LIST
+  //               : [],
+
+  //             SKILLS_LIST: Array.isArray(updatedJob.SKILLS_LIST)
+  //               ? updatedJob.SKILLS_LIST
+  //               : [],
+
+  //             ALLOWANCES_LIST: Array.isArray(updatedJob.ALLOWANCES_LIST)
+  //               ? updatedJob.ALLOWANCES_LIST
+  //               : [],
+
+  //             CTC_HEADS_LIST: Array.isArray(updatedJob.CTC_HEADS_LIST)
+  //               ? updatedJob.CTC_HEADS_LIST
+  //               : [],
+
+  //             DEPT_REFERENCE_LIST: Array.isArray(updatedJob.DEPT_REFERENCE_LIST)
+  //               ? updatedJob.DEPT_REFERENCE_LIST
+  //               : [],
+
+  //             DIVISION_MAPPING_LIST: Array.isArray(
+  //               updatedJob.DIVISION_MAPPING_LIST
+  //             )
+  //               ? updatedJob.DIVISION_MAPPING_LIST
+  //               : [],
+
+  //             INDUCTION_LIST: Array.isArray(updatedJob.INDUCTION_LIST)
+  //               ? updatedJob.INDUCTION_LIST
+  //               : []
+  //           }))
+  //         }
+  //       }
+  //     } else {
+  //       notifyError(response?.message || 'Unable to save job description.')
+  //     }
+  //   } catch (error) {
+  //     console.error('Save job description error:', error)
+
+  //     notifyError(error?.message || 'Unable to save job description.')
+  //   } finally {
+  //     setSaving(false)
+  //   }
+  // }
+
+const refreshSavedJobDetails = async jobId => {
+  try {
+    const response = await getJobDescriptionById(jobId)
+    const job = response?.data?.jobDescription || response?.jobDescription
+    if (!job) return
+
+    const kraList = Array.isArray(job.KRA_LIST) ? job.KRA_LIST : []
+    const educationList = Array.isArray(job.EDUCATION_LIST) ? job.EDUCATION_LIST : []
+    const skillsList = Array.isArray(job.SKILLS_LIST) ? job.SKILLS_LIST : []
+    const allowancesList = Array.isArray(job.ALLOWANCES_LIST) ? job.ALLOWANCES_LIST : []
+    const ctcHeadsList = Array.isArray(job.CTC_HEADS_LIST) ? job.CTC_HEADS_LIST : []
+    const inductionList = Array.isArray(job.INDUCTION_LIST) ? job.INDUCTION_LIST : []
+    const responsibilitiesList = Array.isArray(job.RESPONSIBILITIES_LIST) ? job.RESPONSIBILITIES_LIST : []
+    const induction = inductionList[0]
+
+    setFormData(prev => ({
+      ...prev,
+      STATUS: job.STATUS ?? job.status ?? prev.STATUS ?? 'N',
+      KRA: kraList.map(item => item.KRA_ID ?? item.kra_id).filter(Boolean),
+      KRA_LIST: kraList,
+      EDUCATION_LIST: educationList,
+      SKILLS_LIST: skillsList,
+      ALLOWANCES_LIST: allowancesList,
+      CTC_HEADS_LIST: ctcHeadsList,
+      INDUCTION_LIST: inductionList,
+      INDUCTION: induction
+        ? {
+            INDUC_ID: induction.INDUC_ID ?? induction.induc_id ?? '',
+            ORG_ID: induction.ORG_ID ?? induction.org_id ?? '',
+            ORG_LOC_ID: induction.ORG_LOC_ID ?? induction.org_loc_id ?? '',
+            DISP_SEQ: induction.DISP_SEQ ?? induction.disp_seq ?? ''
+          }
+        : { ...INITIAL_FORM_DATA.INDUCTION }
+    }))
+    setResponsibilitiesList(responsibilitiesList)
+    setInductionDataList(inductionList)
+  } catch (error) {
+    // A refresh failure should not turn a successful save into a failed save.
+    console.error('Refresh job description details error:', error)
+  }
+}
+
+const handleSave = async event => {
+  event.preventDefault()
+
+  // For an existing JD, save only the currently active tab.
+  // For a new JD, send the complete payload.
+  const isExistingJD = Boolean(formData.id)
+
+  if (isExistingJD && activeTab === 'responsibilities') {
+    return await handleSaveResponsibility()
+  }
+
+  // Basic validation is required for new JD and Basic tab.
+  if (!isExistingJD || activeTab === 'basic') {
+    // if (!validateForm()) return
+    const isValid = validateForm()
+
+console.log('Validation result:', isValid)
+console.log('Validation errors:', errors)
+console.log('Form data:', formData)
+console.log('Active tab:', activeTab)
+
+if (!isValid) {
+  return false
+}
+  }
+
+  setSaving(true)
+
+  try {
+    let payload
+
+    if (isExistingJD) {
+      // =====================================================
+      // EXISTING JOB DESCRIPTION
+      // Save ONLY the active tab
+      // =====================================================
+
+      payload = {
+        id: formData.id,
+        tab: activeTab
       }
 
-      /*
-     Prepare Allowances
-     */
-      let allowancesToSave = [...(formData.ALLOWANCES_LIST || [])]
+      switch (activeTab) {
+        case 'basic':
+          payload = {
+            ...payload,
+            shdesc: formData.SH_DESC,
+            desc: formData.DESCR,
+            deptid: formData.DEPT_ID,
+            desigid: formData.DESIG_ID,
+            lvlid: formData.LVL_ID,
+            minexp: formData.MIN_EXP,
+            maxexp: formData.MAX_EXP,
+            minage: formData.MIN_AGE,
+            maxage: formData.MAX_AGE,
+            minqual: formData.MIN_QUAL,
+            maxqual: formData.MAX_QUAL,
+            exp: formData.EXP,
+            Age_Range: formData.AGE_RANGE,
+            minsal: formData.MIN_SAL,
+            maxsal: formData.MAX_SAL,
+            rep_jdid: formData.REPT_JDID,
+            status: formData.STATUS || 'N'
+          }
+          break
 
-      if (allowanceForm.listing) {
-        const allowanceRecord = {
-          ID: editingAllowanceId || '',
-          ALLOW_ID: allowanceForm.listing,
-          ALLOW_AMOUNT: allowanceForm.amount,
-          ADD_INFO: allowanceForm.frequency,
-          EXP_TYPE: allowanceForm.expenseType,
-          FROMDT: allowanceForm.fromDate,
-          TODT: allowanceForm.toDate
+        case 'kra':
+          payload.kra = JSON.stringify(formData.KRA || [])
+          break
+
+        case 'education': {
+          let educationToSave = Array.isArray(formData.EDUCATION_LIST)
+            ? [...formData.EDUCATION_LIST]
+            : []
+
+          if (formData.EDUCATION?.QUA_ID) {
+            educationToSave = upsertListRecord(
+              educationToSave,
+              {
+                ID: editingEducationId || '',
+                QUA_ID: formData.EDUCATION.QUA_ID,
+                COMMENTS: formData.EDUCATION.COMMENTS || ''
+              },
+              editingEducationId
+            )
+          }
+
+          payload.education = JSON.stringify(educationToSave)
+          break
         }
 
-        if (editingAllowanceId) {
-          allowancesToSave = allowancesToSave.map(item =>
-            String(item.ID) === String(editingAllowanceId)
-              ? { ...item, ...allowanceRecord }
-              : item
+        case 'skills': {
+          let skillsToSave = Array.isArray(formData.SKILLS_LIST)
+            ? [...formData.SKILLS_LIST]
+            : []
+
+          if (skillForm.code) {
+            const skillId = editingSkillId || skillForm.ID || ''
+            skillsToSave = upsertListRecord(
+              skillsToSave,
+              {
+                ID: skillId,
+                CAPA_ID: skillForm.code,
+                CAPA_DESC: skillForm.details,
+                CAPALVL_ID: skillForm.level
+              },
+              skillId
+            )
+          }
+
+          payload.skills = JSON.stringify(skillsToSave)
+          break
+        }
+
+        case 'allowances': {
+          let allowancesToSave = Array.isArray(formData.ALLOWANCES_LIST)
+            ? [...formData.ALLOWANCES_LIST]
+            : []
+
+          if (allowanceForm.listing) {
+            const allowanceId = editingAllowanceId || ''
+            allowancesToSave = upsertListRecord(
+              allowancesToSave,
+              {
+                ID: allowanceId,
+                ALLOW_ID: allowanceForm.listing,
+                ALLOW_AMOUNT: allowanceForm.amount,
+                ADD_INFO: allowanceForm.frequency,
+                EXP_TYPE: allowanceForm.expenseType,
+                FROMDT: allowanceForm.fromDate,
+                TODT: allowanceForm.toDate
+              },
+              allowanceId
+            )
+          }
+
+          payload.allowances = JSON.stringify(allowancesToSave)
+          break
+        }
+
+        case 'ctc': {
+          let ctcHeadsToSave = Array.isArray(formData.CTC_HEADS_LIST)
+            ? [...formData.CTC_HEADS_LIST]
+            : []
+
+          if (ctcForm.head) {
+            const ctcId = editingCtcId || ctcForm.ID || ''
+            ctcHeadsToSave = upsertListRecord(
+              ctcHeadsToSave,
+              {
+                ID: ctcId,
+                AD_ID: ctcForm.head,
+                KEY: ctcForm.formula,
+                TEMPVAL: ctcForm.formula,
+                VAL: ctcForm.value,
+                EFFEC_FROM: ctcForm.from,
+                EFFEC_TO: ctcForm.to
+              },
+              ctcId
+            )
+          }
+
+          payload.ctc_heads = JSON.stringify(ctcHeadsToSave)
+          break
+        }
+
+        case 'questions':
+          payload.question_template = JSON.stringify(
+            formData.QUESTION_TEMPLATE || []
           )
-        } else {
-          allowancesToSave.push(allowanceRecord)
-        }
-      }
+          break
 
-      /*
-     Prepare CTC Heads
-     */
-      let ctcHeadsToSave = [...(formData.CTC_HEADS_LIST || [])]
-
-      if (ctcForm.head) {
-        const ctcRecord = {
-          ID: editingCtcId || '',
-          AD_ID: ctcForm.head,
-          KEY: ctcForm.formula,
-          TEMPVAL: ctcForm.formula,
-          VAL: ctcForm.value,
-          EFFEC_FROM: ctcForm.from,
-          EFFEC_TO: ctcForm.to
-        }
-
-        if (editingCtcId) {
-          ctcHeadsToSave = ctcHeadsToSave.map(item =>
-            String(item.ID) === String(editingCtcId)
-              ? { ...item, ...ctcRecord }
-              : item
+        case 'deptref':
+          payload.dept_references = JSON.stringify(
+            formData.DEPT_REFERENCES || []
           )
-        } else {
-          ctcHeadsToSave.push(ctcRecord)
-        }
-      }
+          break
 
-      let educationToSave = [...(formData.EDUCATION_LIST || [])]
-
-      if (formData.EDUCATION?.QUA_ID) {
-        const educationRecord = {
-          ID: editingEducationId || '',
-          QUA_ID: formData.EDUCATION.QUA_ID,
-          COMMENTS: formData.EDUCATION.COMMENTS || ''
-        }
-
-        if (editingEducationId) {
-          educationToSave = educationToSave.map(item =>
-            String(item.ID) === String(editingEducationId)
-              ? { ...item, ...educationRecord }
-              : item
+        case 'division':
+          payload.division_mapping = JSON.stringify(
+            formData.DIVISION_MAPPING || []
           )
-        } else {
-          educationToSave.push(educationRecord)
-        }
-      }
+          break
 
-      /*
-     Main payload
-     */
-      const payload = {
+        case 'induction':
+          payload.induction = JSON.stringify(
+            formData.INDUCTION || {}
+          )
+          break
+
+        case 'responsibilities':
+          // Responsibilities already has its own save handler.
+          return
+
+        default:
+          notifyError('Invalid Job Description tab.')
+          return
+      }
+    } else {
+      // =====================================================
+      // NEW JOB DESCRIPTION
+      // Send the complete payload
+      // =====================================================
+
+      payload = {
         id: formData.id,
         shdesc: formData.SH_DESC,
         desc: formData.DESCR,
@@ -1437,176 +1942,90 @@ const JobDescription = () => {
         minsal: formData.MIN_SAL,
         maxsal: formData.MAX_SAL,
         rep_jdid: formData.REPT_JDID,
+        status: formData.STATUS || 'N',
 
-        kra: JSON.stringify(formData.KRA || []),
-
-        education: JSON.stringify(educationToSave),
-
-        skills: JSON.stringify(skillsToSave),
-
-        allowances: JSON.stringify(allowancesToSave),
-
-        ctc_heads: JSON.stringify(ctcHeadsToSave),
-
-        question_template: JSON.stringify(formData.QUESTION_TEMPLATE || []),
-
-        dept_references: JSON.stringify(formData.DEPT_REFERENCES || []),
-
-        division_mapping: JSON.stringify(formData.DIVISION_MAPPING || []),
-
+        responsibilities: formData.RESPONSIBILITIES,
+        kra: formData.KRA,
+        education: JSON.stringify(formData.EDUCATION || {}),
+        skills: JSON.stringify(formData.SKILLS || []),
+        allowances: JSON.stringify(formData.ALLOWANCES || []),
+        ctc_heads: JSON.stringify(formData.CTC_HEADS || []),
+        question_template: formData.QUESTION_TEMPLATE,
+        dept_references: formData.DEPT_REFERENCES,
+        division_mapping: formData.DIVISION_MAPPING,
         induction: JSON.stringify(formData.INDUCTION || {})
       }
+    }
 
-      const response = await saveJobDescription(payload)
+    console.log('Job Description save payload:', payload)
 
-      if (response?.status) {
-        notifySuccess(
-          response?.message || 'Job description saved successfully.'
-        )
+    const response = await saveJobDescription(payload)
 
-        /*
-         * Clear temporary row forms after successful save.
-         */
-        setEditingSkillId(null)
-        setSkillForm({
-          code: '',
-          details: '',
-          level: ''
-        })
+    if (response?.status) {
+      const savedJobId = response?.data?.id || formData.id || selectedJobId
 
-        setEditingAllowanceId(null)
-        setAllowanceForm({
-          listing: '',
-          amount: '',
-          frequency: '',
-          expenseType: '',
-          fromDate: '',
-          toDate: ''
-        })
+      await loadData()
 
-        setEditingCtcId(null)
-        setCtcForm({
-          head: '',
-          formula: '',
-          value: '',
-          from: '',
-          to: ''
-        })
+      if (savedJobId) {
+        setSelectedJobId(savedJobId)
+        // Promote a newly created JD to edit mode so later saves update it.
+        setFormData(prev => ({ ...prev, id: savedJobId }))
+        await refreshSavedJobDetails(savedJobId)
+      }
 
-        setEditingEducationId(null)
-
-        /*
-         * Reload main job list.
-         */
-        await loadData()
-
-        const refreshed = await getJobDescriptionById(response.data.id)
-
-        const updatedJob =
-          refreshed?.data?.jobDescription || refreshed?.jobDescription || null
-
-        if (updatedJob) {
+      if (isExistingJD) {
+        if (activeTab === 'education') {
+          setEditingEducationId(null)
           setFormData(prev => ({
             ...prev,
-            KRA: Array.isArray(updatedJob.KRA_LIST)
-              ? updatedJob.KRA_LIST.map(item => item.KRA_ID)
-              : [],
-            KRA_LIST: Array.isArray(updatedJob.KRA_LIST)
-              ? updatedJob.KRA_LIST
-              : [],
-            RESPONSIBILITIES_LIST: Array.isArray(
-              updatedJob.RESPONSIBILITIES_LIST
-            )
-              ? updatedJob.RESPONSIBILITIES_LIST
-              : [],
-            EDUCATION_LIST: Array.isArray(updatedJob.EDUCATION_LIST)
-              ? updatedJob.EDUCATION_LIST
-              : [],
-            ALLOWANCES_LIST: Array.isArray(updatedJob.ALLOWANCES_LIST)
-              ? updatedJob.ALLOWANCES_LIST
-              : [],
-            CTC_HEADS_LIST: Array.isArray(updatedJob.CTC_HEADS_LIST)
-              ? updatedJob.CTC_HEADS_LIST
-              : [],
-            DEPT_REFERENCE_LIST: Array.isArray(updatedJob.DEPT_REFERENCE_LIST)
-              ? updatedJob.DEPT_REFERENCE_LIST
-              : [],
-            DIVISION_MAPPING_LIST: Array.isArray(
-              updatedJob.DIVISION_MAPPING_LIST
-            )
-              ? updatedJob.DIVISION_MAPPING_LIST
-              : [],
-            INDUCTION_LIST: Array.isArray(updatedJob.INDUCTION_LIST)
-              ? updatedJob.INDUCTION_LIST
-              : []
+            EDUCATION: { ...INITIAL_FORM_DATA.EDUCATION }
           }))
+        } else if (activeTab === 'skills') {
+          setEditingSkillId(null)
+          setSkillForm({ ID: '', code: '', details: '', level: '' })
+        } else if (activeTab === 'allowances') {
+          setEditingAllowanceId(null)
+          setAllowanceForm({
+            listing: '',
+            amount: '',
+            frequency: '',
+            expenseType: '',
+            fromDate: '',
+            toDate: ''
+          })
+        } else if (activeTab === 'ctc') {
+          setEditingCtcId(null)
+          setCtcForm({
+            head: '',
+            formula: '',
+            value: '',
+            from: '',
+            to: ''
+          })
         }
-
-        /*
-         * Reload the complete selected JD so all tables
-         * immediately show the saved records.
-         */
-        if (formData.id) {
-          const refreshed = await getJobDescriptionById(formData.id)
-
-          const updatedJob =
-            refreshed?.data?.jobDescription || refreshed?.jobDescription || null
-
-          if (updatedJob) {
-            setFormData(prev => ({
-              ...prev,
-
-              KRA: Array.isArray(updatedJob.KRA_LIST)
-                ? updatedJob.KRA_LIST.map(item => item.KRA_ID)
-                : [],
-
-              KRA_LIST: Array.isArray(updatedJob.KRA_LIST)
-                ? updatedJob.KRA_LIST
-                : [],
-
-              EDUCATION_LIST: Array.isArray(updatedJob.EDUCATION_LIST)
-                ? updatedJob.EDUCATION_LIST
-                : [],
-
-              SKILLS_LIST: Array.isArray(updatedJob.SKILLS_LIST)
-                ? updatedJob.SKILLS_LIST
-                : [],
-
-              ALLOWANCES_LIST: Array.isArray(updatedJob.ALLOWANCES_LIST)
-                ? updatedJob.ALLOWANCES_LIST
-                : [],
-
-              CTC_HEADS_LIST: Array.isArray(updatedJob.CTC_HEADS_LIST)
-                ? updatedJob.CTC_HEADS_LIST
-                : [],
-
-              DEPT_REFERENCE_LIST: Array.isArray(updatedJob.DEPT_REFERENCE_LIST)
-                ? updatedJob.DEPT_REFERENCE_LIST
-                : [],
-
-              DIVISION_MAPPING_LIST: Array.isArray(
-                updatedJob.DIVISION_MAPPING_LIST
-              )
-                ? updatedJob.DIVISION_MAPPING_LIST
-                : [],
-
-              INDUCTION_LIST: Array.isArray(updatedJob.INDUCTION_LIST)
-                ? updatedJob.INDUCTION_LIST
-                : []
-            }))
-          }
-        }
-      } else {
-        notifyError(response?.message || 'Unable to save job description.')
       }
-    } catch (error) {
-      console.error('Save job description error:', error)
 
-      notifyError(error?.message || 'Unable to save job description.')
-    } finally {
-      setSaving(false)
+      notifySuccess(
+        response?.message || 'Job description saved successfully.'
+      )
+      return true
+    } else {
+      notifyError(
+        response?.message || 'Unable to save job description.'
+      )
+      return false
     }
+  } catch (error) {
+    console.error('Save job description error:', error)
+
+    notifyError(
+      error?.message || 'Unable to save job description.'
+    )
+    return false
+  } finally {
+    setSaving(false)
   }
+}
 
   const handleSendForAuth = async () => {
     if (!formData.id) {
@@ -1616,15 +2035,50 @@ const JobDescription = () => {
       return
     }
 
+    if (formData.STATUS === 'T') {
+      notifyError('This Job Description is already pending authorization.')
+      return
+    }
+
+    if (!validateForm()) return
+
+    setSaving(true)
     try {
-      const response = await sendJobDescriptionForAuth({
-        id: formData.id
+      const updateResponse = await saveJobDescription({
+        id: formData.id,
+        tab: 'basic',
+        shdesc: formData.SH_DESC,
+        desc: formData.DESCR,
+        deptid: formData.DEPT_ID,
+        desigid: formData.DESIG_ID,
+        lvlid: formData.LVL_ID,
+        minexp: formData.MIN_EXP,
+        maxexp: formData.MAX_EXP,
+        minage: formData.MIN_AGE,
+        maxage: formData.MAX_AGE,
+        minqual: formData.MIN_QUAL,
+        maxqual: formData.MAX_QUAL,
+        exp: formData.EXP,
+        Age_Range: formData.AGE_RANGE,
+        minsal: formData.MIN_SAL,
+        maxsal: formData.MAX_SAL,
+        rep_jdid: formData.REPT_JDID,
+        status: formData.STATUS || 'N'
       })
 
+      if (!updateResponse?.status) {
+        notifyError(updateResponse?.message || 'Unable to update Job Description.')
+        return
+      }
+
+      const response = await sendJobDescriptionForAuth({ id: formData.id })
       if (response?.status) {
+        setFormData(prev => ({ ...prev, STATUS: 'T' }))
+        await loadData()
+        window.dispatchEvent(new Event('hrms-auth-tasks-changed'))
         notifySuccess(
           response?.message ||
-            'Job description sent for authorization successfully.'
+            'Job description updated and sent for authorization successfully.'
         )
       } else {
         notifyError(
@@ -1638,6 +2092,8 @@ const JobDescription = () => {
       notifyError(
         error?.message || 'Unable to send job description for authorization.'
       )
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -1695,13 +2151,16 @@ const JobDescription = () => {
         setEditingResponsibilityId(null)
 
         handleFieldChange('RESPONSIBILITIES', '')
+        return true
       } else {
         notifyError(response?.message || 'Unable to save responsibility.')
+        return false
       }
     } catch (error) {
       console.error('Save responsibility error:', error)
 
       notifyError(error?.message || 'Unable to save responsibility.')
+      return false
     } finally {
       setSavingResponsibility(false)
     }
@@ -1762,6 +2221,7 @@ const JobDescription = () => {
   }
 
   const handleEditSkill = item => {
+    setEditingSkillId(item.ID ?? item.id ?? null)
     setSkillForm({
       ID: item.ID ?? '',
       code: item.CAPA_ID ?? item.capa_id ?? '',
@@ -1779,23 +2239,20 @@ const JobDescription = () => {
 
     if (!confirmed) return
 
+    const remainingRows = (formData.KRA_LIST || []).filter(
+      row => String(row.ID ?? row.id) !== String(item.ID ?? item.id)
+    )
+
     try {
       const response = await saveJobDescription({
-        action: 'delete_kra',
-        jd_id: selectedJobId,
-        kra_id: item.ID
+        id: selectedJobId,
+        tab: 'kra',
+        kra: JSON.stringify(remainingRows)
       })
 
       if (response?.status) {
-        notifySuccess(response?.message || 'KRA deleted successfully.')
-
-        setFormData(prev => ({
-          ...prev,
-          KRA_LIST: (prev.KRA_LIST || []).filter(
-            row => String(row.ID) !== String(item.ID)
-          ),
-          KRA: (prev.KRA || []).filter(id => String(id) !== String(item.KRA_ID))
-        }))
+        notifySuccess('KRA deleted successfully.')
+        await refreshSavedJobDetails(selectedJobId)
       } else {
         notifyError(response?.message || 'Unable to delete KRA.')
       }
@@ -1814,22 +2271,20 @@ const JobDescription = () => {
 
     if (!confirmed) return
 
+    const remainingRows = (formData.EDUCATION_LIST || []).filter(
+      row => String(row.ID ?? row.id) !== String(item.ID ?? item.id)
+    )
+
     try {
       const response = await saveJobDescription({
-        action: 'delete_education',
-        jd_id: selectedJobId,
-        education_id: item.ID
+        id: selectedJobId,
+        tab: 'education',
+        education: JSON.stringify(remainingRows)
       })
 
       if (response?.status) {
-        notifySuccess(response?.message || 'Education deleted successfully.')
-
-        setFormData(prev => ({
-          ...prev,
-          EDUCATION_LIST: (prev.EDUCATION_LIST || []).filter(
-            row => String(row.ID) !== String(item.ID)
-          )
-        }))
+        notifySuccess('Education deleted successfully.')
+        await refreshSavedJobDetails(selectedJobId)
 
         if (String(editingEducationId) === String(item.ID)) {
           setEditingEducationId(null)
@@ -1860,22 +2315,20 @@ const JobDescription = () => {
 
     if (!confirmed) return
 
+    const remainingRows = (formData.SKILLS_LIST || []).filter(
+      row => String(row.ID ?? row.id) !== String(item.ID ?? item.id)
+    )
+
     try {
       const response = await saveJobDescription({
-        action: 'delete_skill',
-        jd_id: selectedJobId,
-        skill_id: item.ID
+        id: selectedJobId,
+        tab: 'skills',
+        skills: JSON.stringify(remainingRows)
       })
 
       if (response?.status) {
-        notifySuccess(response?.message || 'Skill deleted successfully.')
-
-        setFormData(prev => ({
-          ...prev,
-          SKILLS_LIST: (prev.SKILLS_LIST || []).filter(
-            row => String(row.ID) !== String(item.ID)
-          )
-        }))
+        notifySuccess('Skill deleted successfully.')
+        await refreshSavedJobDetails(selectedJobId)
 
         if (String(editingSkillId) === String(item.ID)) {
           setEditingSkillId(null)
@@ -1905,22 +2358,20 @@ const JobDescription = () => {
 
     if (!confirmed) return
 
+    const remainingRows = (formData.ALLOWANCES_LIST || []).filter(
+      row => String(row.ID ?? row.id) !== String(item.ID ?? item.id)
+    )
+
     try {
       const response = await saveJobDescription({
-        action: 'delete_allowance',
-        jd_id: selectedJobId,
-        allowance_id: item.ID
+        id: selectedJobId,
+        tab: 'allowances',
+        allowances: JSON.stringify(remainingRows)
       })
 
       if (response?.status) {
-        notifySuccess(response?.message || 'Allowance deleted successfully.')
-
-        setFormData(prev => ({
-          ...prev,
-          ALLOWANCES_LIST: (prev.ALLOWANCES_LIST || []).filter(
-            row => String(row.ID) !== String(item.ID)
-          )
-        }))
+        notifySuccess('Allowance deleted successfully.')
+        await refreshSavedJobDetails(selectedJobId)
       } else {
         notifyError(response?.message || 'Unable to delete allowance.')
       }
@@ -1939,22 +2390,20 @@ const JobDescription = () => {
 
     if (!confirmed) return
 
+    const remainingRows = (formData.CTC_HEADS_LIST || []).filter(
+      row => String(row.ID ?? row.id) !== String(item.ID ?? item.id)
+    )
+
     try {
       const response = await saveJobDescription({
-        action: 'delete_ctc_head',
-        jd_id: selectedJobId,
-        ctc_head_id: item.ID
+        id: selectedJobId,
+        tab: 'ctc',
+        ctc_heads: JSON.stringify(remainingRows)
       })
 
       if (response?.status) {
-        notifySuccess(response?.message || 'CTC head deleted successfully.')
-
-        setFormData(prev => ({
-          ...prev,
-          CTC_HEADS_LIST: (prev.CTC_HEADS_LIST || []).filter(
-            row => String(row.ID) !== String(item.ID)
-          )
-        }))
+        notifySuccess('CTC head deleted successfully.')
+        await refreshSavedJobDetails(selectedJobId)
       } else {
         notifyError(response?.message || 'Unable to delete CTC head.')
       }
@@ -2094,11 +2543,22 @@ const JobDescription = () => {
           <div className='card'>
             <div className='card-body'>
               {/* ============================
-                JOB DESCRIPTION SELECT
+                JOB DESCRIPTION LIST / FORM CONTROLS
                 ============================ */}
-              <div className='row align-items-end mb-3'>
-                <div className='col-12'>
-                  <div className='d-flex justify-content-end'>
+              <div className='d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3'>
+                <div>
+                  {showListView && (
+                    <SDLSearch
+                      value={searchQuery}
+                      onChange={setSearchQuery}
+                      placeholder='Search Job Descriptions...'
+                      className='mb-0'
+                      style={{ width: '330px', minWidth: '330px' }}
+                    />
+                  )}
+                </div>
+
+                <div className='d-flex align-items-center gap-2'>
                     <SDLReactSelect
                       value={selectedJobId}
                       options={jobList
@@ -2129,16 +2589,33 @@ const JobDescription = () => {
                       isSearchable
                       isClearable
                       isLoading={loading}
-                      width='390px'
+                      width='330px'
                     />
-                  </div>
+
+                  <ViewToggleButton
+                    showAll={showListView}
+                    onClick={() => setShowListView(prev => !prev)}
+                    disabled={loading}
+                    ariaLabel='Toggle Job Description list view'
+                  />
                 </div>
               </div>
 
-              {/* ============================
-                FORM
-                ============================ */}
-              {showForm && (
+              {showListView ? (
+                <div className='table-responsive'>
+                  <SDLDataTable
+                    data={filteredList}
+                    columns={jobListColumns}
+                    loading={loading}
+                    emptyMessage='No Job Descriptions found'
+                    removableSort
+                    onRowClick={event => {
+                      if (event?.data) void startEditJob(event.data)
+                    }}
+                    tableStyle={{ minWidth: '900px' }}
+                  />
+                </div>
+              ) : showForm && (
                 <form onSubmit={handleSave}>
                   {/* ============================
                     TABS
@@ -2151,12 +2628,11 @@ const JobDescription = () => {
                     }))}
                     selectedTab={activeTab}
                     onTabChange={setActiveTab}
-                  />
+                  >
 
                   {/* ============================
                     TAB CONTENT
                     ============================ */}
-                  <div className='job-description-tab-content'>
                     {/* ==========================================
                       BASIC DETAILS
                       ========================================== */}
@@ -3045,14 +3521,20 @@ const JobDescription = () => {
                               key: 'head',
                               label: 'CTC Head',
                               render: item => {
+                                const itemHeadId =
+                                  item.AD_ID ??
+                                  item.ad_id ??
+                                  item.CTC_HEAD ??
+                                  item.AD_CODE
                                 const option = ctcHeadList.find(
                                   option =>
                                     String(option.AD_ID ?? option.ad_id) ===
-                                    // String(item.head)
-                                    String(item.AD_ID ?? item.ad_id)
+                                    String(itemHeadId ?? '')
                                 )
 
-                                return option ? getCTCHeadLabel(option) : '-'
+                                return option
+                                  ? getCTCHeadLabel(option)
+                                  : item.AD_CODE ?? item.CTC_HEAD ?? '-'
                               }
                             },
 
@@ -3573,7 +4055,7 @@ const JobDescription = () => {
                         />
                       </div>
                     )}
-                  </div>
+                  </SDLTabsComponent>
 
                   {/* ============================
                     ACTION BUTTONS
@@ -3591,9 +4073,9 @@ const JobDescription = () => {
                       className='btn btn-success me-2'
                       type='button'
                       onClick={handleSendForAuth}
-                      disabled={saving || !formData.id}
+                      disabled={saving || !formData.id || formData.STATUS === 'T'}
                     >
-                      Send for Auth
+                      Update &amp; Send for Auth
                     </button>
 
                     <CancelButton onClick={resetForm} disabled={saving} />

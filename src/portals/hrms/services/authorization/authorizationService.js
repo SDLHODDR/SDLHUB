@@ -91,3 +91,13 @@ export const processOrganogramAuthorization = (payload) =>
       message: "Unable to process organogram authorization request.",
     },
   });
+export const processJobDescriptionAuthorization = payload =>
+  hrmsRequest({
+    url: HRMS_API.AUTHORIZATION?.JOB_DESCRIPTION_AUTHORIZATION,
+    method: "POST",
+    data: payload,
+    fallback: {
+      status: false,
+      message: "Unable to process Job Description authorization."
+    }
+  });

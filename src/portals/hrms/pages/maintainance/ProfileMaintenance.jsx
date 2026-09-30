@@ -1174,7 +1174,7 @@ const ProfileMaintenance = () => {
                 ]}
                 selectedTab={activeTab}
                 onTabChange={setActiveTab}
-              />
+              >
 
               {/* ==================================================
               TAB CONTENT
@@ -1445,6 +1445,7 @@ const ProfileMaintenance = () => {
                   </>
                 )}
               </div>
+              </SDLTabsComponent>
             </>
           )}
         </div>
