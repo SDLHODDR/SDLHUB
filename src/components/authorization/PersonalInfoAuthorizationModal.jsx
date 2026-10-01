@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import {
-  getPersonalAuthorizationDetails,
-  processPersonalAuthorization,
+  getPersonalInfoAuthorizationDetails,
+  processPersonalInfoAuthorization
 } from "../../portals/hrms/services/authorization/authorizationService";
 import {
   notifySuccess,
@@ -48,7 +48,7 @@ const PersonalInfoAuthorizationModal = ({
     try {
       setLoading(true);
 
-      const res = await getPersonalAuthorizationDetails({
+      const res = await getPersonalInfoAuthorizationDetails({
         task_id: record?.ID,
         req_id: record?.TRAN_CODE || "",
       });
@@ -113,7 +113,7 @@ const PersonalInfoAuthorizationModal = ({
         remarks: remarks.trim(),
       };
 
-      const res = await processPersonalAuthorization(payload);
+      const res = await processPersonalInfoAuthorization(payload);
 
       if (res?.status) {
         notifySuccess(res?.message || "Authorization processed successfully.");

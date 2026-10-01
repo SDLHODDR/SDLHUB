@@ -27,8 +27,8 @@ import ConferenceRoomAuthorization from "../components/authorization/ConferenceR
 
 import ConferenceRoomMaintenance from "../portals/eportal/components/maintenance/ConferenceRoomMaintenance";
 
-import MyProfile from "../pages/MyProfile";
-import Profile from "../pages/profile/profile";
+import MyProfile from "../pages/profile/profile"; //"../pages/MyProfile";
+//import Profile from "../pages/profile/profile";
 
 export const eportalRoutes = [
 	{ path: "eportal/dashboard", element: Dashboard, },
