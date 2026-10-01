@@ -7,12 +7,18 @@ import { formatDashDate } from "../../portals/eportal/utils/formatUtils";
 
 import { useMastersAuthorizationHandler } from "./useMastersAuthorizationHandler";
 import { getMastersAuthorizationColumns } from "./MastersAuthorizationColumns";
+import MastersAuthorizationModal from "./MastersAuthorizationModal";
 import FamilyAuthorizationModal from "./FamilyAuthorizationModal";
 import BankAuthorizationModal from "./BankAuthorizationModal";
 import PersonalInfoAuthorizationModal from "./PersonalInfoAuthorizationModal";
+import JobDescriptionAuthorizationModal from "./JobDescriptionAuthorizationModal";
 
 // Map TASK_ID -> Page Title & Endpoints for Masters
 const MASTER_TASK_CONFIG = {
+  57: {
+    title: "Master Changes Authorization",
+    type: "JOB_DESCRIPTION",
+  },
   53: {
     title: "Change Personal Info - Authorization",
     type: "PERSONAL",
@@ -27,6 +33,11 @@ const MASTER_TASK_CONFIG = {
     title: "Change Bank Info - Authorization",
     type: "BANK",
     endpoint: "/api/hrms/masters/bank-info",
+  },
+  56: {
+    title: "Organogram - Authorization",
+    type: "ORGANOGRAM",
+    endpoint: "/api/hrms/masters/organogram",
   },
 };
 
@@ -92,6 +103,22 @@ const MastersAuthorization = () => {
           </div>
         </div>
       </div>
+
+      <MastersAuthorizationModal
+        type={config.type}
+        show={showModal}
+        record={selectedRecord}
+        onClose={closeModal}
+        onSuccess={refreshList}
+      />
+      {config.type === "JOB_DESCRIPTION" && (
+        <JobDescriptionAuthorizationModal
+          show={showModal}
+          record={selectedRecord}
+          onClose={closeModal}
+          onSuccess={refreshList}
+        />
+      )}
 
       {/* Personal Info / Address Detail Authorization Modal */}
       {config.type === "PERSONAL" && (

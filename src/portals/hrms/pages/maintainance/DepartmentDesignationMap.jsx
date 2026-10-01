@@ -60,11 +60,8 @@ const DepartmentDesignationMap = () => {
 
   const [rows, setRows] = useState([])
   const [designations, setDesignations] = useState([])
-
-  const [editingRow, setEditingRow] = useState(null)
-  const [selectedDesigs, setSelectedDesigs] = useState([])
+  const [rowSelections, setRowSelections] = useState({})
   const [saving, setSaving] = useState(false)
-  // const editSectionRef = useRef(null)
 
   const toDesignationOption = designation => {
     const value = String(
@@ -96,6 +93,26 @@ const DepartmentDesignationMap = () => {
       const res = await getDepartmentDesignationMap()
       const data = normalizeRecords(res)
       setRows(data)
+
+      const selections = {}
+
+      data.forEach((row, index) => {
+        const rowId = row.ID ?? row.id ?? index + 1
+
+        selections[rowId] = (
+          row.designations ||
+          row.DESIGNATIONS ||
+          row.designation_list ||
+          row.designations_list ||
+          row.DESI_LIST ||
+          row.DESI_NAMES ||
+          []
+        )
+          .map(toDesignationOption)
+          .map(option => option.value)
+      })
+
+      setRowSelections(selections)
 
       const dres = await getDesignationsMaster()
       const ddata = normalizeRecords(dres)
@@ -151,39 +168,23 @@ const DepartmentDesignationMap = () => {
     )
   }, [rows, searchQuery])
 
-  const startEdit = row => {
-    setEditingRow(row)
+  const handleSave = async row => {
+    if (!row) return
 
-    // const selected = (row.DESIGNATIONS || []).map(toDesignationOption);
-    const selected = (row.DESIGNATIONS || [])
-      .map(toDesignationOption)
-      .map(option => option.value)
-    setSelectedDesigs(selected)
-
-    // scroll to row / top
-    // setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
-  }
-
-  const cancelEdit = () => {
-    setEditingRow(null)
-    setSelectedDesigs([])
-  }
-
-  const handleSave = async () => {
-    if (!editingRow) return
     setSaving(true)
+
     try {
       const payload = {
-        dept_id: editingRow.DEPT_ID || editingRow.DEPT_CODE || editingRow.ID,
-        // designations: selectedDesigs.map((d) => d.value),
-        designations: selectedDesigs
+        dept_id: row.DEPT_ID || row.DEPT_CODE || row.ID,
+
+        designations: rowSelections[row.ID] || []
       }
 
       const res = await saveDepartmentDesignationMap(payload)
+
       if (res?.status) {
         notifySuccess(res.message || 'Saved successfully')
         await fetchData()
-        cancelEdit()
       } else {
         notifyError(res?.message || 'Save failed')
       }
@@ -250,9 +251,9 @@ const DepartmentDesignationMap = () => {
                   <thead className='table-light'>
                     <tr>
                       <th style={{ width: '60px' }}>Sr.</th>
-                      <th style={{ width: '120px' }}>Department Code</th>
+                      <th style={{ width: '60px' }}>Code</th>
                       <th style={{ width: '180px' }}>Department</th>
-                      <th style={{ width: '55%' }}>Designations</th>
+                      <th style={{ width: '65%' }}>Designations</th>
                       <th style={{ width: '120px' }}>Update</th>
                     </tr>
                   </thead>
@@ -271,58 +272,26 @@ const DepartmentDesignationMap = () => {
                           <td>{row.DEPT_NAME}</td>
 
                           <td style={{ minWidth: 0 }}>
-                            {editingRow?.ID === row.ID ? (
-                              <div
-                                style={{
-                                  width: '100%',
-                                  minWidth: 0
-                                }}
-                              >
-                                <SDLReactMultiSelect
-                                  value={selectedDesigs}
-                                  options={designations}
-                                  onChange={setSelectedDesigs}
-                                  placeholder='Select Designations'
-                                  isDisabled={saving}
-                                  hasError={false}
-                                />
-                              </div>
-                            ) : (
-                              <div className='p-2 border rounded d-flex flex-wrap gap-2'>
-                                {(row.DESIGNATIONS || []).length === 0 ? (
-                                  <small className='text-muted'>
-                                    No designations
-                                  </small>
-                                ) : (
-                                  row.DESIGNATIONS.map((d, i) => {
-                                    const label =
-                                      d.DESIG_NAME ??
-                                      d.name ??
-                                      d.designation ??
-                                      d
-
-                                    return (
-                                      <span
-                                        key={i}
-                                        className='department-designation-tag'
-                                      >
-                                        {label}
-                                      </span>
-                                    )
-                                  })
-                                )}
-                              </div>
-                            )}
+                            <SDLReactMultiSelect
+                              value={rowSelections[row.ID] || []}
+                              options={designations}
+                              onChange={selectedValues => {
+                                setRowSelections(prev => ({
+                                  ...prev,
+                                  [row.ID]: selectedValues || []
+                                }))
+                              }}
+                              placeholder='Select Designations'
+                              isDisabled={saving}
+                              hasError={false}
+                              isClearable
+                            />
                           </td>
                           <td className='text-center'>
                             <UpdateButton
-                              onClick={() =>
-                                editingRow?.ID === row.ID
-                                  ? handleSave()
-                                  : startEdit(row)
-                              }
+                              onClick={() => handleSave(row)}
                               disabled={saving}
-                              isSubmitting={saving && editingRow?.ID === row.ID}
+                              isSubmitting={saving}
                             />
                           </td>
                         </tr>

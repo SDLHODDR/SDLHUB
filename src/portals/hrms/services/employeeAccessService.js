@@ -48,12 +48,13 @@ export const saveEmployeeAccess = async ({
    DISABLE EMPLOYEE ACCESS
 ========================================================== */
 
-export const disableEmployeeAccess = async (id) => {
+export const disableEmployeeAccess = async (id, employee) => {
     return hrmsRequest({
         url: HRMS_API.MAINTAINANCE.DISABLE_EMPLOYEE_ACCESS,
         method: "POST",
         data: {
             id,
+            employee
         },
     });
 };

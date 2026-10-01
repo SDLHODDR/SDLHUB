@@ -10,6 +10,8 @@ import { getAuthroizationTaskCount } from "../store/eportal/ePortalAuthorization
 import { getHRMSAuthroizationTaskCount } from "../store/hrms/hrmsAuthorizationCountSlice";
 import { PORTALS, getPortalFromPath } from "../config/portalConfig";
 import PortalSwitcher from "../components/portal-switcher/PortalSwitcher";
+import SDLHUBNotification from "../components/SDLHUBNotification";
+import { TELEGRAM_ENABLED } from "../config/featureFlags";
 
 const HeaderTop = () => {
   const navigate = useNavigate();
@@ -38,7 +40,7 @@ const HeaderTop = () => {
   //   dispatch(getAuthroizationTaskCount());
   // }, [dispatch]);
 
-  console.log("============ActivePortal============", activePortal);
+  // console.log("============ActivePortal============", activePortal);
 
   useEffect(() => {
     switch (activePortal.key) {
@@ -54,6 +56,16 @@ const HeaderTop = () => {
         break;
     }
   }, [dispatch, activePortal]);
+
+  useEffect(() => {
+    const refreshHrmsTaskCount = () => {
+      if (activePortal.key === "hrms") {
+        dispatch(getHRMSAuthroizationTaskCount());
+      }
+    };
+    window.addEventListener("hrms-auth-tasks-changed", refreshHrmsTaskCount);
+    return () => window.removeEventListener("hrms-auth-tasks-changed", refreshHrmsTaskCount);
+  }, [dispatch, activePortal.key]);
 
   useEffect(() => {
     if (user?.profile_image) {
@@ -313,9 +325,16 @@ const HeaderTop = () => {
           <span className="welcome-user">{user?.name || "Guest User"}</span>
 
           {/* {successCnt && <AuthorizationDropdown />} */}
-          <li className="nav=item nav-item-box">
-            <i className="ti ti-bell fs-22"></i>
+          <li className="nav-item nav-item-box">
+            <SDLHUBNotification />
           </li>
+          {TELEGRAM_ENABLED && (
+            <li className="nav-item nav-item-box">
+              <Link to="/telegram/" className="nav-link" aria-label="Telegram" title="Telegram">
+                <i className="ti ti-brand-telegram fs-22" aria-hidden="true" />
+              </Link>
+            </li>
+          )}
           <li className="nav-item nav-item-box">
             {showAuthorization && AuthorizationComponent && (
               <AuthorizationComponent />
@@ -389,11 +408,17 @@ const HeaderTop = () => {
         </ul>
 
         {/* Mobile Notification + Dropdown */}
-        {showAuthorization && AuthorizationComponent && (
-          <div className="mobile-notification d-flex align-items-center d-lg-none">
+        <div className="mobile-notification d-flex align-items-center d-lg-none">
+          <SDLHUBNotification />
+          {TELEGRAM_ENABLED && (
+            <Link to="/telegram/" className="nav-link" aria-label="Telegram" title="Telegram">
+              <i className="ti ti-brand-telegram fs-22" aria-hidden="true" />
+            </Link>
+          )}
+          {showAuthorization && AuthorizationComponent && (
             <AuthorizationComponent />
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="dropdown mobile-user-menu">
           <a

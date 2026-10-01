@@ -78,3 +78,26 @@ export const processPersonalInfoAuthorization = (payload) =>
       message: "Unable to process address authorization request.",
     },
   });
+
+/* ---------------- SUBMIT ORGANOGRAM AUTHORIZATION DECISION ---------------- */
+export const processOrganogramAuthorization = (payload) =>
+  hrmsRequest({
+    url: HRMS_API.AUTHORIZATION?.AUTHORIZE_ORGANOGRAM,
+    method: "POST",
+    dedupe: true,
+    data: payload,
+    fallback: {
+      status: false,
+      message: "Unable to process organogram authorization request.",
+    },
+  });
+export const processJobDescriptionAuthorization = payload =>
+  hrmsRequest({
+    url: HRMS_API.AUTHORIZATION?.JOB_DESCRIPTION_AUTHORIZATION,
+    method: "POST",
+    data: payload,
+    fallback: {
+      status: false,
+      message: "Unable to process Job Description authorization."
+    }
+  });

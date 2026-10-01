@@ -7,7 +7,7 @@ import {
 import BreadcrumbNav from '../../../eportal/components/breadcrumb-nav/BreadcrumbNav'
 import { notifyError, notifySuccess } from '../../../../services/alertService'
 import { getPortalFromPath } from '../../../../config/portalConfig'
-import EditButton from "../../components/buttons/EditButton"
+import EditButton from '../../components/buttons/EditButton'
 
 import '../../assets/css/masterData.css'
 
@@ -24,6 +24,8 @@ const MasterData = () => {
   const [loadingTables, setLoadingTables] = useState(true)
   const [loadingData, setLoadingData] = useState(false)
 
+  const [newDescriptionError, setNewDescriptionError] = useState('')
+  const [editDescriptionError, setEditDescriptionError] = useState('')
   /* =========================
      EDIT
   ========================= */
@@ -202,20 +204,35 @@ const MasterData = () => {
      SAVE EDIT
   ========================================================== */
 
+  const validateDescription = description => {
+    const value = String(description || '').trim()
+
+    if (!value) {
+      return 'Description is required.'
+    }
+
+    if (value.length > DESCRIPTION_MAX_LENGTH) {
+      return `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters.`
+    }
+
+    if (!/^[A-Za-z0-9\s]+$/.test(value)) {
+      return 'Description must not contain special characters.'
+    }
+
+    return ''
+  }
+
   const handleSaveEdit = async row => {
     const description = editDescription.trim()
 
-    if (!description) {
-      notifyError('Description is required.')
+    const validationError = validateDescription(description)
+
+    if (validationError) {
+      setEditDescriptionError(validationError)
       return
     }
 
-    if (description.length > DESCRIPTION_MAX_LENGTH) {
-      notifyError(
-        `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters.`
-      )
-      return
-    }
+    setEditDescriptionError('')
 
     if (!selectedMaster?.tabName) {
       notifyError('Please select a master table.')
@@ -300,17 +317,14 @@ const MasterData = () => {
   const handleSaveAdd = async () => {
     const description = newDescription.trim()
 
-    if (!description) {
-      notifyError('Description is required.')
+    const validationError = validateDescription(description)
+
+    if (validationError) {
+      setNewDescriptionError(validationError)
       return
     }
 
-    if (description.length > DESCRIPTION_MAX_LENGTH) {
-      notifyError(
-        `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters.`
-      )
-      return
-    }
+    setNewDescriptionError('')
 
     if (!selectedMaster?.tabName) {
       notifyError('Please select a master table.')
@@ -531,13 +545,16 @@ const MasterData = () => {
                         <td>
                           <input
                             type='text'
-                            className='form-control form-control-sm'
+                            className={`form-control form-control-sm ${
+                              newDescriptionError ? 'is-invalid' : ''
+                            }`}
                             value={newDescription}
                             onChange={event => {
                               const value = event.target.value
 
                               if (value.length <= DESCRIPTION_MAX_LENGTH) {
                                 setNewDescription(value)
+                                setNewDescriptionError('')
                               }
                             }}
                             onKeyDown={handleAddKeyDown}
@@ -546,6 +563,12 @@ const MasterData = () => {
                             autoFocus
                             disabled={saving}
                           />
+
+                          {newDescriptionError && (
+                            <div className='invalid-feedback d-block'>
+                              {newDescriptionError}
+                            </div>
+                          )}
 
                           <small className='text-muted'>
                             {newDescription.length}/{DESCRIPTION_MAX_LENGTH}
@@ -635,25 +658,24 @@ const MasterData = () => {
                                 <>
                                   <input
                                     type='text'
-                                    className='form-control form-control-sm'
+                                    className={`form-control form-control-sm ${
+                                      editDescriptionError ? 'is-invalid' : ''
+                                    }`}
                                     value={editDescription}
                                     onChange={event => {
-                                      const value = event.target.value
-
-                                      if (
-                                        value.length <= DESCRIPTION_MAX_LENGTH
-                                      ) {
-                                        setEditDescription(value)
-                                      }
+                                      setEditDescription(event.target.value)
+                                      setEditDescriptionError('')
                                     }}
-                                    onKeyDown={event =>
-                                      handleEditKeyDown(event, row)
-                                    }
-                                    placeholder='Enter description'
                                     maxLength={DESCRIPTION_MAX_LENGTH}
                                     autoFocus
                                     disabled={saving}
                                   />
+
+                                  {editDescriptionError && (
+                                    <div className='invalid-feedback d-block'>
+                                      {editDescriptionError}
+                                    </div>
+                                  )}
 
                                   <small className='text-muted'>
                                     {editDescription.length}/

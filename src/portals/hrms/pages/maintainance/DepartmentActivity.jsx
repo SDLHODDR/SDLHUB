@@ -23,6 +23,7 @@ import SDLReactSelect from '../../../../components/SDLReactSelect'
 import SaveButton from '../../components/buttons/SaveButton'
 import CancelButton from '../../components/buttons/CancelButton'
 import ViewToggleButton from '../../components/buttons/ViewToggleButton'
+import SDLInput from '../../../../components/SDLInput'
 
 const ACT_TYPES = { J: 'Join', E: 'Exit' }
 
@@ -369,10 +370,10 @@ const DepartmentActivity = () => {
                     width='330px'
                   />
                   <ViewToggleButton
-                                        showAll={showAll}
-                                        onClick={() => setShowAll(prev => !prev)}
-                                        disabled={loading}
-                                      />
+                    showAll={showAll}
+                    onClick={() => setShowAll(prev => !prev)}
+                    disabled={loading}
+                  />
                 </div>
               </div>
 
@@ -478,52 +479,41 @@ const DepartmentActivity = () => {
 
                     <div className='col-lg-3 col-md-6'>
                       <div className='mb-3'>
-                        <label className='form-label'>
-                          Sequence
-                          <span className='text-danger ms-1'>*</span>
-                        </label>
-                        <input
-                          type='number'
+                        <SDLInput
+                          label={
+                            <>
+                              Sequence
+                              <span className='text-danger ms-1'>*</span>
+                            </>
+                          }
+                          type='text'
                           min={1}
                           max={100}
-                          className={`form-control ${
-                            errors.DISP_SEQ ? 'is-invalid' : ''
-                          }`}
                           value={form.DISP_SEQ}
                           onChange={e =>
                             handleFieldChange('DISP_SEQ', e.target.value)
                           }
+                          error={errors.DISP_SEQ}
                         />
-                        {errors.DISP_SEQ && (
-                          <div className='invalid-feedback'>
-                            {errors.DISP_SEQ}
-                          </div>
-                        )}
                       </div>
                     </div>
 
                     <div className='col-lg-3 col-md-6'>
                       <div className='mb-3'>
-                        <label className='form-label'>
-                          Department Activity
-                          <span className='text-danger ms-1'>*</span>
-                        </label>
-                        <input
-                          type='text'
-                          className={`form-control ${
-                            errors.ACT_DESC ? 'is-invalid' : ''
-                          }`}
+                        <SDLInput
+                          label={
+                            <>
+                              Department Activity
+                              <span className='text-danger ms-1'>*</span>
+                            </>
+                          }
                           value={form.ACT_DESC}
                           maxLength={100}
                           onChange={e =>
                             handleFieldChange('ACT_DESC', e.target.value)
                           }
+                          error={errors.ACT_DESC}
                         />
-                        {errors.ACT_DESC && (
-                          <div className='invalid-feedback'>
-                            {errors.ACT_DESC}
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>

@@ -1,0 +1,181 @@
+import React from "react";
+
+const MemberTable = ({
+  members,
+  selectedIds = [],
+  onSelect,
+  onSelectAll,
+  currentPage,
+  setCurrentPage,
+  total,
+  pageSize,
+}) => {
+  const pageMemberIds = members.map((member) => member.id);
+
+  const allSelected =
+    pageMemberIds.length > 0 &&
+    pageMemberIds.every((id) => selectedIds.includes(id));
+
+  return (
+    <div className="table-responsive">
+      <table className="table align-middle">
+        <thead>
+          <tr>
+            <th style={{ width: "40px" }}>
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={onSelectAll}
+                />
+              </div>
+            </th>
+
+            <th>Member</th>
+            <th>Mobile</th>
+            <th>Status</th>
+            <th>Group Status</th>
+            <th>Groups</th>
+            <th>Created On</th>
+            <th>Joined</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {members?.length ? (
+            members.map((member) => {
+              const checked = selectedIds.includes(member.id);
+
+              return (
+                <tr key={member.id}>
+                  <td>
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => onSelect(member.id)}
+                      />
+                    </div>
+                  </td>
+
+                  <td>
+                    <div className="d-flex align-items-center gap-2">
+                      <div
+                        className="telegram-member-avatar bg-primary text-white d-flex align-items-center justify-content-center rounded-circle"
+                        style={{
+                          width: "36px",
+                          height: "36px",
+                          fontWeight: "600",
+                        }}
+                      >
+                        {member.name?.charAt(0)}
+                      </div>
+
+                      <div>
+                        <div className="fw-semibold">
+                          {member.name}
+                        </div>
+
+                        <small className="text-muted">
+                          {member.employeeCode}
+                        </small>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td>{member.mobile}</td>
+
+                  <td>
+                    {member.ACTIVE_FLAG === "1" ? (
+                      <span className="badge bg-success">
+                        Active
+                      </span>
+                    ) : (
+                      <span className="badge bg-danger">
+                        Inactive
+                      </span>
+                    )}
+                  </td>
+
+                  <td>
+                    {member.TELEGRAM_JOINED === "1" ? (
+                      <span className="badge bg-success">
+                        Joined
+                      </span>
+                    ) : (
+                      <span className="badge bg-warning text-dark">
+                        Pending
+                      </span>
+                    )}
+                  </td>
+
+                  <td>
+                    <span
+                      className="badge bg-light text-dark border"
+                      title={
+                        member.GROUP_NAMES?.trim()
+                          ? member.GROUP_NAMES
+                          : "No Groups Assigned"
+                      }
+                      style={{ cursor: "pointer" }}
+                    >
+                      {member.GROUP_COUNT > 0
+                        ? `${member.GROUP_COUNT} Group${
+                            member.GROUP_COUNT > 1 ? "s" : ""
+                          }`
+                        : "No Groups"}
+                    </span>
+                  </td>
+
+                  <td>{member.joinedAt || "-"}</td>
+
+                  <td>{member.TelegramjoinedAt || "-"}</td>
+                </tr>
+              );
+            })
+          ) : (
+            <tr>
+              <td colSpan={8} className="text-center py-4">
+                No Members Found
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+
+      <div className="d-flex justify-content-end align-items-center p-3 gap-3">
+        <button
+          className="btn btn-sm btn-light"
+          disabled={currentPage === 1}
+          onClick={() =>
+            setCurrentPage((prev) => prev - 1)
+          }
+        >
+          Prev
+        </button>
+
+        <span>
+          Page {currentPage} of{" "}
+          {Math.max(1, Math.ceil(total / pageSize))}
+        </span>
+
+        <button
+          className="btn btn-sm btn-light"
+          disabled={
+            currentPage >=
+            Math.max(1, Math.ceil(total / pageSize))
+          }
+          onClick={() =>
+            setCurrentPage((prev) => prev + 1)
+          }
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default MemberTable;

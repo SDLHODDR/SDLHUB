@@ -1,4 +1,5 @@
 import { Column } from "primereact/column";
+import { formatDate } from "../../../utils/formatUtils";
 
 export const getAllowancesColumns = () => [
   {
@@ -17,17 +18,17 @@ export const getAllowancesColumns = () => [
     key: "FROM_DATE",
     header: "From Date",
     style: { width: "20%" },
-    body: (row) => row.EFFEC_FROM || "",
+    body: (row) => formatDate(row.EFFEC_FROM),
   },
   {
     key: "TO_DATE",
     header: "To Date",
     style: { width: "20%" },
-    body: (row) => row.EFFEC_TO || "",
+    body: (row) => formatDate(row.EFFEC_TO),
   },
 ];
 
-export const renderAllowancesColumns = (columnDefs, { onEdit, onDelete, deletingId }) => [
+export const renderAllowancesColumns = (columnDefs, { onDelete, deletingId }) => [
   ...columnDefs.map((col) => (
     <Column
       key={col.key}
@@ -43,9 +44,6 @@ export const renderAllowancesColumns = (columnDefs, { onEdit, onDelete, deleting
     style={{ width: "5%" }}
     body={(row) => (
       <div className="d-flex gap-2 justify-content-center">
-        <button type="button" className="btn btn-sm btn-outline-primary" title="Edit allowance" onClick={() => onEdit?.(row)}>
-          <i className="fas fa-edit" />
-        </button>
         {String(row.EFFEC_TO || "").trim() === "" && (
           <button
             type="button"

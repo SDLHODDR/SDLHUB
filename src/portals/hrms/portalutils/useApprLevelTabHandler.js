@@ -45,7 +45,11 @@ const useApprLevelTabHandler = (organogramId) => {
           ? optionsRes.data
           : [];
       setApprOptions(
-        optionRows.map((r) => ({ label: r.NAME ?? "", value: r.ID }))
+        optionRows.map((r) => ({
+          label: r.NAME ?? "",
+          value: r.ID,
+          selected: r.SELECTED ?? r.ID,
+        }))
       );
     } catch (error) {
       console.error("Load appraisal levels error:", error);
@@ -94,12 +98,53 @@ const useApprLevelTabHandler = (organogramId) => {
     [organogramId, apprLevels.length, loadApprLevels]
   );
 
+  const handleSaveApprLevels = useCallback(
+    async (appraisalRows, effectiveFrom) => {
+      if (
+        !organogramId
+        || !appraisalRows.length
+        || !effectiveFrom
+        || appraisalRows.some((row) => !row.appraiser)
+      ) {
+        return false;
+      }
+
+      const payload = {
+        ORG_ID: organogramId,
+        APPR_LEVEL: appraisalRows.map((_, index) => apprLevels.length + index + 1),
+        APPR_ORGID: appraisalRows.map((row) => row.appraiser),
+        EFFEC_FROM: formatDateForApi(effectiveFrom),
+        EFFEC_TO: "",
+      };
+
+      try {
+        setSavingRow(true);
+        const res = await saveApprLevel(payload);
+        if (!res?.status) {
+          notifyError(res?.message || "Unable to save appraisal levels.");
+          return false;
+        }
+        notifySuccess(res?.message || "Appraisal levels saved.");
+        await loadApprLevels();
+        return true;
+      } catch (error) {
+        console.error("Save appraisal levels error:", error);
+        notifyError(error?.message || "Unable to save appraisal levels.");
+        return false;
+      } finally {
+        setSavingRow(false);
+      }
+    },
+    [organogramId, apprLevels.length, loadApprLevels]
+  );
+
   return {
     apprLevels,
     apprOptions,
     loadingApprLevels,
     savingRow,
     handleAddApprLevel,
+    handleSaveApprLevels,
   };
 };
 

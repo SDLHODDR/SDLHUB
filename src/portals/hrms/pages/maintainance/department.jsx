@@ -137,12 +137,6 @@ const Department = () => {
           getCostCenters()
         ])
 
-        console.log('========== ACCOUNTS ==========')
-        console.log(accountsResponse)
-
-        console.log('========== COST CENTERS ==========')
-        console.log(costCentersResponse)
-
         const accounts =
           accountsResponse?.data?.accounts || accountsResponse?.accounts || []
 
@@ -266,20 +260,34 @@ const Department = () => {
   const validateForm = () => {
     const newErrors = {}
 
-    if (!formData.DEPT_CODE || String(formData.DEPT_CODE).trim() === '') {
+    const deptCode = String(formData.DEPT_CODE || '').trim()
+    const shortCode = String(formData.SHORT_CODE || '').trim()
+    const deptDesc = String(formData.DEPT_DESC || '').trim()
+
+    // Department Code
+    if (!deptCode) {
       newErrors.DEPT_CODE = 'Department Code is required'
-    } else if (String(formData.DEPT_CODE).trim().length > 5) {
+    } else if (deptCode.length > 5) {
       newErrors.DEPT_CODE = 'Department Code cannot exceed 5 characters'
+    } else if (!/^\d+$/.test(deptCode)) {
+      newErrors.DEPT_CODE = 'Department Code must contain numbers only'
     }
 
-    if (String(formData.SHORT_CODE).trim().length > 5) {
+    // Short Code
+    if (shortCode.length > 5) {
       newErrors.SHORT_CODE = 'Short Code cannot exceed 5 characters'
+    } else if (shortCode && !/^[A-Za-z]+$/.test(shortCode)) {
+      newErrors.SHORT_CODE = 'Short Code must contain alphabets only'
     }
 
-    if (!formData.DEPT_DESC || String(formData.DEPT_DESC).trim() === '') {
-      newErrors.DEPT_DESC = 'Department Description is required'
-    } else if (String(formData.DEPT_DESC).trim().length > 20) {
-      newErrors.DEPT_DESC = 'Department Description cannot exceed 20 characters'
+    // Department Name
+    if (!deptDesc) {
+      newErrors.DEPT_DESC = 'Department Name is required'
+    } else if (deptDesc.length > 20) {
+      newErrors.DEPT_DESC = 'Department Name cannot exceed 20 characters'
+    } else if (!/^[A-Za-z0-9\s]+$/.test(deptDesc)) {
+      newErrors.DEPT_DESC =
+        'Department Name must not contain special characters'
     }
 
     setErrors(newErrors)
@@ -544,7 +552,6 @@ const Department = () => {
                         label='Department Code'
                         required
                         value={formData.DEPT_CODE}
-                        maxLength={5}
                         onChange={e =>
                           handleFieldChange('DEPT_CODE', e.target.value)
                         }
@@ -560,6 +567,7 @@ const Department = () => {
                         onChange={e =>
                           handleFieldChange('SHORT_CODE', e.target.value)
                         }
+                          error={errors.SHORT_CODE}
                       />
                     </div>
 

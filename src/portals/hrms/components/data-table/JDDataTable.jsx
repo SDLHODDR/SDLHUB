@@ -1,3 +1,6 @@
+import EditButton from '../buttons/EditButton'
+import DeleteButton from '../buttons/DeleteButton'
+
 const JDDataTable = ({
   data = [],
   columns = [],
@@ -91,13 +94,17 @@ const JDDataTable = ({
                       verticalAlign: 'middle'
                     }}
                   >
-                    <button
+                    {/* <button
                       type='button'
                       className='btn btn-warning btn-sm'
                       onClick={() => onEdit?.(item)}
                     >
                       Edit
-                    </button>
+                    </button> */}
+                    <EditButton
+                      onClick={() => onEdit?.(item)}
+                      ariaLabel='Edit'
+                    />
                   </td>
                 )}
 
@@ -108,13 +115,17 @@ const JDDataTable = ({
                       verticalAlign: 'middle'
                     }}
                   >
-                    <button
+                    {/* <button
                       type='button'
                       className='btn btn-danger btn-sm'
                       onClick={() => onDelete?.(item)}
                     >
                       Delete
-                    </button>
+                    </button> */}
+                    <DeleteButton
+                      onClick={() => onDelete?.(item)}
+                      ariaLabel='Delete'
+                    />
                   </td>
                 )}
               </tr>
@@ -123,9 +134,7 @@ const JDDataTable = ({
             <tr>
               <td
                 colSpan={
-                  columns.length +
-                  (showEdit ? 1 : 0) +
-                  (showDelete ? 1 : 0)
+                  columns.length + (showEdit ? 1 : 0) + (showDelete ? 1 : 0)
                 }
                 style={{
                   textAlign: 'center',

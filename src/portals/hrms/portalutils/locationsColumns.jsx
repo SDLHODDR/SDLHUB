@@ -2,6 +2,12 @@ import { Column } from "primereact/column";
 import { Calendar } from "primereact/calendar";
 import SDLActionButtons from "../../../components/SDLActionButtons";
 import SDLReactSelect from "../../../components/SDLReactSelect";
+import {
+  DATE_PICKER_FORMAT,
+  DATE_PICKER_LOCALE,
+  formatDate,
+  parseDateValue,
+} from "../../../utils/formatUtils";
 
 const getGeoLocationDisplay = (row, organogramDetails) => {
   if (organogramDetails?.EMP_LEVEL === "15") {
@@ -11,20 +17,7 @@ const getGeoLocationDisplay = (row, organogramDetails) => {
   return row.GEODESC || "No Data";
 };
 
-const MONTH_MAP = { JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5, JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11 };
-
-const parseDDMonYY = (str) => {
-  if (!str || typeof str !== "string") return null;
-  const match = str.match(/^(\d{2})-([A-Za-z]{3})-(\d{2})$/);
-  if (!match) return null;
-  const [, dd, mon, yy] = match;
-  const month = MONTH_MAP[mon.toUpperCase()];
-  if (month === undefined) return null;
-  const date = new Date(2000 + Number(yy), month, Number(dd));
-  return isNaN(date.getTime()) ? null : date;
-};
-
-const toEditableDate = (value) => (value instanceof Date ? value : parseDDMonYY(value));
+const toEditableDate = (value) => parseDateValue(value);
 
 export const getLocationsColumns = ({
   organogramDetails,
@@ -42,24 +35,25 @@ export const getLocationsColumns = ({
   {
     key: "GEO_LOCATION_DISPLAY",
     header: "Geo Location",
-    style: { width: "10%" },
+    style: { width: "15%" },
     sortable: true,
     body: (row) => getGeoLocationDisplay(row, organogramDetails),
   },
   {
     key: "FROM_DATE",
     header: "From Date",
-    style: { width: "8%" },
+    style: { width: "10%" },
     sortable: true,
     body: (row) => {
-      if (!isEditing) return row.FROM_DATE || "No Data";
+      if (!isEditing) return formatDate(row.FROM_DATE);
       const fieldError = row._errors?.FROM_DATE;
       return (
         <div>
           <Calendar
             value={toEditableDate(row.FROM_DATE)}
             onChange={(e) => updateBulkRowField(row.SNO, "FROM_DATE", e.value)}
-            dateFormat="dd-M-yy"
+            dateFormat={DATE_PICKER_FORMAT}
+            locale={DATE_PICKER_LOCALE}
             showIcon
             className={`sdl-locations-calendar${fieldError ? " p-invalid" : ""}`}
           />
@@ -71,15 +65,16 @@ export const getLocationsColumns = ({
   {
     key: "TO_DATE",
     header: "To Date",
-    style: { width: "8%" },
+    style: { width: "10%" },
     sortable: true,
     body: (row) => {
-      if (!isEditing) return row.TO_DATE || "No Data";
+      if (!isEditing) return formatDate(row.TO_DATE);
       return (
         <Calendar
           value={toEditableDate(row.TO_DATE)}
           onChange={(e) => updateBulkRowField(row.SNO, "TO_DATE", e.value)}
-          dateFormat="dd-M-yy"
+          dateFormat={DATE_PICKER_FORMAT}
+          locale={DATE_PICKER_LOCALE}
           showIcon
           className="sdl-locations-calendar"
         />
@@ -89,14 +84,14 @@ export const getLocationsColumns = ({
   {
     key: "GEO_ID",
     header: "Geo Label",
-    style: { width: "16%", minWidth: "180px" },
+    style: { width: "8%" },
     sortable: true,
     body: (row) => {
       if (!isEditing) return row.GEO_MAPPING_LABEL || row.DIVSN_DESC || row.GEODESC || "No Data";
       const fieldError = row._errors?.GEO_ID;
       const geoOptions = getGeoMappingOptions(row);
       return (
-        <div style={{ minWidth: "160px" }}>
+        <div>
           <SDLReactSelect
             value={row.GEO_ID}
             options={geoOptions}
@@ -112,14 +107,14 @@ export const getLocationsColumns = ({
   {
     key: "NM",
     header: "Employee",
-    style: { width: "10%" },
+    style: { width: "12%" },
     sortable: true,
     body: (row) => row.NM || "No Data",
   },
   {
     key: "REPORT_TO_DISPLAY",
     header: "Report To",
-    style: { width: "14%" },
+    style: { width: "10%" },
     sortable: true,
     body: (row) => row.REPORT_TO_DISPLAY || "No Data",
   },

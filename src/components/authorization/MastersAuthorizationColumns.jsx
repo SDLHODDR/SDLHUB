@@ -13,7 +13,10 @@ export const getMastersAuthorizationColumns = (formatDashDate, tid = 0) => {
       sortable: true,
       body: (rowData) => (
         <span className="fw-semibold text-dark">
-          {rowData.EMP_CODE_FOR || rowData.CREATED_BY || "—"}
+          {(String(tid) === "57" ? rowData.CREATED_BY : rowData.EMP_CODE_FOR) ||
+            rowData.CREATED_BY ||
+            rowData.EMP_CODE_FOR ||
+            "—"}
         </span>
       ),
       style: { width: "140px", whiteSpace: "nowrap" },
@@ -22,7 +25,11 @@ export const getMastersAuthorizationColumns = (formatDashDate, tid = 0) => {
       field: "EMP_NAME",
       header: "Employee Name",
       sortable: true,
-      body: (rowData) => rowData.EMP_NAME || rowData.CREATED_BY_NAME || "—",
+      body: (rowData) =>
+        (String(tid) === "57" ? rowData.CREATED_BY_NAME : rowData.EMP_NAME) ||
+        rowData.CREATED_BY_NAME ||
+        rowData.EMP_NAME ||
+        "—",
       style: { width: "180px", whiteSpace: "nowrap" },
     },
     {
@@ -61,15 +68,21 @@ export const getMastersAuthorizationColumns = (formatDashDate, tid = 0) => {
       header: "Status",
       sortable: true,
       body: (rowData) => {
-        const isPending = rowData.STATUS === "O" || rowData.STATUS === "N";
+        const status = String(rowData.STATUS || "").toUpperCase();
+        const statusInfo =
+          status === "O" || status === "N"
+            ? { label: "Pending", className: "bg-warning text-dark" }
+            : status === "C" || status === "A"
+              ? { label: "Accept", className: "bg-success" }
+              : status === "X" || status === "R"
+                ? { label: "Reject", className: "bg-danger" }
+                : { label: status || "Closed", className: "bg-secondary" };
         return (
           <span
-            className={`badge ${
-              isPending ? "bg-warning text-dark" : "bg-success"
-            }`}
+            className={`badge ${statusInfo.className}`}
             style={{ fontSize: "12px", padding: "5px 10px" }}
           >
-            {isPending ? "Pending" : rowData.STATUS || "Closed"}
+            {statusInfo.label}
           </span>
         );
       },

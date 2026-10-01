@@ -7,7 +7,7 @@ import {
 import { notifyError, notifySuccess } from "../../../services/alertService";
 import { formatDateForApi } from "../../../utils/formatUtils";
 
-const useReportingTabHandler = (locId, organogramId) => {
+const useReportingTabHandler = (locId, organogramId, repId = null) => {
   const [reportingRows, setReportingRows] = useState([]);
   const [parentOptions, setParentOptions] = useState([]);
 
@@ -15,6 +15,7 @@ const useReportingTabHandler = (locId, organogramId) => {
   const [savingRow, setSavingRow] = useState(false);
   const [selectedParentLocId, setSelectedParentLocId] = useState("");
   const [newEffectiveFrom, setNewEffectiveFrom] = useState(null);
+  const [newEffectiveTo, setNewEffectiveTo] = useState(null);
   const [editingReportingId, setEditingReportingId] = useState(null);
 
   const loadReporting = useCallback(async () => {
@@ -62,18 +63,20 @@ const useReportingTabHandler = (locId, organogramId) => {
   }, [loadReporting]);
 
   const startEditingReporting = useCallback((row) => {
-    setEditingReportingId(row.ID);
+    setEditingReportingId(row.ID || repId);
     setSelectedParentLocId(row.PARENT_LOCID ?? "");
     setNewEffectiveFrom(row.EFFEC_FROM instanceof Date ? row.EFFEC_FROM : null);
-  }, []);
+    setNewEffectiveTo(row.EFFEC_TO instanceof Date ? row.EFFEC_TO : null);
+  }, [repId]);
 
   const cancelEditingReporting = useCallback(() => {
     setEditingReportingId(null);
     setSelectedParentLocId("");
     setNewEffectiveFrom(null);
+    setNewEffectiveTo(null);
   }, []);
 
-  const saveReporting = useCallback(async (parentLocId, effectiveFrom) => {
+  const saveReporting = useCallback(async (parentLocId, effectiveFrom, effectiveTo) => {
     if (!parentLocId) {
       notifyError("Reporting manager is required.");
       return false;
@@ -86,19 +89,19 @@ const useReportingTabHandler = (locId, organogramId) => {
     try {
       setSavingRow(true);
       const res = await saveOrgLocReporting({
-        ID: editingReportingId || undefined,
-        ORG_LOC_ID: locId,
-        PARENT_ORGID: organogramId,
+        repid: editingReportingId || repId || "",
+        orgid: organogramId,
+        locid: locId,
         PARENT_LOCID: parentLocId,
         EFFEC_FROM: formatDateForApi(effectiveFrom),
-        EFFEC_TO: "",
+        EFFEC_TO: formatDateForApi(effectiveTo),
       });
       if (!res?.status) {
         notifyError(res?.message || "Unable to save reporting manager.");
         return false;
       }
 
-      notifySuccess(res?.message || (editingReportingId ? "Reporting updated." : "Reporting manager added."));
+      notifySuccess(res?.message || (editingReportingId || repId ? "Reporting updated." : "Reporting manager added."));
       cancelEditingReporting();
       await loadReporting();
       return true;
@@ -109,7 +112,7 @@ const useReportingTabHandler = (locId, organogramId) => {
     } finally {
       setSavingRow(false);
     }
-  }, [locId, organogramId, editingReportingId, loadReporting, cancelEditingReporting]);
+  }, [locId, organogramId, editingReportingId, repId, loadReporting, cancelEditingReporting]);
 
   return {
     reportingRows,
@@ -120,6 +123,8 @@ const useReportingTabHandler = (locId, organogramId) => {
     setSelectedParentLocId,
     newEffectiveFrom,
     setNewEffectiveFrom,
+    newEffectiveTo,
+    setNewEffectiveTo,
     editingReportingId,
     startEditingReporting,
     cancelEditingReporting,

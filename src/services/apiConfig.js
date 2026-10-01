@@ -52,6 +52,33 @@ export const PORTALAPI = {
     TASKTABLEDATA: "/getTable.php"
   },
 
+  NOTIFICATIONS: {
+    LIST: "/notifications/getNotifications.php",
+    MARK_READ: "/notifications/markNotificationRead.php",
+  },
+
+  TELEGRAM: {
+    GROUPS: {
+      LIST: "/telegram/groups/list",
+      CREATE: "/telegram/groups/create",
+      SAVE_BROADCAST_MESSAGE: "/telegram/groups/save-broadcast-message",
+      DIVISIONS: "/telegram/groups/divisions",
+      COMPANIES: "/telegram/groups/companies",
+      DEPARTMENTS: "/telegram/groups/departments",
+      HQ: "/telegram/groups/hq",
+      HRMS_MEMBERS: "/telegram/groups/list-hrms-members",
+    },
+    MEMBERS: {
+      LIST: "/telegram/members/list",
+      LIST_REGION: "/telegram/members/list-region",
+      CREATE: "/telegram/members/save-list",
+      ASSIGN_GROUPS: "/telegram/members/savemembers-group",
+      MEMBER_GROUPS: "/telegram/members/listmember-group",
+      GROUP_MEMBERS: "/telegram/members/group-members",
+      SAVE_DM: "/telegram/members/save-member-dm",
+    },
+  },
+
   MYPROFILE: {
     GET_PROFILE_DATA: "/common/myProfile/getProfileData.php", // Get profile Data
     UPLOAD_PROFILE_IMAGE: "/common/myProfile/uploadProfileImage.php", // Upload profile Data

@@ -20,6 +20,18 @@ import JoiningAuthorization from "../components/authorization/JoiningAuthorizati
 import ExitAuthorization from "../components/authorization/ExitAuthorization";
 import MastersAuthorization from "../components/authorization/MastersAuthorization";
 import ViewLogs from "../portals/hrms/pages/reports/ViewLog";
+import { TELEGRAM_ENABLED } from "../config/featureFlags";
+
+//-------------------Telegram Groups------------------------------------
+import SDLTelegramGroups from "../portals/telegram/pages/Groups";
+import SDLTelegramDashboard from "../portals/telegram/pages/Dashboard";
+// import SDLTelegramCreateGroup from "../portals/telegram/pages/CreateGroup";
+import SDLTelegramMembers from "../portals/telegram/pages/Members";
+// import SDLTelegramBroadcast from "../portals/telegram/pages/Broadcast";
+// import SDLTelegramQRInvites from "../portals/telegram/pages/QRInvites";
+// import SDLTelegramLogs from "../portals/telegram/pages/Logs";
+// // import DepartmentTable from "../portals/hrms/components/DepartmentTable";
+// // import Department from "../portals/hrms/components/Department";
 
 export const hrmsRoutes = [
   { path: "hrms/dashboard", element: HRMSDashboard,},
@@ -52,4 +64,14 @@ export const hrmsRoutes = [
 	// {path: "hrms/taskauthorization/349", element: EmployeeTransferAuthorization,},
   { path: "hrms/reports/view-logs", element: ViewLogs },
   {path: "hrms/taskauthorization/M/:tid", element: MastersAuthorization,},
+
+  ...(TELEGRAM_ENABLED
+    ? [
+        { path: "telegram/", element: SDLTelegramDashboard },
+        { path: "telegram/groups", element: SDLTelegramGroups },
+        { path: "telegram/members", element: SDLTelegramMembers },
+      ]
+    : []),
+  // { path: "hrms/maintainance/department", element: Department }
+
 ];

@@ -56,13 +56,20 @@ export const HRMS_API = {
   AUTHORIZATION: {
     TASKDATA: "/getAuthorization.php", // GP Info Data
     TASKTABLEDATA: "/getTable.php",
+    JOB_DESCRIPTION_AUTHORIZATION: "/authorization/authorizeJobDescription.php",
 
     GET_FAMILY_DETAILS: "/authorization/authorizeFamilyMember.php",
     PROCESS_FAMILY_DECISION: "/authorization/authorizeFamilyMember.php",
 
     AUTHORIZE_BANK_DETAILS: "/authorization/authorizeBankDetails.php",
 
-    AUTHORIZE_PERSONAL_INFO: "/authorization/authorizePersonalInfo.php"
+    AUTHORIZE_PERSONAL_INFO: "/authorization/authorizePersonalInfo.php",
+    AUTHORIZE_ORGANOGRAM: "/authorization/authorizeOrganogram.php",
+  },
+
+  NOTIFICATIONS: {
+    LIST: "/notifications/getNotifications.php",
+    MARK_READ: "/notifications/markNotificationRead.php",
   },
 
   MASTERDATA: {

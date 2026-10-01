@@ -33,6 +33,7 @@ import moment from 'moment'
 import SaveButton from '../../components/buttons/SaveButton'
 import CancelButton from '../../components/buttons/CancelButton'
 import ViewToggleButton from '../../components/buttons/ViewToggleButton'
+import SDLInput from '../../../../components/SDLInput'
 
 const emptyForm = {
   ID: '',
@@ -438,27 +439,20 @@ const PolicyList = () => {
                     <div className='row'>
                       <div className='col-md-3'>
                         <div className='mb-3'>
-                          <label className='form-label'>
-                            Policy Name
-                            <span className='text-danger ms-1'>*</span>
-                          </label>
-                          <input
-                            type='text'
-                            className={`form-control ${
-                              errors.POLICY_NAME ? 'is-invalid' : ''
-                            }`}
+                          <SDLInput
+                            label={
+                              <>
+                                Policy Name
+                                <span className='text-danger ms-1'>*</span>
+                              </>
+                            }
                             value={formData.POLICY_NAME}
                             onChange={e =>
                               handleFieldChange('POLICY_NAME', e.target.value)
                             }
-                            maxLength={30}
                             disabled={isPublished}
+                            error={errors.POLICY_NAME}
                           />
-                          {errors.POLICY_NAME && (
-                            <div className='invalid-feedback'>
-                              {errors.POLICY_NAME}
-                            </div>
-                          )}
                         </div>
                       </div>
 
@@ -561,7 +555,6 @@ const PolicyList = () => {
                             onChange={e =>
                               handleFieldChange('POLICY_DESC', e.target.value)
                             }
-                            maxLength={200}
                             disabled={isPublished}
                           />
                           {errors.POLICY_DESC && (

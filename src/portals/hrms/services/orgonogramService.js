@@ -6,6 +6,7 @@ export const getOrgonograms = async (payload = {}) => {
     url: HRMS_API.MASTERDATA.GET_ORGANOGRAM_DATA,
     method: "POST",
     data: payload,
+    dedupe: true,
   });
 };
 
@@ -20,6 +21,7 @@ export const getFinEntities = async (payload = {}) => {
     url: HRMS_API.MASTERDATA.GET_FIN_ENTITY,
     method: "POST",
     data: payload,
+    dedupe: true,
   });
 };
 
@@ -28,6 +30,7 @@ export const getCompanies = async (payload = {}) => {
     url: HRMS_API.MASTERDATA.GET_COMPANY,
     method: "POST",
     data: payload,
+    dedupe: true,
   });
 };
 
@@ -36,6 +39,7 @@ export const getDepartments = async (payload = {}) => {
     url: HRMS_API.MASTERDATA.GET_DEPARTMENT,
     method: "POST",
     data: payload,
+    dedupe: true,
   });
 };
 
@@ -62,6 +66,7 @@ export const getDivisions = async (payload = {}) => {
     url: HRMS_API.MASTERDATA.GET_DIVISION,
     method: "POST",
     data: payload,
+    dedupe: true,
   });
 };
 
@@ -70,6 +75,7 @@ export const getEmployeeLevels = async (payload = {}) => {
     url: HRMS_API.MASTERDATA.GET_EMPLOYEE_LEVEL,
     method: "POST",
     data: payload,
+    dedupe: true,
   });
 };
 
@@ -78,6 +84,7 @@ export const getOrganogramLevels = async (payload = {}) => {
     url: HRMS_API.MASTERDATA.GET_ORGANOGRAM_LEVEL,
     method: "POST",
     data: payload,
+    dedupe: true,
   });
 };
 
@@ -192,12 +199,12 @@ export const getApprLevelOptions = async (payload = {}) => {
   });
 };
 
-// Save a single row's content edit (appraiser + dates)
+// Save appraisal levels in bulk (all appraiser IDs + shared dates)
 export const saveApprLevel = async (payload = {}) => {
   return hrmsRequest({
     url: HRMS_API.MASTERDATA.SAVE_APPR_LEVEL,
     method: "POST",
-    data: payload, // { ORG_ID, APPR_LEVEL, APPR_ORGID, EFFEC_FROM, EFFEC_TO }
+    data: payload, // { ORG_ID, APPR_LEVEL: [], APPR_ORGID: [], EFFEC_FROM, EFFEC_TO }
   });
 };
 
@@ -236,7 +243,7 @@ export const saveOrgLocReporting = async (payload = {}) => {
   return hrmsRequest({
     url: HRMS_API.MASTERDATA.SAVE_ORG_LOC_REPORTING,
     method: "POST",
-    data: payload, // { ORG_LOC_ID, PARENT_ORGID, PARENT_LOCID, EFFEC_FROM, EFFEC_TO }
+    data: payload, // { repid, orgid, locid, PARENT_LOCID, EFFEC_FROM, EFFEC_TO }
   });
 };
 
@@ -262,7 +269,7 @@ export const saveAllowance = async (payload = {}) => {
   return hrmsRequest({
     url: HRMS_API.MASTERDATA.SAVE_ALLOWANCE,
     method: "POST",
-    data: payload, // { ORG_LOC_ID, ORG_ID, ALLOW_ID, EFFEC_FROM }
+    data: payload, // { ORG_LOC_ID, ORG_ID, ALLOW_ID: [], EFFEC_FROM }
   });
 };
 

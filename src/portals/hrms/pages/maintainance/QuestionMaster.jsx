@@ -561,96 +561,85 @@ const QuestionMaster = () => {
                       When Text, there are no options, so the textarea takes
                       the full width. */}
                     <div className='row mb-3'>
-                      <div className={isTextType ? 'col-lg-12' : 'col-lg-6'}>
-                        <label className='form-label'>Question</label>
-                        <textarea
-                          className={`heightTxtA form-control ${
-                            errors.QUES_DESCR ? 'is-invalid' : ''
-                          }`}
-                          value={form.QUES_DESCR}
-                          maxLength={200}
-                          rows={isTextType ? 4 : 8}
-                          onChange={e =>
-                            handleField('QUES_DESCR', e.target.value)
-                          }
-                        />
-                        {errors.QUES_DESCR && (
-                          <div className='invalid-feedback'>
-                            {errors.QUES_DESCR}
-                          </div>
-                        )}
+                      {/* Question */}
+                      <div className='col-lg-6'>
+                        <div className='mb-3'>
+                          <label className='form-label'>Question</label>
+
+                          <textarea
+                            className={`form-control ${
+                              errors.QUES_DESCR ? 'is-invalid' : ''
+                            }`}
+                            value={form.QUES_DESCR}
+                            maxLength={100}
+                            onChange={e =>
+                              handleField('QUES_DESCR', e.target.value)
+                            }
+                            style={{
+                              height: '140px',
+                              resize: 'none'
+                            }}
+                          />
+
+                          {errors.QUES_DESCR && (
+                            <div className='invalid-feedback'>
+                              {errors.QUES_DESCR}
+                            </div>
+                          )}
+                        </div>
                       </div>
 
-                      {!isTextType && (
-                        <div className='col-lg-6'>
+                      {/* Options */}
+                      <div className='col-lg-6'>
+                        <div className='mb-3'>
                           <label className='form-label'>Options</label>
-                          {(form.OPTIONS || [])
-                            .slice(0, optionCount || undefined)
-                            .map((opt, idx) => (
-                              <div className='mb-2' key={idx}>
-                                <div className='input-group'>
-                                  {form.ANSWER_TYPE === 'Radio' && (
-                                    <span className='input-group-text'>
-                                      <input
-                                        type='radio'
-                                        name='defaultOption'
-                                        checked={form.DEFAULT_OPTION === idx}
-                                        onChange={() =>
-                                          setForm(p => ({
-                                            ...p,
-                                            DEFAULT_OPTION: idx
-                                          }))
-                                        }
-                                      />
-                                    </span>
-                                  )}
-                                  <input
-                                    className={`form-control ${
-                                      errors[`OPTION_${idx}`]
-                                        ? 'is-invalid'
-                                        : ''
-                                    }`}
-                                    value={opt}
-                                    maxLength={100}
-                                    placeholder={`Option ${idx + 1}`}
-                                    onChange={e =>
-                                      handleOptionChange(idx, e.target.value)
-                                    }
-                                  />
-                                </div>
-                                {errors[`OPTION_${idx}`] && (
-                                  <div className='text-danger small mt-1'>
-                                    {errors[`OPTION_${idx}`]}
+
+                          {!isTextType &&
+                            (form.OPTIONS || [])
+                              .slice(0, optionCount || undefined)
+                              .map((opt, idx) => (
+                                <div className='mb-2' key={idx}>
+                                  <div className='input-group'>
+                                    {form.ANSWER_TYPE === 'Radio' && (
+                                      <span className='input-group-text'>
+                                        <input
+                                          type='radio'
+                                          name='defaultOption'
+                                          checked={form.DEFAULT_OPTION === idx}
+                                          onChange={() =>
+                                            setForm(p => ({
+                                              ...p,
+                                              DEFAULT_OPTION: idx
+                                            }))
+                                          }
+                                        />
+                                      </span>
+                                    )}
+
+                                    <input
+                                      className={`form-control ${
+                                        errors[`OPTION_${idx}`]
+                                          ? 'is-invalid'
+                                          : ''
+                                      }`}
+                                      value={opt}
+                                      maxLength={100}
+                                      placeholder={`Option ${idx + 1}`}
+                                      onChange={e =>
+                                        handleOptionChange(idx, e.target.value)
+                                      }
+                                    />
                                   </div>
-                                )}
-                              </div>
-                            ))}
-                          {/* {(form.OPTIONS || []).slice(0, optionCount || undefined).map((opt, idx) => (
-                          <div className="input-group mb-2" key={idx}>
-                            {form.ANSWER_TYPE === "Radio" && (
-                              <span className="input-group-text">
-                                <input
-                                  type="radio"
-                                  name="defaultOption"
-                                  checked={form.DEFAULT_OPTION === idx}
-                                  onChange={() => setForm((p) => ({ ...p, DEFAULT_OPTION: idx }))}
-                                />
-                              </span>
-                            )}
-                            <input
-                              className={`form-control ${errors[`OPTION_${idx}`] ? "is-invalid" : ""}`}
-                              value={opt}
-                              maxLength={100}
-                              placeholder={`Option ${idx + 1}`}
-                              onChange={(e) => handleOptionChange(idx, e.target.value)}
-                            />
-                            {errors[`OPTION_${idx}`] && (
-                              <div className="invalid-feedback">{errors[`OPTION_${idx}`]}</div>
-                            )}
-                          </div>
-                        ))} */}
+
+                                  {errors[`OPTION_${idx}`] && (
+                                    <div className='text-danger small mt-1'>
+                                      {errors[`OPTION_${idx}`]}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
                         </div>
-                      )}
+                      </div>
                     </div>
 
                     <div className='text-end mb-3'>

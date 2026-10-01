@@ -145,10 +145,16 @@ const fetchReportingMap = async (savedRows = []) => {
 
   const map = {};
   rowsWithLocId.forEach((row, idx) => {
-    const data = results[idx]?.data;
+    const responseData = results[idx]?.data ?? results[idx];
+    const data = Array.isArray(responseData)
+      ? responseData[0]
+      : responseData?.data ?? responseData;
     map[row.ID] = {
-      REPORT_TO_DISPLAY: data?.REPORT_TO_DISPLAY ?? "",
-      HAS_REPORTING: !!data?.REPORT_TO_DISPLAY,
+      REPORT_TO_DISPLAY:
+        data?.REPORT_TO_DISPLAY ?? data?.REPORT_TO ?? data?.EMP_NAME ?? "",
+      HAS_REPORTING: Boolean(
+        data?.REPORT_TO_DISPLAY ?? data?.REPORT_TO ?? data?.EMP_NAME
+      ),
     };
   });
   return map;
@@ -381,6 +387,7 @@ const useLocationsTabHandler = (organogramId, onOrganogramSaved) => {
     locations,
     loadingDetails,
     loadingLocations,
+    reloadLocations: loadDetailsAndLocations,
     getGeoMappingOptionsForRow,
     savingAll,
     handleCancelEdits,
