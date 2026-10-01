@@ -9,7 +9,9 @@ import {
   notifyError,
   confirmAction,
 } from "../../services/alertService";
-import { getAuthroizationTaskCount } from "../../store/eportal/ePortalAuthorizationCountSlice";
+
+// Correct import from HRMS slice
+import { getHRMSAuthroizationTaskCount } from "../../store/hrms/hrmsAuthorizationCountSlice";
 
 const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
@@ -48,7 +50,7 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
     } catch (err) {
       console.error("LOAD BANK DETAILS ERROR:", err);
       notifyError(
-        err?.message || "Unable to load request details from server.",
+        err?.message || "Unable to load request details from server."
       );
     } finally {
       setLoading(false);
@@ -67,7 +69,7 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
 
     const confirmRes = await confirmAction(
       isApprove ? "Approve Bank Details?" : "Reject Bank Details?",
-      `Are you sure you want to ${isApprove ? "accept" : "reject"} this bank details request?`,
+      `Are you sure you want to ${isApprove ? "accept" : "reject"} this bank details request?`
     );
 
     if (!confirmRes?.isConfirmed) return;
@@ -86,11 +88,15 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
       if (res?.status) {
         notifySuccess(res?.message || "Bank request processed successfully.");
 
-        // Refresh task/authorization count in Redux store
-        dispatch(getAuthroizationTaskCount());
+        // Refresh HRMS Task Count in Redux store
+        dispatch(getHRMSAuthroizationTaskCount());
+
+        // Refresh the table list in the parent view
+        if (onSuccess) {
+          onSuccess();
+        }
 
         onClose();
-        if (onSuccess) onSuccess();
       } else {
         notifyError(res?.message || "Action failed to process.");
       }
@@ -99,7 +105,7 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
       notifyError(
         err?.response?.data?.message ||
           err?.message ||
-          "Error processing request.",
+          "Error processing request."
       );
     } finally {
       setActionLoading(null);
@@ -267,8 +273,6 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
           </div>
 
           <div className="modal-footer d-flex justify-content-between">
-            {/* Left side: Reject button */}
-
             <button
               type="button"
               className="btn btn-secondary"
@@ -278,7 +282,6 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
               Cancel
             </button>
 
-            {/* Right side: Accept and Cancel buttons side by side */}
             <div className="d-flex gap-2">
               <button
                 type="button"

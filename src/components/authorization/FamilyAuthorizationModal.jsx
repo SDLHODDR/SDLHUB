@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
 import {
   getFamilyAuthorizationDetails,
   processFamilyAuthorization,
@@ -9,6 +10,9 @@ import {
   confirmAction,
 } from "../../services/alertService";
 
+// Correct import from HRMS slice for header count badge
+import { getHRMSAuthroizationTaskCount } from "../../store/hrms/hrmsAuthorizationCountSlice";
+
 const FamilyAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [details, setDetails] = useState(null);
@@ -16,6 +20,8 @@ const FamilyAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
   const [remarkError, setRemarkError] = useState("");
   const [submittingAction, setSubmittingAction] = useState(null); // 'A' | 'R' | null
   const textareaRef = useRef(null);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (show && record) {
@@ -106,10 +112,16 @@ const FamilyAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
 
       if (res?.status) {
         notifySuccess(res?.message || "Authorization processed successfully.");
-        onClose();
+
+        // Refresh HRMS Task Count in Redux store
+        dispatch(getHRMSAuthroizationTaskCount());
+
+        // Refresh parent datatable
         if (onSuccess) {
           onSuccess();
         }
+
+        onClose();
       } else {
         notifyError(res?.message || "Action failed to process.");
       }
@@ -429,7 +441,7 @@ const FamilyAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
 
               <button
                 type="button"
-                className="btn btn-secondary me-2"
+                className="btn btn-secondary"
                 onClick={onClose}
                 disabled={isSubmitting}
               >
