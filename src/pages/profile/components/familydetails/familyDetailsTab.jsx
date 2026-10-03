@@ -466,12 +466,12 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
       return;
     }
 
-    // Size limit: 2MB
-    const maxSize = 2 * 1024 * 1024;
+    // Size limit: 1MB (1024 * 1024 bytes)
+    const maxSize = 1 * 1024 * 1024;
     if (file.size > maxSize) {
       setFamilyErrors((prev) => ({
         ...prev,
-        document: "Document file size must be less than 2MB.",
+        document: "Document file size must be less than 1MB.",
       }));
       setDocumentFile(null);
       e.target.value = "";
@@ -1018,17 +1018,17 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
                     />
                   </div>
 
-                  {/* DOCUMENT UPLOAD (Birth certificate, ID proof, etc.) */}
+                  {/* DOCUMENT UPLOAD */}
                   <div className="col-md-12 mb-3">
-                    <label className="form-label d-flex justify-content-between">
-                      <span>
-                        Supporting Document{" "}
-                        <small className="text-muted">
-                          (e.g., Birth Certificate, Marriage Certificate, ID Proof)
-                        </small>
-                      </span>
-                      <small className="text-muted">Max 2MB (PDF, JPG, PNG)</small>
-                    </label>
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <label className="form-label mb-0 fw-semibold">
+                        Supporting Document
+                        <span className="text-muted fw-normal ms-1" style={{ fontSize: "12px" }}>
+                          (e.g., Birth/Marriage Certificate, ID Proof)
+                        </span>
+                      </label>
+                      <small className="text-muted">Max 1MB (PDF, JPG, PNG)</small>
+                    </div>
                     <input
                       ref={fileInputRef}
                       type="file"

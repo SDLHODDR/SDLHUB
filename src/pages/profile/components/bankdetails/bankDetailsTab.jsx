@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 import { saveBankDetails } from "../../../../services/profile/profileService";
 
@@ -64,11 +64,13 @@ const bankDetailsTab = ({ profile }) => {
   const emp = profile?.employee || {};
 
   /* =========================================================
-     STATE
+     STATE & REFS
   ========================================================= */
 
+  const fileInputRef = useRef(null);
   const [showBankForm, setShowBankForm] = useState(false);
   const [bankSaving, setBankSaving] = useState(false);
+  const [documentFile, setDocumentFile] = useState(null);
 
   const [bankForm, setBankForm] = useState({
     bank_name: "",
@@ -93,6 +95,7 @@ const bankDetailsTab = ({ profile }) => {
     bank_ifsc: "",
     bank_acno: "",
     bank_nominee: "",
+    document: "",
   });
 
   const [bankValidated, setBankValidated] = useState({
@@ -101,6 +104,7 @@ const bankDetailsTab = ({ profile }) => {
     bank_ifsc: false,
     bank_acno: false,
     bank_nominee: false,
+    document: false,
   });
 
   /* =========================================================
@@ -136,6 +140,49 @@ const bankDetailsTab = ({ profile }) => {
 
   const normalizeBankNominee = (value) => {
     return normalizeBankValue(value);
+  };
+
+  /* =========================================================
+     DOCUMENT FILE CHANGE HANDLER
+  ========================================================= */
+
+  const handleDocumentChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setDocumentFile(null);
+      setBankValidated((prev) => ({ ...prev, document: false }));
+      return;
+    }
+
+    // Allowed extensions: pdf, jpg, jpeg, png
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"];
+    if (!allowedTypes.includes(file.type)) {
+      setBankErrors((prev) => ({
+        ...prev,
+        document: "Only PDF, JPG, or PNG files are permitted.",
+      }));
+      setBankValidated((prev) => ({ ...prev, document: true }));
+      setDocumentFile(null);
+      e.target.value = "";
+      return;
+    }
+
+    // Size limit: 1MB (1,048,576 bytes)
+    const maxSize = 1 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setBankErrors((prev) => ({
+        ...prev,
+        document: "Document file size must be less than 1MB.",
+      }));
+      setBankValidated((prev) => ({ ...prev, document: true }));
+      setDocumentFile(null);
+      e.target.value = "";
+      return;
+    }
+
+    setBankErrors((prev) => ({ ...prev, document: "" }));
+    setBankValidated((prev) => ({ ...prev, document: true }));
+    setDocumentFile(file);
   };
 
   /* =========================================================
@@ -193,15 +240,17 @@ const bankDetailsTab = ({ profile }) => {
       bank_ifsc: validateBankField("bank_ifsc", formValues.bank_ifsc),
       bank_acno: validateBankField("bank_acno", formValues.bank_acno),
       bank_nominee: "",
+      document: bankErrors.document,
     };
 
-    setBankValidated({
+    setBankValidated((prev) => ({
+      ...prev,
       bank_name: true,
       bank_branch: true,
       bank_ifsc: true,
       bank_acno: true,
       bank_nominee: false,
-    });
+    }));
 
     setBankErrors(errors);
 
@@ -223,6 +272,8 @@ const bankDetailsTab = ({ profile }) => {
 
     setBankForm(currentBank);
     setOriginalBankForm(currentBank);
+    setDocumentFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
 
     setBankErrors({
       bank_name: "",
@@ -230,6 +281,7 @@ const bankDetailsTab = ({ profile }) => {
       bank_ifsc: "",
       bank_acno: "",
       bank_nominee: "",
+      document: "",
     });
 
     setBankValidated({
@@ -238,6 +290,7 @@ const bankDetailsTab = ({ profile }) => {
       bank_ifsc: false,
       bank_acno: false,
       bank_nominee: false,
+      document: false,
     });
 
     setShowBankForm(true);
@@ -319,7 +372,8 @@ const bankDetailsTab = ({ profile }) => {
       currentBank.bank_branch !== originalBank.bank_branch ||
       currentBank.bank_ifsc !== originalBank.bank_ifsc ||
       currentBank.bank_acno !== originalBank.bank_acno ||
-      currentBank.bank_nominee !== originalBank.bank_nominee;
+      currentBank.bank_nominee !== originalBank.bank_nominee ||
+      Boolean(documentFile);
 
     if (!hasChanges) {
       notifyWarning("No changes found in bank details.");
@@ -333,18 +387,23 @@ const bankDetailsTab = ({ profile }) => {
     setBankSaving(true);
 
     try {
-      const payload = {
-        bank_name: currentBank.bank_name,
-        bank_branch: currentBank.bank_branch,
-        bank_ifsc: currentBank.bank_ifsc,
-        bank_acno: currentBank.bank_acno,
-        bank_nominee: currentBank.bank_nominee,
-      };
+      const formData = new FormData();
+      formData.append("bank_name", currentBank.bank_name);
+      formData.append("bank_branch", currentBank.bank_branch);
+      formData.append("bank_ifsc", currentBank.bank_ifsc);
+      formData.append("bank_acno", currentBank.bank_acno);
+      formData.append("bank_nominee", currentBank.bank_nominee);
 
-      const res = await saveBankDetails(payload);
+      if (documentFile) {
+        formData.append("document", documentFile);
+      }
+
+      const res = await saveBankDetails(formData);
 
       if (res?.status) {
         setShowBankForm(false);
+        setDocumentFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
         notifySuccess(
           res?.message ||
             "Bank details update request submitted successfully for authorization."
@@ -677,7 +736,7 @@ const bankDetailsTab = ({ profile }) => {
                   </div>
 
                   {/* NOMINEE (OPTIONAL) */}
-                  <div className="col-md-6">
+                  <div className="col-md-12">
                     <label className="form-label">Bank Nominee</label>
                     <div className="d-flex align-items-center">
                       <input
@@ -694,6 +753,37 @@ const bankDetailsTab = ({ profile }) => {
                         disabled={bankSaving}
                       />
                     </div>
+                  </div>
+
+                  {/* SUPPORTING DOCUMENT (CANCELLED CHEQUE / PASSBOOK) */}
+                  <div className="col-md-12">
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <label className="form-label mb-0 fw-semibold">
+                        Supporting Document
+                        <span className="text-muted fw-normal ms-1" style={{ fontSize: "12px" }}>
+                          (e.g., Cancelled Cheque, Passbook copy)
+                        </span>
+                      </label>
+                      <small className="text-muted">Max 1MB (PDF, JPG, PNG)</small>
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      name="document"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={handleDocumentChange}
+                      className={`form-control ${
+                        bankErrors.document ? "is-invalid" : ""
+                      }`}
+                      disabled={bankSaving}
+                    />
+                    <FieldError message={bankErrors.document} />
+                    {documentFile && (
+                      <div className="small text-success mt-1 d-flex align-items-center gap-1">
+                        <i className="ti ti-check"></i>
+                        <span>Selected file: {documentFile.name} ({(documentFile.size / 1024).toFixed(1)} KB)</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
