@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import {
   getPersonalInfoAuthorizationDetails,
-  processPersonalInfoAuthorization
+  processPersonalInfoAuthorization,
 } from "../../portals/hrms/services/authorization/authorizationService";
 import {
   notifySuccess,
@@ -12,6 +12,27 @@ import {
 
 // Correct import from HRMS slice for top header badge count
 import { getHRMSAuthroizationTaskCount } from "../../store/hrms/hrmsAuthorizationCountSlice";
+
+/* =========================================================
+   HELPER: Generate HTTP URL that passes file path to PHP
+========================================================= */
+const getDocumentUrl = (docPath) => {
+  if (!docPath) return "#";
+
+  if (docPath.startsWith("http://") || docPath.startsWith("https://")) {
+    return docPath;
+  }
+
+  // Strip leading slash if any
+  const cleanPath = docPath.startsWith("/") ? docPath.slice(1) : docPath;
+
+  // Uses your PHP endpoint to safely fetch from /mnt/documents
+  const viewerUrl =
+    import.meta.env.VITE_DOCUMENT_VIEWER_URL ||
+    `${import.meta.env.VITE_BASE_URL}/common/view_document.php`;
+
+  return `${viewerUrl}?file=${encodeURIComponent(cleanPath)}`;
+};
 
 const PersonalInfoAuthorizationModal = ({
   show,
@@ -61,7 +82,7 @@ const PersonalInfoAuthorizationModal = ({
     } catch (err) {
       console.error("LOAD PERSONAL DETAILS ERROR:", err);
       notifyError(
-        err?.message || "Unable to load request details from server."
+        err?.message || "Unable to load request details from server.",
       );
     } finally {
       setLoading(false);
@@ -98,7 +119,7 @@ const PersonalInfoAuthorizationModal = ({
 
     const confirmRes = await confirmAction(
       isApprove ? "Approve Personal Details?" : "Reject Personal Details?",
-      `Are you sure you want to ${isApprove ? "accept" : "reject"} this personal/address change request?`
+      `Are you sure you want to ${isApprove ? "accept" : "reject"} this personal/address change request?`,
     );
 
     if (!confirmRes?.isConfirmed) return;
@@ -135,7 +156,7 @@ const PersonalInfoAuthorizationModal = ({
       notifyError(
         err?.response?.data?.message ||
           err?.message ||
-          "Error processing request."
+          "Error processing request.",
       );
     } finally {
       setSubmittingAction(null);
@@ -193,13 +214,25 @@ const PersonalInfoAuthorizationModal = ({
             ) : details ? (
               <>
                 {/* COMPARISON TABLE */}
-                <div className="table-responsive border rounded mb-3">
-                  <table className="table table-bordered table-sm mb-0 align-middle">
+                {/* COMPARISON TABLE */}
+                <div
+                  className="border rounded mb-3"
+                  style={{ overflowX: "hidden" }}
+                >
+                  <table
+                    className="table table-bordered table-sm mb-0 align-middle"
+                    style={{ tableLayout: "fixed", width: "100%", margin: 0 }}
+                  >
+                    <colgroup>
+                      <col style={{ width: "26%" }} />
+                      <col style={{ width: "37%" }} />
+                      <col style={{ width: "37%" }} />
+                    </colgroup>
                     <thead className="table-light">
                       <tr>
-                        <th style={{ width: "25%" }}>Field</th>
-                        <th style={{ width: "37.5%" }}>Existing Data</th>
-                        <th style={{ width: "37.5%" }}>Requested Data</th>
+                        <th>Field</th>
+                        <th>Existing Data</th>
+                        <th>Requested Data</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -208,8 +241,21 @@ const PersonalInfoAuthorizationModal = ({
                         <td className="fw-semibold text-muted">
                           Current Address
                         </td>
-                        <td>{details.CURRENT_ADDRESS || "—"}</td>
                         <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            overflowWrap: "anywhere",
+                          }}
+                        >
+                          {details.CURRENT_ADDRESS || "—"}
+                        </td>
+                        <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            overflowWrap: "anywhere",
+                          }}
                           className={
                             details.NEW_CURRENT_ADDRESS !==
                             details.CURRENT_ADDRESS
@@ -222,8 +268,19 @@ const PersonalInfoAuthorizationModal = ({
                       </tr>
                       <tr>
                         <td className="fw-semibold text-muted">Current City</td>
-                        <td>{details.CURRENT_CITY || "—"}</td>
                         <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {details.CURRENT_CITY || "—"}
+                        </td>
+                        <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                          }}
                           className={
                             details.NEW_CURRENT_CITY !== details.CURRENT_CITY
                               ? "text-primary fw-bold"
@@ -237,8 +294,19 @@ const PersonalInfoAuthorizationModal = ({
                         <td className="fw-semibold text-muted">
                           Current State
                         </td>
-                        <td>{details.CURRENT_STATE || "—"}</td>
                         <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {details.CURRENT_STATE || "—"}
+                        </td>
+                        <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                          }}
                           className={
                             details.NEW_CURRENT_STATE !== details.CURRENT_STATE
                               ? "text-primary fw-bold"
@@ -270,8 +338,21 @@ const PersonalInfoAuthorizationModal = ({
                         <td className="fw-semibold text-muted">
                           Permanent Address
                         </td>
-                        <td>{details.PERMNT_ADDRESS || "—"}</td>
                         <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            overflowWrap: "anywhere",
+                          }}
+                        >
+                          {details.PERMNT_ADDRESS || "—"}
+                        </td>
+                        <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            overflowWrap: "anywhere",
+                          }}
                           className={
                             details.NEW_PERMNT_ADDRESS !==
                             details.PERMNT_ADDRESS
@@ -286,8 +367,19 @@ const PersonalInfoAuthorizationModal = ({
                         <td className="fw-semibold text-muted">
                           Permanent City
                         </td>
-                        <td>{details.PERMNT_CITY || "—"}</td>
                         <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {details.PERMNT_CITY || "—"}
+                        </td>
+                        <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                          }}
                           className={
                             details.NEW_PERMNT_CITY !== details.PERMNT_CITY
                               ? "text-primary fw-bold"
@@ -301,8 +393,19 @@ const PersonalInfoAuthorizationModal = ({
                         <td className="fw-semibold text-muted">
                           Permanent State
                         </td>
-                        <td>{details.PERMNT_STATE || "—"}</td>
                         <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {details.PERMNT_STATE || "—"}
+                        </td>
+                        <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                          }}
                           className={
                             details.NEW_PERMNT_STATE !== details.PERMNT_STATE
                               ? "text-primary fw-bold"
@@ -332,6 +435,26 @@ const PersonalInfoAuthorizationModal = ({
                   </table>
                 </div>
 
+                {/* ATTACHMENT / PROOF /}
+                {details.DOC_PATH1 && (
+                  <div className="alert alert-light border d-flex justify-content-between align-items-center py-2 px-3 mb-3">
+                    <div className="d-flex align-items-center gap-2">
+                      <i className="ti ti-paperclip fs-5 text-primary"></i>
+                      <div className="fw-semibold" style={{ fontSize: "13px" }}>
+                        Address Proof: {details.DOC_NAME1 || "Document"}
+                      </div>
+                    </div>
+                    <a
+                      href={`/mnt/${details.DOC_PATH1}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-sm btn-outline-primary"
+                    >
+                      <i className="ti ti-eye me-1"></i> View Document
+                    </a>
+                  </div>
+                )} */}
+
                 {/* ATTACHMENT / PROOF */}
                 {details.DOC_PATH1 && (
                   <div className="alert alert-light border d-flex justify-content-between align-items-center py-2 px-3 mb-3">
@@ -342,7 +465,7 @@ const PersonalInfoAuthorizationModal = ({
                       </div>
                     </div>
                     <a
-                      href={`/uploads/address_proof/${details.DOC_PATH1}`}
+                      href={getDocumentUrl(details.DOC_PATH1)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-sm btn-outline-primary"
@@ -424,16 +547,7 @@ const PersonalInfoAuthorizationModal = ({
           </div>
 
           {/* FOOTER */}
-          <div className="modal-footer d-flex justify-content-between">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </button>
-
+          <div className="modal-footer d-flex">
             <div className="d-flex gap-2">
               <button
                 type="button"
@@ -451,7 +565,7 @@ const PersonalInfoAuthorizationModal = ({
                     Processing...
                   </>
                 ) : (
-                  "Accept & Update"
+                  "Accept"
                 )}
               </button>
 
@@ -473,6 +587,15 @@ const PersonalInfoAuthorizationModal = ({
                 ) : (
                   "Reject"
                 )}
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={onClose}
+                disabled={isSubmitting}
+              >
+                Cancel
               </button>
             </div>
           </div>

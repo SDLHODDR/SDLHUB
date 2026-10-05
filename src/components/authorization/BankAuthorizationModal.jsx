@@ -50,7 +50,7 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
     } catch (err) {
       console.error("LOAD BANK DETAILS ERROR:", err);
       notifyError(
-        err?.message || "Unable to load request details from server."
+        err?.message || "Unable to load request details from server.",
       );
     } finally {
       setLoading(false);
@@ -69,7 +69,7 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
 
     const confirmRes = await confirmAction(
       isApprove ? "Approve Bank Details?" : "Reject Bank Details?",
-      `Are you sure you want to ${isApprove ? "accept" : "reject"} this bank details request?`
+      `Are you sure you want to ${isApprove ? "accept" : "reject"} this bank details request?`,
     );
 
     if (!confirmRes?.isConfirmed) return;
@@ -105,7 +105,7 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
       notifyError(
         err?.response?.data?.message ||
           err?.message ||
-          "Error processing request."
+          "Error processing request.",
       );
     } finally {
       setActionLoading(null);
@@ -272,16 +272,7 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
             )}
           </div>
 
-          <div className="modal-footer d-flex justify-content-between">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={onClose}
-              disabled={isBusy}
-            >
-              Cancel
-            </button>
-
+          <div className="modal-footer d-flex">
             <div className="d-flex gap-2">
               <button
                 type="button"
@@ -289,16 +280,25 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
                 onClick={() => handleDecision("A")}
                 disabled={isBusy || loading || !details}
               >
-                {actionLoading === "A" ? "Processing..." : "Accept & Update"}
+                {actionLoading === "A" ? "Processing..." : "Accept"}
               </button>
 
               <button
                 type="button"
-                className="btn btn-danger"
+                className="btn btn-danger gap-2"
                 onClick={() => handleDecision("R")}
                 disabled={isBusy || loading || !details}
               >
                 {actionLoading === "R" ? "Processing..." : "Reject"}
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={onClose}
+                disabled={isBusy}
+              >
+                Cancel
               </button>
             </div>
           </div>
