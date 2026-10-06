@@ -10,8 +10,7 @@ export const useDepartmentActivityHandler = ({
   setDeletingId,
   dispatch,
   getDeptActivitiesDataResponse,
-  listData,
-  setSelectedActivity,
+  setSelectedPair,
   setIsEditing,
   setShowAll,
   resetForm,
@@ -85,7 +84,10 @@ export const useDepartmentActivityHandler = ({
   }, [form, validateForm, setIsSubmitting, dispatch, getDeptActivitiesDataResponse, resetForm, setShowAll]);
 
   const handleEditActivity = useCallback((activity) => {
-    setSelectedActivity(activity.ID);
+    setSelectedPair(JSON.stringify([
+      activity.DEPT_ID != null ? String(activity.DEPT_ID) : "",
+      String(activity.ACT_TYPE || ""),
+    ]));
     setIsEditing(true);
     setShowAll(false);
     setForm({
@@ -95,30 +97,7 @@ export const useDepartmentActivityHandler = ({
       DISP_SEQ: activity.DISP_SEQ ?? "",
       ACT_DESC: activity.ACT_DESC,
     });
-  }, [setSelectedActivity, setIsEditing, setShowAll, setForm]);
-
-  const handleSelectActivity = useCallback((value) => {
-    setSelectedActivity(value);
-
-    if (!value) {
-      resetForm();
-      return;
-    }
-
-    setShowAll(false);
-
-    const activity = listData.find((item) => String(item.ID) === String(value));
-    if (activity) {
-      setIsEditing(true);
-      setForm({
-        ID: activity.ID,
-        DEPT_ID: activity.DEPT_ID != null ? String(activity.DEPT_ID) : "",
-        ACT_TYPE: activity.ACT_TYPE || "",
-        DISP_SEQ: activity.DISP_SEQ ?? "",
-        ACT_DESC: activity.ACT_DESC,
-      });
-    }
-  }, [listData, setSelectedActivity, resetForm, setShowAll, setIsEditing, setForm]);
+  }, [setSelectedPair, setIsEditing, setShowAll, setForm]);
 
   const handleDeleteActivity = useCallback(async (row) => {
     try {
@@ -147,7 +126,6 @@ export const useDepartmentActivityHandler = ({
     validateForm,
     handleSave,
     handleEditActivity,
-    handleSelectActivity,
     handleDeleteActivity,
   };
 };

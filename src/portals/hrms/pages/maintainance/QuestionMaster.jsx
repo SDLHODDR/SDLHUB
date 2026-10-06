@@ -4,7 +4,6 @@ import { useLocation } from 'react-router-dom'
 import { getQuestionMasterDataResponse } from '../../../../store/hrms/hrmsQuestionMasterSlice'
 import SDLDataTable from '../../../../components/datatable/SDLDataTable'
 import SDLSearch from '../../../../components/datatable/SDLSearch'
-import SDLDropdownSelect from '../../components/forms/SDLDropdownSelect'
 import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
 import { getPortalFromPath } from '../../../../config/portalConfig'
 import {
@@ -17,7 +16,6 @@ import {
 } from '../../../../utils/formatUtils'
 import { questionMasterColumns } from '../../portalutils/questionMasterColumns'
 import { useQuestionMasterHandler } from '../../portalutils/useQuestionMasterHandler'
-import { buildOptionsFromRow } from '../../portalutils/questionOptionsUtils'
 // import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
 import SDLReactSelect from '../../../../components/SDLReactSelect'
 import SaveButton from '../../components/buttons/SaveButton'
@@ -51,7 +49,7 @@ const QuestionMaster = () => {
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [showAll, setShowAll] = useState(false)
-  const [selectedQuestion, setSelectedQuestion] = useState('')
+  const [selectedPair, setSelectedPair] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   const [deletingId, setDeletingId] = useState(null)
 
@@ -152,15 +150,18 @@ const QuestionMaster = () => {
     }
   }, [questionMasterData])
 
-  // (1) Top "Select Question Master" — keyword-searchable, same pattern as
-  // the other pages' top selectors.
+  // Top options combine every Question Group and Question Sub Group.
   const questionOptions = useMemo(
     () =>
-      listData.map(item => ({
-        id: String(item.ID),
-        label: item.QUES_DESCR || item.QUESTION || ''
-      })),
-    [listData]
+      groups.flatMap(group =>
+        subgroups.map(subgroup => ({
+          id: JSON.stringify([group.ID, subgroup.ID]),
+          label: `${group.NAME} - ${subgroup.NAME}`,
+          groupId: group.ID,
+          subGroupId: subgroup.ID
+        }))
+      ),
+    [groups, subgroups]
   )
 
   // Table-mode search — driven only by the visible SDLSearch box.
@@ -184,6 +185,7 @@ const QuestionMaster = () => {
   //   - Currently selected Answer Type narrows further still (point 6)
   const [groupSearchQuery, setGroupSearchQuery] = useState('')
   const [subGroupSearchQuery, setSubGroupSearchQuery] = useState('')
+  const [exactPairFilter, setExactPairFilter] = useState(false)
 
   const matchedGroupIds = useMemo(() => {
     if (!groupSearchQuery.trim()) return null
@@ -202,6 +204,13 @@ const QuestionMaster = () => {
   }, [subGroupSearchQuery, subgroups])
 
   const formFilteredData = useMemo(() => {
+    if (exactPairFilter && form.QGRP_ID && form.QSGRP_ID) {
+      return listData.filter(
+        item =>
+          String(item.QGRP_ID) === String(form.QGRP_ID) &&
+          String(item.QSGRP_ID) === String(form.QSGRP_ID)
+      )
+    }
     if (!matchedGroupIds && !matchedSubGroupIds) return []
     return listData.filter(item => {
       const matchesGroup = matchedGroupIds
@@ -215,7 +224,7 @@ const QuestionMaster = () => {
         : true
       return matchesGroup && matchesSubGroup && matchesAnswerType
     })
-  }, [matchedGroupIds, matchedSubGroupIds, listData, form.ANSWER_TYPE])
+  }, [exactPairFilter, form.QGRP_ID, form.QSGRP_ID, matchedGroupIds, matchedSubGroupIds, listData, form.ANSWER_TYPE])
 
   const showInlineTable = Boolean(
     groupSearchQuery.trim() || subGroupSearchQuery.trim()
@@ -223,7 +232,8 @@ const QuestionMaster = () => {
 
   const resetForm = useCallback(() => {
     setIsEditing(false)
-    setSelectedQuestion('')
+    setSelectedPair('')
+    setExactPairFilter(false)
     setForm({
       ID: '',
       QGRP_ID: '',
@@ -244,7 +254,6 @@ const QuestionMaster = () => {
     handleOptionChange,
     handleSave,
     handleEdit,
-    handleSelectQuestion,
     handleDelete
   } = useQuestionMasterHandler({
     form,
@@ -255,7 +264,7 @@ const QuestionMaster = () => {
     dispatch,
     getQuestionMasterDataResponse,
     setShowAll,
-    setSelectedQuestion,
+    setSelectedPair,
     setIsEditing,
     resetForm
   })
@@ -267,7 +276,10 @@ const QuestionMaster = () => {
     if (groupSearchDebounceRef.current)
       clearTimeout(groupSearchDebounceRef.current)
     groupSearchDebounceRef.current = setTimeout(
-      () => setGroupSearchQuery(text ?? ''),
+      () => {
+        setExactPairFilter(false)
+        setGroupSearchQuery(text ?? '')
+      },
       250
     )
   }, [])
@@ -276,10 +288,52 @@ const QuestionMaster = () => {
     if (subGroupSearchDebounceRef.current)
       clearTimeout(subGroupSearchDebounceRef.current)
     subGroupSearchDebounceRef.current = setTimeout(
-      () => setSubGroupSearchQuery(text ?? ''),
+      () => {
+        setExactPairFilter(false)
+        setSubGroupSearchQuery(text ?? '')
+      },
       250
     )
   }, [])
+
+  const handleTopPairChange = useCallback(value => {
+    const selectedPairOption = questionOptions.find(
+      option => option.id === value
+    )
+
+    if (!selectedPairOption) {
+      resetForm()
+      return
+    }
+
+    if (groupSearchDebounceRef.current)
+      clearTimeout(groupSearchDebounceRef.current)
+    if (subGroupSearchDebounceRef.current)
+      clearTimeout(subGroupSearchDebounceRef.current)
+
+    setSelectedPair(value)
+    setExactPairFilter(true)
+    setForm({
+      ID: '',
+      QGRP_ID: selectedPairOption.groupId,
+      QSGRP_ID: selectedPairOption.subGroupId,
+      QUES_DESCR: '',
+      ANSWER_TYPE: 'Text',
+      NO_OF_OPTIONS: '',
+      OPTIONS: []
+    })
+    setErrors({})
+    setGroupSearchQuery(
+      groups.find(group => group.ID === selectedPairOption.groupId)?.NAME ?? ''
+    )
+    setSubGroupSearchQuery(
+      subgroups.find(
+        subgroup => subgroup.ID === selectedPairOption.subGroupId
+      )?.NAME ?? ''
+    )
+    setIsEditing(false)
+    setShowAll(false)
+  }, [questionOptions, groups, subgroups, resetForm])
 
   useEffect(() => {
     return () => {
@@ -361,7 +415,7 @@ const QuestionMaster = () => {
                     <SDLDropdownSelect
                       id="questionMasterSelect"
                       options={questionOptions}
-                      value={selectedQuestion}
+                      value={selectedPair}
                       onChange={(id) => handleSelectQuestion(id, listData)}
                       placeholder="Select Question Master"
                       disabled={loading}
@@ -381,19 +435,19 @@ const QuestionMaster = () => {
                   <div className='d-flex align-items-center gap-2'>
                     {/* <div style={{ maxWidth: "270px" }}> */}
                     <SDLReactSelect
-                      value={selectedQuestion}
+                      value={selectedPair}
                       options={questionOptions.map(opt => ({
                         value: opt.id,
                         label: opt.label
                       }))}
-                      onChange={id => handleSelectQuestion(id, listData)}
-                      placeholder='Select Question Master'
+                      onChange={handleTopPairChange}
+                      placeholder='Select Group - Sub Group'
                       isDisabled={loading}
                       width='330px'
                     />
                     <ViewToggleButton
                       showAll={showAll}
-                      onClick={() => setShowAll(prev => !prev)}
+                      onClick={handleToggleView}
                       disabled={loading}
                     />
                   </div>
@@ -413,7 +467,11 @@ const QuestionMaster = () => {
                               value: g.ID,
                               label: g.NAME
                             }))}
-                            onChange={id => handleGroupChange(id)}
+                            onChange={id => {
+                              setSelectedPair('')
+                              setExactPairFilter(false)
+                              handleGroupChange(id)
+                            }}
                             hasError={!!errors.QGRP_ID}
                             onFilterChange={handleGroupSearch}
                             notifyFilterOnSelect
@@ -438,7 +496,11 @@ const QuestionMaster = () => {
                               value: s.ID,
                               label: s.NAME
                             }))}
-                            onChange={id => handleField('QSGRP_ID', id)}
+                            onChange={id => {
+                              setSelectedPair('')
+                              setExactPairFilter(false)
+                              handleField('QSGRP_ID', id)
+                            }}
                             onFilterChange={handleSubGroupSearch}
                             notifyFilterOnSelect
                             placeholder='Select Sub Group'

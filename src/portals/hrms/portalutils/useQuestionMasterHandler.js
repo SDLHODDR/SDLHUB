@@ -14,7 +14,7 @@ export const useQuestionMasterHandler = ({
   dispatch,
   getQuestionMasterDataResponse,
   setShowAll,
-  setSelectedQuestion,
+  setSelectedPair,
   setIsEditing,
   resetForm,
 }) => {
@@ -122,7 +122,10 @@ export const useQuestionMasterHandler = ({
 
   const handleEdit = useCallback((row) => {
     console.log("==========EDIT ROW===========", row);
-    setSelectedQuestion(row.ID);
+    setSelectedPair(JSON.stringify([
+      String(row.QGRP_ID || row.GROUP_ID || ""),
+      String(row.QSGRP_ID || row.SUBGROUP_ID || ""),
+    ]));
     setIsEditing(true);
     setShowAll(false);
     setForm({
@@ -134,21 +137,7 @@ export const useQuestionMasterHandler = ({
       NO_OF_OPTIONS: row.NO_OF_OPTIONS || row.noopts || row.no_of_options || "",
       OPTIONS: buildOptionsFromRow(row),
     });
-  }, [setSelectedQuestion, setIsEditing, setShowAll, setForm]);
-
-  const handleSelectQuestion = useCallback((value, listData) => {
-    setSelectedQuestion(value);
-
-    if (!value) {
-      resetForm();
-      return;
-    }
-
-    const selected = listData.find((item) => String(item.ID) === String(value));
-    if (!selected) return;
-
-    handleEdit(selected);
-  }, [setSelectedQuestion, resetForm, handleEdit]);
+  }, [setSelectedPair, setIsEditing, setShowAll, setForm]);
 
   const handleDelete = useCallback(async (row) => {
     const result = await confirmAction("Are you sure you want to Delete?");
@@ -176,7 +165,6 @@ export const useQuestionMasterHandler = ({
     handleOptionChange,
     handleSave,
     handleEdit,
-    handleSelectQuestion,
     handleDelete,
   };
 };
