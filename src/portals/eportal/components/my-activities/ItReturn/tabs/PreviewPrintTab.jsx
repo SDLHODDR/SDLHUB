@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
+import EportalPageLoader from "../../../loader/EportalPageLoader";
 import { getEmployeeSummary }  from "../../../../services/itReturnService";
 import "../../../../assets/css/PreviewPrintTab.css";
 
@@ -53,13 +54,7 @@ const PreviewPrintTab = ({ refreshPreview }) => {
 }, [refreshPreview]);
 
   if (!summary) {
-    return (
-      <div className="card">
-        <div className="card-body text-center py-5">
-          <div className="spinner-border text-primary" />
-        </div>
-      </div>
-    );
+    return <EportalPageLoader />;
   }
 
     const regimeText =
@@ -93,7 +88,7 @@ const PreviewPrintTab = ({ refreshPreview }) => {
     <div className="card w-100">
       {/* PDF BUTTON */}
       <div className="card-header d-flex justify-content-end">
-        <button className="btn btn-primary btn-sm" onClick={handlePrint}>
+        <button className="btn btn-primary" onClick={handlePrint}>
           <i className="ti ti-printer me-1"></i>
           Print / Save PDF
         </button>

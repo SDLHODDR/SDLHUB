@@ -6,10 +6,10 @@ const WorkLeaveTabs = ({ workData, leaveData }) => {
   const [activeTab, setActiveTab] = useState("work");
 
   return (
-    <div className="card shadow-sm border-0 h-100">
+    <div className="card shadow-sm border-0 h-100 mb-0">
 
       {/* HEADER TABS */}
-      <div className="card-header p-0">
+      <div className="card-header p-0" style={{ height: 48, minHeight: 48 }}>
         <div className="d-flex">
           <button
             className={`tab-btn ${activeTab === "work" ? "active" : ""}`}

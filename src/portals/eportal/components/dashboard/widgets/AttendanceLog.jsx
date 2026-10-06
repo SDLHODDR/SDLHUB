@@ -171,10 +171,13 @@ const AttendanceLog = ({ initialData = null }) => {
   })();
 
   return (
-    <div className="card shadow-sm border-0 h-100">
+    <div className="card shadow-sm border-0 h-100 mb-0">
       {/* Header */}
 
-      <div className="card-header d-flex justify-content-between align-items-center">
+      <div
+        className="card-header d-flex justify-content-between align-items-center"
+        style={{ height: 48, minHeight: 48, padding: "0 12px" }}
+      >
         <button
           className="btn btn-sm btn-light"
           onClick={() => changeDate(-1)}
@@ -233,7 +236,7 @@ const AttendanceLog = ({ initialData = null }) => {
 
       {/* Body */}
       <div className="card-body p-2">
-        <div style={{ maxHeight: 250, overflowY: "auto" }}>
+        <div style={{ maxHeight: 270, overflowY: "auto" }}>
           {loading ? (
             <div className="text-center py-4 text-muted">
               Loading...
@@ -259,7 +262,7 @@ const AttendanceLog = ({ initialData = null }) => {
                 <div className="me-2">
                   <Badge
                     text={item.type}
-                    className={item.type === "IN" ? "bg-success" : "bg-danger"}
+                    className={`attendance-log-badge ${item.type === "IN" ? "bg-success" : "bg-danger"}`}
                   />
                 </div>
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import EportalPageLoader from "../loader/EportalPageLoader";
 
 import { getConferenceRooms } from "../../services/conferenceService";
 import ConferenceBookingModal from "../../modal/ConferenceBookingModal";
@@ -16,6 +17,7 @@ import Badge from "../Badge";
 import SDLCalendar from "../../../../components/calendar/SDLCalendar";
 
 import { getPortalFromPath } from "../../../../config/portalConfig";
+import "../../assets/css/wideContentPages.css";
 
 const ConferenceRoom = () => {
   /* =========================================================
@@ -765,6 +767,7 @@ const ConferenceRoom = () => {
 
   return (
     <>
+      {loading && <EportalPageLoader />}
       {/* =====================================================
           PAGE HEADER
       ===================================================== */}
@@ -795,7 +798,7 @@ const ConferenceRoom = () => {
           MAIN CARD
       ===================================================== */}
 
-      <div className="card">
+      <div className="card eportal-wide-card">
         <div className="card-body">
           <div className="row">
 
@@ -965,6 +968,7 @@ const ConferenceRoom = () => {
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
+                    style={{ height: "40px" }}
                     disabled={
                       !searchQuery &&
                       statusFilter ===
@@ -1008,11 +1012,7 @@ const ConferenceRoom = () => {
                   TABLE
               ================================================= */}
 
-              {loading ? (
-                <div className="p-4 text-center">
-                  <div className="spinner-border text-warning"></div>
-                </div>
-              ) : filteredData.length ===
+              {loading ? null : filteredData.length ===
                 0 ? (
                 <div className="p-4 text-center text-muted">
                   {searchQuery ||
@@ -1026,9 +1026,7 @@ const ConferenceRoom = () => {
                   value={
                     filteredData
                   }
-                  loading={
-                    loading
-                  }
+                  loading={false}
                   paginator
                   lazy
                   first={

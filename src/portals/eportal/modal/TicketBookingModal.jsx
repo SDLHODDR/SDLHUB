@@ -806,7 +806,7 @@ const TicketBookingModal = ({
                   )}
                   <button
                     type="submit"
-                    className="btn btn-primary"
+                    className="btn btn-success"
                     data-bs-dismiss="modal"
                     onClick={handleSaveAuth}
                     disabled={isSubmitting}

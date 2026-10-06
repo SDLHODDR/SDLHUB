@@ -7,6 +7,8 @@ import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable"; // Update path if required
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import { getPortalFromPath } from "../../../../config/portalConfig";
+import "../../assets/css/wideContentPages.css";
+import EportalPageLoader from "../loader/EportalPageLoader";
 
 const CompanyPolicies = () => {
     const [listData, setListData] = useState([]);
@@ -125,6 +127,7 @@ const CompanyPolicies = () => {
 
     return (
         <>
+            {loading && <EportalPageLoader />}
             {/* ================= PAGE HEADER ================= */}
 
             <div className="page-header">
@@ -142,7 +145,7 @@ const CompanyPolicies = () => {
 
             {/* ================= CARD ================= */}
 
-            <div className="card">
+            <div className="card eportal-wide-card">
                 <div className="card-body">
 
                     {/* ================= SEARCH ================= */}
@@ -164,8 +167,8 @@ const CompanyPolicies = () => {
                         <SDLDataTable
                             data={filteredData}
                             columns={columns}
-                            loading={loading}
-                            emptyMessage="No policies found"
+                            loading={false}
+                            emptyMessage={loading ? " " : "No policies found"}
                             className="company-policies-grid"
                             removableSort
                         />

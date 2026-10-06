@@ -5,6 +5,7 @@ import { getLeavesDataResponse } from "../../../../store/eportal/ePortalLeavesSl
 import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
 
 import { createLeavesHandlers } from "../../utils/LeavesHandlers";
+import EportalPageLoader from "../loader/EportalPageLoader";
 
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
@@ -19,6 +20,7 @@ import { notifyError } from "../../../../services/alertService";
 import { getLRDataDetails } from "../../services/leavesService";
 
 import { getPortalFromPath } from "../../../../config/portalConfig";
+import "../../assets/css/wideContentPages.css";
 
 const Leaves = () => {
   const dispatch = useDispatch();
@@ -404,6 +406,7 @@ const Leaves = () => {
 
   return (
     <>
+      {loading && <EportalPageLoader />}
       {/* ======================================================
           PAGE HEADER
       ====================================================== */}
@@ -433,7 +436,7 @@ const Leaves = () => {
           MAIN CARD
       ====================================================== */}
 
-      <div className="card">
+      <div className="card eportal-wide-card">
         <div className="card-body">
           <div className="row">
             {/* ==================================================
@@ -495,6 +498,7 @@ const Leaves = () => {
                     <button
                       type="button"
                       className="btn btn-outline-secondary"
+                      style={{ height: "40px" }}
                       disabled={statusFilter === "ALL"}
                       onClick={clearFilters}
                     >
@@ -535,9 +539,14 @@ const Leaves = () => {
                 <SDLDataTable
                   data={filteredData}
                   columns={columns}
-                  loading={loading}
+                  className="eportal-fit-table leaves-request-table"
+                  tableStyle={{ width: "100%", minWidth: "100%", tableLayout: "fixed" }}
+                  scrollable={false}
+                  loading={false}
                   emptyMessage={
-                    searchQuery || statusFilter !== "ALL"
+                    loading
+                      ? " "
+                      : searchQuery || statusFilter !== "ALL"
                       ? "No leave requests match the selected filter"
                       : "No leave requests found"
                   }

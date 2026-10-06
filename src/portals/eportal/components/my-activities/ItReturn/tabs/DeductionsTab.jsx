@@ -11,6 +11,7 @@ import {
 } from "../../../../../../services/alertService";
 
 import { ITR_MESSAGES } from "../../../../constants/itrMessages";
+import EportalPageLoader from "../../../loader/EportalPageLoader";
 
 const DeductionsTab = ({ onDataSaved, editable }) => {
   const [deductions, setDeductions] = useState([]);
@@ -250,7 +251,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
   const groupedData = useMemo(() => groupBySection(), [deductions]);
 
   if (loading) {
-    return <div>Loading deductions...</div>;
+    return <EportalPageLoader />;
   }
 
   return (
@@ -336,7 +337,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
                           handleAmountChange(item.ITAX_ID, e.target.value)
                         }
                         style={{
-                          border: "1px solid #d7dee8",
+                          border: "1px solid gray",
                           borderRadius: "6px",
                           height: "42px",
                         }}
@@ -354,7 +355,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
                           )
                         }
                         style={{
-                          border: "1px solid #d7dee8",
+                          border: "1px solid gray",
                           borderRadius: "6px",
                           height: "42px",
                         }}

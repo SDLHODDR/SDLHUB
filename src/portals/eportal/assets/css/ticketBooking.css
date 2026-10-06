@@ -1,0 +1,86 @@
+/* Ticket Booking uses a wider content card on desktop while keeping the
+   standard page gutters on smaller screens. */
+@media (min-width: 1200px) {
+  .ticket-booking-layout-card {
+    margin-left: -16px;
+    margin-right: -16px;
+  }
+}
+
+.ticket-booking-calendar-column {
+  min-width: 0;
+}
+
+@media (min-width: 1200px) {
+  .ticket-booking-calendar-column {
+    flex: 0 0 22%;
+    max-width: 22%;
+  }
+
+  .ticket-booking-preview-column {
+    flex: 0 0 78%;
+    max-width: 78%;
+  }
+}
+
+.ticket-booking-preview-column {
+  min-width: 0;
+}
+
+.ticket-booking-preview-column select.form-select.ticket-booking-status-filter {
+  border: 1px solid #6c757d !important;
+}
+
+.ticket-booking-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.ticket-booking-preview-table,
+.ticket-booking-preview-table .p-datatable-wrapper,
+.ticket-booking-preview-table .p-datatable-table-container {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.ticket-booking-preview-table .p-datatable-wrapper {
+  overflow-x: hidden !important;
+}
+
+.ticket-booking-preview-table .p-datatable-table {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100%;
+  table-layout: fixed !important;
+}
+
+.ticket-booking-preview-table .p-datatable-thead > tr > th,
+.ticket-booking-preview-table .p-datatable-tbody > tr > td {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.ticket-booking-preview-table .p-datatable-thead > tr > th {
+  white-space: normal !important;
+}
+
+.ticket-booking-preview-table .p-datatable-thead > tr > th {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.ticket-booking-preview-table .p-datatable-tbody > tr > td {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.ticket-booking-preview-table .badge {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

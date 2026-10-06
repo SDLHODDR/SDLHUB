@@ -1,42 +1,42 @@
-import { useEffect, useState, useContext } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState, useContext } from 'react'
+import { useDispatch } from 'react-redux'
 
 import {
   getBookingDropdownData,
-  conferenceAction,
-} from "../services/conferenceService";
+  conferenceAction
+} from '../services/conferenceService'
 
 import {
   notifySuccess,
   notifyError,
-  confirmAction,
-} from "../../../services/alertService";
+  confirmAction
+} from '../../../services/alertService'
 
-import AuthContext from "../../../auth/AuthContext";
-import Select from "react-select";
-import "../assets/css/conferencebookingmodal.css";
-import SDLCalendar from "../../../components/calendar/SDLCalendar";
-import { CONFERENCE_MESSAGES } from "../constants/conferenceMessages";
-import { getAuthroizationTaskCount } from "../../../store/eportal/ePortalAuthorizationCountSlice";
+import AuthContext from '../../../auth/AuthContext'
+import Select from 'react-select'
+import '../assets/css/conferencebookingmodal.css'
+import SDLCalendar from '../../../components/calendar/SDLCalendar'
+import { CONFERENCE_MESSAGES } from '../constants/conferenceMessages'
+import { getAuthroizationTaskCount } from '../../../store/eportal/ePortalAuthorizationCountSlice'
 
 /* ============================================================
    DEFAULT FORM DATA
 ============================================================ */
 
 const DEFAULT_FORM_DATA = {
-  bookingId: "",
-  date: "",
-  fromTime: "",
-  hours: "0",
-  minutes: "00",
-  bookingBy: "",
+  bookingId: '',
+  date: '',
+  fromTime: '',
+  hours: '0',
+  minutes: '00',
+  bookingBy: '',
   attendees: 1,
-  division: "",
-  reason: "",
+  division: '',
+  reason: '',
   tea: false,
   breakfast: false,
-  lunch: false,
-};
+  lunch: false
+}
 
 /* ============================================================
    COMPONENT
@@ -47,41 +47,41 @@ const ConferenceBookingModal = ({
   mode,
   selectedDate,
   onClose,
-  refreshTable,
+  refreshTable
 }) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
-  const { user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext)
 
   /* ============================================================
      STATES
   ============================================================ */
 
-  const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
+  const [formData, setFormData] = useState(DEFAULT_FORM_DATA)
 
-  const [initialFormData, setInitialFormData] = useState(DEFAULT_FORM_DATA);
+  const [initialFormData, setInitialFormData] = useState(DEFAULT_FORM_DATA)
 
-  const [bookingUsers, setBookingUsers] = useState([]);
+  const [bookingUsers, setBookingUsers] = useState([])
 
-  const [divisions, setDivisions] = useState([]);
+  const [divisions, setDivisions] = useState([])
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({})
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false)
 
   /* ============================================================
      MODE
   ============================================================ */
 
-  const isAddMode = mode === "add";
+  const isAddMode = mode === 'add'
 
-  const isPlanned = booking?.STATUS === "N";
+  const isPlanned = booking?.STATUS === 'N'
 
-  const isOwner = String(booking?.CHG_BY) === String(user?.empcode);
+  const isOwner = String(booking?.CHG_BY) === String(user?.empcode)
 
-  const readOnly = !isAddMode && (!isPlanned || !isOwner);
+  const readOnly = !isAddMode && (!isPlanned || !isOwner)
 
-  const canCancelBooking = !isAddMode && booking?.STATUS === "T" && isOwner;
+  const canCancelBooking = !isAddMode && booking?.STATUS === 'T' && isOwner
 
   /* ============================================================
      DATE HELPERS
@@ -93,17 +93,17 @@ const ConferenceBookingModal = ({
    * YYYY-MM-DD
    */
 
-  const formatToInputDate = (dateStr) => {
+  const formatToInputDate = dateStr => {
     if (!dateStr) {
-      return "";
+      return ''
     }
 
     /*
      * Already YYYY-MM-DD
      */
 
-    if (typeof dateStr === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-      return dateStr;
+    if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      return dateStr
     }
 
     /*
@@ -115,19 +115,19 @@ const ConferenceBookingModal = ({
      */
 
     if (
-      typeof dateStr === "string" &&
+      typeof dateStr === 'string' &&
       /^\d{2}-[A-Za-z]{3}-\d{4}$/.test(dateStr)
     ) {
-      const parsed = new Date(dateStr);
+      const parsed = new Date(dateStr)
 
       if (!Number.isNaN(parsed.getTime())) {
-        const year = parsed.getFullYear();
+        const year = parsed.getFullYear()
 
-        const month = String(parsed.getMonth() + 1).padStart(2, "0");
+        const month = String(parsed.getMonth() + 1).padStart(2, '0')
 
-        const day = String(parsed.getDate()).padStart(2, "0");
+        const day = String(parsed.getDate()).padStart(2, '0')
 
-        return `${year}-${month}-${day}`;
+        return `${year}-${month}-${day}`
       }
     }
 
@@ -135,66 +135,66 @@ const ConferenceBookingModal = ({
      * Generic Date parsing
      */
 
-    const date = new Date(dateStr);
+    const date = new Date(dateStr)
 
     if (Number.isNaN(date.getTime())) {
-      return "";
+      return ''
     }
 
-    const year = date.getFullYear();
+    const year = date.getFullYear()
 
-    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, '0')
 
-    const day = String(date.getDate()).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, '0')
 
-    return `${year}-${month}-${day}`;
-  };
+    return `${year}-${month}-${day}`
+  }
 
   /*
    * Convert YYYY-MM-DD
    * to JavaScript Date
    */
 
-  const parseFormDate = (dateStr) => {
+  const parseFormDate = dateStr => {
     if (!dateStr) {
-      return null;
+      return null
     }
 
-    const parts = dateStr.split("-").map(Number);
+    const parts = dateStr.split('-').map(Number)
 
-    if (parts.length !== 3 || parts.some((value) => Number.isNaN(value))) {
-      return null;
+    if (parts.length !== 3 || parts.some(value => Number.isNaN(value))) {
+      return null
     }
 
-    const [year, month, day] = parts;
+    const [year, month, day] = parts
 
-    return new Date(year, month - 1, day);
-  };
+    return new Date(year, month - 1, day)
+  }
 
   /*
    * JavaScript Date
    * -> YYYY-MM-DD
    */
 
-  const formatDateForForm = (date) => {
+  const formatDateForForm = date => {
     if (!date) {
-      return "";
+      return ''
     }
 
-    const selected = date instanceof Date ? date : new Date(date);
+    const selected = date instanceof Date ? date : new Date(date)
 
     if (Number.isNaN(selected.getTime())) {
-      return "";
+      return ''
     }
 
-    const year = selected.getFullYear();
+    const year = selected.getFullYear()
 
-    const month = String(selected.getMonth() + 1).padStart(2, "0");
+    const month = String(selected.getMonth() + 1).padStart(2, '0')
 
-    const day = String(selected.getDate()).padStart(2, "0");
+    const day = String(selected.getDate()).padStart(2, '0')
 
-    return `${year}-${month}-${day}`;
-  };
+    return `${year}-${month}-${day}`
+  }
 
   /* ============================================================
      FETCH DROPDOWN DATA
@@ -203,28 +203,28 @@ const ConferenceBookingModal = ({
   useEffect(() => {
     const fetchDropdownData = async () => {
       try {
-        const res = await getBookingDropdownData();
+        const res = await getBookingDropdownData()
 
         if (res?.status) {
-          const { employees = [], divisions = [] } = res.data || {};
+          const { employees = [], divisions = [] } = res.data || {}
 
-          setBookingUsers(Array.isArray(employees) ? employees : []);
+          setBookingUsers(Array.isArray(employees) ? employees : [])
 
-          setDivisions(Array.isArray(divisions) ? divisions : []);
+          setDivisions(Array.isArray(divisions) ? divisions : [])
         } else {
-          setBookingUsers([]);
-          setDivisions([]);
+          setBookingUsers([])
+          setDivisions([])
         }
       } catch (err) {
-        console.error("Dropdown fetch error:", err);
+        console.error('Dropdown fetch error:', err)
 
-        setBookingUsers([]);
-        setDivisions([]);
+        setBookingUsers([])
+        setDivisions([])
       }
-    };
+    }
 
-    fetchDropdownData();
-  }, []);
+    fetchDropdownData()
+  }, [])
 
   /* ============================================================
      PREFILL FORM
@@ -237,46 +237,46 @@ const ConferenceBookingModal = ({
      * ==========================================================
      */
 
-    if (mode !== "add" && booking) {
-      const totalMinutes = parseInt(booking.BOOK_TIME || 0, 10);
+    if (mode !== 'add' && booking) {
+      const totalMinutes = parseInt(booking.BOOK_TIME || 0, 10)
 
-      const hours = Math.floor(totalMinutes / 60);
+      const hours = Math.floor(totalMinutes / 60)
 
-      const minutes = totalMinutes % 60;
+      const minutes = totalMinutes % 60
 
       const data = {
-        bookingId: booking.ID || "",
+        bookingId: booking.ID || '',
 
         date: formatToInputDate(booking.DT),
 
-        fromTime: booking.STARTTIME || "",
+        fromTime: booking.STARTTIME || '',
 
         hours: String(hours),
 
-        minutes: minutes === 30 ? "30" : "00",
+        minutes: minutes === 30 ? '30' : '00',
 
-        bookingBy: booking.BOOK_BY_EMP || "",
+        bookingBy: booking.BOOK_BY_EMP || '',
 
         attendees: booking.NOOF_ATTD || 1,
 
-        division: booking.DIVSN_ID || "",
+        division: booking.DIVSN_ID || '',
 
-        reason: booking.REMARKS || "",
+        reason: booking.REMARKS || '',
 
-        tea: booking.ROOM_FACL1 === "Y" || booking.ROOM_FACL1 == 1,
+        tea: booking.ROOM_FACL1 === 'Y' || booking.ROOM_FACL1 == 1,
 
-        breakfast: booking.ROOM_FACL2 === "Y" || booking.ROOM_FACL2 == 1,
+        breakfast: booking.ROOM_FACL2 === 'Y' || booking.ROOM_FACL2 == 1,
 
-        lunch: booking.ROOM_FACL3 === "Y" || booking.ROOM_FACL3 == 1,
-      };
+        lunch: booking.ROOM_FACL3 === 'Y' || booking.ROOM_FACL3 == 1
+      }
 
-      setFormData(data);
+      setFormData(data)
 
-      setInitialFormData(data);
+      setInitialFormData(data)
 
-      setErrors({});
+      setErrors({})
 
-      return;
+      return
     }
 
     /*
@@ -296,324 +296,324 @@ const ConferenceBookingModal = ({
      *
      */
 
-    if (mode === "add") {
-      const calendarDate = formatDateForForm(selectedDate);
+    if (mode === 'add') {
+      const calendarDate = formatDateForForm(selectedDate)
 
-      console.log("Conference modal selectedDate:", selectedDate);
+      console.log('Conference modal selectedDate:', selectedDate)
 
-      console.log("Conference modal formatted date:", calendarDate);
+      console.log('Conference modal formatted date:', calendarDate)
 
       const data = {
         ...DEFAULT_FORM_DATA,
 
-        bookingBy: user?.empcode || "",
+        bookingBy: user?.empcode || '',
 
-        date: calendarDate || "",
-      };
+        date: calendarDate || ''
+      }
 
-      setFormData(data);
+      setFormData(data)
 
-      setInitialFormData(data);
+      setInitialFormData(data)
 
-      setErrors({});
+      setErrors({})
     }
-  }, [booking, mode, user, selectedDate]);
+  }, [booking, mode, user, selectedDate])
 
   /* ============================================================
      INPUT CHANGE
   ============================================================ */
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const handleChange = e => {
+    const { name, value, type, checked } = e.target
 
-    let newValue = type === "checkbox" ? checked : value;
+    let newValue = type === 'checkbox' ? checked : value
 
     /*
      * Attendees validation
      */
 
-    if (name === "attendees") {
+    if (name === 'attendees') {
       /*
        * Digits only
        */
 
-      newValue = newValue.replace(/\D/g, "");
+      newValue = newValue.replace(/\D/g, '')
 
       /*
        * Maximum 3 digits
        */
 
-      newValue = newValue.slice(0, 3);
+      newValue = newValue.slice(0, 3)
 
       /*
        * Maximum 100
        */
 
-      if (newValue !== "" && Number(newValue) > 100) {
-        newValue = "100";
+      if (newValue !== '' && Number(newValue) > 100) {
+        newValue = '100'
       }
     }
 
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: newValue,
-    }));
+      [name]: newValue
+    }))
 
-    setErrors((prev) => ({
+    setErrors(prev => ({
       ...prev,
-      [name]: "",
-    }));
-  };
+      [name]: ''
+    }))
+  }
 
   /* ============================================================
      BOOKING BY CHANGE
   ============================================================ */
 
-  const handleBookingByChange = (selected) => {
-    setFormData((prev) => ({
+  const handleBookingByChange = selected => {
+    setFormData(prev => ({
       ...prev,
-      bookingBy: selected ? selected.value : "",
-    }));
+      bookingBy: selected ? selected.value : ''
+    }))
 
-    setErrors((prev) => ({
+    setErrors(prev => ({
       ...prev,
-      bookingBy: "",
-    }));
-  };
+      bookingBy: ''
+    }))
+  }
 
   /* ============================================================
      DIVISION CHANGE
   ============================================================ */
 
-  const handleDivisionChange = (selected) => {
-    setFormData((prev) => ({
+  const handleDivisionChange = selected => {
+    setFormData(prev => ({
       ...prev,
-      division: selected ? selected.value : "",
-    }));
+      division: selected ? selected.value : ''
+    }))
 
-    setErrors((prev) => ({
+    setErrors(prev => ({
       ...prev,
-      division: "",
-    }));
-  };
+      division: ''
+    }))
+  }
 
   /* ============================================================
      BOOKING DATE CHANGE
   ============================================================ */
 
-  const handleDateChange = (selectedDate) => {
-    const formattedDate = formatDateForForm(selectedDate);
+  const handleDateChange = selectedDate => {
+    const formattedDate = formatDateForForm(selectedDate)
 
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      date: formattedDate,
-    }));
+      date: formattedDate
+    }))
 
-    setErrors((prev) => ({
+    setErrors(prev => ({
       ...prev,
-      date: "",
-    }));
-  };
+      date: ''
+    }))
+  }
 
   /* ============================================================
      VALIDATE BOOKING TIME
   ============================================================ */
 
   const validateBookingTime = (hours, minutes) => {
-    const totalMinutes = Number(hours) * 60 + Number(minutes);
+    const totalMinutes = Number(hours) * 60 + Number(minutes)
 
     if (totalMinutes === 0) {
-      setErrors((prev) => ({
+      setErrors(prev => ({
         ...prev,
-        duration: "Booking duration must be greater than 0",
-      }));
+        duration: 'Booking duration must be greater than 0'
+      }))
     } else {
-      setErrors((prev) => ({
+      setErrors(prev => ({
         ...prev,
-        duration: "",
-      }));
+        duration: ''
+      }))
     }
-  };
+  }
 
   /* ============================================================
      HOURS CHANGE
   ============================================================ */
 
-  const handleHoursChange = (e) => {
-    const value = e.target.value;
+  const handleHoursChange = e => {
+    const value = e.target.value
 
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      hours: value,
-    }));
+      hours: value
+    }))
 
-    validateBookingTime(value, formData.minutes);
-  };
+    validateBookingTime(value, formData.minutes)
+  }
 
   /* ============================================================
      MINUTES CHANGE
   ============================================================ */
 
-  const handleMinutesChange = (e) => {
-    const value = e.target.value;
+  const handleMinutesChange = e => {
+    const value = e.target.value
 
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      minutes: value,
-    }));
+      minutes: value
+    }))
 
-    validateBookingTime(formData.hours, value);
-  };
+    validateBookingTime(formData.hours, value)
+  }
 
-  const isPastDate = (dateString) => {
-    if (!dateString) return false;
+  const isPastDate = dateString => {
+    if (!dateString) return false
 
-    const selected = parseFormDate(dateString);
-    if (!selected) return false;
-    const today = new Date();
+    const selected = parseFormDate(dateString)
+    if (!selected) return false
+    const today = new Date()
 
-    today.setHours(0, 0, 0, 0);
-    selected.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0)
+    selected.setHours(0, 0, 0, 0)
 
-    return selected < today;
-  };
+    return selected < today
+  }
 
   /* ============================================================
      FORM VALIDATION
   ============================================================ */
 
   const validateForm = () => {
-    let newErrors = {};
+    let newErrors = {}
 
     if (!formData.date) {
-      newErrors.date = "Please select booking date";
+      newErrors.date = 'Please select booking date'
     } else if (isAddMode && isPastDate(formData.date)) {
-      newErrors.date = "Past dates cannot be selected for conference booking";
+      newErrors.date = 'Past dates cannot be selected for conference booking'
     }
 
     if (!formData.fromTime) {
-      newErrors.fromTime = "Please select start time";
+      newErrors.fromTime = 'Please select start time'
     }
 
     if (!formData.bookingBy) {
-      newErrors.bookingBy = "Please select employee";
+      newErrors.bookingBy = 'Please select employee'
     }
 
     if (!formData.division) {
-      newErrors.division = "Please select division";
+      newErrors.division = 'Please select division'
     }
 
-    if (!(formData.reason || "").trim()) {
-      newErrors.reason = "Reason is required";
+    if (!(formData.reason || '').trim()) {
+      newErrors.reason = 'Reason is required'
     }
 
     if (formData.attendees < 1) {
-      newErrors.attendees = "Minimum 1 attendee required";
+      newErrors.attendees = 'Minimum 1 attendee required'
     }
 
     const totalMinutes =
-      parseInt(formData.hours || 0) * 60 + parseInt(formData.minutes || 0);
+      parseInt(formData.hours || 0) * 60 + parseInt(formData.minutes || 0)
 
     if (totalMinutes === 0) {
-      newErrors.duration = "Booking duration must be greater than 0";
+      newErrors.duration = 'Booking duration must be greater than 0'
     }
 
-    setErrors(newErrors);
+    setErrors(newErrors)
 
-    return Object.keys(newErrors).length === 0;
-  };
+    return Object.keys(newErrors).length === 0
+  }
 
   /* ============================================================
      ADD BOOKING
   ============================================================ */
 
   const handleAddBooking = async (e, sendForApproval = false) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    const isValid = validateForm();
+    const isValid = validateForm()
 
     if (!isValid) {
-      notifyError(CONFERENCE_MESSAGES.FIX_FORM_ERRORS);
+      notifyError(CONFERENCE_MESSAGES.FIX_FORM_ERRORS)
 
-      return;
+      return
     }
 
     try {
-      setLoading(true);
+      setLoading(true)
 
       const res = await conferenceAction({
         ...formData,
 
-        action: sendForApproval ? "add_and_send" : "add",
-      });
+        action: sendForApproval ? 'add_and_send' : 'add'
+      })
 
       if (res.status) {
         await notifySuccess(
           sendForApproval
             ? CONFERENCE_MESSAGES.SENT_FOR_APPROVAL
-            : CONFERENCE_MESSAGES.BOOKING_CREATED,
-        );
+            : CONFERENCE_MESSAGES.BOOKING_CREATED
+        )
 
-        await refreshTable();
+        await refreshTable()
 
-        onClose();
+        onClose()
       } else {
-        notifyError(res.message);
+        notifyError(res.message)
       }
     } catch (err) {
       notifyError(
         err?.response?.data?.message ||
           err?.message ||
-          CONFERENCE_MESSAGES.CREATE_BOOKING_FAILED,
-      );
+          CONFERENCE_MESSAGES.CREATE_BOOKING_FAILED
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   /* ============================================================
      EDIT BOOKING
   ============================================================ */
 
-  const handleEditBooking = async (e) => {
-    e.preventDefault();
+  const handleEditBooking = async e => {
+    e.preventDefault()
 
-    const isValid = validateForm();
+    const isValid = validateForm()
 
     if (!isValid) {
-      notifyError(CONFERENCE_MESSAGES.FIX_FORM_ERRORS);
+      notifyError(CONFERENCE_MESSAGES.FIX_FORM_ERRORS)
 
-      return;
+      return
     }
 
     try {
-      setLoading(true);
+      setLoading(true)
 
       const res = await conferenceAction({
         ...formData,
 
-        action: "edit",
-      });
+        action: 'edit'
+      })
 
       if (res.status) {
-        await notifySuccess(CONFERENCE_MESSAGES.BOOKING_UPDATED);
+        await notifySuccess(CONFERENCE_MESSAGES.BOOKING_UPDATED)
 
-        await refreshTable();
+        await refreshTable()
 
-        onClose();
+        onClose()
       } else {
-        notifyError(res.message);
+        notifyError(res.message)
       }
     } catch (err) {
       notifyError(
         err?.response?.data?.message ||
           err?.message ||
-          CONFERENCE_MESSAGES.EDIT_FAILED,
-      );
+          CONFERENCE_MESSAGES.EDIT_FAILED
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   /* ============================================================
      SEND FOR CONFIRMATION
@@ -623,39 +623,39 @@ const ConferenceBookingModal = ({
     const confirmed = await confirmAction(
       CONFERENCE_MESSAGES.CONFIRM_SEND_TITLE,
 
-      CONFERENCE_MESSAGES.CONFIRM_SEND_MESSAGE,
-    );
+      CONFERENCE_MESSAGES.CONFIRM_SEND_MESSAGE
+    )
 
     if (!confirmed) {
-      return;
+      return
     }
 
     try {
-      setLoading(true);
+      setLoading(true)
 
       const res = await conferenceAction({
         bookingId: formData.bookingId,
 
-        action: "send_confirmation",
-      });
+        action: 'send_confirmation'
+      })
 
       if (res.status) {
-        await notifySuccess(CONFERENCE_MESSAGES.SENT_FOR_APPROVAL);
+        await notifySuccess(CONFERENCE_MESSAGES.SENT_FOR_APPROVAL)
 
-        dispatch(getAuthroizationTaskCount());
+        dispatch(getAuthroizationTaskCount())
 
-        await refreshTable();
+        await refreshTable()
 
-        onClose();
+        onClose()
       } else {
-        notifyError(res.message);
+        notifyError(res.message)
       }
     } catch {
-      notifyError(CONFERENCE_MESSAGES.ACTION_FAILED);
+      notifyError(CONFERENCE_MESSAGES.ACTION_FAILED)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   /* ============================================================
      DELETE BOOKING
@@ -665,37 +665,37 @@ const ConferenceBookingModal = ({
     const confirmed = await confirmAction(
       CONFERENCE_MESSAGES.CONFIRM_DELETE_TITLE,
 
-      CONFERENCE_MESSAGES.CONFIRM_DELETE_MESSAGE,
-    );
+      CONFERENCE_MESSAGES.CONFIRM_DELETE_MESSAGE
+    )
 
     if (!confirmed) {
-      return;
+      return
     }
 
     try {
-      setLoading(true);
+      setLoading(true)
 
       const res = await conferenceAction({
         bookingId: formData.bookingId,
 
-        action: "delete",
-      });
+        action: 'delete'
+      })
 
       if (res.status) {
-        await notifySuccess(CONFERENCE_MESSAGES.BOOKING_DELETED);
+        await notifySuccess(CONFERENCE_MESSAGES.BOOKING_DELETED)
 
-        await refreshTable();
+        await refreshTable()
 
-        onClose();
+        onClose()
       } else {
-        notifyError(res.message);
+        notifyError(res.message)
       }
     } catch {
-      notifyError(CONFERENCE_MESSAGES.DELETE_FAILED);
+      notifyError(CONFERENCE_MESSAGES.DELETE_FAILED)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   /* ============================================================
      CANCEL BOOKING
@@ -705,37 +705,37 @@ const ConferenceBookingModal = ({
     const confirmed = await confirmAction(
       CONFERENCE_MESSAGES.CONFIRM_CANCEL_TITLE,
 
-      CONFERENCE_MESSAGES.CONFIRM_CANCEL_MESSAGE,
-    );
+      CONFERENCE_MESSAGES.CONFIRM_CANCEL_MESSAGE
+    )
 
     if (!confirmed) {
-      return;
+      return
     }
 
     try {
-      setLoading(true);
+      setLoading(true)
 
       const res = await conferenceAction({
         bookingId: formData.bookingId,
 
-        action: "cancel",
-      });
+        action: 'cancel'
+      })
 
       if (res.status) {
-        await notifySuccess(CONFERENCE_MESSAGES.BOOKING_CANCELLED);
+        await notifySuccess(CONFERENCE_MESSAGES.BOOKING_CANCELLED)
 
-        await refreshTable();
+        await refreshTable()
 
-        onClose();
+        onClose()
       } else {
-        notifyError(res.message);
+        notifyError(res.message)
       }
     } catch {
-      notifyError(CONFERENCE_MESSAGES.CANCEL_FAILED);
+      notifyError(CONFERENCE_MESSAGES.CANCEL_FAILED)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   /* ============================================================
      BACKDROP CLICK
@@ -743,20 +743,20 @@ const ConferenceBookingModal = ({
 
   const handleBackdropClick = async () => {
     if (loading) {
-      return;
+      return
     }
 
     const hasChanges =
-      JSON.stringify(formData) !== JSON.stringify(initialFormData);
+      JSON.stringify(formData) !== JSON.stringify(initialFormData)
 
     /*
      * Nothing changed
      */
 
     if (!hasChanges) {
-      onClose();
+      onClose()
 
-      return;
+      return
     }
 
     /*
@@ -766,65 +766,65 @@ const ConferenceBookingModal = ({
     const confirmed = await confirmAction(
       CONFERENCE_MESSAGES.CONFIRM_DISCARD_TITLE,
 
-      CONFERENCE_MESSAGES.CONFIRM_DISCARD_MESSAGE,
-    );
+      CONFERENCE_MESSAGES.CONFIRM_DISCARD_MESSAGE
+    )
 
     if (confirmed) {
-      onClose();
+      onClose()
     }
-  };
+  }
 
   /* ============================================================
      TIME SLOTS
   ============================================================ */
 
   const timeSlots = [
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "12:00",
-    "12:30",
-    "13:00",
-    "13:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-    "17:00",
-    "17:30",
-    "18:00",
-  ];
+    '09:00',
+    '09:30',
+    '10:00',
+    '10:30',
+    '11:00',
+    '11:30',
+    '12:00',
+    '12:30',
+    '13:00',
+    '13:30',
+    '14:00',
+    '14:30',
+    '15:00',
+    '15:30',
+    '16:00',
+    '16:30',
+    '17:00',
+    '17:30',
+    '18:00'
+  ]
 
   /* ============================================================
      SELECT OPTIONS
   ============================================================ */
 
-  const bookingUserOptions = bookingUsers.map((emp) => ({
+  const bookingUserOptions = bookingUsers.map(emp => ({
     value: emp.EMP_CODE,
 
-    label: emp.EMP_NAME,
-  }));
+    label: emp.EMP_NAME
+  }))
 
-  const divisionOptions = divisions.map((div) => ({
+  const divisionOptions = divisions.map(div => ({
     value: div.DIVSN_ID,
 
-    label: div.DIVSN_DESC,
-  }));
+    label: div.DIVSN_DESC
+  }))
 
   const selectedBookingUser =
     bookingUserOptions.find(
-      (option) => String(option.value) === String(formData.bookingBy),
-    ) || null;
+      option => String(option.value) === String(formData.bookingBy)
+    ) || null
 
   const selectedDivision =
     divisionOptions.find(
-      (option) => String(option.value) === String(formData.division),
-    ) || null;
+      option => String(option.value) === String(formData.division)
+    ) || null
 
   /* ============================================================
      RENDER
@@ -837,33 +837,33 @@ const ConferenceBookingModal = ({
       ======================================================== */}
 
       <div
-        className="modal fade show"
+        className='modal fade show'
         style={{
-          display: "block",
+          display: 'block'
         }}
-        tabIndex="-1"
+        tabIndex='-1'
       >
-        <div className="modal-dialog modal-lg">
-          <div className="modal-content">
+        <div className='modal-dialog modal-lg'>
+          <div className='modal-content'>
             {/* ==================================================
                 HEADER
             ================================================== */}
 
-            <div className="modal-header">
-              <h5 className="modal-title fw-bold">
+            <div className='modal-header'>
+              <h5 className='modal-title fw-bold'>
                 {isAddMode
-                  ? "Add Conference Booking"
-                  : "Edit Conference Booking"}
+                  ? 'Add Conference Booking'
+                  : 'Edit Conference Booking'}
               </h5>
 
               <button
-                type="button"
-                className="close"
-                aria-label="Close"
+                type='button'
+                className='close'
+                aria-label='Close'
                 onClick={handleBackdropClick}
                 disabled={loading}
               >
-                <span aria-hidden="true">×</span>
+                <span aria-hidden='true'>×</span>
               </button>
             </div>
 
@@ -871,16 +871,16 @@ const ConferenceBookingModal = ({
                 BODY
             ================================================== */}
 
-            <div className="modal-body">
+            <div className='modal-body'>
               {/* =================================================
                   ROW 1
               ================================================= */}
 
-              <div className="row mb-3">
+              <div className='row mb-3'>
                 {/* DATE */}
 
-                <div className="col-md-4">
-                  <label className="form-label">Date</label>
+                <div className='col-md-4'>
+                  <label className='form-label'>Date</label>
 
                   <SDLCalendar
                     value={parseFormDate(formData.date)}
@@ -888,11 +888,11 @@ const ConferenceBookingModal = ({
                     inline={false}
                     disabled={readOnly}
                     minDate={isAddMode ? new Date() : undefined}
-                    className={`w-100 ${errors.date ? "p-invalid" : ""}`}
+                    className={`w-100 ${errors.date ? 'p-invalid' : ''}`}
                   />
 
                   {errors.date && (
-                    <div className="invalid-feedback d-block">
+                    <div className='invalid-feedback d-block'>
                       {errors.date}
                     </div>
                   )}
@@ -900,21 +900,22 @@ const ConferenceBookingModal = ({
 
                 {/* FROM TIME */}
 
-                <div className="col-md-4">
-                  <label className="form-label">From Time</label>
+                <div className='col-md-4'>
+                  <label className='form-label'>From Time</label>
 
                   <select
                     className={`form-select ${
-                      errors.fromTime ? "is-invalid" : ""
+                      errors.fromTime ? 'is-invalid' : ''
                     }`}
-                    name="fromTime"
+                    name='fromTime'
                     value={formData.fromTime}
                     onChange={handleChange}
                     disabled={readOnly}
+                    style={{ border: '1px solid gray' }}
                   >
-                    <option value="">Select Time</option>
+                    <option value=''>Select Time</option>
 
-                    {timeSlots.map((time) => (
+                    {timeSlots.map(time => (
                       <option key={time} value={time}>
                         {time}
                       </option>
@@ -922,31 +923,32 @@ const ConferenceBookingModal = ({
                   </select>
 
                   {errors.fromTime && (
-                    <div className="invalid-feedback">{errors.fromTime}</div>
+                    <div className='invalid-feedback'>{errors.fromTime}</div>
                   )}
                 </div>
 
                 {/* BOOKING TIME */}
 
-                <div className="col-md-4">
-                  <label className="form-label">Booking Time</label>
+                <div className='col-md-4'>
+                  <label className='form-label'>Booking Time</label>
 
-                  <div className="d-flex gap-2">
+                  <div className='d-flex gap-2'>
                     {/* HOURS */}
 
                     <select
-                      className="form-select"
-                      name="hours"
+                      className='form-select'
+                      name='hours'
                       value={formData.hours}
                       onChange={handleHoursChange}
                       disabled={readOnly}
+                      style={{ border: '1px solid gray' }}
                     >
                       {Array.from(
                         {
-                          length: 16,
+                          length: 16
                         },
-                        (_, i) => i,
-                      ).map((hr) => (
+                        (_, i) => i
+                      ).map(hr => (
                         <option key={hr} value={hr}>
                           {hr} Hr
                         </option>
@@ -956,20 +958,21 @@ const ConferenceBookingModal = ({
                     {/* MINUTES */}
 
                     <select
-                      className="form-select"
-                      name="minutes"
+                      className='form-select'
+                      name='minutes'
                       value={formData.minutes}
                       onChange={handleMinutesChange}
                       disabled={readOnly}
+                      style={{ border: '1px solid gray' }}
                     >
-                      <option value="00">00 Min</option>
+                      <option value='00'>00 Min</option>
 
-                      <option value="30">30 Min</option>
+                      <option value='30'>30 Min</option>
                     </select>
                   </div>
 
                   {errors.duration && (
-                    <div className="invalid-feedback d-block">
+                    <div className='invalid-feedback d-block'>
                       {errors.duration}
                     </div>
                   )}
@@ -980,23 +983,49 @@ const ConferenceBookingModal = ({
                   ROW 2
               ================================================= */}
 
-              <div className="row mb-3">
+              <div className='row mb-3'>
                 {/* BOOKING BY */}
 
-                <div className="col-md-6">
-                  <label className="form-label">Booking By</label>
+                <div className='col-md-6'>
+                  <label className='form-label'>Booking By</label>
 
-                  <Select
+                  {/* <Select
                     placeholder="Search Employee..."
                     options={bookingUserOptions}
                     value={selectedBookingUser}
                     onChange={handleBookingByChange}
                     isDisabled={readOnly}
                     className={errors.bookingBy ? "is-invalid" : ""}
-                  />
+                  /> */}
+
+                  <select
+                    className={`form-select ${
+                      errors.bookingBy ? 'is-invalid' : ''
+                    }`}
+                    name='bookingBy'
+                    value={formData.bookingBy}
+                    onChange={e => {
+                      const selected = bookingUserOptions.find(
+                        option =>
+                          String(option.value) === String(e.target.value)
+                      )
+
+                      handleBookingByChange(selected || null)
+                    }}
+                    disabled={readOnly}
+                    style={{ border: '1px solid gray' }}
+                  >
+                    <option value=''>Search Employee...</option>
+
+                    {bookingUserOptions.map(user => (
+                      <option key={user.value} value={user.value}>
+                        {user.label}
+                      </option>
+                    ))}
+                  </select>
 
                   {errors.bookingBy && (
-                    <div className="invalid-feedback d-block">
+                    <div className='invalid-feedback d-block'>
                       {errors.bookingBy}
                     </div>
                   )}
@@ -1004,57 +1033,57 @@ const ConferenceBookingModal = ({
 
                 {/* ATTENDEES */}
 
-                <div className="col-md-6">
-                  <label className="form-label">No of Attendees</label>
+                <div className='col-md-6'>
+                  <label className='form-label'>No of Attendees</label>
 
                   <input
-                    type="number"
+                    type='number'
                     className={`form-control ${
-                      errors.attendees ? "is-invalid" : ""
+                      errors.attendees ? 'is-invalid' : ''
                     }`}
-                    name="attendees"
+                    name='attendees'
                     value={formData.attendees}
                     min={1}
                     max={100}
                     step={1}
                     disabled={readOnly}
-                    onKeyDown={(e) => {
-                      if (["e", "E", "+", "-", "."].includes(e.key)) {
-                        e.preventDefault();
+                    onKeyDown={e => {
+                      if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+                        e.preventDefault()
                       }
                     }}
-                    onPaste={(e) => {
-                      const pasted = e.clipboardData.getData("text");
+                    onPaste={e => {
+                      const pasted = e.clipboardData.getData('text')
 
                       if (!/^\d+$/.test(pasted)) {
-                        e.preventDefault();
+                        e.preventDefault()
                       }
                     }}
-                    onChange={(e) => {
-                      let value = e.target.value;
+                    onChange={e => {
+                      let value = e.target.value
 
                       if (value.length > 3) {
-                        value = value.slice(0, 3);
+                        value = value.slice(0, 3)
                       }
 
-                      if (value !== "" && Number(value) > 100) {
-                        value = "100";
+                      if (value !== '' && Number(value) > 100) {
+                        value = '100'
                       }
 
-                      setFormData((prev) => ({
+                      setFormData(prev => ({
                         ...prev,
-                        attendees: value,
-                      }));
+                        attendees: value
+                      }))
 
-                      setErrors((prev) => ({
+                      setErrors(prev => ({
                         ...prev,
-                        attendees: "",
-                      }));
+                        attendees: ''
+                      }))
                     }}
                   />
 
                   {errors.attendees && (
-                    <div className="invalid-feedback">{errors.attendees}</div>
+                    <div className='invalid-feedback'>{errors.attendees}</div>
                   )}
                 </div>
               </div>
@@ -1063,22 +1092,48 @@ const ConferenceBookingModal = ({
                   ROW 3
               ================================================= */}
 
-              <div className="row mb-3">
+              <div className='row mb-3'>
                 {/* DIVISION */}
 
-                <div className="col-md-6">
-                  <label className="form-label">Division</label>
+                <div className='col-md-6'>
+                  <label className='form-label'>Division</label>
 
-                  <Select
-                    placeholder="Search Division..."
+                  {/* <Select
+                    placeholder='Search Division...'
                     options={divisionOptions}
                     value={selectedDivision}
                     onChange={handleDivisionChange}
                     isDisabled={readOnly}
-                  />
+                  /> */}
+
+                  <select
+                    className={`form-select ${
+                      errors.division ? 'is-invalid' : ''
+                    }`}
+                    name='division'
+                    value={formData.division}
+                    onChange={e => {
+                      const selected = divisionOptions.find(
+                        option =>
+                          String(option.value) === String(e.target.value)
+                      )
+
+                      handleDivisionChange(selected || null)
+                    }}
+                    disabled={readOnly}
+                    style={{ border: '1px solid gray' }}
+                  >
+                    <option value=''>Search Division...</option>
+
+                    {divisionOptions.map(division => (
+                      <option key={division.value} value={division.value}>
+                        {division.label}
+                      </option>
+                    ))}
+                  </select>
 
                   {errors.division && (
-                    <div className="invalid-feedback d-block">
+                    <div className='invalid-feedback d-block'>
                       {errors.division}
                     </div>
                   )}
@@ -1086,29 +1141,29 @@ const ConferenceBookingModal = ({
 
                 {/* REASON */}
 
-                <div className="col-md-6">
-                  <label className="form-label">Reason</label>
+                <div className='col-md-6'>
+                  <label className='form-label'>Reason</label>
 
                   <textarea
                     className={`form-control ${
-                      errors.reason ? "is-invalid" : ""
+                      errors.reason ? 'is-invalid' : ''
                     }`}
-                    name="reason"
-                    rows="2"
+                    name='reason'
+                    rows='2'
                     maxLength={200}
                     value={formData.reason}
                     onChange={handleChange}
                     disabled={readOnly}
                   />
 
-                  <div className="d-flex justify-content-between">
+                  <div className='d-flex justify-content-between'>
                     {errors.reason && (
-                      <div className="invalid-feedback d-block">
+                      <div className='invalid-feedback d-block'>
                         {errors.reason}
                       </div>
                     )}
 
-                    <small className="text-muted ms-auto">
+                    <small className='text-muted ms-auto'>
                       {formData.reason?.length || 0}
                       /200
                     </small>
@@ -1120,22 +1175,22 @@ const ConferenceBookingModal = ({
                   FACILITIES
               ================================================= */}
 
-              <div className="row mb-3">
+              <div className='row mb-3'>
                 {/* TEA */}
 
-                <div className="col-md-4">
-                  <div className="form-check">
+                <div className='col-md-4'>
+                  <div className='form-check'>
                     <input
-                      type="checkbox"
-                      className="form-check-input"
-                      name="tea"
-                      id="tea"
+                      type='checkbox'
+                      className='form-check-input'
+                      name='tea'
+                      id='tea'
                       checked={formData.tea}
                       onChange={handleChange}
                       disabled={readOnly}
                     />
 
-                    <label className="form-check-label" htmlFor="tea">
+                    <label className='form-check-label' htmlFor='tea'>
                       Tea / Coffee
                     </label>
                   </div>
@@ -1143,19 +1198,19 @@ const ConferenceBookingModal = ({
 
                 {/* BREAKFAST */}
 
-                <div className="col-md-4">
-                  <div className="form-check">
+                <div className='col-md-4'>
+                  <div className='form-check'>
                     <input
-                      className="form-check-input"
-                      type="checkbox"
-                      name="breakfast"
-                      id="breakfast"
+                      className='form-check-input'
+                      type='checkbox'
+                      name='breakfast'
+                      id='breakfast'
                       checked={formData.breakfast}
                       onChange={handleChange}
                       disabled={readOnly}
                     />
 
-                    <label className="form-check-label" htmlFor="breakfast">
+                    <label className='form-check-label' htmlFor='breakfast'>
                       Breakfast
                     </label>
                   </div>
@@ -1163,19 +1218,19 @@ const ConferenceBookingModal = ({
 
                 {/* LUNCH */}
 
-                <div className="col-md-4">
-                  <div className="form-check">
+                <div className='col-md-4'>
+                  <div className='form-check'>
                     <input
-                      className="form-check-input"
-                      type="checkbox"
-                      name="lunch"
-                      id="lunch"
+                      className='form-check-input'
+                      type='checkbox'
+                      name='lunch'
+                      id='lunch'
                       checked={formData.lunch}
                       onChange={handleChange}
                       disabled={readOnly}
                     />
 
-                    <label className="form-check-label" htmlFor="lunch">
+                    <label className='form-check-label' htmlFor='lunch'>
                       Lunch
                     </label>
                   </div>
@@ -1187,7 +1242,7 @@ const ConferenceBookingModal = ({
                 FOOTER
             ================================================== */}
 
-            <div className="modal-footer">
+            <div className='modal-footer'>
               {/* =================================================
                   ADD MODE
               ================================================= */}
@@ -1196,20 +1251,20 @@ const ConferenceBookingModal = ({
                 <>
                   <button
                     disabled={loading}
-                    type="button"
-                    className="btn btn-primary me-2"
-                    onClick={(e) => handleAddBooking(e, false)}
+                    type='button'
+                    className='btn btn-primary me-2'
+                    onClick={e => handleAddBooking(e, false)}
                   >
-                    {loading ? "Saving..." : "Save"}
+                    {loading ? 'Saving...' : 'Save'}
                   </button>
 
                   <button
                     disabled={loading}
-                    type="button"
-                    className="btn btn-success"
-                    onClick={(e) => handleAddBooking(e, true)}
+                    type='button'
+                    className='btn btn-success'
+                    onClick={e => handleAddBooking(e, true)}
                   >
-                    {loading ? "Saving..." : "Save & Send for Auth"}
+                    {loading ? 'Saving...' : 'Save & Send for Auth'}
                   </button>
                 </>
               )}
@@ -1222,8 +1277,8 @@ const ConferenceBookingModal = ({
                 <>
                   <button
                     disabled={loading}
-                    type="button"
-                    className="btn btn-primary me-2"
+                    type='button'
+                    className='btn btn-primary me-2'
                     onClick={handleEditBooking}
                   >
                     Update
@@ -1231,8 +1286,8 @@ const ConferenceBookingModal = ({
 
                   <button
                     disabled={loading}
-                    type="button"
-                    className="btn btn-info"
+                    type='button'
+                    className='btn btn-info'
                     onClick={handleSendForConfirmation}
                   >
                     Send For Auth
@@ -1246,13 +1301,13 @@ const ConferenceBookingModal = ({
 
               {!isAddMode && !isPlanned && canCancelBooking && (
                 <button
-                  type="button"
+                  type='button'
                   disabled={loading}
-                  className="btn"
+                  className='btn'
                   style={{
-                    backgroundColor: "#FE9F43",
+                    backgroundColor: '#FE9F43',
 
-                    color: "#fff",
+                    color: '#fff'
                   }}
                   onClick={handleCancelBooking}
                 >
@@ -1269,11 +1324,11 @@ const ConferenceBookingModal = ({
       ======================================================== */}
 
       <div
-        className="modal-backdrop fade show"
+        className='modal-backdrop fade show'
         onClick={loading ? undefined : handleBackdropClick}
       />
     </>
-  );
-};
+  )
+}
 
-export default ConferenceBookingModal;
+export default ConferenceBookingModal
