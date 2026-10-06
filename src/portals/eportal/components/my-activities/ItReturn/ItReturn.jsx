@@ -6,8 +6,10 @@ import IncomeSourcesTab from "./tabs/IncomeSourcesTab";
 import DeductionsTab from "./tabs/DeductionsTab";
 import ExemptionsTab from "./tabs/ExemptionsTab";
 import PreviewPrintTab from "./tabs/PreviewPrintTab";
+import EportalPageLoader from "../../loader/EportalPageLoader";
 
 import { getItReturnConfig } from "../../../services/itReturnService";
+import "../../../assets/css/wideContentPages.css";
 
 const ItReturn = () => {
   const [activeTab, setActiveTab] = useState("tab1");
@@ -107,7 +109,7 @@ const ItReturn = () => {
      LOADING STATE
   ========================================= */
   if (loadingConfig) {
-    return <div>Loading...</div>;
+    return <EportalPageLoader />;
   }
 
   return (
@@ -129,7 +131,7 @@ const ItReturn = () => {
       </div>
 
       {/* CARD */}
-      <div className="card">
+      <div className="card eportal-wide-card">
         <div className="card-body">
 
           {/* TABS HEADER */}

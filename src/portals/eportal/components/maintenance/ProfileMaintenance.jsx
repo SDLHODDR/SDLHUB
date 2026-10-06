@@ -9,6 +9,8 @@ import {
 import "../../assets/css/profileMaintenance.css";
 
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
+import "../../assets/css/wideContentPages.css";
+import EportalPageLoader from "../loader/EportalPageLoader";
 
 import {
   addProfile,
@@ -32,6 +34,7 @@ import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import { PROFILE_MAINTENANCE_MESSAGES } from "../../constants/profileMaintenanceConstants";
 
 import { getPortalFromPath } from "../../../../config/portalConfig";
+import { Alignment } from "ckeditor5";
 
 const ProfileMaintenance = () => {
   const hasFetchedProfiles = useRef(false);
@@ -488,6 +491,7 @@ const ProfileMaintenance = () => {
       field: "designation",
       header: "Designation",
       sortable: true,
+      style: { Alignment: "left" },
     },
   ];
 
@@ -622,6 +626,7 @@ const ProfileMaintenance = () => {
 
   return (
     <>
+      {(loading || userLoading) && <EportalPageLoader />}
       <div className="page-header">
         <div className="add-item d-flex">
           <div className="page-title">
@@ -637,7 +642,7 @@ const ProfileMaintenance = () => {
         />
       </div>
 
-      <div className="card">
+      <div className="card eportal-wide-card">
         <div className="card-body profile-maintenance">
           {/* PROFILE SELECT */}
 
@@ -662,6 +667,7 @@ const ProfileMaintenance = () => {
               <button
                 type="button"
                 className="btn btn-outline-secondary"
+                style={{ height: "40px" }}
                 disabled={!profileId}
                 onClick={resetProfileData}
               >
@@ -726,15 +732,7 @@ const ProfileMaintenance = () => {
                 </li>
               </ul>
 
-              {loading ? (
-                <div className="text-center p-5">
-                  <div
-                    className="spinner-border text-primary"
-                    role="status"
-                  ></div>
-                  <div className="mt-2">Loading profile access...</div>
-                </div>
-              ) : (
+              {loading ? null : (
                 <div className="tab-content">
                   {/* MENU ACCESS */}
 
@@ -869,11 +867,11 @@ const ProfileMaintenance = () => {
 
                               {/* SUBMENUS */}
                               {hasSubmenus && expandedMenus[menu.ID] && (
-                                <div className="submenu-container">
+                                <div className="submenu-container menu-submenu-grid">
                                   {menu.submenus.map((sub) => (
                                     <div
                                       key={sub.ID}
-                                      className="form-check me-3"
+                                      className="form-check profile-task-option"
                                     >
                                       <input
                                         id={`submenu-${sub.ID}`}
@@ -949,28 +947,29 @@ const ProfileMaintenance = () => {
                           </div>
                         </div>
 
-                        {filteredTasks.map((task) => (
-                          <div
-                            key={task.ID}
-                            className="form-check form-check-inline"
-                          >
-                            <input
-                              id={`task-${task.ID}`}
-                              className="form-check-input"
-                              type="checkbox"
-                              checked={taskAccess.includes(Number(task.ID))}
-                              onChange={() => toggleTask(task.ID)}
-                            />
-
-                            <label
-                              htmlFor={`task-${task.ID}`}
-                              className="form-check-label ms-2"
-                              style={{ cursor: "pointer" }}
+                        <div className="profile-task-grid mb-3">
+                          {filteredTasks.map((task) => (
+                            <div
+                              key={task.ID}
+                              className="form-check profile-task-option"
                             >
-                              {task.TASK_DESC}
-                            </label>
-                          </div>
-                        ))}
+                              <input
+                                id={`task-${task.ID}`}
+                                className="form-check-input"
+                                type="checkbox"
+                                checked={taskAccess.includes(Number(task.ID))}
+                                onChange={() => toggleTask(task.ID)}
+                              />
+
+                              <label
+                                htmlFor={`task-${task.ID}`}
+                                className="form-check-label"
+                              >
+                                {task.TASK_DESC}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
 
                         {profileId && (
                           <div className="text-center mt-4">
@@ -1019,29 +1018,29 @@ const ProfileMaintenance = () => {
                           </div>
                         </div>
 
-                        {filteredDash.map((dash) => (
-                          <div
-                            key={dash.ID}
-                            className="form-check form-check-inline"
-                          >
-                            <input
-                              id={`dash-${dash.ID}`}
-                              className="form-check-input"
-                              type="checkbox"
-                              //checked={dashAccess.includes(dash.ID)}
-                              checked={dashAccess.includes(Number(dash.ID))}
-                              onChange={() => toggleDash(dash.ID)}
-                            />
-
-                            <label
-                              htmlFor={`dash-${dash.ID}`}
-                              className="form-check-label ms-2"
-                              style={{ cursor: "pointer" }}
+                        <div className="profile-task-grid mb-3">
+                          {filteredDash.map((dash) => (
+                            <div
+                              key={dash.ID}
+                              className="form-check profile-task-option"
                             >
-                              {dash.DASH_DESC}
-                            </label>
-                          </div>
-                        ))}
+                              <input
+                                id={`dash-${dash.ID}`}
+                                className="form-check-input"
+                                type="checkbox"
+                                checked={dashAccess.includes(Number(dash.ID))}
+                                onChange={() => toggleDash(dash.ID)}
+                              />
+
+                              <label
+                                htmlFor={`dash-${dash.ID}`}
+                                className="form-check-label"
+                              >
+                                {dash.DASH_DESC}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
 
                         {profileId && (
                           <div className="text-center mt-4">
@@ -1081,11 +1080,7 @@ const ProfileMaintenance = () => {
 
                     {/* TABLE */}
                     <div className="profile-users-table">
-                      {userLoading ? (
-                        <div className="p-4 text-center">
-                          <div className="spinner-border text-warning"></div>
-                        </div>
-                      ) : filteredProfileUsers.length === 0 ? (
+                      {userLoading ? null : filteredProfileUsers.length === 0 ? (
                         <div className="p-4 text-center text-muted">
                           No users found for selected profile
                         </div>
@@ -1093,8 +1088,8 @@ const ProfileMaintenance = () => {
                         <SDLDataTable
                           data={filteredProfileUsers}
                           columns={profileUserColumns}
-                          loading={userLoading}
-                          emptyMessage="No users found for selected profile"
+                          loading={false}
+                          emptyMessage={userLoading ? " " : "No users found for selected profile"}
                           className="profile-users-grid"
                           rows={userRows}
                           first={first}

@@ -82,7 +82,7 @@ const FamilyAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
 
     // Inline validation on Rejection
     if (!isApprove && !remarks.trim()) {
-      setRemarkError("Reason is required");
+      setRemarkError("Please enter remarks for rejection.");
       if (textareaRef.current) {
         textareaRef.current.focus();
       }
@@ -395,33 +395,12 @@ const FamilyAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
             )}
           </div>
 
-          <div className="modal-footer d-flex justify-content-between">
-            {/* REJECT BUTTON ON LEFT */}
-            <button
-              type="button"
-              className="btn btn-danger"
-              onClick={() => handleDecision("R")}
-              disabled={isSubmitting || loading || !details}
-            >
-              {submittingAction === "R" ? (
-                <>
-                  <span
-                    className="spinner-border spinner-border-sm me-1"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
-                  Processing...
-                </>
-              ) : (
-                "Reject"
-              )}
-            </button>
-
+          <div className="modal-footer d-flex">
             {/* ACCEPT & CANCEL ON RIGHT */}
             <div className="d-flex align-items-center">
               <button
                 type="button"
-                className="btn btn-primary me-2"
+                className="btn btn-success me-2"
                 onClick={() => handleDecision("A")}
                 disabled={isSubmitting || loading || !details}
               >
@@ -435,7 +414,28 @@ const FamilyAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
                     Processing...
                   </>
                 ) : (
-                  "Accept & Update"
+                  "Accept"
+                )}
+              </button>
+
+              {/* REJECT BUTTON ON LEFT */}
+              <button
+                type="button"
+                className="btn btn-danger me-2"
+                onClick={() => handleDecision("R")}
+                disabled={isSubmitting || loading || !details}
+              >
+                {submittingAction === "R" ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm me-1"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Processing...
+                  </>
+                ) : (
+                  "Reject"
                 )}
               </button>
 

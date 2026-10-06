@@ -14,6 +14,8 @@ import SDLSearch from "../../../../components/datatable/SDLSearch";
 import { getPortalFromPath } from "../../../../config/portalConfig";
 
 import { notifyError, notifySuccess } from "../../../../services/alertService";
+import "../../assets/css/wideContentPages.css";
+import EportalPageLoader from "../loader/EportalPageLoader";
 
 const ConferenceRoomMaintenance = () => {
   /* ============================================================
@@ -703,6 +705,7 @@ const ConferenceRoomMaintenance = () => {
 
   return (
     <>
+      {loading && <EportalPageLoader />}
       {/* ========================================================
           PAGE HEADER
       ======================================================== */}
@@ -729,7 +732,7 @@ const ConferenceRoomMaintenance = () => {
           CARD
       ======================================================== */}
 
-      <div className="card">
+      <div className="card eportal-wide-card">
         <div className="card-body">
           {/* ====================================================
               SEARCH
@@ -756,9 +759,11 @@ const ConferenceRoomMaintenance = () => {
             <SDLDataTable
               data={filteredData}
               columns={columns}
-              loading={loading}
+              loading={false}
               emptyMessage={
-                searchQuery
+                loading
+                  ? " "
+                  : searchQuery
                   ? "No conference rooms match your search."
                   : "No conference rooms found."
               }

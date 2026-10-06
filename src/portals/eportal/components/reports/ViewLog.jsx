@@ -11,6 +11,8 @@ import "../../assets/css/viewLog.css";
 import Badge from "../Badge";
 
 import { getPortalFromPath } from "../../../../config/portalConfig";
+import "../../assets/css/wideContentPages.css";
+import EportalPageLoader from "../loader/EportalPageLoader";
 
 const ViewLog = () => {
   /* ==========================================
@@ -296,6 +298,7 @@ const ViewLog = () => {
 
   return (
     <>
+      {loading && <EportalPageLoader />}
       {/* ================= PAGE HEADER ================= */}
 
       <div className="page-header">
@@ -320,7 +323,7 @@ const ViewLog = () => {
 
       {/* ================= CARD ================= */}
 
-      <div className="card">
+      <div className="card eportal-wide-card">
         <div className="card-body">
           {/* ================= FILTERS ================= */}
 
@@ -336,9 +339,9 @@ const ViewLog = () => {
               />
             </div>
 
-            <div className="col-lg-3 col-md-4">
+            <div className="col-lg-3 col-md-4 d-flex align-items-end gap-2">
               <button
-                className="btn btn-primary me-2"
+                className="btn btn-primary view-log-filter-button"
                 onClick={() => loadLogs(selectedDate)}
               >
                 <i className="ti ti-search me-1"></i>
@@ -346,7 +349,7 @@ const ViewLog = () => {
               </button>
 
               <button
-                className="btn btn-outline-secondary"
+                className="btn btn-outline-secondary view-log-filter-button"
                 onClick={() => {
                   setSelectedDate(today);
 
@@ -365,9 +368,9 @@ const ViewLog = () => {
               />
             </div>
 
-            <div className="col-lg-3 text-end">
+            <div className="col-lg-3 d-flex align-items-end justify-content-end">
               <button
-                className="btn btn-outline-primary"
+                className="btn btn-outline-primary view-log-filter-button"
                 onClick={() => loadLogs(selectedDate)}
               >
                 <i className="ti ti-refresh me-1"></i>
@@ -392,9 +395,9 @@ const ViewLog = () => {
           <SDLDataTable
             data={filteredLogs}
             columns={columns}
-            loading={loading}
+            loading={false}
             removableSort
-            emptyMessage="No log records found."
+            emptyMessage={loading ? " " : "No log records found."}
           />
         </div>
       </div>

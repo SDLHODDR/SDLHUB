@@ -12,10 +12,11 @@ export const ticketBookingColumns = (handlers) => {
       field: "person_name",
       header: "Person Name",
       sortable: true,
-      style: { width: "120px", whiteSpace: "nowrap" },
+      style: { width: "17%" },
     },
     {
-      header: "Trvl Date",
+      header: "Travel Date",
+      style: { width: "10%" },
       body(rowData) {
         return formatDashDate(rowData.trvl_date);
       },
@@ -24,20 +25,24 @@ export const ticketBookingColumns = (handlers) => {
       field: "trvl_from_location",
       header: "From",
       sortable: true,
+      style: { width: "8%" },
     },
     {
       field: "trvl_to_loc",
       header: "To",
       sortable: true,
+      style: { width: "8%" },
     },
     {
       field: "trvl_ft_name",
       header: "Flight/Train",
       sortable: true,
+      style: { width: "12%" },
     },
     {
       field: "remarks",
       header: "Remarks",
+      style: { width: "10%" },
       body: (rowData) => {
         const text = rowData?.remarks || "-";
         const trimmed = text.length > 15 ? `${text.substring(0, 15)}...` : text;
@@ -53,6 +58,7 @@ export const ticketBookingColumns = (handlers) => {
     {
       field: "authremarks",
       header: "Auth Remarks",
+      style: { width: "8%" },
       body: (rowData) => {
         const text =
           rowData?.status === "R" && rowData?.authremarks ? rowData.authremarks : "-";
@@ -69,6 +75,7 @@ export const ticketBookingColumns = (handlers) => {
     {
       field: "statusText",
       header: "Status",
+      style: { width: "12%" },
       body: (rowData) => {
         const hasAuthRemark = rowData?.status === "R" && rowData?.authremarks;
         return hasAuthRemark ? (
@@ -87,7 +94,7 @@ export const ticketBookingColumns = (handlers) => {
       body: (rowData) => (
         <SDLActionButtons row={rowData} actions={actions} />
       ),
-      style: { width: "120px", textAlign: "center" },
+      style: { width: "9%", textAlign: "center" },
     },
   ];
 };

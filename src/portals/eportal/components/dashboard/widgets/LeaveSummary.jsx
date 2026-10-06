@@ -26,7 +26,7 @@ const LeaveSummary = ({ data = [] }) => {
           return (
             <div
               key={item.type}
-              className="leave-item mb-3"
+              className="leave-item mb-3 p-2"
             >
               <div className="d-flex justify-content-between mb-1">
                 <span className="fw-medium">

@@ -12,10 +12,10 @@ import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuth
 import { notifyWarning } from "../../../../services/alertService";
 import { getPortalFromPath } from "../../../../config/portalConfig";
 import "../../assets/css/companyPolicies.css";
+import "../../assets/css/ticketBooking.css";
 
 const TicketBooking = () => {
   const dispatch = useDispatch();
-  const [modalLoading, setModalLoading] = useState(false);
   const ticketBookingData = useSelector((state) => state.eportalTBRData.data);
   const loading = useSelector((state) => state.eportalTBRData.loading);
 
@@ -86,7 +86,6 @@ const TicketBooking = () => {
   });
 
   const openModal = (config = {}) => {
-    setModalLoading(true);
     if (config.modalDate) {
       const currentDate = new Date();
       const modalDate = new Date(config.modalDate);
@@ -98,7 +97,6 @@ const TicketBooking = () => {
       const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
       if (diffDays < 0) {
-        setModalLoading(false);
         notifyWarning(
           "It is not permitted to raise a Ticket Booking request for past dates",
           "Not Permitted",
@@ -114,8 +112,6 @@ const TicketBooking = () => {
       id: config.id || null,
       isPostRemark: config.isPostRemark || null,
     });
-
-    setModalLoading(false);
   };
 
   const formSettings = {
@@ -135,7 +131,6 @@ const TicketBooking = () => {
       ...prev,
       isOpen: false,
     }));
-    setModalLoading(false);
   };
 
   const handleSuccess = () => {
@@ -187,20 +182,21 @@ const TicketBooking = () => {
         />
       </div>
 
-      {(loading || modalLoading) && (
-        <div className="p-4 text-center">
-          <div className="spinner-border text-warning"></div>
-        </div>
-      )}
-
-      <div className="card">
+      <div className="card ticket-booking-layout-card position-relative">
+        {loading && (
+          <div className="ticket-booking-loading-overlay">
+            <div className="spinner-border text-warning" role="status">
+              <span className="visually-hidden">Loading</span>
+            </div>
+          </div>
+        )}
         <div className="card-body">
           <div className="row">
-            <div className="col-xl-3 border-end">
+            <div className="col-12 col-xl-3 border-end ticket-booking-calendar-column">
               <SDLCalendar mode="inline" openModal={openModal} />
             </div>
 
-            <div className="col-xl-9 d-flex flex-column">
+            <div className="col-12 col-xl-9 d-flex flex-column ticket-booking-preview-column">
               <h6 className="mb-3">Ticket Booking Preview</h6>
               <div className="position-relative flex-grow-1">
                 <div className="row mb-3">
@@ -229,7 +225,7 @@ const TicketBooking = () => {
                   </div> */}
                   <div className="col-lg-3 col-md-4 col-12">
                     <select
-                      className="form-select"
+                      className="form-select ticket-booking-status-filter"
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
                     >
@@ -245,6 +241,7 @@ const TicketBooking = () => {
                     <button
                       type="button"
                       className="btn btn-outline-secondary"
+                      style={{ height: "40px" }}
                       disabled={statusFilter === "ALL" && !searchQuery}
                       onClick={clearFilters}
                     >
@@ -257,9 +254,14 @@ const TicketBooking = () => {
                 <SDLDataTable
                   data={filteredData}
                   columns={columns}
-                  loading={loading}
+                  className="ticket-booking-preview-table"
+                  tableStyle={{ width: "100%", minWidth: "100%", tableLayout: "fixed" }}
+                  scrollable={false}
+                  loading={false}
                   emptyMessage={
-                    searchQuery || statusFilter !== "ALL"
+                    loading
+                      ? " "
+                      : searchQuery || statusFilter !== "ALL"
                       ? "No ticket booking requests match the selected filter"
                       : "No ticket booking requests found"
                   }

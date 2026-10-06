@@ -4,9 +4,11 @@ import "./../../assets/css/holiday-calendar.css";
 
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
+import EportalPageLoader from "../loader/EportalPageLoader";
 
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
+import "../../assets/css/wideContentPages.css";
 
 const HolidayCalendar = () => {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -107,8 +109,8 @@ const HolidayCalendar = () => {
       header: "#",
       body: serialBody,
       style: {
-        width: "70px",
-        textAlign: "center",
+        width: "50px",
+        textAlign: "left",
       },
     },
     {
@@ -117,7 +119,7 @@ const HolidayCalendar = () => {
       body: holidayBody,
       sortable: true,
       style: {
-        minWidth: "260px",
+        minWidth: "200px",
       },
     },
     {
@@ -126,7 +128,7 @@ const HolidayCalendar = () => {
       sortable: true,
       style: {
         width: "140px",
-        textAlign: "center",
+        textAlign: "left",
       },
     },
     {
@@ -136,13 +138,14 @@ const HolidayCalendar = () => {
       sortable: true,
       style: {
         width: "160px",
-        textAlign: "center",
+        textAlign: "left",
       },
     },
   ];
 
   return (
     <>
+      {(loading || rulesLoading) && <EportalPageLoader />}
       {/* PAGE HEADER */}
 
       <div className="page-header">
@@ -162,7 +165,7 @@ const HolidayCalendar = () => {
 
       {/* YEAR NAVIGATION */}
 
-      <div className="card mb-4">
+      <div className="card mb-4 eportal-wide-card">
         <div className="card-body text-center">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <button
@@ -201,7 +204,7 @@ const HolidayCalendar = () => {
 
       {/* TABLE + NOTES */}
 
-      <div className="row">
+      <div className="row eportal-wide-row">
         {/* TABLE */}
 
         <div className="col-xl-8">
@@ -216,11 +219,7 @@ const HolidayCalendar = () => {
                   />
                 </div>
               </div>
-              {loading ? (
-                <div className="p-4 text-center">
-                  <div className="spinner-border text-warning"></div>
-                </div>
-              ) : filteredData.length === 0 ? (
+              {loading ? null : filteredData.length === 0 ? (
                 <div className="p-4 text-center text-muted">
                   No holidays found
                 </div>
@@ -229,7 +228,7 @@ const HolidayCalendar = () => {
                   <SDLDataTable
                     data={filteredData}
                     columns={columns}
-                    loading={loading}
+                    loading={false}
                     emptyMessage="No holidays found"
                     className="holiday-calendar-grid"
                     removableSort
@@ -251,11 +250,7 @@ const HolidayCalendar = () => {
                 NOTE:
               </h6>
 
-              {rulesLoading ? (
-                <div className="text-center py-3">
-                  <div className="spinner-border spinner-border-sm text-warning"></div>
-                </div>
-              ) : holidayRules.length === 0 ? (
+              {rulesLoading ? null : holidayRules.length === 0 ? (
                 <div className="text-muted">No rules available</div>
               ) : (
                 holidayRules.map((rule, index) => {
