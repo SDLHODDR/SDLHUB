@@ -79,18 +79,20 @@ export const confirmAction = async (
   title = "Are you sure?",
   text = "This action cannot be undone"
 ) => {
-  return Swal.fire({
+  const result = await Swal.fire({
     icon: "warning",
     title,
     text,
     showCancelButton: true,
     confirmButtonText: "Yes",
     cancelButtonText: "Cancel",
-     customClass: {
-        popup: "dreampos-popup",
-        confirmButton: "dreampos-btn-primary",
-        cancelButton: "dreampos-btn-outline",
+    customClass: {
+      popup: "dreampos-popup",
+      confirmButton: "dreampos-btn-primary",
+      cancelButton: "btn btn-secondary",
     },
     buttonsStyling: false,
   });
+
+  return Boolean(result.isConfirmed);
 };

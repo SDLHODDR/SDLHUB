@@ -67,7 +67,9 @@ const ConferenceBookingModal = ({
 
   const [errors, setErrors] = useState({})
 
-  const [loading, setLoading] = useState(false)
+  // Granular action-specific loading state
+  const [submittingAction, setSubmittingAction] = useState(null)
+  const loading = Boolean(submittingAction)
 
   /* ============================================================
      MODE
@@ -538,8 +540,10 @@ const ConferenceBookingModal = ({
       return
     }
 
+    const actionType = sendForApproval ? 'save_and_send' : 'save'
+
     try {
-      setLoading(true)
+      setSubmittingAction(actionType)
 
       const res = await conferenceAction({
         ...formData,
@@ -567,7 +571,7 @@ const ConferenceBookingModal = ({
           CONFERENCE_MESSAGES.CREATE_BOOKING_FAILED
       )
     } finally {
-      setLoading(false)
+      setSubmittingAction(null)
     }
   }
 
@@ -587,7 +591,7 @@ const ConferenceBookingModal = ({
     }
 
     try {
-      setLoading(true)
+      setSubmittingAction('edit')
 
       const res = await conferenceAction({
         ...formData,
@@ -611,7 +615,7 @@ const ConferenceBookingModal = ({
           CONFERENCE_MESSAGES.EDIT_FAILED
       )
     } finally {
-      setLoading(false)
+      setSubmittingAction(null)
     }
   }
 
@@ -631,7 +635,7 @@ const ConferenceBookingModal = ({
     }
 
     try {
-      setLoading(true)
+      setSubmittingAction('send_confirmation')
 
       const res = await conferenceAction({
         bookingId: formData.bookingId,
@@ -653,7 +657,7 @@ const ConferenceBookingModal = ({
     } catch {
       notifyError(CONFERENCE_MESSAGES.ACTION_FAILED)
     } finally {
-      setLoading(false)
+      setSubmittingAction(null)
     }
   }
 
@@ -673,7 +677,7 @@ const ConferenceBookingModal = ({
     }
 
     try {
-      setLoading(true)
+      setSubmittingAction('delete')
 
       const res = await conferenceAction({
         bookingId: formData.bookingId,
@@ -693,7 +697,7 @@ const ConferenceBookingModal = ({
     } catch {
       notifyError(CONFERENCE_MESSAGES.DELETE_FAILED)
     } finally {
-      setLoading(false)
+      setSubmittingAction(null)
     }
   }
 
@@ -713,7 +717,7 @@ const ConferenceBookingModal = ({
     }
 
     try {
-      setLoading(true)
+      setSubmittingAction('cancel')
 
       const res = await conferenceAction({
         bookingId: formData.bookingId,
@@ -733,7 +737,7 @@ const ConferenceBookingModal = ({
     } catch {
       notifyError(CONFERENCE_MESSAGES.CANCEL_FAILED)
     } finally {
-      setLoading(false)
+      setSubmittingAction(null)
     }
   }
 
@@ -989,15 +993,6 @@ const ConferenceBookingModal = ({
                 <div className='col-md-6'>
                   <label className='form-label'>Booking By</label>
 
-                  {/* <Select
-                    placeholder="Search Employee..."
-                    options={bookingUserOptions}
-                    value={selectedBookingUser}
-                    onChange={handleBookingByChange}
-                    isDisabled={readOnly}
-                    className={errors.bookingBy ? "is-invalid" : ""}
-                  /> */}
-
                   <select
                     className={`form-select ${
                       errors.bookingBy ? 'is-invalid' : ''
@@ -1097,14 +1092,6 @@ const ConferenceBookingModal = ({
 
                 <div className='col-md-6'>
                   <label className='form-label'>Division</label>
-
-                  {/* <Select
-                    placeholder='Search Division...'
-                    options={divisionOptions}
-                    value={selectedDivision}
-                    onChange={handleDivisionChange}
-                    isDisabled={readOnly}
-                  /> */}
 
                   <select
                     className={`form-select ${
@@ -1255,7 +1242,7 @@ const ConferenceBookingModal = ({
                     className='btn btn-primary me-2'
                     onClick={e => handleAddBooking(e, false)}
                   >
-                    {loading ? 'Saving...' : 'Save'}
+                    {submittingAction === 'save' ? 'Saving...' : 'Save'}
                   </button>
 
                   <button
@@ -1264,7 +1251,9 @@ const ConferenceBookingModal = ({
                     className='btn btn-success'
                     onClick={e => handleAddBooking(e, true)}
                   >
-                    {loading ? 'Saving...' : 'Save & Send for Auth'}
+                    {submittingAction === 'save_and_send'
+                      ? 'Sending...'
+                      : 'Save & Send for Auth'}
                   </button>
                 </>
               )}
@@ -1281,7 +1270,7 @@ const ConferenceBookingModal = ({
                     className='btn btn-primary me-2'
                     onClick={handleEditBooking}
                   >
-                    Update
+                    {submittingAction === 'edit' ? 'Updating...' : 'Update'}
                   </button>
 
                   <button
@@ -1290,7 +1279,9 @@ const ConferenceBookingModal = ({
                     className='btn btn-info'
                     onClick={handleSendForConfirmation}
                   >
-                    Send For Auth
+                    {submittingAction === 'send_confirmation'
+                      ? 'Sending...'
+                      : 'Send For Auth'}
                   </button>
                 </>
               )}
@@ -1303,15 +1294,16 @@ const ConferenceBookingModal = ({
                 <button
                   type='button'
                   disabled={loading}
-                  className='btn'
+                  className='btn btn-secondary'
                   style={{
                     backgroundColor: '#FE9F43',
-
                     color: '#fff'
                   }}
                   onClick={handleCancelBooking}
                 >
-                  Cancel
+                  {submittingAction === 'cancel'
+                    ? 'Cancelling...'
+                    : 'Cancel'}
                 </button>
               )}
             </div>
