@@ -4,6 +4,7 @@ import { notifySuccess, notifyError, confirmAction } from "../../../services/ale
 import { buildOptionsFromRow } from "./questionOptionsUtils";
 
 const ANSWER_TYPES_WITH_OPTIONS = ["Radio", "Checkbox"];
+export const QUESTION_MAX_LENGTH = 100;
 
 export const useQuestionMasterHandler = ({
   form,
@@ -61,8 +62,8 @@ export const useQuestionMasterHandler = ({
     const actDescRaw = String(form.QUES_DESCR ?? "").trim();
     if (!actDescRaw) {
       newErrors.QUES_DESCR = "Question is required";
-    } else if (actDescRaw.length > 100) {
-      newErrors.QUES_DESCR = "Question must not exceed 100 characters";
+    } else if (actDescRaw.length > QUESTION_MAX_LENGTH) {
+      newErrors.QUES_DESCR = `Question must not exceed ${QUESTION_MAX_LENGTH} characters`;
     }
 
     if (ANSWER_TYPES_WITH_OPTIONS.includes(form.ANSWER_TYPE)) {

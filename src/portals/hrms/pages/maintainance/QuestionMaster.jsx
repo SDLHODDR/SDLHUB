@@ -15,7 +15,10 @@ import {
   getDisplayValue
 } from '../../../../utils/formatUtils'
 import { questionMasterColumns } from '../../portalutils/questionMasterColumns'
-import { useQuestionMasterHandler } from '../../portalutils/useQuestionMasterHandler'
+import {
+  QUESTION_MAX_LENGTH,
+  useQuestionMasterHandler
+} from '../../portalutils/useQuestionMasterHandler'
 // import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
 import SDLReactSelect from '../../../../components/SDLReactSelect'
 import SaveButton from '../../components/buttons/SaveButton'
@@ -633,7 +636,7 @@ const QuestionMaster = () => {
                               errors.QUES_DESCR ? 'is-invalid' : ''
                             }`}
                             value={form.QUES_DESCR}
-                            maxLength={100}
+                            maxLength={QUESTION_MAX_LENGTH}
                             onChange={e =>
                               handleField('QUES_DESCR', e.target.value)
                             }
@@ -642,6 +645,10 @@ const QuestionMaster = () => {
                               resize: 'none'
                             }}
                           />
+
+                          <div className='text-end text-muted small mt-1'>
+                            {form.QUES_DESCR.length} / {QUESTION_MAX_LENGTH}
+                          </div>
 
                           {errors.QUES_DESCR && (
                             <div className='invalid-feedback'>
