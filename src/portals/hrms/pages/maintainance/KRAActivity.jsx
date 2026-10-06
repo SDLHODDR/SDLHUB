@@ -16,7 +16,6 @@ import {
 } from '../../services/kraActivityService'
 import SDLSearch from '../../../../components/datatable/SDLSearch'
 import SDLDataTable from '../../../../components/datatable/SDLDataTable'
-import SDLDropdownSelect from '../../components/forms/SDLDropdownSelect'
 import SDLReactSelect from '../../../../components/SDLReactSelect'
 import '../../assets/departmentDesignation.css'
 // import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
@@ -33,7 +32,8 @@ const KRAActivity = () => {
   const [listKRAMasterData, setListKRAMasterData] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
   const [showAll, setShowAll] = useState(false)
-  const [selectedActivity, setSelectedActivity] = useState('')
+  const [selectedMasterId, setSelectedMasterId] = useState('')
+  const [selectedMasterFilter, setSelectedMasterFilter] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [deletingId, setDeletingId] = useState(null)
@@ -150,14 +150,20 @@ const KRAActivity = () => {
   }, [masterSearchQuery, masterOptions])
 
   const formFilteredData = useMemo(() => {
+    if (selectedMasterFilter) {
+      return listData.filter(
+        item => String(item.KRA_ID) === String(selectedMasterFilter)
+      )
+    }
     if (!matchedMasterIds) return []
     if (matchedMasterIds.size === 0) return []
     return listData.filter(item => matchedMasterIds.has(String(item.KRA_ID)))
-  }, [matchedMasterIds, listData])
+  }, [selectedMasterFilter, matchedMasterIds, listData])
 
   const resetForm = useCallback(() => {
     setIsEditing(false)
-    setSelectedActivity('')
+    setSelectedMasterId('')
+    setSelectedMasterFilter('')
     setFormData({ ID: '', KRA_ID: '', KRA_DESC: '', ACTT_DESC: '' })
     setErrors({}) // clear any lingering validation messages too
     setMasterSearchQuery('') // clear the inline preview table too
@@ -183,7 +189,6 @@ const KRAActivity = () => {
   const {
     handleFieldChange,
     handleSave,
-    handleSelectActivity,
     handleEditActivity,
     handleDeleteActivity
   } = useKRAActivityHandler({
@@ -196,7 +201,7 @@ const KRAActivity = () => {
     dispatch,
     getKRAActivityDataResponse,
     listData,
-    setSelectedActivity,
+    setSelectedMaster: setSelectedMasterId,
     setIsEditing,
     setShowAll,
     resetForm
@@ -256,6 +261,7 @@ const KRAActivity = () => {
     if (masterSearchDebounceRef.current)
       clearTimeout(masterSearchDebounceRef.current)
     masterSearchDebounceRef.current = setTimeout(() => {
+      setSelectedMasterFilter('')
       setMasterSearchQuery(text ?? '')
       // Deliberately NOT touching `showAll` here — stays in form mode,
       // the filtered results render as an inline table below the form.
@@ -269,11 +275,28 @@ const KRAActivity = () => {
     }
   }, [])
 
-  const activityOptions = useMemo(
-    () =>
-      listData.map(item => ({ id: String(item.ID), label: item.ACTT_DESC })),
-    [listData]
-  )
+  const handleTopMasterChange = useCallback(value => {
+    if (masterSearchDebounceRef.current)
+      clearTimeout(masterSearchDebounceRef.current)
+
+    const masterId = value ?? ''
+    const selectedMaster = masterOptions.find(
+      option => String(option.id) === String(masterId)
+    )
+
+    setSelectedMasterId(masterId)
+    setSelectedMasterFilter(masterId)
+    setFormData({
+      ID: '',
+      KRA_ID: masterId,
+      KRA_DESC: selectedMaster?.label ?? '',
+      ACTT_DESC: ''
+    })
+    setErrors({})
+    setMasterSearchQuery(selectedMaster?.label ?? '')
+    setIsEditing(false)
+    setShowAll(false)
+  }, [masterOptions])
 
   const columns = useMemo(
     () =>
@@ -351,22 +374,14 @@ const KRAActivity = () => {
 
                   <div className='d-flex align-items-center gap-2'>
                     {/* <div className="fixWidth"> */}
-                    {/* <SDLDropdownSelect
-                      id="kraActivitySelect"
-                      options={activityOptions}
-                      value={selectedActivity}
-                      onChange={(id) => handleSelectActivity(id)}
-                      placeholder="Select KRA Activity"
-                      disabled={loading}
-                      wrapperClassName=""
-                    /> */}
                     <SDLReactSelect
-                      value={selectedActivity}
-                      options={activityOptions.map(opt => ({
+                      value={selectedMasterId}
+                      options={masterOptions.map(opt => ({
                         value: opt.id,
                         label: opt.label
                       }))}
-                      onChange={handleSelectActivity}
+                      onChange={handleTopMasterChange}
+                      placeholder='Select KRA Master'
                       isLoading={loading}
                       isDisabled={loading}
                       width='330px'
@@ -374,7 +389,7 @@ const KRAActivity = () => {
                     {/* </div> */}
                     <ViewToggleButton
                       showAll={showAll}
-                      onClick={() => setShowAll(prev => !prev)}
+                      onClick={handleToggleView}
                       disabled={loading}
                     />
                   </div>
@@ -395,6 +410,8 @@ const KRAActivity = () => {
                             label: opt.label
                           }))}
                           onChange={(id, option) => {
+                            setSelectedMasterId(id)
+                            setSelectedMasterFilter('')
                             handleFieldChange('KRA_ID', id)
                             handleFieldChange('KRA_DESC', option?.label || '')
                           }}

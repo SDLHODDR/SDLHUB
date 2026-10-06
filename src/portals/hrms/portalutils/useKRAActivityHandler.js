@@ -12,7 +12,7 @@ export const useKRAActivityHandler = ({
   dispatch,
   getKRAActivityDataResponse,
   listData,
-  setSelectedActivity,
+  setSelectedMaster,
   setIsEditing,
   setShowAll,
   resetForm,
@@ -48,7 +48,7 @@ export const useKRAActivityHandler = ({
   }, [formData, validateForm, setIsSubmitting, dispatch, getKRAActivityDataResponse, resetForm, setShowAll]);
 
   const handleEditActivity = useCallback((activity) => {
-    setSelectedActivity(activity.ID);
+    setSelectedMaster(activity.KRA_ID || "");
     setIsEditing(true);
     setShowAll(false);
     setFormData({
@@ -57,28 +57,7 @@ export const useKRAActivityHandler = ({
       KRA_DESC: activity.KRA_DESC,
       ACTT_DESC: activity.ACTT_DESC,
     });
-  }, [setSelectedActivity, setIsEditing, setShowAll, setFormData]);
-
-  const handleSelectActivity = useCallback((value) => {
-    setSelectedActivity(value);
-
-    if (!value) {
-      resetForm();
-      return;
-    }
-
-    setShowAll(false);
-    const activity = listData.find((item) => String(item.ID) === String(value));
-    if (activity) {
-      setIsEditing(true);
-      setFormData({
-        ID: activity.ID,
-        KRA_ID: activity.KRA_ID || "",
-        KRA_DESC: activity.KRA_DESC,
-        ACTT_DESC: activity.ACTT_DESC,
-      });
-    }
-  }, [listData, setSelectedActivity, resetForm, setShowAll, setIsEditing, setFormData]);
+  }, [setSelectedMaster, setIsEditing, setShowAll, setFormData]);
 
   const handleDeleteActivity = useCallback(async (row) => {
     try {
@@ -110,7 +89,6 @@ export const useKRAActivityHandler = ({
   return {
     handleFieldChange,
     handleSave,
-    handleSelectActivity,
     handleEditActivity,
     handleDeleteActivity,
   };
