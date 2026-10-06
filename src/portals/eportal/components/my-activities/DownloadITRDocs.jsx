@@ -7,6 +7,8 @@ import {
 } from "../../../../services/alertService";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
+import EportalPageLoader from "../loader/EportalPageLoader";
+import "../../assets/css/wideContentPages.css";
 
 const DownloadItrDocs = () => {
 
@@ -179,6 +181,7 @@ useEffect(() => {
 
   return (
     <>
+      {loading && <EportalPageLoader />}
       <div className="page-header">
         <div className="add-item d-flex">
           <div className="page-title">
@@ -194,7 +197,7 @@ useEffect(() => {
         />
       </div>
 
-      <div className="card">
+      <div className="card eportal-wide-card">
         <div className="card-body">
           <div className="row align-items-end g-3">
 

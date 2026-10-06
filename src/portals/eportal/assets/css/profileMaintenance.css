@@ -30,6 +30,35 @@
     min-width: 110px;
 }
 
+/* Task Access checklist */
+.profile-task-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: 24px;
+    row-gap: 10px;
+}
+
+.profile-task-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.profile-task-option .form-check-input {
+    float: none;
+    flex: 0 0 auto;
+    margin: 3px 0 0;
+}
+
+.profile-task-option .form-check-label {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+}
+
 /* Menu Header */
 
 .menu-header {
@@ -44,6 +73,13 @@
     flex-wrap: wrap;
     gap: 12px;
     padding: 12px;
+}
+
+.submenu-container.menu-submenu-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: 24px;
+    row-gap: 10px;
 }
 
 /* Prime Dropdown */
@@ -85,6 +121,16 @@
 /* Mobile */
 
 @media (max-width: 768px) {
+
+    .profile-task-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 16px;
+    }
+
+    .submenu-container.menu-submenu-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 16px;
+    }
 
     .page-header {
         flex-direction: column;
@@ -133,6 +179,14 @@
 }
 
 @media (max-width: 576px) {
+
+    .profile-task-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .submenu-container.menu-submenu-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
 
     .action-btn-group .btn {
         flex: 1 1 100%;

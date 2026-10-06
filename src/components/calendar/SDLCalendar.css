@@ -140,22 +140,37 @@ body > .tooltip {
 .sdl-calendar-inline-wrapper .sdl-inline-calendar,
 .sdl-calendar-inline-wrapper .p-datepicker-inline {
   width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100%;
   height: auto !important;
+  box-sizing: border-box;
   border: 0 !important;
   box-shadow: none !important;
 }
 
+/* PrimeReact defaults inline calendars to overflow-x:auto, which creates
+   both horizontal and vertical scrollbars when the seven day columns barely
+   exceed a narrow parent. Let the grid size to its available column instead. */
+.sdl-calendar-inline-wrapper .p-datepicker-inline {
+  display: block;
+  overflow: visible !important;
+}
+
 .sdl-calendar-inline-wrapper .p-datepicker-inline table {
   width: 100%;
+  table-layout: fixed;
+  margin: 0;
 }
 
 .sdl-calendar-inline-wrapper .p-datepicker-inline table td {
-  padding: 0.2rem;
+  padding: 0.1rem 0.05rem;
 }
 
 .sdl-calendar-inline-wrapper .p-datepicker-inline table td > span {
-  width: 2rem;
+  width: min(2rem, 100%);
+  max-width: 100%;
   height: 2rem;
+  box-sizing: border-box;
 }
 
 /* =========================================================

@@ -8,6 +8,7 @@ import ITRemarksAlert from "./widgets/ItRemarks";
 import DashboardAlerts from "./widgets/DashboardAlerts";
 import WorkLeaveTabs from "./widgets/WorkLeaveTabs";
 import MeetingsWidget from "./widgets/MeetingsWidget";
+import "../../assets/css/wideContentPages.css";
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
@@ -75,14 +76,14 @@ const Dashboard = () => {
         <ITRemarksAlert data={data.itRemarks} />
       )}
 
-      <div className="container-fluid">
+      <div className="eportal-wide-page">
         {/* Alerts */}
          <DashboardAlerts alerts={data.alerts} />
         {dashAccess.includes("alerts") && (
           <DashboardAlerts alerts={data.alerts} />
         )}
 
-        <div className="row g-3">
+        <div className="row g-3 align-items-stretch">
           {/* Attendance */}
           {dashAccess.includes("tdyinout") && (
             <div className="col-lg-4">
@@ -109,7 +110,7 @@ const Dashboard = () => {
           {/* Meetings + Birthdays */}
           {(dashAccess.includes("meetings") ||
             dashAccess.includes("dyqts")) && (
-            <div className="col-lg-4">
+            <div className="col-lg-4 d-flex flex-column gap-3">
               <MeetingsWidget data={data.meetings} />
 
               {dashAccess.includes("dyqts") && (

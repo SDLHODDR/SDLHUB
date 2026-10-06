@@ -12,11 +12,13 @@ import {
 import { notifyError, notifySuccess } from "../../../../services/alertService";
 
 import "../../assets/css/policyEndorsementReport.css";
+import "../../assets/css/wideContentPages.css";
 
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import Badge from "../Badge";
 
 import { getPortalFromPath } from "../../../../config/portalConfig";
+import EportalPageLoader from "../loader/EportalPageLoader";
 
 const PolicyEndorsementReport = () => {
   const [loading, setLoading] = useState(true);
@@ -126,12 +128,8 @@ const PolicyEndorsementReport = () => {
   );
 
   const acceptanceBody = (rowData) => (
-    <div
-      style={{
-        minWidth: "180px",
-      }}
-    >
-      <div className="progress">
+    <div className="policy-acceptance-progress">
+      <div className="progress" style={{ height: "24px" }}>
         <div
           className="progress-bar bg-success"
           style={{
@@ -169,7 +167,7 @@ const PolicyEndorsementReport = () => {
 
   const applicableToTemplate = (rowData) => {
     return (
-      <div style={{ minWidth: "220px" }}>
+      <div style={{ width: "100%", minWidth: 0 }}>
         <div className="mb-2">
           <small className="fw-bold text-primary">Divisions</small>
 
@@ -177,9 +175,9 @@ const PolicyEndorsementReport = () => {
             {rowData.applicable_divisions?.length > 0 ? (
               rowData.applicable_divisions.map((div) => (
                 <Badge
-                key={div}
+                  key={div}
                   text={div}
-                  className="bg-primary"
+                  className="bg-primary applicable-to-badge"
                 />
               ))
             ) : (
@@ -197,7 +195,7 @@ const PolicyEndorsementReport = () => {
                 <Badge
                   key={dept}
                   text={dept}
-                  className="bg-success"
+                  className="bg-success applicable-to-badge"
                 />
               ))
             ) : (
@@ -214,49 +212,48 @@ const PolicyEndorsementReport = () => {
       field: "policy_name",
       header: "Policy",
       sortable: true,
-      style: { minWidth: "220px" },
+      style: { width: "18%" },
     },
     {
       header: "Mandatory",
       body: mandatoryBody,
-      style: { width: "120px", textAlign: "center" },
+      style: { width: "8%", textAlign: "center" },
     },
     {
       header: "Applicable To",
       body: applicableToTemplate,
-      style: { minWidth: "280px" },
+      style: { width: "22%" },
     },
     {
       field: "target_employees",
       header: "Target Employees",
       sortable: true,
-      style: { width: "140px", textAlign: "center" },
+      style: { width: "10%", textAlign: "center" },
     },
     {
       field: "accepted_count",
       header: "Accepted",
       sortable: true,
-      style: { width: "120px", textAlign: "center" },
+      style: { width: "8%", textAlign: "center" },
     },
     {
       field: "pending_count",
       header: "Pending",
       sortable: true,
-      style: { width: "120px", textAlign: "center" },
+      style: { width: "8%", textAlign: "center" },
     },
     {
       header: "Acceptance %",
       body: acceptanceBody,
       style: {
-        minWidth: "190px",
-        width: "210px",
+        width: "14%",
       },
     },
     {
       header: "Action",
       body: actionBody,
       style: {
-        width: "120px",
+        width: "8%",
         textAlign: "center",
       },
     },
@@ -301,6 +298,7 @@ const PolicyEndorsementReport = () => {
 
   return (
     <>
+      {loading && <EportalPageLoader />}
       <div className="page-header">
         <div className="page-title">
           <h4>Policy Endorsement Report</h4>
@@ -314,7 +312,7 @@ const PolicyEndorsementReport = () => {
         />
       </div>
 
-      <div className="card">
+      <div className="card eportal-wide-card">
         <div className="card-body">
           <div className="row mb-3">
             <div className="col-lg-4 col-md-6 col-12">
@@ -329,10 +327,11 @@ const PolicyEndorsementReport = () => {
           <SDLDataTable
             data={filteredPolicies}
             columns={policyColumns}
-            loading={loading}
-            emptyMessage="No policies found"
-            className="policy-endorsement-grid"
-            tableStyle={{ minWidth: "1200px" }}
+            loading={false}
+            emptyMessage={loading ? " " : "No policies found"}
+            className="policy-endorsement-grid eportal-fit-table"
+            tableStyle={{ width: "100%", minWidth: "100%", tableLayout: "fixed" }}
+            scrollable={false}
           />
         </div>
       </div>
@@ -389,8 +388,9 @@ const PolicyEndorsementReport = () => {
                   data={filteredEmployees}
                   columns={employeeColumns}
                   emptyMessage="No employee found"
-                  className="policy-employee-grid"
-                  tableStyle={{ minWidth: "900px" }}
+                  className="policy-employee-grid eportal-fit-table"
+                  tableStyle={{ width: "100%", minWidth: "100%", tableLayout: "fixed" }}
+                  scrollable={false}
                 />
               </div>
             </div>

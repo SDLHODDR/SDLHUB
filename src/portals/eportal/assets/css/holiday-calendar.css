@@ -94,22 +94,9 @@
 }
 
 
-
-
 /*----Holiday Rules----*/
-.holiday-rules-content ol {
-  padding-left: 20px;
-  margin-top: 10px;
-}
 
 .holiday-rules-content li {
-  margin-bottom: 12px;   /* space between points */
-  line-height: 1.7;
+  margin-bottom: 8px;   /* space between points */
+  line-height: 1.5;
 }
-
-.holiday-rules-content p {
-  margin-bottom: 12px;
-}
-
-
-
