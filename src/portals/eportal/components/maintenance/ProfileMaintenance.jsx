@@ -1001,20 +1001,22 @@ const ProfileMaintenance = () => {
                             />
                           </div>
 
-                          <div className="col-md-8 action-btn-group">
-                            <button
-                              className="btn btn-outline-success btn-sm me-2"
-                              onClick={selectAllDash}
-                            >
-                              Select All
-                            </button>
+                          <div className="col-md-8">
+                            <div className="action-btn-group">
+                              <button
+                                className="btn btn-outline-success btn-sm"
+                                onClick={selectAllDash}
+                              >
+                                Select All
+                              </button>
 
-                            <button
-                              className="btn btn-outline-danger btn-sm"
-                              onClick={clearAllDash}
-                            >
-                              Clear All
-                            </button>
+                              <button
+                                className="btn btn-outline-danger btn-sm"
+                                onClick={clearAllDash}
+                              >
+                                Clear All
+                              </button>
+                            </div>
                           </div>
                         </div>
 
@@ -1173,12 +1175,9 @@ const ProfileMaintenance = () => {
                 </div>
 
                 <div className="modal-footer">
-                  <button className="btn btn-light" onClick={closeAddProfile}>
-                    Cancel
-                  </button>
 
                   <button
-                    className="btn btn-primary"
+                    className="btn btn-primary me-2"
                     disabled={savingProfile}
                     onClick={handleAddProfile}
                   >
@@ -1191,6 +1190,20 @@ const ProfileMaintenance = () => {
                       "Save"
                     )}
                   </button>
+
+                  {/* <button className="btn btn-light" onClick={closeAddProfile}>
+                    Cancel
+                  </button> */}
+
+                  <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={
+                    closeAddProfile
+                  }
+                >
+                  Cancel
+                </button>
                 </div>
               </div>
             </div>
