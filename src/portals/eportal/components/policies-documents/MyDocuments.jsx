@@ -3,6 +3,8 @@ import { getPayslips } from "../../services/payslipService";
 import { getDocuments } from "../../services/documentService";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
+import "../../assets/css/wideContentPages.css";
+import EportalPageLoader from "../loader/EportalPageLoader";
 
 import {MY_DOCUMENTS_MESSAGES} from "../../constants/policies-documentsConstants";
 
@@ -104,6 +106,7 @@ const MyDocuments = () => {
 
   return (
     <>
+      {(loadingPayslip || loadingDocs) && <EportalPageLoader />}
       {/* ================= HEADER ================= */}
       <div className="page-header">
         <div className="add-item d-flex">
@@ -122,7 +125,7 @@ const MyDocuments = () => {
       </div>
 
       {/* ================= MAIN CARD ================= */}
-      <div className="card vh-100">
+      <div className="card vh-100 eportal-wide-card">
         <div className="card-body">
 
           <ul className="nav nav-tabs nav-tabs-bottom border-bottom mb-3">

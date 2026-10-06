@@ -8,11 +8,11 @@ const UpcomingBirthdays = ({ data }) => {
   if (!data || Object.keys(data).length === 0) return null;
 
   return (
-    <div className="card border-0 shadow-sm birthday-widget">
+    <div className="card border-0 shadow-sm birthday-widget flex-grow-1 mb-0">
       {/* Header */}
       <div className="card-header bg-white border-0 d-flex align-items-center gap-2">
         <span className="emoji">🎉</span>
-        <h6 className="mb-0 fw-semibold">Upcoming Birthdays</h6>
+        <h6 className="fw-semibold">Upcoming Birthdays</h6>
       </div>
 
       {/* Body */}
@@ -70,7 +70,6 @@ const UpcomingBirthdays = ({ data }) => {
       {/* Styles */}
       <style>{`
         .birthday-widget {
-          border-radius: 16px;
           background: linear-gradient(180deg, #ffffff, #f5f7ff);
           overflow: hidden;
         }
@@ -93,7 +92,8 @@ const UpcomingBirthdays = ({ data }) => {
 
         /* SCROLL */
         .birthday-widget .card-body {
-          max-height: 260px;
+          flex: 1 1 auto;
+          min-height: 0;
           overflow-y: auto;
           padding-right: 4px;
         }

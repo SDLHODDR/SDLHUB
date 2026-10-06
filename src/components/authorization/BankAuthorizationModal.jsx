@@ -9,7 +9,9 @@ import {
   notifyError,
   confirmAction,
 } from "../../services/alertService";
-import { getAuthroizationTaskCount } from "../../store/eportal/ePortalAuthorizationCountSlice";
+
+// Correct import from HRMS slice
+import { getHRMSAuthroizationTaskCount } from "../../store/hrms/hrmsAuthorizationCountSlice";
 
 const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
@@ -86,11 +88,15 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
       if (res?.status) {
         notifySuccess(res?.message || "Bank request processed successfully.");
 
-        // Refresh task/authorization count in Redux store
-        dispatch(getAuthroizationTaskCount());
+        // Refresh HRMS Task Count in Redux store
+        dispatch(getHRMSAuthroizationTaskCount());
+
+        // Refresh the table list in the parent view
+        if (onSuccess) {
+          onSuccess();
+        }
 
         onClose();
-        if (onSuccess) onSuccess();
       } else {
         notifyError(res?.message || "Action failed to process.");
       }
@@ -266,19 +272,7 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
             )}
           </div>
 
-          <div className="modal-footer d-flex justify-content-between">
-            {/* Left side: Reject button */}
-
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={onClose}
-              disabled={isBusy}
-            >
-              Cancel
-            </button>
-
-            {/* Right side: Accept and Cancel buttons side by side */}
+          <div className="modal-footer d-flex">
             <div className="d-flex gap-2">
               <button
                 type="button"
@@ -286,16 +280,25 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
                 onClick={() => handleDecision("A")}
                 disabled={isBusy || loading || !details}
               >
-                {actionLoading === "A" ? "Processing..." : "Accept & Update"}
+                {actionLoading === "A" ? "Processing..." : "Accept"}
               </button>
 
               <button
                 type="button"
-                className="btn btn-danger"
+                className="btn btn-danger gap-2"
                 onClick={() => handleDecision("R")}
                 disabled={isBusy || loading || !details}
               >
                 {actionLoading === "R" ? "Processing..." : "Reject"}
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={onClose}
+                disabled={isBusy}
+              >
+                Cancel
               </button>
             </div>
           </div>

@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { getActivePolicies } from "../../services/policyService";
 import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
+import "../../assets/css/wideContentPages.css";
+import EportalPageLoader from "../loader/EportalPageLoader";
 
 import { POLICY_MESSAGES } from "../../constants/policies-documentsConstants";
 
@@ -63,6 +65,7 @@ const Policies = () => {
 
   return (
     <>
+      {loading && <EportalPageLoader />}
       {/* ================= PAGE HEADER ================= */}
 
       <div className="page-header">
@@ -82,7 +85,7 @@ const Policies = () => {
 
       {/* ================= MAIN CARD ================= */}
 
-      <div className="card">
+      <div className="card eportal-wide-card">
         <div className="card-body">
           <div className="row">
             {/* ================= LEFT SIDE POLICY LIST ================= */}

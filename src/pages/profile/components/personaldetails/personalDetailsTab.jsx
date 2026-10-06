@@ -350,7 +350,6 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
       return;
     }
 
-    // Move to Authorization (Step 2)
     setContactStep("auth");
   };
 
@@ -682,8 +681,8 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
       const extension = file.name.split(".").pop()?.toLowerCase() || "";
       if (!allowedExtensions.includes(extension)) {
         error = "Only PDF, JPG, JPEG or PNG files are allowed.";
-      } else if (file.size > 5 * 1024 * 1024) {
-        error = "File size must not exceed 5 MB.";
+      } else if (file.size > 1 * 1024 * 1024) {
+        error = "File size must not exceed 1 MB.";
       }
     }
 
@@ -1462,10 +1461,14 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
                   </div>
                 </div>
 
+                {/* ADDRESS PROOF UPLOAD */}
                 <div className="mb-3">
-                  <label className="form-label fw-semibold">
-                    Address Proof <span className="text-danger ms-1">*</span>
-                  </label>
+                  <div className="d-flex justify-content-between align-items-center mb-1">
+                    <label className="form-label mb-0 fw-semibold">
+                      Address Proof <span className="text-danger ms-1">*</span>
+                    </label>
+                    <small className="text-muted">Max 1MB (PDF, JPG, PNG)</small>
+                  </div>
                   <input
                     type="file"
                     className={
@@ -1478,9 +1481,6 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
                     accept=".pdf,.jpg,.jpeg,.png"
                     onChange={handleAddressProofChange}
                   />
-                  <small className="text-muted">
-                    Upload address proof in PDF, JPG or PNG format. Maximum size: 5 MB.
-                  </small>
                   <FieldError message={addressErrors.address_proof} />
                   {addressForm.address_proof && !addressErrors.address_proof && (
                     <div className="text-success mt-1" style={{ fontSize: "12px" }}>

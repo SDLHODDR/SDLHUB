@@ -1,12 +1,33 @@
-.policy-report-grid .p-datatable-wrapper {
+.policy-endorsement-grid .p-datatable-wrapper {
     overflow-x: auto;
 }
 
-.policy-report-grid .p-datatable-thead > tr > th,
-.policy-report-grid .p-datatable-tbody > tr > td {
+.policy-endorsement-grid .p-datatable-thead > tr > th,
+.policy-endorsement-grid .p-datatable-tbody > tr > td {
     white-space: nowrap;
 }
 
-.policy-report-grid .p-paginator {
+.policy-endorsement-grid .p-paginator {
     justify-content: center;
+}
+
+.policy-endorsement-grid .policy-acceptance-progress .progress {
+    height: 24px !important;
+    min-width: 0;
+}
+
+.policy-acceptance-progress .progress-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.policy-endorsement-grid .applicable-to-badge {
+    padding: 3px 8px !important;
+    font-size: 11px !important;
+    line-height: 1.2;
 }

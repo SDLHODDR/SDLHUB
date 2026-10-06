@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
 import {
   getPersonalInfoAuthorizationDetails,
   processPersonalInfoAuthorization,
@@ -8,6 +9,30 @@ import {
   notifyError,
   confirmAction,
 } from "../../services/alertService";
+
+// Correct import from HRMS slice for top header badge count
+import { getHRMSAuthroizationTaskCount } from "../../store/hrms/hrmsAuthorizationCountSlice";
+
+/* =========================================================
+   HELPER: Generate HTTP URL that passes file path to PHP
+========================================================= */
+const getDocumentUrl = (docPath) => {
+  if (!docPath) return "#";
+
+  if (docPath.startsWith("http://") || docPath.startsWith("https://")) {
+    return docPath;
+  }
+
+  // Strip leading slash if any
+  const cleanPath = docPath.startsWith("/") ? docPath.slice(1) : docPath;
+
+  // Uses your PHP endpoint to safely fetch from /mnt/documents
+  const viewerUrl =
+    import.meta.env.VITE_DOCUMENT_VIEWER_URL ||
+    `${import.meta.env.VITE_BASE_URL}/common/view_document.php`;
+
+  return `${viewerUrl}?file=${encodeURIComponent(cleanPath)}`;
+};
 
 const PersonalInfoAuthorizationModal = ({
   show,
@@ -22,6 +47,8 @@ const PersonalInfoAuthorizationModal = ({
   const [submittingAction, setSubmittingAction] = useState(null); // 'A' | 'R' | null
   const textareaRef = useRef(null);
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (show && record) {
       loadRequestDetails();
@@ -35,9 +62,13 @@ const PersonalInfoAuthorizationModal = ({
     }
   }, [show, record]);
 
+  /* =========================================================
+     FETCH DETAILS USING SERVICE
+  ========================================================= */
   const loadRequestDetails = async () => {
     try {
       setLoading(true);
+
       const res = await getPersonalInfoAuthorizationDetails({
         task_id: record?.ID,
         req_id: record?.TRAN_CODE || "",
@@ -46,16 +77,21 @@ const PersonalInfoAuthorizationModal = ({
       if (res?.status) {
         setDetails(res.data);
       } else {
-        notifyError(res?.message || "Failed to load address request details.");
+        notifyError(res?.message || "Failed to load request details.");
       }
     } catch (err) {
-      console.error("LOAD ADDRESS DETAILS ERROR:", err);
-      notifyError(err?.message || "Unable to load request details from server.");
+      console.error("LOAD PERSONAL DETAILS ERROR:", err);
+      notifyError(
+        err?.message || "Unable to load request details from server.",
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  /* =========================================================
+     INPUT CHANGE HANDLER
+  ========================================================= */
   const handleRemarksChange = (e) => {
     const val = e.target.value;
     setRemarks(val);
@@ -64,12 +100,15 @@ const PersonalInfoAuthorizationModal = ({
     }
   };
 
+  /* =========================================================
+     DECISION HANDLER (ACCEPT / REJECT)
+  ========================================================= */
   const handleDecision = async (decision) => {
     const isApprove = decision === "A";
 
-    // Inline validation on Rejection
+    // Inline validation for Rejection
     if (!isApprove && !remarks.trim()) {
-      setRemarkError("Reason is required");
+      setRemarkError("Please enter remarks for rejection.");
       if (textareaRef.current) {
         textareaRef.current.focus();
       }
@@ -79,14 +118,15 @@ const PersonalInfoAuthorizationModal = ({
     setRemarkError("");
 
     const confirmRes = await confirmAction(
-      isApprove ? "Approve Address Change?" : "Reject Address Change?",
-      `Are you sure you want to ${isApprove ? "accept" : "reject"} this address change request?`
+      isApprove ? "Approve Personal Details?" : "Reject Personal Details?",
+      `Are you sure you want to ${isApprove ? "accept" : "reject"} this personal/address change request?`,
     );
 
     if (!confirmRes?.isConfirmed) return;
 
     try {
       setSubmittingAction(decision);
+
       const payload = {
         user_task_id: record?.ID,
         req_id: details?.REQ_ID || record?.TRAN_CODE,
@@ -97,18 +137,26 @@ const PersonalInfoAuthorizationModal = ({
       const res = await processPersonalInfoAuthorization(payload);
 
       if (res?.status) {
-        notifySuccess(res?.message || "Address change processed successfully.");
+        notifySuccess(res?.message || "Authorization processed successfully.");
+
+        // 1. Refresh HRMS header task count in Redux store
+        dispatch(getHRMSAuthroizationTaskCount());
+
+        // 2. Refresh parent list view
+        if (onSuccess) {
+          onSuccess();
+        }
+
         onClose();
-        if (onSuccess) onSuccess();
       } else {
         notifyError(res?.message || "Action failed to process.");
       }
     } catch (err) {
-      console.error("SUBMIT ADDRESS DECISION ERROR:", err);
+      console.error("SUBMIT DECISION ERROR:", err);
       notifyError(
         err?.response?.data?.message ||
           err?.message ||
-          "Error processing request."
+          "Error processing request.",
       );
     } finally {
       setSubmittingAction(null);
@@ -116,15 +164,6 @@ const PersonalInfoAuthorizationModal = ({
   };
 
   if (!show) return null;
-
-  /* Cell style that forces wrapping and prevents overflow scrolling */
-  const cellStyle = {
-    wordBreak: "break-word",
-    overflowWrap: "anywhere",
-    whiteSpace: "normal",
-    verticalAlign: "top",
-    lineHeight: "1.45",
-  };
 
   const isSubmitting = Boolean(submittingAction);
 
@@ -138,11 +177,15 @@ const PersonalInfoAuthorizationModal = ({
     >
       <div className="modal-dialog modal-lg modal-dialog-centered">
         <div className="modal-content shadow-lg border-0">
+          {/* HEADER */}
           <div className="modal-header">
             <div>
-              <h5 className="modal-title mb-1">Address Change Authorization</h5>
+              <h5 className="modal-title mb-1">
+                Personal & Address Information Authorization
+              </h5>
               <small className="text-muted">
-                Employee Code: <strong>{details?.EMP_CODE || record?.EMP_CODE_FOR}</strong>
+                Employee Code:{" "}
+                <strong>{details?.EMP_CODE || record?.EMP_CODE_FOR}</strong>
               </small>
             </div>
             <button
@@ -156,168 +199,234 @@ const PersonalInfoAuthorizationModal = ({
             </button>
           </div>
 
+          {/* BODY */}
           <div className="modal-body">
             {loading ? (
               <div className="text-center py-5">
-                <div className="spinner-border text-primary" role="status"></div>
-                <div className="mt-2 text-muted">Loading address request details...</div>
+                <div
+                  className="spinner-border text-primary"
+                  role="status"
+                ></div>
+                <div className="mt-2 text-muted">
+                  Loading request details...
+                </div>
               </div>
             ) : details ? (
               <>
-                {/* CURRENT ADDRESS COMPARISON */}
-                <h6 className="fw-bold text-dark mb-2">Current Address</h6>
-                <div className="border rounded mb-3 overflow-hidden">
+                {/* COMPARISON TABLE */}
+                {/* COMPARISON TABLE */}
+                <div
+                  className="border rounded mb-3"
+                  style={{ overflowX: "hidden" }}
+                >
                   <table
-                    className="table table-bordered table-sm mb-0"
-                    style={{ tableLayout: "fixed", width: "100%" }}
+                    className="table table-bordered table-sm mb-0 align-middle"
+                    style={{ tableLayout: "fixed", width: "100%", margin: 0 }}
                   >
+                    <colgroup>
+                      <col style={{ width: "26%" }} />
+                      <col style={{ width: "37%" }} />
+                      <col style={{ width: "37%" }} />
+                    </colgroup>
                     <thead className="table-light">
                       <tr>
-                        <th style={{ width: "20%" }}>Field</th>
-                        <th style={{ width: "40%" }}>Existing Data</th>
-                        <th style={{ width: "40%" }}>Requested Data</th>
+                        <th>Field</th>
+                        <th>Existing Data</th>
+                        <th>Requested Data</th>
                       </tr>
                     </thead>
                     <tbody>
+                      {/* CURRENT ADDRESS */}
                       <tr>
-                        <td className="fw-semibold text-muted" style={cellStyle}>Address</td>
-                        <td style={cellStyle}>{details.ADDRESS || "—"}</td>
+                        <td className="fw-semibold text-muted">
+                          Current Address
+                        </td>
                         <td
                           style={{
-                            ...cellStyle,
-                            fontWeight: details.NEW_ADDRESS !== details.ADDRESS ? "600" : "normal",
-                            color: details.NEW_ADDRESS !== details.ADDRESS ? "#0d6efd" : "inherit",
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            overflowWrap: "anywhere",
                           }}
                         >
-                          {details.NEW_ADDRESS || "—"}
+                          {details.CURRENT_ADDRESS || "—"}
+                        </td>
+                        <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            overflowWrap: "anywhere",
+                          }}
+                          className={
+                            details.NEW_CURRENT_ADDRESS !==
+                            details.CURRENT_ADDRESS
+                              ? "text-primary fw-bold"
+                              : ""
+                          }
+                        >
+                          {details.NEW_CURRENT_ADDRESS || "—"}
                         </td>
                       </tr>
                       <tr>
-                        <td className="fw-semibold text-muted" style={cellStyle}>City</td>
-                        <td style={cellStyle}>{details.CITY || "—"}</td>
+                        <td className="fw-semibold text-muted">Current City</td>
                         <td
                           style={{
-                            ...cellStyle,
-                            fontWeight: details.NEW_CITY !== details.CITY ? "600" : "normal",
-                            color: details.NEW_CITY !== details.CITY ? "#0d6efd" : "inherit",
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
                           }}
                         >
-                          {details.NEW_CITY || "—"}
+                          {details.CURRENT_CITY || "—"}
+                        </td>
+                        <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                          }}
+                          className={
+                            details.NEW_CURRENT_CITY !== details.CURRENT_CITY
+                              ? "text-primary fw-bold"
+                              : ""
+                          }
+                        >
+                          {details.NEW_CURRENT_CITY || "—"}
                         </td>
                       </tr>
                       <tr>
-                        <td className="fw-semibold text-muted" style={cellStyle}>State</td>
-                        <td style={cellStyle}>{details.STATE || "—"}</td>
+                        <td className="fw-semibold text-muted">
+                          Current State
+                        </td>
                         <td
                           style={{
-                            ...cellStyle,
-                            fontWeight: details.NEW_STATE !== details.STATE ? "600" : "normal",
-                            color: details.NEW_STATE !== details.STATE ? "#0d6efd" : "inherit",
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
                           }}
                         >
-                          {details.NEW_STATE || "—"}
+                          {details.CURRENT_STATE || "—"}
+                        </td>
+                        <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                          }}
+                          className={
+                            details.NEW_CURRENT_STATE !== details.CURRENT_STATE
+                              ? "text-primary fw-bold"
+                              : ""
+                          }
+                        >
+                          {details.NEW_CURRENT_STATE || "—"}
                         </td>
                       </tr>
                       <tr>
-                        <td className="fw-semibold text-muted" style={cellStyle}>Pincode</td>
-                        <td style={cellStyle}>{details.PINCODE || "—"}</td>
+                        <td className="fw-semibold text-muted">
+                          Current Pincode
+                        </td>
+                        <td>{details.CURRENT_PINCODE || "—"}</td>
                         <td
-                          style={{
-                            ...cellStyle,
-                            fontWeight: details.NEW_PINCODE !== details.PINCODE ? "600" : "normal",
-                            color: details.NEW_PINCODE !== details.PINCODE ? "#0d6efd" : "inherit",
-                          }}
+                          className={
+                            details.NEW_CURRENT_PINCODE !==
+                            details.CURRENT_PINCODE
+                              ? "text-primary fw-bold"
+                              : ""
+                          }
                         >
-                          {details.NEW_PINCODE || "—"}
+                          {details.NEW_CURRENT_PINCODE || "—"}
                         </td>
                       </tr>
-                    </tbody>
-                  </table>
-                </div>
 
-                {/* PERMANENT ADDRESS COMPARISON */}
-                <h6 className="fw-bold text-dark mb-2">Permanent Address</h6>
-                <div className="border rounded mb-3 overflow-hidden">
-                  <table
-                    className="table table-bordered table-sm mb-0"
-                    style={{ tableLayout: "fixed", width: "100%" }}
-                  >
-                    <thead className="table-light">
+                      {/* PERMANENT ADDRESS */}
                       <tr>
-                        <th style={{ width: "20%" }}>Field</th>
-                        <th style={{ width: "40%" }}>Existing Data</th>
-                        <th style={{ width: "40%" }}>Requested Data</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td className="fw-semibold text-muted" style={cellStyle}>Address</td>
-                        <td style={cellStyle}>{details.PERMNT_ADDRESS || "—"}</td>
+                        <td className="fw-semibold text-muted">
+                          Permanent Address
+                        </td>
                         <td
                           style={{
-                            ...cellStyle,
-                            fontWeight:
-                              details.NEW_PERMNT_ADDRESS !== details.PERMNT_ADDRESS
-                                ? "600"
-                                : "normal",
-                            color:
-                              details.NEW_PERMNT_ADDRESS !== details.PERMNT_ADDRESS
-                                ? "#0d6efd"
-                                : "inherit",
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            overflowWrap: "anywhere",
                           }}
+                        >
+                          {details.PERMNT_ADDRESS || "—"}
+                        </td>
+                        <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            overflowWrap: "anywhere",
+                          }}
+                          className={
+                            details.NEW_PERMNT_ADDRESS !==
+                            details.PERMNT_ADDRESS
+                              ? "text-primary fw-bold"
+                              : ""
+                          }
                         >
                           {details.NEW_PERMNT_ADDRESS || "—"}
                         </td>
                       </tr>
                       <tr>
-                        <td className="fw-semibold text-muted" style={cellStyle}>City</td>
-                        <td style={cellStyle}>{details.PERMNT_CITY || "—"}</td>
+                        <td className="fw-semibold text-muted">
+                          Permanent City
+                        </td>
                         <td
                           style={{
-                            ...cellStyle,
-                            fontWeight:
-                              details.NEW_PERMNT_CITY !== details.PERMNT_CITY ? "600" : "normal",
-                            color:
-                              details.NEW_PERMNT_CITY !== details.PERMNT_CITY ? "#0d6efd" : "inherit",
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
                           }}
+                        >
+                          {details.PERMNT_CITY || "—"}
+                        </td>
+                        <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                          }}
+                          className={
+                            details.NEW_PERMNT_CITY !== details.PERMNT_CITY
+                              ? "text-primary fw-bold"
+                              : ""
+                          }
                         >
                           {details.NEW_PERMNT_CITY || "—"}
                         </td>
                       </tr>
                       <tr>
-                        <td className="fw-semibold text-muted" style={cellStyle}>State</td>
-                        <td style={cellStyle}>{details.PERMNT_STATE || "—"}</td>
+                        <td className="fw-semibold text-muted">
+                          Permanent State
+                        </td>
                         <td
                           style={{
-                            ...cellStyle,
-                            fontWeight:
-                              details.NEW_PERMNT_STATE !== details.PERMNT_STATE
-                                ? "600"
-                                : "normal",
-                            color:
-                              details.NEW_PERMNT_STATE !== details.PERMNT_STATE
-                                ? "#0d6efd"
-                                : "inherit",
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
                           }}
+                        >
+                          {details.PERMNT_STATE || "—"}
+                        </td>
+                        <td
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                          }}
+                          className={
+                            details.NEW_PERMNT_STATE !== details.PERMNT_STATE
+                              ? "text-primary fw-bold"
+                              : ""
+                          }
                         >
                           {details.NEW_PERMNT_STATE || "—"}
                         </td>
                       </tr>
                       <tr>
-                        <td className="fw-semibold text-muted" style={cellStyle}>Pincode</td>
-                        <td style={cellStyle}>{details.PERMNT_PINCODE || "—"}</td>
+                        <td className="fw-semibold text-muted">
+                          Permanent Pincode
+                        </td>
+                        <td>{details.PERMNT_PINCODE || "—"}</td>
                         <td
-                          style={{
-                            ...cellStyle,
-                            fontWeight:
-                              details.NEW_PERMNT_PINCODE !== details.PERMNT_PINCODE
-                                ? "600"
-                                : "normal",
-                            color:
-                              details.NEW_PERMNT_PINCODE !== details.PERMNT_PINCODE
-                                ? "#0d6efd"
-                                : "inherit",
-                          }}
+                          className={
+                            details.NEW_PERMNT_PINCODE !==
+                            details.PERMNT_PINCODE
+                              ? "text-primary fw-bold"
+                              : ""
+                          }
                         >
                           {details.NEW_PERMNT_PINCODE || "—"}
                         </td>
@@ -326,20 +435,37 @@ const PersonalInfoAuthorizationModal = ({
                   </table>
                 </div>
 
-                {/* ADDRESS PROOF ATTACHMENT */}
+                {/* ATTACHMENT / PROOF /}
                 {details.DOC_PATH1 && (
                   <div className="alert alert-light border d-flex justify-content-between align-items-center py-2 px-3 mb-3">
                     <div className="d-flex align-items-center gap-2">
-                      <i className="ti ti-file-text fs-4 text-primary"></i>
-                      <div>
-                        <div className="fw-semibold" style={{ fontSize: "13px" }}>
-                          Submitted Address Proof: {details.DOC_NAME1 || "Address Proof Document"}
-                        </div>
-                        <small className="text-muted">Click to view or download proof file</small>
+                      <i className="ti ti-paperclip fs-5 text-primary"></i>
+                      <div className="fw-semibold" style={{ fontSize: "13px" }}>
+                        Address Proof: {details.DOC_NAME1 || "Document"}
                       </div>
                     </div>
                     <a
-                      href={`/${details.DOC_PATH1}`}
+                      href={`/mnt/${details.DOC_PATH1}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-sm btn-outline-primary"
+                    >
+                      <i className="ti ti-eye me-1"></i> View Document
+                    </a>
+                  </div>
+                )} */}
+
+                {/* ATTACHMENT / PROOF */}
+                {details.DOC_PATH1 && (
+                  <div className="alert alert-light border d-flex justify-content-between align-items-center py-2 px-3 mb-3">
+                    <div className="d-flex align-items-center gap-2">
+                      <i className="ti ti-paperclip fs-5 text-primary"></i>
+                      <div className="fw-semibold" style={{ fontSize: "13px" }}>
+                        Address Proof: {details.DOC_NAME1 || "Document"}
+                      </div>
+                    </div>
+                    <a
+                      href={getDocumentUrl(details.DOC_PATH1)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-sm btn-outline-primary"
@@ -349,17 +475,25 @@ const PersonalInfoAuthorizationModal = ({
                   </div>
                 )}
 
-                {/* REMARKS / REASON SECTION */}
+                {/* REMARKS INPUT WITH INLINE VALIDATION */}
                 <div className="mb-2">
                   <label className="form-label fw-semibold mb-1">
-                    Reason <span className="text-muted fw-normal" style={{ fontSize: "12px" }}>(Required for Rejection)</span>
+                    Authorization Remarks{" "}
+                    <span
+                      className="text-muted fw-normal"
+                      style={{ fontSize: "12px" }}
+                    >
+                      (Required for Rejection)
+                    </span>
                   </label>
 
                   <div className="position-relative">
                     <textarea
                       ref={textareaRef}
                       rows="2"
-                      className={`form-control ${remarkError ? "is-invalid" : ""}`}
+                      className={`form-control ${
+                        remarkError ? "is-invalid" : ""
+                      }`}
                       style={{
                         paddingRight: remarkError ? "35px" : "12px",
                         resize: "none",
@@ -371,7 +505,6 @@ const PersonalInfoAuthorizationModal = ({
                       maxLength={200}
                     ></textarea>
 
-                    {/* Exclamation Error Icon inside Textarea */}
                     {remarkError && (
                       <div
                         className="position-absolute text-danger"
@@ -390,7 +523,6 @@ const PersonalInfoAuthorizationModal = ({
                     )}
                   </div>
 
-                  {/* Bottom Row: Error Text & Character Counter */}
                   <div className="d-flex justify-content-between align-items-center mt-1">
                     <span
                       className="text-danger"
@@ -408,21 +540,35 @@ const PersonalInfoAuthorizationModal = ({
                 </div>
               </>
             ) : (
-              <div className="text-danger text-center py-4">Failed to load request details.</div>
+              <div className="text-danger text-center py-4">
+                Failed to load request details.
+              </div>
             )}
           </div>
 
-          <div className="modal-footer d-flex justify-content-between">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </button>
+          {/* FOOTER */}
+          <div className="modal-footer d-flex">
             <div className="d-flex gap-2">
-              {/* REJECT BUTTON */}
+              <button
+                type="button"
+                className="btn btn-success"
+                onClick={() => handleDecision("A")}
+                disabled={isSubmitting || loading || !details}
+              >
+                {submittingAction === "A" ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm me-1"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Processing...
+                  </>
+                ) : (
+                  "Accept"
+                )}
+              </button>
+
               <button
                 type="button"
                 className="btn btn-danger"
@@ -443,25 +589,13 @@ const PersonalInfoAuthorizationModal = ({
                 )}
               </button>
 
-              {/* ACCEPT BUTTON */}
               <button
                 type="button"
-                className="btn btn-success"
-                onClick={() => handleDecision("A")}
-                disabled={isSubmitting || loading || !details}
+                className="btn btn-secondary"
+                onClick={onClose}
+                disabled={isSubmitting}
               >
-                {submittingAction === "A" ? (
-                  <>
-                    <span
-                      className="spinner-border spinner-border-sm me-1"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                    Processing...
-                  </>
-                ) : (
-                  "Accept & Update"
-                )}
+                Cancel
               </button>
             </div>
           </div>

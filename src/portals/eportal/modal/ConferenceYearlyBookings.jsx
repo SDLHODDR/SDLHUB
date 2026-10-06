@@ -69,7 +69,7 @@ const columns = [
     field: "ROOM_LABEL",
     header: "Room",
     sortable: true,
-    style: { minWidth: "180px" },
+    style: { minWidth: "100px" },
   },
   {
     field: "DT",
@@ -125,7 +125,7 @@ const columns = [
           : row.REMARKS}
       </span>
     ),
-    style: { minWidth: "250px" },
+    style: { minWidth: "250px", textAlign: "left" },
   },
 ];
 

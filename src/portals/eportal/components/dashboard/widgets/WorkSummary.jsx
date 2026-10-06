@@ -112,7 +112,7 @@ const WorkSummary = ({ data }) => {
   return (
     <div className="card">
       {/* Header */}
-      <div className="card-header d-flex justify-content-between align-items-center">
+      <div className="card-header">
         <h5 className="card-title mb-0">
           Working Day's Summary
         </h5>

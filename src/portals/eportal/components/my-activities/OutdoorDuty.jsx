@@ -11,10 +11,11 @@ import { outdoorDutyColumns } from "../../utils/columnHandlers/outdoorDutyColumn
 import { notifyWarning } from "../../../../services/alertService";
 import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
 import { getPortalFromPath } from "../../../../config/portalConfig";
+import EportalPageLoader from "../loader/EportalPageLoader";
+import "../../assets/css/wideContentPages.css";
 
 const OutdoorDuty = () => {
   const dispatch = useDispatch();
-  const [modalLoading, setModalLoading] = useState(false);
   const outdoorDutydata = useSelector((state) => state.eportalODData.data);
   const odLoading = useSelector((state) => state.eportalODData.loading);
   const [searchQuery, setSearchQuery] = useState("");
@@ -103,7 +104,6 @@ const OutdoorDuty = () => {
   });
 
   const openModal = (config = {}) => {
-    setModalLoading(true);
     if (config.modalDate) {
       const currentDate = new Date();
       const modalDate = new Date(config.modalDate);
@@ -115,7 +115,6 @@ const OutdoorDuty = () => {
       const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
       if (diffDays > 25) {
-        setModalLoading(false);
         notifyWarning("It is not permitted to raise an Outdoor Duty request", "Not Permitted");
         return;
       }
@@ -128,8 +127,6 @@ const OutdoorDuty = () => {
       id: config.id || null,
       isPostRemark: config.isPostRemark || null,
     });
-
-    setModalLoading(false);
   };
 
   const formSettings = {
@@ -149,7 +146,6 @@ const OutdoorDuty = () => {
       ...prev,
       isOpen: false,
     }));
-    setModalLoading(false);
   };
 
   const handleSuccess = () => {
@@ -170,7 +166,8 @@ const OutdoorDuty = () => {
   const columns = outdoorDutyColumns(handlers);
 
   return (
-    <>
+    <div className="outdoor-duty-page">
+      {odLoading && <EportalPageLoader />}
       <div className="page-header">
         <div className="add-item d-flex">
           <div className="page-title">
@@ -186,13 +183,7 @@ const OutdoorDuty = () => {
         />
       </div>
 
-      {(odLoading || modalLoading) && (
-        <div className="p-4 text-center">
-          <div className="spinner-border text-warning"></div>
-        </div>
-      )}
-
-      <div className="card">
+      <div className="card eportal-wide-card">
         <div className="card-body">
           <div className="row">
             <div className="col-xl-3 border-end">
@@ -218,6 +209,7 @@ const OutdoorDuty = () => {
                       className="form-select"
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
+                      style={{ border: "1px solid gray" }}
                     >
                       {statusOptions.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -232,6 +224,7 @@ const OutdoorDuty = () => {
                     <button
                       type="button"
                       className="btn btn-outline-secondary"
+                      style={{ height: "40px" }}
                       disabled={statusFilter === "ALL" && !searchQuery}
                       onClick={clearFilters}
                     >
@@ -244,9 +237,14 @@ const OutdoorDuty = () => {
                 <SDLDataTable
                   data={filteredData}
                   columns={columns}
-                  loading={odLoading}
+                  className="eportal-fit-table"
+                  tableStyle={{ width: "100%", minWidth: "100%", tableLayout: "fixed" }}
+                  scrollable={false}
+                  loading={false}
                   emptyMessage={
-                    searchQuery || statusFilter !== "ALL"
+                    odLoading
+                      ? " "
+                      : searchQuery || statusFilter !== "ALL"
                       ? "No outdoor duty requests match the selected filter"
                       : "No outdoor duties found"
                   }
@@ -266,7 +264,7 @@ const OutdoorDuty = () => {
           onSuccess={handleSuccess}
         />
       )}
-    </>
+    </div>
   );
 };
 

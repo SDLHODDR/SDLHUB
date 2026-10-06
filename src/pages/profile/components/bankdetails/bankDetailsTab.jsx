@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 import { saveBankDetails } from "../../../../services/profile/profileService";
 
@@ -64,11 +64,13 @@ const bankDetailsTab = ({ profile }) => {
   const emp = profile?.employee || {};
 
   /* =========================================================
-     STATE
+     STATE & REFS
   ========================================================= */
 
+  const fileInputRef = useRef(null);
   const [showBankForm, setShowBankForm] = useState(false);
   const [bankSaving, setBankSaving] = useState(false);
+  const [documentFile, setDocumentFile] = useState(null);
 
   const [bankForm, setBankForm] = useState({
     bank_name: "",
@@ -84,6 +86,25 @@ const bankDetailsTab = ({ profile }) => {
     bank_ifsc: "",
     bank_acno: "",
     bank_nominee: "",
+  });
+
+  /* INLINE VALIDATION STATES */
+  const [bankErrors, setBankErrors] = useState({
+    bank_name: "",
+    bank_branch: "",
+    bank_ifsc: "",
+    bank_acno: "",
+    bank_nominee: "",
+    document: "",
+  });
+
+  const [bankValidated, setBankValidated] = useState({
+    bank_name: false,
+    bank_branch: false,
+    bank_ifsc: false,
+    bank_acno: false,
+    bank_nominee: false,
+    document: false,
   });
 
   /* =========================================================
@@ -122,6 +143,121 @@ const bankDetailsTab = ({ profile }) => {
   };
 
   /* =========================================================
+     DOCUMENT FILE CHANGE HANDLER
+  ========================================================= */
+
+  const handleDocumentChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setDocumentFile(null);
+      setBankValidated((prev) => ({ ...prev, document: false }));
+      return;
+    }
+
+    // Allowed extensions: pdf, jpg, jpeg, png
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"];
+    if (!allowedTypes.includes(file.type)) {
+      setBankErrors((prev) => ({
+        ...prev,
+        document: "Only PDF, JPG, or PNG files are permitted.",
+      }));
+      setBankValidated((prev) => ({ ...prev, document: true }));
+      setDocumentFile(null);
+      e.target.value = "";
+      return;
+    }
+
+    // Size limit: 1MB (1,048,576 bytes)
+    const maxSize = 1 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setBankErrors((prev) => ({
+        ...prev,
+        document: "Document file size must be less than 1MB.",
+      }));
+      setBankValidated((prev) => ({ ...prev, document: true }));
+      setDocumentFile(null);
+      e.target.value = "";
+      return;
+    }
+
+    setBankErrors((prev) => ({ ...prev, document: "" }));
+    setBankValidated((prev) => ({ ...prev, document: true }));
+    setDocumentFile(file);
+  };
+
+  /* =========================================================
+     INLINE VALIDATION LOGIC
+  ========================================================= */
+
+  const validateBankField = (field, value) => {
+    const val = String(value ?? "").trim();
+    let error = "";
+
+    switch (field) {
+      case "bank_name":
+        if (!val) {
+          error = "Please enter Bank Name.";
+        }
+        break;
+
+      case "bank_branch":
+        if (!val) {
+          error = "Please enter Bank Branch.";
+        }
+        break;
+
+      case "bank_ifsc":
+        if (!val) {
+          error = "Please enter IFSC.";
+        } else if (!/^[A-Z0-9]+$/.test(val)) {
+          error = "Please enter a valid IFSC (letters and digits only).";
+        } else if (val.length !== 11) {
+          error = "IFSC must be exactly 11 characters.";
+        }
+        break;
+
+      case "bank_acno":
+        if (!val) {
+          error = "Please enter Account Number.";
+        } else if (!/^\d+$/.test(val)) {
+          error = "Account Number should contain digits only.";
+        } else if (val.length < 6) {
+          error = "Account Number should be at least 6 digits.";
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    return error;
+  };
+
+  const validateBankForm = (formValues = bankForm) => {
+    const errors = {
+      bank_name: validateBankField("bank_name", formValues.bank_name),
+      bank_branch: validateBankField("bank_branch", formValues.bank_branch),
+      bank_ifsc: validateBankField("bank_ifsc", formValues.bank_ifsc),
+      bank_acno: validateBankField("bank_acno", formValues.bank_acno),
+      bank_nominee: "",
+      document: bankErrors.document,
+    };
+
+    setBankValidated((prev) => ({
+      ...prev,
+      bank_name: true,
+      bank_branch: true,
+      bank_ifsc: true,
+      bank_acno: true,
+      bank_nominee: false,
+    }));
+
+    setBankErrors(errors);
+
+    return !Object.values(errors).some(Boolean);
+  };
+
+  /* =========================================================
      EDIT BANK
   ========================================================= */
 
@@ -136,6 +272,27 @@ const bankDetailsTab = ({ profile }) => {
 
     setBankForm(currentBank);
     setOriginalBankForm(currentBank);
+    setDocumentFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+
+    setBankErrors({
+      bank_name: "",
+      bank_branch: "",
+      bank_ifsc: "",
+      bank_acno: "",
+      bank_nominee: "",
+      document: "",
+    });
+
+    setBankValidated({
+      bank_name: false,
+      bank_branch: false,
+      bank_ifsc: false,
+      bank_acno: false,
+      bank_nominee: false,
+      document: false,
+    });
+
     setShowBankForm(true);
   };
 
@@ -143,13 +300,35 @@ const bankDetailsTab = ({ profile }) => {
      BANK INPUT CHANGE
   ========================================================= */
 
-  const handleBankInputChange = (e) => {
-    const { name, value } = e.target;
+  const handleBankInputChange = (field, value) => {
+    let processedValue = value;
+
+    if (field === "bank_ifsc") {
+      processedValue = value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11);
+    } else if (field === "bank_acno") {
+      processedValue = value.replace(/\D/g, "").slice(0, 30);
+    }
 
     setBankForm((prev) => ({
       ...prev,
-      [name]: value,
+      [field]: processedValue,
     }));
+
+    setBankValidated((prev) => ({
+      ...prev,
+      [field]: false,
+    }));
+
+    setBankErrors((prev) => ({
+      ...prev,
+      [field]: "",
+    }));
+  };
+
+  const handleBankBlur = (field) => {
+    const error = validateBankField(field, bankForm[field]);
+    setBankValidated((prev) => ({ ...prev, [field]: true }));
+    setBankErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   /* =========================================================
@@ -157,6 +336,13 @@ const bankDetailsTab = ({ profile }) => {
   ========================================================= */
 
   const handleSaveBank = async () => {
+    /* =======================================================
+       INLINE FORM VALIDATION
+    ======================================================= */
+
+    const isValid = validateBankForm();
+    if (!isValid) return;
+
     /* =======================================================
        NORMALIZE FORM VALUES
     ======================================================= */
@@ -168,53 +354,6 @@ const bankDetailsTab = ({ profile }) => {
       bank_acno: normalizeBankAccount(bankForm.bank_acno),
       bank_nominee: normalizeBankNominee(bankForm.bank_nominee),
     };
-
-    /* =======================================================
-       REQUIRED VALIDATION
-    ======================================================= */
-
-    if (!currentBank.bank_name) {
-      notifyError("Please enter Bank Name.");
-      return;
-    }
-
-    if (!currentBank.bank_branch) {
-      notifyError("Please enter Bank Branch.");
-      return;
-    }
-
-    if (!currentBank.bank_ifsc) {
-      notifyError("Please enter IFSC.");
-      return;
-    }
-
-    if (!currentBank.bank_acno) {
-      notifyError("Please enter Account Number.");
-      return;
-    }
-
-    /* =======================================================
-       IFSC VALIDATION
-    ======================================================= */
-
-    if (!/^[A-Z0-9]+$/.test(currentBank.bank_ifsc)) {
-      notifyError("Please enter a valid IFSC.");
-      return;
-    }
-
-    if (currentBank.bank_ifsc.length !== 11) {
-      notifyError("IFSC must be 11 characters.");
-      return;
-    }
-
-    /* =======================================================
-       ACCOUNT NUMBER VALIDATION
-    ======================================================= */
-
-    if (!/^\d+$/.test(currentBank.bank_acno)) {
-      notifyError("Account Number should contain digits only.");
-      return;
-    }
 
     /* =======================================================
        CHECK CHANGES
@@ -233,10 +372,11 @@ const bankDetailsTab = ({ profile }) => {
       currentBank.bank_branch !== originalBank.bank_branch ||
       currentBank.bank_ifsc !== originalBank.bank_ifsc ||
       currentBank.bank_acno !== originalBank.bank_acno ||
-      currentBank.bank_nominee !== originalBank.bank_nominee;
+      currentBank.bank_nominee !== originalBank.bank_nominee ||
+      Boolean(documentFile);
 
     if (!hasChanges) {
-      notifyError("No changes found in bank details.");
+      notifyWarning("No changes found in bank details.");
       return;
     }
 
@@ -247,18 +387,23 @@ const bankDetailsTab = ({ profile }) => {
     setBankSaving(true);
 
     try {
-      const payload = {
-        bank_name: currentBank.bank_name,
-        bank_branch: currentBank.bank_branch,
-        bank_ifsc: currentBank.bank_ifsc,
-        bank_acno: currentBank.bank_acno,
-        bank_nominee: currentBank.bank_nominee,
-      };
+      const formData = new FormData();
+      formData.append("bank_name", currentBank.bank_name);
+      formData.append("bank_branch", currentBank.bank_branch);
+      formData.append("bank_ifsc", currentBank.bank_ifsc);
+      formData.append("bank_acno", currentBank.bank_acno);
+      formData.append("bank_nominee", currentBank.bank_nominee);
 
-      const res = await saveBankDetails(payload);
+      if (documentFile) {
+        formData.append("document", documentFile);
+      }
+
+      const res = await saveBankDetails(formData);
 
       if (res?.status) {
         setShowBankForm(false);
+        setDocumentFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
         notifySuccess(
           res?.message ||
             "Bank details update request submitted successfully for authorization."
@@ -289,6 +434,38 @@ const bankDetailsTab = ({ profile }) => {
     } finally {
       setBankSaving(false);
     }
+  };
+
+  /* =========================================================
+     INLINE HELPER COMPONENTS & CLASSES
+  ========================================================= */
+
+  const getBankInputClass = (field) => {
+    if (!bankValidated[field]) return "form-control";
+    if (bankErrors[field]) return "form-control is-invalid";
+    return "form-control is-valid";
+  };
+
+  const FieldError = ({ message }) => {
+    if (!message) return null;
+    return (
+      <div className="text-danger mt-1" style={{ fontSize: "12px" }}>
+        <i className="ti ti-alert-circle me-1"></i>
+        {message}
+      </div>
+    );
+  };
+
+  const ValidTick = ({ field }) => {
+    if (!bankValidated[field] || bankErrors[field]) return null;
+    return (
+      <span
+        className="text-success ms-2"
+        style={{ fontSize: "18px", fontWeight: "bold" }}
+      >
+        ✓
+      </span>
+    );
   };
 
   /* =========================================================
@@ -460,106 +637,153 @@ const bankDetailsTab = ({ profile }) => {
                   {/* BANK NAME */}
                   <div className="col-md-6">
                     <label className="form-label">
-                      Bank Name
-                      <span className="text-danger"> *</span>
+                      Bank Name <span className="text-danger">*</span>
                     </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      name="bank_name"
-                      value={bankForm.bank_name}
-                      onChange={handleBankInputChange}
-                      placeholder="Enter Bank Name"
-                      maxLength={100}
-                      autoComplete="off"
-                    />
+                    <div className="d-flex align-items-center">
+                      <input
+                        type="text"
+                        className={getBankInputClass("bank_name")}
+                        name="bank_name"
+                        value={bankForm.bank_name}
+                        onChange={(e) =>
+                          handleBankInputChange("bank_name", e.target.value)
+                        }
+                        onBlur={() => handleBankBlur("bank_name")}
+                        placeholder="Enter Bank Name"
+                        maxLength={100}
+                        autoComplete="off"
+                        disabled={bankSaving}
+                      />
+                      <ValidTick field="bank_name" />
+                    </div>
+                    <FieldError message={bankErrors.bank_name} />
                   </div>
 
                   {/* BRANCH */}
                   <div className="col-md-6">
                     <label className="form-label">
-                      Bank Branch
-                      <span className="text-danger"> *</span>
+                      Bank Branch <span className="text-danger">*</span>
                     </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      name="bank_branch"
-                      value={bankForm.bank_branch}
-                      onChange={handleBankInputChange}
-                      placeholder="Enter Bank Branch"
-                      maxLength={100}
-                      autoComplete="off"
-                    />
+                    <div className="d-flex align-items-center">
+                      <input
+                        type="text"
+                        className={getBankInputClass("bank_branch")}
+                        name="bank_branch"
+                        value={bankForm.bank_branch}
+                        onChange={(e) =>
+                          handleBankInputChange("bank_branch", e.target.value)
+                        }
+                        onBlur={() => handleBankBlur("bank_branch")}
+                        placeholder="Enter Bank Branch"
+                        maxLength={100}
+                        autoComplete="off"
+                        disabled={bankSaving}
+                      />
+                      <ValidTick field="bank_branch" />
+                    </div>
+                    <FieldError message={bankErrors.bank_branch} />
                   </div>
 
                   {/* IFSC */}
                   <div className="col-md-6">
                     <label className="form-label">
-                      IFSC
-                      <span className="text-danger"> *</span>
+                      IFSC <span className="text-danger">*</span>
                     </label>
-                    <input
-                      type="text"
-                      className="form-control text-uppercase"
-                      name="bank_ifsc"
-                      value={bankForm.bank_ifsc}
-                      onChange={(e) => {
-                        const value = e.target.value
-                          .toUpperCase()
-                          .replace(/[^A-Z0-9]/g, "")
-                          .slice(0, 11);
-
-                        setBankForm((prev) => ({
-                          ...prev,
-                          bank_ifsc: value,
-                        }));
-                      }}
-                      placeholder="Enter IFSC"
-                      maxLength={11}
-                      autoComplete="off"
-                    />
+                    <div className="d-flex align-items-center">
+                      <input
+                        type="text"
+                        className={`${getBankInputClass("bank_ifsc")} text-uppercase`}
+                        name="bank_ifsc"
+                        value={bankForm.bank_ifsc}
+                        onChange={(e) =>
+                          handleBankInputChange("bank_ifsc", e.target.value)
+                        }
+                        onBlur={() => handleBankBlur("bank_ifsc")}
+                        placeholder="Enter IFSC"
+                        maxLength={11}
+                        autoComplete="off"
+                        disabled={bankSaving}
+                      />
+                      <ValidTick field="bank_ifsc" />
+                    </div>
+                    <FieldError message={bankErrors.bank_ifsc} />
                   </div>
 
                   {/* ACCOUNT NUMBER */}
                   <div className="col-md-6">
                     <label className="form-label">
-                      Account Number
-                      <span className="text-danger"> *</span>
+                      Account Number <span className="text-danger">*</span>
                     </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      name="bank_acno"
-                      value={bankForm.bank_acno}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, "");
-
-                        setBankForm((prev) => ({
-                          ...prev,
-                          bank_acno: value,
-                        }));
-                      }}
-                      placeholder="Enter Account Number"
-                      maxLength={50}
-                      inputMode="numeric"
-                      autoComplete="off"
-                    />
+                    <div className="d-flex align-items-center">
+                      <input
+                        type="text"
+                        className={getBankInputClass("bank_acno")}
+                        name="bank_acno"
+                        value={bankForm.bank_acno}
+                        onChange={(e) =>
+                          handleBankInputChange("bank_acno", e.target.value)
+                        }
+                        onBlur={() => handleBankBlur("bank_acno")}
+                        placeholder="Enter Account Number"
+                        maxLength={30}
+                        inputMode="numeric"
+                        autoComplete="off"
+                        disabled={bankSaving}
+                      />
+                      <ValidTick field="bank_acno" />
+                    </div>
+                    <FieldError message={bankErrors.bank_acno} />
                   </div>
 
-                  {/* NOMINEE */}
-                  <div className="col-md-6">
+                  {/* NOMINEE (OPTIONAL) */}
+                  <div className="col-md-12">
                     <label className="form-label">Bank Nominee</label>
+                    <div className="d-flex align-items-center">
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="bank_nominee"
+                        value={bankForm.bank_nominee}
+                        onChange={(e) =>
+                          handleBankInputChange("bank_nominee", e.target.value)
+                        }
+                        placeholder="Enter Bank Nominee (Optional)"
+                        maxLength={100}
+                        autoComplete="off"
+                        disabled={bankSaving}
+                      />
+                    </div>
+                  </div>
+
+                  {/* SUPPORTING DOCUMENT (CANCELLED CHEQUE / PASSBOOK) */}
+                  <div className="col-md-12">
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <label className="form-label mb-0 fw-semibold">
+                        Supporting Document
+                        <span className="text-muted fw-normal ms-1" style={{ fontSize: "12px" }}>
+                          (e.g., Cancelled Cheque, Passbook copy)
+                        </span>
+                      </label>
+                      <small className="text-muted">Max 1MB (PDF, JPG, PNG)</small>
+                    </div>
                     <input
-                      type="text"
-                      className="form-control"
-                      name="bank_nominee"
-                      value={bankForm.bank_nominee}
-                      onChange={handleBankInputChange}
-                      placeholder="Enter Bank Nominee"
-                      maxLength={100}
-                      autoComplete="off"
+                      ref={fileInputRef}
+                      type="file"
+                      name="document"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={handleDocumentChange}
+                      className={`form-control ${
+                        bankErrors.document ? "is-invalid" : ""
+                      }`}
+                      disabled={bankSaving}
                     />
+                    <FieldError message={bankErrors.document} />
+                    {documentFile && (
+                      <div className="small text-success mt-1 d-flex align-items-center gap-1">
+                        <i className="ti ti-check"></i>
+                        <span>Selected file: {documentFile.name} ({(documentFile.size / 1024).toFixed(1)} KB)</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

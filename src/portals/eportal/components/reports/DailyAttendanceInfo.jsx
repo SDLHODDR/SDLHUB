@@ -4,6 +4,8 @@ import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import Badge from "../Badge";
 import { getPortalFromPath } from "../../../../config/portalConfig";
+import "../../assets/css/wideContentPages.css";
+import EportalPageLoader from "../loader/EportalPageLoader";
 
 const DailyAttendanceInfo = () => {
 
@@ -110,7 +112,7 @@ const DailyAttendanceInfo = () => {
 
     /* ================= STATES ================= */
 
-    if (initialLoading) return <AttendanceSkeleton />;
+    if (initialLoading) return <EportalPageLoader />;
 
     if (error) return <p className="text-danger">{error}</p>;
 
@@ -138,79 +140,80 @@ const DailyAttendanceInfo = () => {
             field: "date",
             header: "Date",
             sortable: true,
-            style: { minWidth: "120px" },
+            style: { width: "10%" },
         },
         {
             field: "in",
             header: "In",
             sortable: true,
-            style: { minWidth: "90px" },
+            style: { width: "7%" },
         },
         {
             field: "out",
             header: "Out",
             sortable: true,
-            style: { minWidth: "90px" },
+            style: { width: "7%" },
         },
         {
             field: "late",
             header: "Late",
             sortable: true,
-            style: { minWidth: "90px" },
+            style: { width: "7%" },
         },
         {
             field: "early",
             header: "Early",
             sortable: true,
-            style: { minWidth: "90px" },
+            style: { width: "7%" },
         },
         {
             field: "workHr",
             header: "Work Hr",
             sortable: true,
-            style: { minWidth: "100px" },
+            style: { width: "8%" },
         },
         {
             field: "onDesk",
             header: "On Desk",
             sortable: true,
-            style: { minWidth: "100px" },
+            style: { width: "8%" },
         },
         {
             field: "offDesk",
             header: "Off Desk",
             sortable: true,
-            style: { minWidth: "100px" },
+            style: { width: "8%" },
         },
         {
             field: "terrace",
             header: "Terrace",
             sortable: true,
-            style: { minWidth: "100px" },
+            style: { width: "8%" },
         },
         {
             field: "extra",
             header: "Extra",
             sortable: true,
-            style: { minWidth: "90px" },
+            style: { width: "7%" },
         },
         {
             field: "tour",
             header: "Tour",
             body: tourBody,
-            style: { minWidth: "120px" },
+            style: { width: "10%" },
         },
         {
             field: "status",
             header: "Status",
             body: statusBody,
             sortable: true,
-            style: { minWidth: "130px", textAlign: "center" },
+            style: { width: "13%", textAlign: "center" },
         },
     ];
 
     return (
         <>
+            {loading && <EportalPageLoader />}
             {/* HEADER */}
 
             <div className="page-header">
@@ -230,7 +233,7 @@ const DailyAttendanceInfo = () => {
             </div>
 
             {/* META */}
-            <div className="card mb-2">
+            <div className="card mb-2 eportal-wide-card">
                 <div className="card-body py-2 px-3 d-flex justify-content-between">
                     <div>
                         <strong>Shift:</strong>{" "}
@@ -257,17 +260,7 @@ const DailyAttendanceInfo = () => {
             </div>
 
             {/* TOP BAR */}
-            <div className="card mb-2 position-relative">
-
-                {/* overlay loader */}
-                {loading && (
-                    <div
-                        className="position-absolute w-100 h-100 d-flex align-items-center justify-content-center"
-                        style={{ background: "rgba(255,255,255,0.6)", zIndex: 10 }}
-                    >
-                        <div className="spinner-border text-primary"></div>
-                    </div>
-                )}
+            <div className="card mb-2 position-relative eportal-wide-card">
 
                 <div className="card-body py-2 px-3">
                     <div className="d-flex justify-content-between align-items-center flex-wrap">
@@ -310,27 +303,19 @@ const DailyAttendanceInfo = () => {
             </div>
 
             {/* TABLE */}
-            <div className="card position-relative">
-
-                {loading && (
-                    <div
-                        className="position-absolute w-100 h-100 d-flex align-items-center justify-content-center"
-                        style={{ background: "rgba(255,255,255,0.6)", zIndex: 10 }}
-                    >
-                        <div className="spinner-border text-primary"></div>
-                    </div>
-                )}
+            <div className="card position-relative eportal-wide-card">
 
                 <div className="card-body">
                     <div className="attendance-table">
                         <SDLDataTable
                             data={data}
                             columns={columns}
-                            loading={loading}
-                            emptyMessage="No attendance records found"
-                            className="adaily-attendance-grid"
-                            tableStyle={{ minWidth: "1200px" }}
-                            scrollHeight="60vh"
+                            loading={false}
+                            emptyMessage={loading ? " " : "No attendance records found"}
+                            className="adaily-attendance-grid eportal-fit-table"
+                            tableStyle={{ width: "100%", minWidth: "100%", tableLayout: "fixed" }}
+                            scrollable={false}
+                            rows={10}
                         />
                     </div>
                 </div>
@@ -366,33 +351,5 @@ const MiniStat = ({ label, value, color }) => {
 };
 
 
-
-/* ================= SKELETON ================= */
-
-const AttendanceSkeleton = () => (
-    <div className="card">
-        <div className="card-body">
-
-            <div className="d-flex justify-content-between mb-3">
-                <div className="placeholder-glow">
-                    <span className="placeholder col-6"></span>
-                </div>
-
-                <div className="d-flex gap-2">
-                    {[...Array(6)].map((_, i) => (
-                        <span key={i} className="placeholder"
-                            style={{ width: 40, height: 40, borderRadius: 8 }} />
-                    ))}
-                </div>
-            </div>
-
-            {[...Array(8)].map((_, i) => (
-                <div key={i} className="placeholder-glow mb-2">
-                    <span className="placeholder col-12"></span>
-                </div>
-            ))}
-        </div>
-    </div>
-);
 
 export default DailyAttendanceInfo;

@@ -241,7 +241,7 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
                 value={regime}
                 onChange={(e) => setRegime(e.target.value)}
                 style={{
-                  border: "1px solid #d7dee8",
+                  border: "1px solid gray",
                   borderRadius: "6px",
                   height: "42px",
                 }}
@@ -375,7 +375,8 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
                     <div className="col-md-5">
                       <div className="d-flex gap-2">
                         <div className="input-group">
-                          <span className="input-group-text">₹</span>
+                          <span className="input-group-text" style={{
+                              border: "1px solid gray"}}>₹</span>
                           <input
                             type="number"
                             className="form-control"
@@ -385,7 +386,7 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
                               handleOtherIncomeChange(index, e.target.value)
                             }
                             style={{
-                              border: "1px solid #d7dee8",
+                              border: "1px solid gray",
                               height: "42px",
                             }}
                           />
@@ -406,7 +407,7 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
                             )
                           }
                           style={{
-                            border: "1px solid #d7dee8",
+                            border: "1px solid gray",
                             borderRadius: "6px",
                             height: "42px",
                           }}

@@ -15,8 +15,10 @@ import {
 import SDLDataTable from '../../../../../../components/datatable/SDLDataTable'
 import SDLSearch from '../../../../../../components/datatable/SDLSearch'
 import SDLCalendar from '../../../../../../components/calendar/SDLCalendar'
+import EportalPageLoader from '../../../loader/EportalPageLoader'
 
 import { ITR_MESSAGES } from '../../../../constants/itrMessages'
+import '../../../../assets/css/wideContentPages.css'
 
 const ExemptionsTab = ({ onDataSaved, editable }) => {
   /* =========================================================
@@ -290,7 +292,7 @@ const formatDateForDisplay = value => {
       header: '#',
       body: serialBodyTemplate,
       style: {
-        width: '60px',
+        width: '6%',
         textAlign: 'center'
       }
     },
@@ -301,7 +303,7 @@ const formatDateForDisplay = value => {
       sortable: true,
       body: rowData => formatDateForDisplay(rowData.from),
       style: {
-        width: '120px'
+        width: '9%'
       }
     },
 
@@ -311,7 +313,7 @@ const formatDateForDisplay = value => {
       sortable: true,
       body: rowData => formatDateForDisplay(rowData.to),
       style: {
-        width: '120px'
+        width: '9%'
       }
     },
 
@@ -320,8 +322,8 @@ const formatDateForDisplay = value => {
       header: 'Monthly Rent',
       sortable: true,
       style: {
-        width: '150px',
-        textAlign: 'right'
+        width: '11%',
+        textAlign: 'center'
       }
     },
 
@@ -330,8 +332,8 @@ const formatDateForDisplay = value => {
       header: 'Annual Rent',
       sortable: true,
       style: {
-        width: '150px',
-        textAlign: 'right'
+        width: '11%',
+        textAlign: 'center'
       }
     },
 
@@ -340,7 +342,7 @@ const formatDateForDisplay = value => {
       header: 'City',
       sortable: true,
       style: {
-        width: '140px'
+        width: '10%'
       }
     },
 
@@ -349,7 +351,7 @@ const formatDateForDisplay = value => {
       header: 'Landlord',
       sortable: true,
       style: {
-        minWidth: '220px'
+        width: '18%'
       }
     },
 
@@ -358,7 +360,7 @@ const formatDateForDisplay = value => {
       header: 'PAN',
       sortable: true,
       style: {
-        width: '160px'
+        width: '11%'
       }
     },
 
@@ -368,7 +370,7 @@ const formatDateForDisplay = value => {
             header: 'Action',
             body: actionBodyTemplate,
             style: {
-              width: '150px',
+              width: '15%',
               textAlign: 'center'
             }
           }
@@ -1204,6 +1206,7 @@ const formatDateForDisplay = value => {
 
   return (
     <>
+      {loading && <EportalPageLoader />}
       {/* =====================================================
           NON-EDITABLE MESSAGE
       ===================================================== */}
@@ -1715,13 +1718,12 @@ const formatDateForDisplay = value => {
             <SDLDataTable
               data={filteredData}
               columns={columns}
-              loading={loading}
-              emptyMessage='No exemption records found'
+              tableStyle={{ width: '100%', minWidth: '100%', tableLayout: 'fixed' }}
+              scrollable={false}
+              loading={false}
+              emptyMessage={loading ? ' ' : 'No exemption records found'}
               removableSort
-              tableStyle={{
-                minWidth: '1200px'
-              }}
-              className='exemption-grid'
+              className='exemption-grid eportal-fit-table'
             />
           </div>
         </div>

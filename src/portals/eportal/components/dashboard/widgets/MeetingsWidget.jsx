@@ -4,7 +4,7 @@ const MeetingsWidget = ({ data = [] }) => {
   }
 
   return (
-    <div className="card shadow-sm border-0 mb-3">
+    <div className="card shadow-sm border-0 flex-grow-1 mb-0">
       <div className="card-header fw-semibold">
         Today's Meetings
       </div>

@@ -15,6 +15,8 @@ import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
 import Badge from "../Badge";
 
 import { getPortalFromPath } from "../../../../config/portalConfig";
+import "../../assets/css/wideContentPages.css";
+import EportalPageLoader from "../loader/EportalPageLoader";
 
 
 const ItrDownloadReport = () => {
@@ -304,13 +306,13 @@ const ItrDownloadReport = () => {
       field: "TARGET_EMP_CODE",
       header: "Target Employee",
       sortable: true,
-      style: { minWidth: "140px" },
+      style: { minWidth: "100px" },
     },
     {
       field: "DOWNLOAD_TYPE",
       header: "Type",
       sortable: true,
-      style: { minWidth: "130px" },
+      style: { minWidth: "80px" },
     },
     {
       field: "FINANCIAL_YEAR",
@@ -321,13 +323,13 @@ const ItrDownloadReport = () => {
     {
       field: "FILE_NAME",
       header: "File Name",
-      style: { minWidth: "220px" },
+      style: { minWidth: "180px" },
     },
     {
       field: "FILE_SIZE_MB",
       header: "Size (MB)",
       sortable: true,
-      style: { minWidth: "100px", textAlign: "center" },
+      style: { minWidth: "70px", textAlign: "center" },
     },
     {
       field: "STATUS",
@@ -389,7 +391,8 @@ const ItrDownloadReport = () => {
   }, [rows, globalFilter]);
 
   return (
-    <div className="container-fluid">
+    <div className="eportal-wide-page">
+      {loading && <EportalPageLoader />}
       {/* HEADER */}
       <div className="page-header">
         <div className="add-item d-flex">
@@ -436,6 +439,7 @@ const ItrDownloadReport = () => {
                 name="financial_year"
                 value={filters.financial_year}
                 onChange={handleChange}
+                style={{ border: "1px solid gray"}}
               >
                 <option value="">All</option>
                 <option value="25-26">2025-26</option>
@@ -453,6 +457,8 @@ const ItrDownloadReport = () => {
                 name="download_type"
                 value={filters.download_type}
                 onChange={handleChange}
+                                style={{ border: "1px solid gray"}}
+
               >
                 <option value="">All</option>
                 <option value="single">Single Employee</option>
@@ -528,6 +534,7 @@ const ItrDownloadReport = () => {
                 <button
                   className="btn btn-primary flex-fill"
                   onClick={handleSearch}
+                  style={{ height: "40px" }}
                 >
                   Search
                 </button>
@@ -535,6 +542,7 @@ const ItrDownloadReport = () => {
                 <button
                   className="btn btn-secondary flex-fill"
                   onClick={handleReset}
+                  style={{ height: "40px" }}
                 >
                   Reset
                 </button>
@@ -601,8 +609,8 @@ const ItrDownloadReport = () => {
           <SDLDataTable
             data={filteredRows}
             columns={columns}
-            loading={loading}
-            emptyMessage="No Records Found"
+            loading={false}
+            emptyMessage={loading ? " " : "No Records Found"}
             className="itr-report-table"
             tableStyle={{ minWidth: "1500px" }}
             scrollHeight="60vh"
