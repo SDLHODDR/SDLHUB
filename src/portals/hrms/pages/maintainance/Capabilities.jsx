@@ -5,7 +5,6 @@ import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
 import { getPortalFromPath } from '../../../../config/portalConfig'
 import SDLSearch from '../../../../components/datatable/SDLSearch'
 import SDLDataTable from '../../../../components/datatable/SDLDataTable'
-import SDLDropdownSelect from '../../components/forms/SDLDropdownSelect'
 import { getCapabilitiesDataResponse } from '../../../../store/hrms/hrmsCapabilitiesSlice'
 import {
   normalizeRecords,
@@ -96,6 +95,7 @@ const Capabilities = () => {
   //   2. Show records whose CAPA_CODE_DISPLAY is in that set.
   // (No second dimension like Department Activity's Type here.)
   const [codeSearchQuery, setCodeSearchQuery] = useState('')
+  const [exactCodeSearch, setExactCodeSearch] = useState(false)
 
   const matchedCodes = useMemo(() => {
     if (!codeSearchQuery.trim()) return null
@@ -108,10 +108,15 @@ const Capabilities = () => {
   }, [codeSearchQuery, capabilityOptions])
 
   const formFilteredData = useMemo(() => {
+    if (exactCodeSearch) {
+      return list.filter(
+        item => String(item.CAPA_CODE_DISPLAY) === String(codeSearchQuery)
+      )
+    }
     if (!matchedCodes) return []
     if (matchedCodes.size === 0) return []
     return list.filter(item => matchedCodes.has(item.CAPA_CODE_DISPLAY))
-  }, [matchedCodes, list])
+  }, [exactCodeSearch, codeSearchQuery, matchedCodes, list])
 
   const resetForm = useCallback(() => {
     setIsEditing(false)
@@ -119,10 +124,10 @@ const Capabilities = () => {
     setFormData({ CAPA_ID: '', CAPA_CODE: '', CAPA_DESC: '' })
     setErrors({})
     setCodeSearchQuery('') // clear the inline preview table too
+    setExactCodeSearch(false)
   }, [])
 
-  const { handleFieldChange, handleSave, handleEdit, handleSelectCapability } =
-    useCapabilitiesHandler({
+  const { handleFieldChange, handleSave, handleEdit } = useCapabilitiesHandler({
       formData,
       setFormData,
       setErrors,
@@ -135,6 +140,16 @@ const Capabilities = () => {
       resetForm,
       list
     })
+
+  const handleTopCapabilityChange = useCallback(value => {
+    setSelectedCapability(value)
+    setIsEditing(false)
+    setFormData({ CAPA_ID: '', CAPA_CODE: value ?? '', CAPA_DESC: '' })
+    setErrors({})
+    setCodeSearchQuery(value ?? '')
+    setExactCodeSearch(Boolean(value))
+    setShowAll(false)
+  }, [])
 
   // "Add new" for Capabilities Code — no API call needed, since there's no
   // separate master table to insert into ahead of time. The typed code
@@ -151,6 +166,7 @@ const Capabilities = () => {
       clearTimeout(codeSearchDebounceRef.current)
     codeSearchDebounceRef.current = setTimeout(() => {
       setCodeSearchQuery(text ?? '')
+      setExactCodeSearch(false)
       // Deliberately NOT touching `showAll` — stays in form mode, results
       // render as an inline table below the form.
     }, 250)
@@ -256,21 +272,21 @@ const Capabilities = () => {
                       value: opt.id,
                       label: opt.label
                     }))}
-                    onChange={id => handleSelectCapability(id)}
+                    onChange={handleTopCapabilityChange}
                     placeholder='Select Capabilities'
                     isDisabled={loading}
                     width='330px'
                   />
                   <ViewToggleButton
                     showAll={showAll}
-                    onClick={() => setShowAll(prev => !prev)}
+                    onClick={handleToggleView}
                     disabled={loading}
                   />
                 </div>
               </div>
 
               {!showAll ? (
-                <>
+                  <>
                   <div className='row mb-3'>
                     {/* <div className="col-lg-4"> */}
                     {/* Capabilities Code — searchable + creatable, same
@@ -382,8 +398,8 @@ const Capabilities = () => {
                       )}
                     </div>
                   )}
-                </>
-              ) : (
+                  </>
+                ) : (
                 <>
                   {filteredData.length === 0 ? (
                     <div className='p-4 text-center text-muted'>

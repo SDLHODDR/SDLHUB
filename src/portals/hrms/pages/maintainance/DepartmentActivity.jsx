@@ -17,7 +17,6 @@ import {
 import { departmentActivityColumns } from '../../portalutils/departmentActivityColumns'
 import { useDepartmentActivityHandler } from '../../portalutils/useDepartmentActivityHandler'
 // import SDLActivitySelector from "../../components/SDLActivitySelector";
-import SDLDropdownSelect from '../../components/forms/SDLDropdownSelect'
 // import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
 import SDLReactSelect from '../../../../components/SDLReactSelect'
 import SaveButton from '../../components/buttons/SaveButton'
@@ -43,7 +42,7 @@ const DepartmentActivity = () => {
   const [searchQuery, setSearchQuery] = useState('')
 
   const [showAll, setShowAll] = useState(false)
-  const [selectedActivity, setSelectedActivity] = useState('')
+  const [selectedPair, setSelectedPair] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [deletingId, setDeletingId] = useState(null)
@@ -125,12 +124,17 @@ const DepartmentActivity = () => {
     })
   }, [listDeptMasterData])
 
-  // (1) Top "Select Department Activity" — keyword-searchable, sourced
-  // straight from listData (already-loaded API data), same pattern as
-  // KRAActivity's top selector.
   const activityOptions = useMemo(
-    () => listData.map(item => ({ id: String(item.ID), label: item.ACT_DESC })),
-    [listData]
+    () =>
+      deptOptions.flatMap(department =>
+        Object.entries(ACT_TYPES).map(([type, typeLabel]) => ({
+          id: JSON.stringify([department.id, type]),
+          label: `${department.label} - ${typeLabel}`,
+          departmentId: department.id,
+          type
+        }))
+      ),
+    [deptOptions]
   )
 
   // Table-mode search — driven only by the visible SDLSearch box.
@@ -168,7 +172,16 @@ const DepartmentActivity = () => {
     )
   }, [masterSearchQuery, deptOptions])
 
+  const [exactPairFilter, setExactPairFilter] = useState(false)
+
   const formFilteredData = useMemo(() => {
+    if (exactPairFilter && form.DEPT_ID && form.ACT_TYPE) {
+      return listData.filter(
+        item =>
+          String(item.DEPT_ID) === String(form.DEPT_ID) &&
+          String(item.ACT_TYPE) === String(form.ACT_TYPE)
+      )
+    }
     if (!matchedDeptIds) return []
     if (matchedDeptIds.size === 0) return []
     return listData.filter(item => {
@@ -176,11 +189,12 @@ const DepartmentActivity = () => {
       const matchesType = form.ACT_TYPE ? item.ACT_TYPE === form.ACT_TYPE : true
       return matchesDept && matchesType
     })
-  }, [matchedDeptIds, listData, form.ACT_TYPE])
+  }, [exactPairFilter, form.DEPT_ID, form.ACT_TYPE, matchedDeptIds, listData])
 
   const resetForm = useCallback(() => {
     setIsEditing(false)
-    setSelectedActivity('')
+    setSelectedPair('')
+    setExactPairFilter(false)
     setForm({ ID: '', DEPT_ID: '', ACT_TYPE: '', DISP_SEQ: '', ACT_DESC: '' })
     setErrors({})
     setMasterSearchQuery('') // clear the inline preview table too
@@ -190,7 +204,6 @@ const DepartmentActivity = () => {
     handleFieldChange,
     handleSave,
     handleEditActivity,
-    handleSelectActivity,
     handleDeleteActivity
   } = useDepartmentActivityHandler({
     form,
@@ -200,12 +213,10 @@ const DepartmentActivity = () => {
     setDeletingId,
     dispatch,
     getDeptActivitiesDataResponse,
-    listData,
-    setSelectedActivity,
+    setSelectedPair,
     setIsEditing,
     setShowAll,
-    resetForm,
-    isEditing
+    resetForm
   })
 
   // (2) Department Master "add new" + live search wiring — same pattern as
@@ -255,11 +266,44 @@ const DepartmentActivity = () => {
     if (masterSearchDebounceRef.current)
       clearTimeout(masterSearchDebounceRef.current)
     masterSearchDebounceRef.current = setTimeout(() => {
+      setExactPairFilter(false)
       setMasterSearchQuery(text ?? '')
       // Deliberately NOT touching `showAll` — stays in form mode, results
       // render as an inline table below the form.
     }, 250)
   }, [])
+
+  const handleTopPairChange = useCallback(value => {
+    const selectedPairOption = activityOptions.find(
+      option => option.id === value
+    )
+
+    if (!selectedPairOption) {
+      resetForm()
+      return
+    }
+
+    if (masterSearchDebounceRef.current)
+      clearTimeout(masterSearchDebounceRef.current)
+
+    setSelectedPair(value)
+    setExactPairFilter(true)
+    setForm({
+      ID: '',
+      DEPT_ID: selectedPairOption.departmentId,
+      ACT_TYPE: selectedPairOption.type,
+      DISP_SEQ: '',
+      ACT_DESC: ''
+    })
+    setErrors({})
+    setMasterSearchQuery(
+      deptOptions.find(
+        department => department.id === selectedPairOption.departmentId
+      )?.label ?? ''
+    )
+    setIsEditing(false)
+    setShowAll(false)
+  }, [activityOptions, deptOptions, resetForm])
 
   useEffect(() => {
     return () => {
@@ -359,19 +403,19 @@ const DepartmentActivity = () => {
                 </div> */}
                 <div className='d-flex align-items-center gap-2'>
                   <SDLReactSelect
-                    value={selectedActivity}
+                    value={selectedPair}
                     options={activityOptions.map(opt => ({
                       value: opt.id,
                       label: opt.label
                     }))}
-                    onChange={id => handleSelectActivity(id)}
-                    placeholder='Select Department Activity'
+                    onChange={handleTopPairChange}
+                    placeholder='Select Department - Type'
                     isDisabled={loading}
                     width='330px'
                   />
                   <ViewToggleButton
                     showAll={showAll}
-                    onClick={() => setShowAll(prev => !prev)}
+                    onClick={handleToggleView}
                     disabled={loading}
                   />
                 </div>
@@ -411,7 +455,11 @@ const DepartmentActivity = () => {
                             value: opt.id,
                             label: opt.label
                           }))}
-                          onChange={id => handleFieldChange('DEPT_ID', id)}
+                          onChange={id => {
+                            setSelectedPair('')
+                            setExactPairFilter(false)
+                            handleFieldChange('DEPT_ID', id)
+                          }}
                           hasError={!!errors.DEPT_ID}
                           isDisabled={loading}
                           allowAddNew
@@ -444,7 +492,16 @@ const DepartmentActivity = () => {
                           options={Object.entries(ACT_TYPES).map(
                             ([code, label]) => ({ value: code, label })
                           )}
-                          onChange={code => handleFieldChange('ACT_TYPE', code)}
+                          onChange={code => {
+                            handleFieldChange('ACT_TYPE', code)
+                            if (exactPairFilter && form.DEPT_ID && code) {
+                              setSelectedPair(
+                                JSON.stringify([form.DEPT_ID, code])
+                              )
+                            } else {
+                              setSelectedPair('')
+                            }
+                          }}
                           hasError={!!errors.ACT_TYPE}
                           placeholder='Select Type'
                         />
