@@ -154,7 +154,8 @@ const TenureChange = () => {
             loading={loading}
             emptyMessage={loading ? " " : "No upcoming tenure changes found"}
             className="tenure-change-table"
-            tableStyle={{ minWidth: "1100px" }}
+            tableStyle={{ width: "100%", minWidth: "100%", tableLayout: "fixed" }}
+            scrollable={false}
           />
         </div>
       </div>
