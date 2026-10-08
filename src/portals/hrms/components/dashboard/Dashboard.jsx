@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   return (
@@ -25,7 +26,7 @@ const Dashboard = () => {
       <div className="row">
 
         {/* Employees */}
-        <div className="col-xl-3 col-md-6 mb-4">
+        <div className="col-xl-3 col-md-6 mb-2">
           <div className="card">
             <div className="card-body">
 
@@ -52,7 +53,7 @@ const Dashboard = () => {
         </div>
 
         {/* Present */}
-        <div className="col-xl-3 col-md-6 mb-4">
+        <div className="col-xl-3 col-md-6 mb-2">
           <div className="card">
             <div className="card-body">
 
@@ -79,7 +80,7 @@ const Dashboard = () => {
         </div>
 
         {/* On Leave */}
-        <div className="col-xl-3 col-md-6 mb-4">
+        <div className="col-xl-3 col-md-6 mb-2">
           <div className="card">
             <div className="card-body">
 
@@ -106,7 +107,7 @@ const Dashboard = () => {
         </div>
 
         {/* New Joiners */}
-        <div className="col-xl-3 col-md-6 mb-4">
+        <div className="col-xl-3 col-md-6 mb-2">
           <div className="card">
             <div className="card-body">
 
@@ -130,6 +131,40 @@ const Dashboard = () => {
 
             </div>
           </div>
+        </div>
+
+      </div>
+
+      <div className="row">
+
+        {/* Tenure Details */}
+        <div className="col-xl-3 col-md-6 mb-2">
+          <Link
+            to="/hrms/maintainance/tenure-change"
+            className="card h-100 text-reset text-decoration-none"
+          >
+            <div className="card-body">
+
+              <div className="d-flex align-items-center justify-content-between">
+
+                <div>
+                  <p className="text-muted mb-1">
+                    Upcoming Tenure Change
+                  </p>
+
+                  <h3 className="mb-0">
+                    2
+                  </h3>
+                </div>
+
+                <div className="avatar avatar-lg bg-primary">
+                  <i className="ti ti-users fs-24"></i>
+                </div>
+
+              </div>
+
+            </div>
+          </Link>
         </div>
 
       </div>
