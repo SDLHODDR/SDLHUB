@@ -15,6 +15,9 @@ import Organogram from "../portals/hrms/pages/master-data/Organogram";
 import OrganogramV3 from "../portals/hrms/pages/master-data/OrganogramV3";
 import EmployeeAccess from "../portals/hrms/pages/maintainance/EmployeeAccess";
 import EmployeeData from "../portals/hrms/pages/maintainance/EmployeeData";
+import TenureChange from "../portals/hrms/pages/maintainance/TenureChange";
+import TenureChangeAssessment from "../portals/hrms/pages/maintainance/TenureChangeAssessment";
+import TenureChangeLetter from "../portals/hrms/pages/maintainance/TenureChangeLetter";
 
 import JoiningAuthorization from "../components/authorization/JoiningAuthorization";
 import ExitAuthorization from "../components/authorization/ExitAuthorization";
@@ -50,7 +53,10 @@ export const hrmsRoutes = [
   { path: "hrms/maintainance/capabilities", element: Capabilities },
   { path: "hrms/maintainance/department-activity", element: DepartmentActivity },
   { path: "hrms/maintainance/policylist", element: PolicyList },
-    { path: "hrms/maintainance/employee-data", element: EmployeeData },
+  { path: "hrms/maintainance/employee-data", element: EmployeeData },
+  { path: "hrms/maintainance/tenure-change", element: TenureChange },
+  { path: "hrms/maintainance/tenure-change/assessment", element: TenureChangeAssessment },
+  { path: "hrms/maintainance/tenure-change/letter", element: TenureChangeLetter },
 
   { path: "hrms/maintainance/employee-access", element: EmployeeAccess },
 
