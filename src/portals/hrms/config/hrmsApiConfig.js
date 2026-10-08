@@ -128,13 +128,10 @@ export const HRMS_API = {
 
   REPORTS: {
     GET_TENURE_CHANGE_LIST: "/reports/getTenureChangeList.php",
+    SEND_TENURE_CHANGE: "/reports/tenureChange.php",
   },
 
    LOGS:{
     GET_ERROR_LOGS: "/reports/getErrorLogs.php",
   },
-
-  REPORTS: {
-    SEND_TENURE_CHANGE: "/reports/tenureChange.php",
-  }
 };

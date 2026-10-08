@@ -58,32 +58,47 @@ const TenureChange = () => {
     if (!query) return employees;
 
     return employees.filter((employee) =>
-      [employee.empCode, employee.empName, employee.designation, employee.location, employee.empType]
+      [
+        employee.empCode,
+        employee.empName,
+        employee.designation,
+        employee.location,
+        employee.empType,
+        employee.approvalText,
+      ]
         .some((value) => String(value || "").toLowerCase().includes(query)),
     );
   }, [employees, search]);
 
   const handleSend = async (employee) => {
+    const managerCode = employee.manager?.empCode || employee.mgr_code;
+    const managerName = employee.manager?.empName?.trim() || employee.managerName;
+
     const confirmation = await confirmAction(
       "Send tenure change for authorization?",
-      `This will generate a task for ${employee.managerName || "the assigned manager"}.`,
+      `This will generate a task for ${managerName || "the assigned manager"}.`,
     );
 
     if (!confirmation?.isConfirmed) return;
 
-    if (!employee.mgr_code) {
+    if (!managerCode) {
       notifyError("Manager code is not available for this employee.");
       return;
     }
 
     try {
-      setSendingEmployeeCode(employee.code);
+      setSendingEmployeeCode(employee.empCode);
       const response = await sendTenureChangeForAuth(
-        employee.code,
-        employee.mgr_code,
+        employee.empCode,
+        managerCode,
       );
 
       if (response?.status) {
+        setEmployees((currentEmployees) =>
+          currentEmployees.filter(
+            (currentEmployee) => currentEmployee.empCode !== employee.empCode,
+          ),
+        );
         dispatch(getHRMSAuthroizationTaskCount());
         notifySuccess(response.message || "Tenure change sent for authorization.");
       } else {
@@ -97,16 +112,42 @@ const TenureChange = () => {
     }
   };
 
+  const approvalLevelBody = (employee) => {
+    if (Array.isArray(employee.approvalLevels) && employee.approvalLevels.length) {
+      return (
+        <div>
+          {employee.approvalLevels.map((level, index) => {
+            const levelNumber = level?.level ?? index + 1;
+            const managerName = level?.empName?.trim() || level?.empCode || "-";
+
+            return (
+              <div key={`${levelNumber}-${level?.empCode || index}`}>
+                {levelNumber}. {managerName}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    return employee.approvalText || "-";
+  };
+
   const columns = [
-    { field: "comp", header: "Comp", style: { width: "8%" } },
-    { field: "code", header: "Code", style: { width: "10%" } },
-    { field: "name", header: "Name", style: { width: "15%" } },
+    { field: "company", header: "Comp", style: { width: "8%" } },
+    { field: "empCode", header: "Code", style: { width: "10%" } },
+    { field: "empName", header: "Name", style: { width: "15%" } },
     { field: "designation", header: "Desi", style: { width: "12%" } },
     { field: "location", header: "Location", style: { width: "13%" } },
-    { field: "employeeType", header: "Emp Type", style: { width: "10%" } },
-    { field: "dateOfJoining", header: "DOJ", style: { width: "9%", textAlign: "center" } },
-    { field: "tenureDueDate", header: "Tenure Due", style: { width: "10%", textAlign: "center" } },
-    { field: "apprLevel", header: "Appr Level", style: { width: "16%" } },
+    { field: "empType", header: "Emp Type", style: { width: "10%" } },
+    { field: "doj", header: "DOJ", style: { width: "9%", textAlign: "center" } },
+    { field: "tenureDue", header: "Tenure Due", style: { width: "10%", textAlign: "center" } },
+    {
+      field: "approvalText",
+      header: "Appr Level",
+      body: approvalLevelBody,
+      style: { width: "16%" },
+    },
     {
       field: "action",
       header: "Action",
@@ -116,9 +157,9 @@ const TenureChange = () => {
           type="button"
           className="btn btn-icon btn-sm btn-primary"
           onClick={() => handleSend(employee)}
-          disabled={sendingEmployeeCode === employee.code}
+          disabled={sendingEmployeeCode === employee.empCode}
         >
-          {sendingEmployeeCode === employee.code ? "Sending..." : "Send"}
+          {sendingEmployeeCode === employee.empCode ? "Sending..." : "Send"}
         </button>
       ),
     },
