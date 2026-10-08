@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
@@ -11,8 +11,9 @@ import {
   notifySuccess,
 } from "../../../../services/alertService";
 import { getHRMSAuthroizationTaskCount } from "../../../../store/hrms/hrmsAuthorizationCountSlice";
-import { demoTenureEmployees } from "./tenureChangeDemoData";
+//import { demoTenureEmployees } from "./tenureChangeDemoData";
 import { sendTenureChangeForAuth } from "../../services/tenureChangeService";
+import { getTenureChangeList } from "../../services/tenureChangeService";
 import "../../assets/css/tenureChange.css";
 
 const TenureChange = () => {
@@ -20,16 +21,44 @@ const TenureChange = () => {
   const location = useLocation();
   const portal = getPortalFromPath(location.pathname);
   const [search, setSearch] = useState("");
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [sendingEmployeeCode, setSendingEmployeeCode] = useState(null);
 
-  // UI prototype data; replace this list with the tenure API response when it is available.
-  const employees = useMemo(() => demoTenureEmployees, []);
+  useEffect(() => {
+    let mounted = true;
+
+    const loadEmployees = async () => {
+      try {
+        setLoading(true);
+        const response = await getTenureChangeList();
+
+        if (!mounted) return;
+        if (response?.status) {
+          setEmployees(Array.isArray(response.data) ? response.data : []);
+        } else {
+          setEmployees([]);
+          notifyError(response?.message || "Unable to load upcoming tenure changes.");
+        }
+      } catch (error) {
+        if (!mounted) return;
+        setEmployees([]);
+        notifyError(error?.message || "Unable to load upcoming tenure changes.");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    loadEmployees();
+    return () => { mounted = false; };
+  }, []);
+
   const visibleEmployees = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return employees;
 
     return employees.filter((employee) =>
-      [employee.code, employee.name, employee.designation, employee.location, employee.employeeType]
+      [employee.empCode, employee.empName, employee.designation, employee.location, employee.empType]
         .some((value) => String(value || "").toLowerCase().includes(query)),
     );
   }, [employees, search]);
@@ -85,7 +114,7 @@ const TenureChange = () => {
       body: (employee) => (
         <button
           type="button"
-          className="btn btn-sm tenure-send-button"
+          className="btn btn-icon btn-sm btn-primary"
           onClick={() => handleSend(employee)}
           disabled={sendingEmployeeCode === employee.code}
         >
@@ -122,14 +151,11 @@ const TenureChange = () => {
             data={visibleEmployees}
             columns={columns}
             rows={10}
-            loading={false}
-            emptyMessage="No upcoming tenure changes found"
+            loading={loading}
+            emptyMessage={loading ? " " : "No upcoming tenure changes found"}
             className="tenure-change-table"
             tableStyle={{ minWidth: "1100px" }}
           />
-          <p className="small text-muted mt-3 mb-0">
-            Sample employee data is shown while the tenure-change API is being developed.
-          </p>
         </div>
       </div>
     </div>

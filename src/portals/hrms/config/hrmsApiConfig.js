@@ -126,6 +126,10 @@ export const HRMS_API = {
     GET_MASTERS: "/maintainance/employeedata/getEmployeeMasters.php",
   },
 
+  REPORTS: {
+    GET_TENURE_CHANGE_LIST: "/reports/getTenureChangeList.php",
+  },
+
    LOGS:{
     GET_ERROR_LOGS: "/reports/getErrorLogs.php",
   },

@@ -11,20 +11,6 @@
   width: min(100%, 320px);
 }
 
-.tenure-change-page .tenure-send-button {
-  background-color: #fe9f43;
-  border-color: #fe9f43;
-  color: #fff;
-  min-width: 64px;
-}
-
-.tenure-change-page .tenure-send-button:hover,
-.tenure-change-page .tenure-send-button:focus {
-  background-color: #f28c2e;
-  border-color: #f28c2e;
-  color: #fff;
-}
-
 .tenure-change-page .tenure-employee-summary,
 .tenure-change-page .tenure-letter-summary {
   color: #25364a;

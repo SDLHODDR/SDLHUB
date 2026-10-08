@@ -11,3 +11,9 @@ export const sendTenureChangeForAuth = (empCode, managerCode) =>
       MGR_CODE: managerCode,
     },
   });
+export const getTenureChangeList = () =>
+  hrmsRequest({
+    url: HRMS_API.REPORTS.GET_TENURE_CHANGE_LIST,
+    method: "GET",
+    dedupe: true,
+  });

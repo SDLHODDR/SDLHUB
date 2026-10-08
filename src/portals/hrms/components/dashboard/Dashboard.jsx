@@ -1,7 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getTenureChangeList } from "../../services/tenureChangeService";
 
 const Dashboard = () => {
+  const [upcomingTenureCount, setUpcomingTenureCount] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    getTenureChangeList()
+      .then((response) => {
+        if (mounted && response?.status) {
+          setUpcomingTenureCount(Array.isArray(response.data) ? response.data.length : 0);
+        }
+      })
+      .catch((error) => {
+        console.error("Unable to load upcoming tenure count:", error);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
     <div className="container-fluid">
 
@@ -153,7 +174,7 @@ const Dashboard = () => {
                   </p>
 
                   <h3 className="mb-0">
-                    2
+                    {upcomingTenureCount ?? "—"}
                   </h3>
                 </div>
 

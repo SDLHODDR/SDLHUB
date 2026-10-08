@@ -3,17 +3,16 @@ import { useLocation, useNavigate } from "react-router-dom";
 import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
 import {
-  demoTenureEmployee,
   tenureRatingOptions,
   tenureRatingQuestions,
   tenureTypeOptions,
-} from "./tenureChangeDemoData";
+} from "./tenureChangeOptions";
 import "../../assets/css/tenureChange.css";
 
 const TenureChangeAssessment = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const employee = location.state?.employee || demoTenureEmployee;
+  const employee = location.state?.employee;
   const portal = getPortalFromPath(location.pathname);
   const [assessment, setAssessment] = useState({
     ratings: {},
@@ -37,6 +36,15 @@ const TenureChangeAssessment = () => {
       state: { employee, assessment },
     });
   };
+
+  if (!employee) {
+    return (
+      <div className="tenure-change-page">
+        <div className="alert alert-warning">Select an employee from the Tenure Change list first.</div>
+        <button type="button" className="btn btn-primary" onClick={() => navigate("/hrms/maintainance/tenure-change")}>Back to Tenure Change</button>
+      </div>
+    );
+  }
 
   return (
     <div className="tenure-change-page">
@@ -127,7 +135,7 @@ const TenureChangeAssessment = () => {
             </div>
             <div className="col-lg-4 col-md-6">
               <label className="form-label">Current CTC</label>
-              <input className="form-control" value={employee.currentCtc} disabled />
+              <input className="form-control" value={employee.currentCtc || "-"} disabled />
             </div>
             <div className="col-lg-4 col-md-6">
               <label className="form-label">Proposed CTC</label>
