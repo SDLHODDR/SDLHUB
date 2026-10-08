@@ -1,15 +1,3 @@
-export const demoTenureEmployee = {
-  code: "05683",
-  name: "Dipali Mane",
-  designation: "Chemist",
-  location: "SDLPN",
-  department: "Production",
-  employeeType: "Probationary",
-  dateOfJoining: "16-Apr-2026",
-  tenureDueDate: "16-Oct-2026",
-  currentCtc: "252000",
-};
-
 export const tenureRatingQuestions = [
   "Punctuality",
   "Attendance",

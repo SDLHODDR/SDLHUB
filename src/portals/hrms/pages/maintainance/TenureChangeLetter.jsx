@@ -2,25 +2,36 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
-import { demoTenureEmployee, tenureTypeOptions } from "./tenureChangeDemoData";
+import { tenureTypeOptions } from "./tenureChangeOptions";
 import "../../assets/css/tenureChange.css";
 
 const TenureChangeLetter = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const employee = location.state?.employee || demoTenureEmployee;
+  const employee = location.state?.employee;
   const assessment = location.state?.assessment || {};
   const portal = getPortalFromPath(location.pathname);
   const [letterType, setLetterType] = useState(assessment.employeeType || "");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [referenceCode, setReferenceCode] = useState("");
 
+  if (!employee) {
+    return (
+      <div className="tenure-change-page">
+        <div className="alert alert-warning">Assessment details are missing. Start from the Tenure Change list.</div>
+        <button type="button" className="btn btn-primary" onClick={() => navigate("/hrms/maintainance/tenure-change")}>Back to Tenure Change</button>
+      </div>
+    );
+  }
+
   const effectiveDate = assessment.effectiveFrom
     ? new Date(`${assessment.effectiveFrom}T00:00:00`).toLocaleDateString("en-GB", {
         day: "2-digit", month: "short", year: "numeric",
       })
     : "-";
-  const currentCtc = Number(employee.currentCtc || 0).toLocaleString("en-IN");
+  const currentCtc = employee.currentCtc
+    ? Number(employee.currentCtc).toLocaleString("en-IN")
+    : "-";
   const proposedCtc = assessment.proposedCtc
     ? Number(assessment.proposedCtc).toLocaleString("en-IN")
     : "-";
