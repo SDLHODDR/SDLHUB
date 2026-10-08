@@ -1,0 +1,200 @@
+.tenure-change-page .tenure-change-card {
+  border-top: 3px solid #087796;
+}
+
+.tenure-change-page .tenure-change-card > .card-header {
+  background: #fff;
+  padding: 1rem 1.25rem;
+}
+
+.tenure-change-page .tenure-list-search {
+  width: min(100%, 320px);
+}
+
+.tenure-change-page .tenure-send-button {
+  background-color: #fe9f43;
+  border-color: #fe9f43;
+  color: #fff;
+  min-width: 64px;
+}
+
+.tenure-change-page .tenure-send-button:hover,
+.tenure-change-page .tenure-send-button:focus {
+  background-color: #f28c2e;
+  border-color: #f28c2e;
+  color: #fff;
+}
+
+.tenure-change-page .tenure-employee-summary,
+.tenure-change-page .tenure-letter-summary {
+  color: #25364a;
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.tenure-change-page .tenure-rating-section-title {
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #d7e0e8;
+  border-bottom: 0;
+  color: #087796;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.tenure-change-page .tenure-rating-table {
+  border-color: #d7e0e8;
+  font-size: 0.88rem;
+}
+
+.tenure-change-page .tenure-rating-table > :not(caption) > * > * {
+  border-color: #d7e0e8;
+  padding: 0.6rem 0.75rem;
+  vertical-align: middle;
+}
+
+.tenure-change-page .tenure-rating-group {
+  width: 15%;
+  color: #087796;
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+.tenure-change-page .tenure-rating-question {
+  width: 29%;
+  font-weight: 600;
+}
+
+.tenure-change-page .tenure-rating-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.85rem;
+}
+
+.tenure-change-page .tenure-rating-options .form-check-inline {
+  margin: 0;
+  color: #212529;
+  white-space: nowrap;
+}
+
+.tenure-change-page .tenure-rating-options .form-check-label {
+  color: #212529;
+}
+
+.tenure-change-page .tenure-rating-options .form-check-input {
+  margin-top: 0.18em;
+}
+
+.tenure-change-page .tenure-change-select {
+  border: 1px solid #6c757d;
+}
+
+.tenure-change-page .tenure-change-select:focus {
+  border-color: #6c757d;
+  box-shadow: 0 0 0 0.15rem rgba(108, 117, 125, 0.15);
+}
+
+.tenure-change-page .tenure-preview-button {
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tenure-letter-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1060;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2vh 3vw;
+  background: rgba(0, 0, 0, 0.58);
+}
+
+.tenure-letter-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(96vw, 1400px);
+  max-height: 94vh;
+  overflow: hidden;
+  border-radius: 0.4rem;
+  background: #fff;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.3);
+}
+
+.tenure-letter-modal-header,
+.tenure-letter-modal-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.15rem;
+  background: #fff;
+}
+
+.tenure-letter-modal-header {
+  justify-content: space-between;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.tenure-letter-modal-footer {
+  justify-content: flex-end;
+  min-height: 64px;
+  border-top: 1px solid #dee2e6;
+}
+
+.tenure-letter-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.8rem 1.25rem;
+  background: #383838;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.tenure-letter-preview-canvas {
+  overflow: auto;
+  padding: 1.5rem;
+  background: #242424;
+}
+
+.tenure-letter-paper {
+  width: min(100%, 820px);
+  min-height: 760px;
+  margin: 0 auto;
+  padding: 4rem 4.5rem;
+  background: #fff;
+  color: #1e1e1e;
+  font-family: Arial, sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+@media (max-width: 767.98px) {
+  .tenure-change-page .tenure-rating-group {
+    width: 18%;
+  }
+
+  .tenure-change-page .tenure-rating-question {
+    width: 38%;
+  }
+
+  .tenure-change-page .tenure-rating-table > :not(caption) > * > * {
+    padding: 0.45rem;
+  }
+
+  .tenure-letter-modal-backdrop {
+    padding: 1vh 2vw;
+  }
+
+  .tenure-letter-preview-canvas {
+    padding: 0.75rem;
+  }
+
+  .tenure-letter-paper {
+    min-height: 600px;
+    padding: 2rem 1.25rem;
+    font-size: 0.85rem;
+  }
+}
