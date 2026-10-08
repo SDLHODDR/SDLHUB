@@ -19,7 +19,9 @@ import EmployeeData from "../portals/hrms/pages/maintainance/EmployeeData";
 import JoiningAuthorization from "../components/authorization/JoiningAuthorization";
 import ExitAuthorization from "../components/authorization/ExitAuthorization";
 import MastersAuthorization from "../components/authorization/MastersAuthorization";
+import TenureChangeAuthorization from "../components/authorization/TenureChangeAuthorization";
 import ViewLogs from "../portals/hrms/pages/reports/ViewLog";
+import TenureChange from "../portals/hrms/pages/reports/TenureChange";
 import { TELEGRAM_ENABLED } from "../config/featureFlags";
 
 //-------------------Telegram Groups------------------------------------
@@ -59,10 +61,11 @@ export const hrmsRoutes = [
 	{path: "hrms/taskauthorization/E/:tid", element: ExitAuthorization,},
 	//{path: "hrms/taskauthorization/R/:tid", element: RecruitmentAuthorization,},
 	// {path: "hrms/taskauthorization/357", element: OthersAuthorization,},
-  //{path: "hrms/taskauthorization/T/:tid", element: TenureChangeAuthorization,},
+  {path: "hrms/taskauthorization/T/:tid", element: TenureChangeAuthorization,},
 	//{path: "hrms/taskauthorization/A/:tid", element: AppraisalAuthorization,},
 	// {path: "hrms/taskauthorization/349", element: EmployeeTransferAuthorization,},
   { path: "hrms/reports/view-logs", element: ViewLogs },
+  { path: "hrms/reports/tenure-change", element: TenureChange },
   {path: "hrms/taskauthorization/M/:tid", element: MastersAuthorization,},
 
   ...(TELEGRAM_ENABLED
