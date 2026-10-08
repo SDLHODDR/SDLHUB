@@ -1,20 +1,29 @@
 import { useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useLocation } from "react-router-dom";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
-import { demoTenureEmployee } from "./tenureChangeDemoData";
+import {
+  confirmAction,
+  notifyError,
+  notifySuccess,
+} from "../../../../services/alertService";
+import { getHRMSAuthroizationTaskCount } from "../../../../store/hrms/hrmsAuthorizationCountSlice";
+import { demoTenureEmployees } from "./tenureChangeDemoData";
+import { sendTenureChangeForAuth } from "../../services/tenureChangeService";
 import "../../assets/css/tenureChange.css";
 
 const TenureChange = () => {
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const location = useLocation();
   const portal = getPortalFromPath(location.pathname);
   const [search, setSearch] = useState("");
+  const [sendingEmployeeCode, setSendingEmployeeCode] = useState(null);
 
   // UI prototype data; replace this list with the tenure API response when it is available.
-  const employees = useMemo(() => [demoTenureEmployee], []);
+  const employees = useMemo(() => demoTenureEmployees, []);
   const visibleEmployees = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return employees;
@@ -25,24 +34,62 @@ const TenureChange = () => {
     );
   }, [employees, search]);
 
+  const handleSend = async (employee) => {
+    const confirmation = await confirmAction(
+      "Send tenure change for authorization?",
+      `This will generate a task for ${employee.managerName || "the assigned manager"}.`,
+    );
+
+    if (!confirmation?.isConfirmed) return;
+
+    if (!employee.mgr_code) {
+      notifyError("Manager code is not available for this employee.");
+      return;
+    }
+
+    try {
+      setSendingEmployeeCode(employee.code);
+      const response = await sendTenureChangeForAuth(
+        employee.code,
+        employee.mgr_code,
+      );
+
+      if (response?.status) {
+        dispatch(getHRMSAuthroizationTaskCount());
+        notifySuccess(response.message || "Tenure change sent for authorization.");
+      } else {
+        notifyError(response?.message || "Unable to send tenure change for authorization.");
+      }
+    } catch (error) {
+      console.error("Send tenure change error:", error);
+      notifyError(error?.message || "Unable to send tenure change for authorization.");
+    } finally {
+      setSendingEmployeeCode(null);
+    }
+  };
+
   const columns = [
-    { field: "code", header: "Code", style: { width: "9%" } },
-    { field: "name", header: "Employee Name", style: { width: "15%" } },
-    { field: "designation", header: "Designation", style: { width: "13%" } },
-    { field: "location", header: "Organogram Location", style: { width: "16%" } },
-    { field: "employeeType", header: "Employee Type", style: { width: "14%" } },
-    { field: "dateOfJoining", header: "DOJ", style: { width: "10%", textAlign: "center" } },
-    { field: "tenureDueDate", header: "Tenure Due Date", style: { width: "14%", textAlign: "center" } },
+    { field: "comp", header: "Comp", style: { width: "8%" } },
+    { field: "code", header: "Code", style: { width: "10%" } },
+    { field: "name", header: "Name", style: { width: "15%" } },
+    { field: "designation", header: "Desi", style: { width: "12%" } },
+    { field: "location", header: "Location", style: { width: "13%" } },
+    { field: "employeeType", header: "Emp Type", style: { width: "10%" } },
+    { field: "dateOfJoining", header: "DOJ", style: { width: "9%", textAlign: "center" } },
+    { field: "tenureDueDate", header: "Tenure Due", style: { width: "10%", textAlign: "center" } },
+    { field: "apprLevel", header: "Appr Level", style: { width: "16%" } },
     {
+      field: "action",
       header: "Action",
-      style: { width: "9%", textAlign: "center" },
+      style: { width: "7%", textAlign: "center" },
       body: (employee) => (
         <button
           type="button"
           className="btn btn-sm tenure-send-button"
-          onClick={() => navigate("/hrms/maintainance/tenure-change/assessment", { state: { employee } })}
+          onClick={() => handleSend(employee)}
+          disabled={sendingEmployeeCode === employee.code}
         >
-          Send
+          {sendingEmployeeCode === employee.code ? "Sending..." : "Send"}
         </button>
       ),
     },
@@ -78,8 +125,7 @@ const TenureChange = () => {
             loading={false}
             emptyMessage="No upcoming tenure changes found"
             className="tenure-change-table"
-            tableStyle={{ width: "100%", minWidth: "100%", tableLayout: "fixed" }}
-            scrollable={false}
+            tableStyle={{ minWidth: "1100px" }}
           />
           <p className="small text-muted mt-3 mb-0">
             Sample employee data is shown while the tenure-change API is being developed.

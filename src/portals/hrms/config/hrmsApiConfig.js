@@ -128,5 +128,9 @@ export const HRMS_API = {
 
    LOGS:{
     GET_ERROR_LOGS: "/reports/getErrorLogs.php",
+  },
+
+  REPORTS: {
+    SEND_TENURE_CHANGE: "/reports/tenureChange.php",
   }
 };

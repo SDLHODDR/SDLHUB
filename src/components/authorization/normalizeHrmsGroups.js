@@ -3,7 +3,7 @@
 const GROUP_KEY_MAP = {
   Recruitment: "recruitment",
   Joining: "joining",
-  "Tenure Change": "tenure-change",
+  TenureChange: "tenure-change",
   Exit: "exit",
   Organogram: "organogram",
   Masters: "masters",
@@ -19,18 +19,25 @@ const GROUP_KEY_MAP1 = {
   Masters: "M"
 };
 
-// Preserves your desired display order regardless of what order the API returns groups in
-const GROUP_ORDER = ["Recruitment", "Joining", "Tenure Change", "Exit", "Organogram", "Masters"];
+// Preserves display order while allowing API keys to differ from their labels.
+const GROUP_ORDER = [
+  { apiKey: "Recruitment", label: "Recruitment" },
+  { apiKey: "Joining", label: "Joining" },
+  { apiKey: "TenureChange", legacyApiKey: "Tenure Change", label: "Tenure Change" },
+  { apiKey: "Exit", label: "Exit" },
+  { apiKey: "Organogram", label: "Organogram" },
+  { apiKey: "Masters", label: "Masters" },
+];
 
 export const normalizeHrmsGroups = (apiResponse = {}) =>
   GROUP_ORDER
-    .filter((label) => apiResponse[label]) // only include groups the API actually returned
-    .map((label) => ({
-      key: GROUP_KEY_MAP[label] || label.toLowerCase().replace(/\s+/g, "-"),
+    .filter(({ apiKey, legacyApiKey }) => apiResponse[apiKey] || apiResponse[legacyApiKey])
+    .map(({ apiKey, legacyApiKey, label }) => ({
+      key: GROUP_KEY_MAP[apiKey] || apiKey.toLowerCase().replace(/\s+/g, "-"),
       label,
-      items: (apiResponse[label] || []).map((task) => ({
+      items: (apiResponse[apiKey] || apiResponse[legacyApiKey] || []).map((task) => ({
         label: task.TASK_DESC,
         count: task.CNT,
-        href: `/hrms/taskauthorization/${GROUP_KEY_MAP1[label]}/${task.TASK_ID}`,
+        href: `/hrms/taskauthorization/${GROUP_KEY_MAP1[apiKey]}/${task.TASK_ID}`,
       })),
     }));
