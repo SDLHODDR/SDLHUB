@@ -13,7 +13,7 @@ import TenureAuthorizationModal from "./TenureAuthorizationModal";
 const TENURE_TASK_CONFIG = {
   25: {
     title: "Employee Tenure Change",
-  }
+  },
 };
 
 const TenureChangeAuthorization = () => {
@@ -71,7 +71,11 @@ const TenureChangeAuthorization = () => {
               emptyMessage="No Pending Tenure Requests Found"
               className="company-policies-grid"
               removableSort
-              onRowClick={(e) => openModal(e.data)}
+              onRowClick={(e) => {
+                const row = e?.data ?? e;
+                //console.log("Row clicked:", row); // Check your console!
+                openModal(row);
+              }}
             />
           </div>
         </div>
