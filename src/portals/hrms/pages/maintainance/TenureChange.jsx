@@ -1,20 +1,29 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
 import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
-import { notifyError } from "../../../../services/alertService";
+import {
+  confirmAction,
+  notifyError,
+  notifySuccess,
+} from "../../../../services/alertService";
+import { getHRMSAuthroizationTaskCount } from "../../../../store/hrms/hrmsAuthorizationCountSlice";
+//import { demoTenureEmployees } from "./tenureChangeDemoData";
+import { sendTenureChangeForAuth } from "../../services/tenureChangeService";
 import { getTenureChangeList } from "../../services/tenureChangeService";
 import "../../assets/css/tenureChange.css";
 
 const TenureChange = () => {
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const location = useLocation();
   const portal = getPortalFromPath(location.pathname);
   const [search, setSearch] = useState("");
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sendingEmployeeCode, setSendingEmployeeCode] = useState(null);
 
   useEffect(() => {
     let mounted = true;
@@ -49,45 +58,108 @@ const TenureChange = () => {
     if (!query) return employees;
 
     return employees.filter((employee) =>
-      [employee.empCode, employee.empName, employee.designation, employee.location, employee.empType]
+      [
+        employee.empCode,
+        employee.empName,
+        employee.designation,
+        employee.location,
+        employee.empType,
+        employee.approvalText,
+      ]
         .some((value) => String(value || "").toLowerCase().includes(query)),
     );
   }, [employees, search]);
 
+  const handleSend = async (employee) => {
+    const managerCode = employee.manager?.empCode || employee.mgr_code;
+    const managerName = employee.manager?.empName?.trim() || employee.managerName;
+
+    const confirmation = await confirmAction(
+      "Send tenure change for authorization?",
+      `This will generate a task for ${managerName || "the assigned manager"}.`,
+    );
+
+    if (!confirmation?.isConfirmed) return;
+
+    if (!managerCode) {
+      notifyError("Manager code is not available for this employee.");
+      return;
+    }
+
+    try {
+      setSendingEmployeeCode(employee.empCode);
+      const response = await sendTenureChangeForAuth(
+        employee.empCode,
+        managerCode,
+      );
+
+      if (response?.status) {
+        setEmployees((currentEmployees) =>
+          currentEmployees.filter(
+            (currentEmployee) => currentEmployee.empCode !== employee.empCode,
+          ),
+        );
+        dispatch(getHRMSAuthroizationTaskCount());
+        notifySuccess(response.message || "Tenure change sent for authorization.");
+      } else {
+        notifyError(response?.message || "Unable to send tenure change for authorization.");
+      }
+    } catch (error) {
+      console.error("Send tenure change error:", error);
+      notifyError(error?.message || "Unable to send tenure change for authorization.");
+    } finally {
+      setSendingEmployeeCode(null);
+    }
+  };
+
+  const approvalLevelBody = (employee) => {
+    if (Array.isArray(employee.approvalLevels) && employee.approvalLevels.length) {
+      return (
+        <div>
+          {employee.approvalLevels.map((level, index) => {
+            const levelNumber = level?.level ?? index + 1;
+            const managerName = level?.empName?.trim() || level?.empCode || "-";
+
+            return (
+              <div key={`${levelNumber}-${level?.empCode || index}`}>
+                {levelNumber}. {managerName}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    return employee.approvalText || "-";
+  };
+
   const columns = [
-    { field: "empCode", header: "Code", style: { width: "9%" } },
-    { field: "empName", header: "Employee Name", style: { width: "15%" } },
-    { field: "designation", header: "Designation", style: { width: "13%" } },
-    { field: "location", header: "Organogram Location", style: { width: "16%" } },
-    { field: "empType", header: "Employee Type", style: { width: "14%" } },
-    { field: "doj", header: "DOJ", style: { width: "10%", textAlign: "center" } },
-    { field: "tenureDue", header: "Tenure Due Date", style: { width: "14%", textAlign: "center" } },
+    { field: "company", header: "Comp", style: { width: "8%" } },
+    { field: "empCode", header: "Code", style: { width: "10%" } },
+    { field: "empName", header: "Name", style: { width: "15%" } },
+    { field: "designation", header: "Desi", style: { width: "12%" } },
+    { field: "location", header: "Location", style: { width: "13%" } },
+    { field: "empType", header: "Emp Type", style: { width: "10%" } },
+    { field: "doj", header: "DOJ", style: { width: "9%", textAlign: "center" } },
+    { field: "tenureDue", header: "Tenure Due", style: { width: "10%", textAlign: "center" } },
     {
+      field: "approvalText",
+      header: "Appr Level",
+      body: approvalLevelBody,
+      style: { width: "16%" },
+    },
+    {
+      field: "action",
       header: "Action",
-      style: { width: "9%", textAlign: "center" },
+      style: { width: "7%", textAlign: "center" },
       body: (employee) => (
         <button
           type="button"
           className="btn btn-icon btn-sm btn-primary"
-          aria-label="Start tenure change assessment"
-          title="Start tenure change assessment"
-          onClick={() => navigate("/hrms/maintainance/tenure-change/assessment", {
-            state: {
-              employee: {
-                code: employee.empCode,
-                name: employee.empName,
-                designation: employee.designation,
-                location: employee.location,
-                department: employee.department || "-",
-                employeeType: employee.empType,
-                dateOfJoining: employee.doj,
-                tenureDueDate: employee.tenureDue,
-                currentCtc: employee.currentCtc || "",
-              },
-            },
-          })}
+          onClick={() => handleSend(employee)}
+          disabled={sendingEmployeeCode === employee.empCode}
         >
-          <i className="ti ti-send" aria-hidden="true"></i>
+          {sendingEmployeeCode === employee.empCode ? "Sending..." : "Send"}
         </button>
       ),
     },
