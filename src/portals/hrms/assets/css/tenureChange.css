@@ -79,6 +79,55 @@
   box-shadow: 0 0 0 0.15rem rgba(108, 117, 125, 0.15);
 }
 
+.tenure-change-page .tenure-ctc-table {
+  border-color: #25364a;
+  font-size: 0.88rem;
+}
+
+.tenure-change-page .tenure-ctc-table thead th {
+  background: #344154;
+  color: #fff;
+  vertical-align: middle;
+}
+
+.tenure-change-page .tenure-ctc-table > :not(caption) > * > * {
+  border-color: #344154;
+  vertical-align: middle;
+}
+
+.tenure-change-page .tenure-ctc-table .form-control {
+  min-width: 86px;
+}
+
+.tenure-assessment-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.tenure-assessment-modal .tenure-assessment-dialog {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: min(1140px, calc(100vw - 2rem)) !important;
+  max-width: none !important;
+  max-height: calc(100vh - 2rem);
+  margin: 0 !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+.tenure-assessment-modal .modal-content {
+  max-height: calc(100vh - 2rem);
+}
+
+.tenure-assessment-modal .modal-body {
+  min-height: 0;
+  overflow-y: auto;
+}
+
 .tenure-change-page .tenure-preview-button {
   height: 40px;
   display: inline-flex;
@@ -183,4 +232,5 @@
     padding: 2rem 1.25rem;
     font-size: 0.85rem;
   }
+
 }
