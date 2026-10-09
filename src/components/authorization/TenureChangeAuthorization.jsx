@@ -13,6 +13,9 @@ import TenureAuthorizationModal from "./TenureAuthorizationModal";
 const TENURE_TASK_CONFIG = {
   25: {
     title: "Employee Tenure Change",
+    modal: "TenureChangeAssessment",
+    id: 25,
+    type: "EMPTENURECHG"    
   },
 };
 
@@ -31,6 +34,7 @@ const TenureChangeAuthorization = () => {
     showModal,
     openModal,
     closeModal,
+    refreshList
   } = useTenureAuthorizationHandler(tid);
 
   const columns = getTenureAuthorizationColumns(formatDashDate, tid);
@@ -82,9 +86,11 @@ const TenureChangeAuthorization = () => {
       </div>
 
       <TenureAuthorizationModal
+        config={config}
         show={showModal}
         record={selectedRecord}
         onClose={closeModal}
+        onSuccess={refreshList}
       />
     </>
   );
