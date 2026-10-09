@@ -155,9 +155,24 @@ const TenureChange = () => {
       body: (employee) => (
         <button
           type="button"
-          className="btn btn-icon btn-sm btn-primary"
-          onClick={() => handleSend(employee)}
-          disabled={sendingEmployeeCode === employee.empCode}
+          className="btn btn-icon btn-sm btn-outline-primary"
+          aria-label="Start tenure change assessment"
+          title="Start tenure change assessment"
+          onClick={() => navigate("/hrms/maintainance/tenure-change/assessment", {
+            state: {
+              employee: {
+                code: employee.empCode,
+                name: employee.empName,
+                designation: employee.designation,
+                location: employee.location,
+                department: employee.department || "-",
+                employeeType: employee.empType,
+                dateOfJoining: employee.doj,
+                tenureDueDate: employee.tenureDue,
+                currentCtc: employee.currentCtc || "",
+              },
+            },
+          })}
         >
           {sendingEmployeeCode === employee.empCode ? "Sending..." : "Send"}
         </button>
