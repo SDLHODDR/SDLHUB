@@ -830,6 +830,37 @@ const ConferenceBookingModal = ({
       option => String(option.value) === String(formData.division)
     ) || null
 
+
+  /* ============================================================
+     HANDLE CLOSE MODAL
+  ============================================================ */
+
+  const handleCloseModal = async () => {
+    if (loading) {
+      return
+    }
+
+    const hasChanges =
+      JSON.stringify(formData) !== JSON.stringify(initialFormData)
+
+    // Nothing changed
+    if (!hasChanges) {
+      onClose()
+      return
+    }
+
+    // Confirm discard
+    const confirmed = await confirmAction(
+      CONFERENCE_MESSAGES.CONFIRM_DISCARD_TITLE,
+      CONFERENCE_MESSAGES.CONFIRM_DISCARD_MESSAGE
+    )
+
+    if (confirmed) {
+      onClose()
+    }
+  } 
+
+
   /* ============================================================
      RENDER
   ============================================================ */
@@ -1248,13 +1279,23 @@ const ConferenceBookingModal = ({
                   <button
                     disabled={loading}
                     type='button'
-                    className='btn btn-success'
+                    className='btn btn-success me-2'
                     onClick={e => handleAddBooking(e, true)}
                   >
                     {submittingAction === 'save_and_send'
                       ? 'Sending...'
                       : 'Save & Send for Auth'}
                   </button>
+
+                  <button
+                    type='button'
+                    disabled={loading}
+                    className='btn btn-secondary'
+                    onClick={handleCloseModal}
+                  >
+                    Cancel
+                  </button>
+
                 </>
               )}
 
