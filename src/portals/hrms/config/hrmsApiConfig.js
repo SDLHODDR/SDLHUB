@@ -128,7 +128,9 @@ export const HRMS_API = {
 
   REPORTS: {
     GET_TENURE_CHANGE_LIST: "/reports/getTenureChangeList.php",
+    GET_TENURE_CHANGE_LIST_BY_ID: "/reports/getTenureChangeEmp.php",
     SEND_TENURE_CHANGE: "/reports/tenureChange.php",
+    SAVE_TENURE_CHANGE_ASSESSMENT: "/reports/tenureChange.php",
   },
 
    LOGS:{

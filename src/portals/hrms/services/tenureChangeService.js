@@ -17,3 +17,29 @@ export const getTenureChangeList = () =>
     method: "GET",
     dedupe: true,
   });
+
+export const getTenureChangeEmpById = (employeeId) =>
+  hrmsRequest({
+    url: HRMS_API.REPORTS.GET_TENURE_CHANGE_LIST_BY_ID,
+    method: "GET",
+    params: employeeId ? { id: employeeId } : {},
+    dedupe: true,
+  });
+
+export const saveTenureChangeAssessment = (payload) =>
+  hrmsRequest({
+    url: HRMS_API.REPORTS.SAVE_TENURE_CHANGE_ASSESSMENT,
+    method: "POST",
+    data: { ...payload, saveConfirmation: true },
+  });
+
+export const submitTenureChangeAssessment = (payload) => {
+  const submitPayload = { ...payload };
+  delete submitPayload.saveConfirmation;
+
+  return hrmsRequest({
+    url: HRMS_API.REPORTS.SAVE_TENURE_CHANGE_ASSESSMENT,
+    method: "POST",
+    data: { ...submitPayload, CloseConfirmInt: true },
+  });
+};

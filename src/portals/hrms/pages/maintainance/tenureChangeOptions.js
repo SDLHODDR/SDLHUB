@@ -82,6 +82,39 @@ export const tenureRatingQuestions = [
   "Dependability",
 ];
 
+export const tenureAssessmentQuestionIds = [
+  51, 52, 50, 69, 64, 58, 60, 67, 70, 53, 65, 57, 71, 72,
+];
+
+export const tenureAssessmentPostData = {
+  saveConfirmation: true,
+  jd_id: 3,
+  TASK_ID: 17332,
+  EMP_CODE: "05262",
+  question: {
+    51: ["Good"],
+    52: ["Good"],
+    50: ["Good"],
+    69: ["Good"],
+    64: ["Good"],
+    58: ["Good"],
+    60: ["Good"],
+    67: ["Good"],
+    70: ["Good"],
+    53: ["Good"],
+    65: ["Good"],
+    57: ["Good"],
+    71: ["Good"],
+    72: ["Good"],
+  },
+  ETYPE_ID: 1,
+  CURR_CTC: 0,
+  PROP_CTC: 320000,
+  EFF_FROM: "01-Nov-2025",
+  NXT_APPR_DUE: "01-APR-27",
+  REMARKS: "Test",
+};
+
 export const tenureRatingOptions = [
   "Excellent",
   "Very Good",
