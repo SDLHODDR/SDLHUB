@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getTenureChangeList } from "../../services/tenureChangeService";
+import {
+  getTenureChangeList,
+  saveTenureChangeAssessment,
+  submitTenureChangeAssessment,
+} from "../../services/tenureChangeService";
 import {
   tenureRatingOptions,
   tenureRatingQuestions,
+  tenureAssessmentPostData,
   tenureTypeOptions,
 } from "./tenureChangeOptions";
 import "../../assets/css/tenureChange.css";
@@ -25,10 +29,13 @@ const normalizeEmployee = (employee, requestedCode) => ({
 });
 
 const TenureChangeAssessmentModal = ({ config, show, record, onClose }) => {
-  const navigate = useNavigate();
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(Boolean(record?.TRAN_CODE));
   const [loadError, setLoadError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [saveSucceeded, setSaveSucceeded] = useState(false);
+  const [actionMessage, setActionMessage] = useState("");
   const [assessment, setAssessment] = useState({
     ratings: {},
     improvement: "",
@@ -87,15 +94,65 @@ const TenureChangeAssessmentModal = ({ config, show, record, onClose }) => {
 
   const updateAssessment = (field, value) => {
     setAssessment((current) => ({ ...current, [field]: value }));
+    setSaveSucceeded(false);
+    setActionMessage("");
   };
 
-  const handleSave = (event) => {
-    event.preventDefault();
-    if (!employee) return;
+  const updateRating = (index, value) => {
+    setAssessment((current) => ({
+      ...current,
+      ratings: { ...current.ratings, [index]: value },
+    }));
+    setSaveSucceeded(false);
+    setActionMessage("");
+  };
 
-    navigate("/hrms/maintainance/tenure-change/letter", {
-      state: { employee, assessment, taskId: record.ID },
-    });
+  const assessmentComplete =
+    tenureRatingQuestions.every((_, index) => Boolean(assessment.ratings[index])) &&
+    Boolean(assessment.employeeType);
+  const hasTenureChangeId = Boolean(String(record?.ID ?? "").trim());
+  const canSubmit = saveSucceeded && assessmentComplete && hasTenureChangeId;
+
+  const handleSave = async (event) => {
+    event.preventDefault();
+    if (!employee || saving) return;
+
+    setSaving(true);
+    setSaveSucceeded(false);
+    setActionMessage("");
+    try {
+      const response = await saveTenureChangeAssessment(tenureAssessmentPostData);
+      if (response?.status === true || response?.success === true) {
+        setSaveSucceeded(true);
+        setActionMessage("Assessment saved.");
+      } else {
+        setActionMessage(response?.message || "Assessment could not be saved.");
+      }
+    } catch (error) {
+      setActionMessage(error?.message || "Assessment could not be saved.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!canSubmit || submitting) return;
+
+    setSubmitting(true);
+    setActionMessage("");
+    try {
+      const response = await submitTenureChangeAssessment(tenureAssessmentPostData);
+      if (response?.status === true || response?.success === true) {
+        setActionMessage("Assessment submitted.");
+        onClose();
+      } else {
+        setActionMessage(response?.message || "Assessment could not be submitted.");
+      }
+    } catch (error) {
+      setActionMessage(error?.message || "Assessment could not be submitted.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!show || !record) return null;
@@ -176,10 +233,7 @@ const TenureChangeAssessmentModal = ({ config, show, record, onClose }) => {
                                     name={`rating-${index}`}
                                     value={option}
                                     checked={assessment.ratings[index] === option}
-                                    onChange={() => setAssessment((current) => ({
-                                      ...current,
-                                      ratings: { ...current.ratings, [index]: option },
-                                    }))}
+                                    onChange={() => updateRating(index, option)}
                                   />
                                   <span className="form-check-label">{option}</span>
                                 </label>
@@ -245,9 +299,17 @@ const TenureChangeAssessmentModal = ({ config, show, record, onClose }) => {
           </div>
 
           <div className="modal-footer">
-            <button type="submit" className="btn btn-primary" disabled={loading || !employee}>
-              Save
+            {actionMessage && (
+              <span className="small text-muted me-auto" role="status">{actionMessage}</span>
+            )}
+            <button type="submit" className="btn btn-primary" disabled={loading || !employee || saving || submitting}>
+              {saving ? "Saving..." : "Save"}
             </button>
+            {canSubmit && (
+              <button type="button" className="btn btn-warning" onClick={handleSubmit} disabled={submitting || saving}>
+                {submitting ? "Submitting..." : "Submit"}
+              </button>
+            )}
             <button type="button" className="btn btn-secondary" onClick={onClose}>
               Cancel
             </button>
