@@ -43,3 +43,19 @@ export const submitTenureChangeAssessment = (payload) => {
     data: { ...submitPayload, CloseConfirmInt: true },
   });
 };
+
+export const getTenureChangeDetails = ({
+  empCode,
+  taskId,
+  tenureChangeId,
+} = {}) =>
+  hrmsRequest({
+    url: HRMS_API.REPORTS.GET_TENURE_CHANGE_DETAILS,
+    method: "GET",
+    params: {
+      REC_ID: empCode ?? "",
+      TASK_ID: taskId ?? "",
+      TENURE_CHANGE_ID: tenureChangeId ?? "",
+    },
+    dedupe: false,
+  });
