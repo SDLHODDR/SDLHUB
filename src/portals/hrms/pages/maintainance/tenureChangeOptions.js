@@ -108,6 +108,7 @@ export const tenureAssessmentPostData = {
     72: ["Good"],
   },
   ETYPE_ID: 1,
+  ETYPE_PERIOD: 1,
   CURR_CTC: 0,
   PROP_CTC: 320000,
   EFF_FROM: "01-Nov-2025",
