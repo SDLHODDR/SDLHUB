@@ -17,6 +17,12 @@ const TENURE_TASK_CONFIG = {
     id: 25,
     type: "EMPTENURECHG"    
   },
+  // 26: {
+  //   title: "Employee Tenure Change",
+  //   modal: "TenureChangeAssessment",
+  //   id: 26,
+  //   type: "EMPTENURECHG"    
+  // },
 };
 
 const TenureChangeAuthorization = () => {

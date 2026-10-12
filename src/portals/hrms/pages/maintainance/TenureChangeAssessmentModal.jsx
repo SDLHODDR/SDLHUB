@@ -8,6 +8,7 @@ import {
   tenureRatingOptions,
   tenureRatingQuestions,
   tenureAssessmentPostData,
+  tenureAssessmentSubmitPostData,
   tenureTypeOptions,
 } from "./tenureChangeOptions";
 import "../../assets/css/tenureChange.css";
@@ -141,7 +142,7 @@ const TenureChangeAssessmentModal = ({ config, show, record, onClose }) => {
     setSubmitting(true);
     setActionMessage("");
     try {
-      const response = await submitTenureChangeAssessment(tenureAssessmentPostData);
+      const response = await submitTenureChangeAssessment(tenureAssessmentSubmitPostData);
       if (response?.status === true || response?.success === true) {
         setActionMessage("Assessment submitted.");
         onClose();
