@@ -17,6 +17,7 @@ import EmployeeAccess from "../portals/hrms/pages/maintainance/EmployeeAccess";
 import EmployeeData from "../portals/hrms/pages/maintainance/EmployeeData";
 import TenureChange from "../portals/hrms/pages/maintainance/TenureChange";
 import TenureChangeAssessment from "../portals/hrms/pages/maintainance/TenureChangeAssessment";
+import TenureChangeCtc from "../portals/hrms/pages/maintainance/TenureChangeCtc";
 import TenureChangeLetter from "../portals/hrms/pages/maintainance/TenureChangeLetter";
 
 import JoiningAuthorization from "../components/authorization/JoiningAuthorization";
@@ -58,6 +59,7 @@ export const hrmsRoutes = [
   { path: "hrms/maintainance/employee-data", element: EmployeeData },
   { path: "hrms/maintainance/tenure-change", element: TenureChange },
   { path: "hrms/maintainance/tenure-change/assessment", element: TenureChangeAssessment },
+  { path: "hrms/maintainance/tenure-change/ctc", element: TenureChangeCtc },
   { path: "hrms/maintainance/tenure-change/letter", element: TenureChangeLetter },
 
   { path: "hrms/maintainance/employee-access", element: EmployeeAccess },

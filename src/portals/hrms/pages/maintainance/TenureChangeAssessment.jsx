@@ -32,7 +32,15 @@ const TenureChangeAssessment = () => {
 
   const handleSave = (event) => {
     event.preventDefault();
-    navigate("/hrms/maintainance/tenure-change/letter", {
+    const proposedCtc = Number(String(assessment.proposedCtc).replace(/[^\d.-]/g, ""));
+    const currentCtcText = String(employee.currentCtc ?? "").replace(/[^\d.-]/g, "");
+    const currentCtc = currentCtcText ? Number(currentCtcText) : NaN;
+    const hasCtcChange = assessment.proposedCtc !== "" &&
+      (!Number.isFinite(currentCtc) || proposedCtc !== currentCtc);
+
+    navigate(hasCtcChange
+      ? "/hrms/maintainance/tenure-change/ctc"
+      : "/hrms/maintainance/tenure-change/letter", {
       state: { employee, assessment },
     });
   };
