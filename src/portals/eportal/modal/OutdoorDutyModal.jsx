@@ -816,7 +816,7 @@ const OutdoorDutyModal = ({
               <div className="modal-footer">
                 <div className="d-flex gap-2">
                   {mode === "create" && (
-                    <button type="submit" className="btn btn-primary me-2" data-bs-dismiss="modal"
+                    <button type="submit" className="btn btn-primary" data-bs-dismiss="modal"
                       onClick={handleSave} 
                       disabled={isSubmitting}
                     >
