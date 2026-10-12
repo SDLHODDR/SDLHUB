@@ -19,11 +19,12 @@ const GroupHeader = ({ group, open, onToggle }) => {
     >
       <span className="d-flex align-items-center">
         {group.label}
-        {total > 0 && (
-          <Badge text={total} className="shadow-none badge-danger badge-xs ms-2" />
-        )}
+        
       </span>
-      <i className={`ti ${open ? "ti-chevron-up" : "ti-chevron-down"} fs-14`}></i>
+      
+      {total > 0 && (
+        <Badge text={total} className="shadow-none badge-danger badge-xs ms-2" />
+      )}
     </button>
   );
 };

@@ -3,10 +3,11 @@
 import { hrmsRequest } from "./request";
 import { HRMS_API } from "../portals/hrms/config/hrmsApiConfig";
 
-export const fetchNotifications = async () => {
+export const fetchNotifications = async (portal) => {
     return hrmsRequest({
         url: HRMS_API.NOTIFICATIONS.LIST,
         method: "GET",
+        params: { portal },
         dedupe: true,
     });
 };

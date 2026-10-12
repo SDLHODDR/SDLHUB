@@ -25,7 +25,7 @@ const emptyAssessment = {
   remarks: "",
 };
 
-const TenureChangeAssessmentModal = ({ config, show, record, onClose }) => {
+const TenureChangeAssessmentModal = ({ config, show, record, onClose, onSuccess }) => {
   const [employee, setEmployee] = useState(null);
   const [assessmentMeta, setAssessmentMeta] = useState({});
   const [questions, setQuestions] = useState([]);
@@ -56,6 +56,8 @@ const TenureChangeAssessmentModal = ({ config, show, record, onClose }) => {
       setActionMessage("");
 
       try {
+        console.log(record.TRAN_CODE, record.TASK_ID, record.ID);
+
         const response = await getTenureChangeDetails({
           empCode: record.TRAN_CODE,
           taskId: record.TASK_ID,
@@ -179,6 +181,7 @@ const TenureChangeAssessmentModal = ({ config, show, record, onClose }) => {
       if (response?.status === true || response?.success === true) {
         setSaveSucceeded(true);
         setActionMessage(response?.message || "Assessment saved.");
+        //onSuccess?.();
       } else {
         setActionMessage(response?.message || "Assessment could not be saved.");
       }
@@ -197,6 +200,7 @@ const TenureChangeAssessmentModal = ({ config, show, record, onClose }) => {
       const response = await submitTenureChangeAssessment(postData);
       if (response?.status === true || response?.success === true) {
         setActionMessage(response?.message || "Assessment submitted.");
+        onSuccess?.();
         onClose();
       } else {
         setActionMessage(response?.message || "Assessment could not be submitted.");
