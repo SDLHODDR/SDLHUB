@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import Badge from "../../portals/eportal/components/Badge";
 import { normalizeHrmsGroups } from "./normalizeHrmsGroups";
 
+const COUNT_BADGE_STYLE = { minWidth: "36px", textAlign: "center", flexShrink: 0 };
+
 const getGroupTotal = (group) =>
   group.items.reduce((sum, item) => sum + (item.count || 0), 0);
 
@@ -23,7 +25,11 @@ const GroupHeader = ({ group, open, onToggle }) => {
       </span>
       
       {total > 0 && (
-        <Badge text={total} className="shadow-none badge-danger badge-xs ms-2" />
+        <Badge
+          text={total}
+          className="shadow-none badge-danger badge-xs ms-2"
+          style={COUNT_BADGE_STYLE}
+        />
       )}
     </button>
   );
@@ -38,7 +44,11 @@ const GroupItem = ({ item, onNavigate }) => (
       onClick={onNavigate}
     >
       <span className="text-gray">{item.label}</span>
-      <Badge text={item.count} className="shadow-none badge-danger badge-xs" />
+      <Badge
+        text={item.count}
+        className="shadow-none badge-danger badge-xs"
+        style={COUNT_BADGE_STYLE}
+      />
     </Link>
   </li>
 );

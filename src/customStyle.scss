@@ -2461,6 +2461,9 @@ textarea {
 }
 
 .sdlhub-notification__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
   color: #778294;
   font-size: 11px;
 }

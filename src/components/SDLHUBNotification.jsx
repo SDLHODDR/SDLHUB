@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { createElement, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import {
@@ -7,6 +7,38 @@ import {
 } from "../store/notifications/notificationSlice";
 import { getPortalFromPath } from "../config/portalConfig";
 import { formatDate } from "../utils/formatUtils";
+
+const DESCRIPTION_TAGS = new Set([
+  "b", "strong", "i", "em", "u", "s", "del", "ins", "mark",
+  "p", "div", "br", "ul", "ol", "li", "blockquote",
+]);
+const IGNORED_DESCRIPTION_TAGS = new Set([
+  "script", "style", "iframe", "object", "svg", "math", "template",
+]);
+
+const renderDescriptionNode = (node, key) => {
+  if (node.nodeType === 3) return node.textContent;
+  if (node.nodeType !== 1) return null;
+
+  const tagName = node.tagName.toLowerCase();
+  if (IGNORED_DESCRIPTION_TAGS.has(tagName)) return null;
+
+  const children = Array.from(node.childNodes).map((child, index) =>
+    renderDescriptionNode(child, index),
+  );
+  if (!DESCRIPTION_TAGS.has(tagName)) return children;
+
+  return createElement(tagName, { key }, ...children);
+};
+
+const renderDescription = (description) => {
+  if (typeof description !== "string") return description;
+
+  const document = new DOMParser().parseFromString(description, "text/html");
+  return Array.from(document.body.childNodes).map((node, index) =>
+    renderDescriptionNode(node, index),
+  );
+};
 
 const SDLHUBNotification = () => {
   const dispatch = useDispatch();
@@ -153,9 +185,8 @@ const SDLHUBNotification = () => {
                 {visibleItems.map((item, index) => {
                   const id = item.ID ?? item.id ?? `${item.EMP_CODE}-${item.ASON_DATE}-${index}`;
                   const isMarkingRead = markingReadIds.includes(`${activePortal}:${id}`);
-                  const notificationDate = activeTab === "unread"
-                    ? item.ASON_DATE_date ?? item.ASON_DATE ?? item.ason_date
-                    : item.VIEWED_ON ?? item.viewed_on;
+                  const publishedDate = item.ASON_DATE_date ?? item.ASON_DATE ?? item.ason_date;
+                  const viewedDate = item.VIEWED_ON ?? item.viewed_on;
                   return (
                     <li className="notification-message" key={id}>
                       <button
@@ -168,11 +199,18 @@ const SDLHUBNotification = () => {
                           <i className="ti ti-bell" />
                         </span>
                         <span className="sdlhub-notification__message">
-                          <span className="sdlhub-notification__description">{item.DESCR ?? item.descr}</span>
+                          <div className="sdlhub-notification__description">
+                            {renderDescription(item.DESCR ?? item.descr)}
+                          </div>
                           <span className="sdlhub-notification__meta">
-                            {/* {item.ATTN_TYPE ?? item.attn_type ?? "Notification"} */}
-                            {activeTab === "unread" ? "Published on : " : "Viewed on : "}
-                            {notificationDate && formatDate(notificationDate)}
+                            {activeTab === "unread" ? (
+                              <span>Published On : {publishedDate && formatDate(publishedDate)}</span>
+                            ) : (
+                              <>
+                                <span>Viewed On : {viewedDate && formatDate(viewedDate)}</span>
+                                <span>Published On : {publishedDate && formatDate(publishedDate)}</span>
+                              </>
+                            )}
                           </span>
                         </span>
                         {isMarkingRead && <span className="sdlhub-notification__spinner" aria-label="Archiving" />}
