@@ -1,5 +1,6 @@
 import "../../portals/hrms/assets/css/tenureChange.css";
 import TenureChangeAssessmentModal from "../../portals/hrms/pages/maintainance/TenureChangeAssessmentModal";
+import TenureChangeCtcModal from "../../portals/hrms/pages/maintainance/TenureChangeCtcModal";
 import TenureChangeLetterModal from "../../portals/hrms/pages/maintainance/TenureChangeLetterModal";
 
 const TenureAuthorizationModal = ({
@@ -23,6 +24,17 @@ const TenureAuthorizationModal = ({
         />
       );
 
+     case "TENURECTCCHG":
+      return (
+        <TenureChangeCtcModal
+          config={config}
+          show={show}
+          record={record}
+          onClose={onClose}
+          onSuccess={onSuccess}
+        />
+      );
+
     case "TENURECHANGELETTER":
       return (
         <TenureChangeLetterModal
@@ -30,6 +42,7 @@ const TenureAuthorizationModal = ({
           show={show}
           record={record}
           onClose={onClose}
+          onSuccess={onSuccess}
         />
       );
     
