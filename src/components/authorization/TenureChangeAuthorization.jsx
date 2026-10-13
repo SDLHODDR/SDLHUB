@@ -15,7 +15,28 @@ const TENURE_TASK_CONFIG = {
     title: "Employee Tenure Change",
     modal: "TenureChangeAssessment",
     id: 25,
-    type: "EMPTENURECHG"    
+    type: "EMPTENURECHG",
+  },
+
+  26: {
+    title: "Tenure - CTC Change",
+    modal: "TenureCTCChange",
+    id: 26,
+    type: "TENURECTCCHG",
+  },
+
+  27: {
+    title: "Tenure - CTC Approval",
+    modal: "TenureCTCApproval",
+    id: 27,
+    type: "TENURECTCAPPR",
+  },
+
+  32: {
+    title: "Print Tenure Change Letter",
+    modal: "TenureChangeLetter",
+    id: 32,
+    type: "TENURECHANGELETTER",
   },
   // 26: {
   //   title: "Employee Tenure Change",
@@ -40,7 +61,7 @@ const TenureChangeAuthorization = () => {
     showModal,
     openModal,
     closeModal,
-    refreshList
+    refreshList,
   } = useTenureAuthorizationHandler(tid);
 
   const columns = getTenureAuthorizationColumns(formatDashDate, tid);

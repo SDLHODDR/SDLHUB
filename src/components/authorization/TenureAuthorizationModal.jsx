@@ -1,6 +1,6 @@
 import "../../portals/hrms/assets/css/tenureChange.css";
 import TenureChangeAssessmentModal from "../../portals/hrms/pages/maintainance/TenureChangeAssessmentModal";
-
+import TenureChangeLetterModal from "../../portals/hrms/pages/maintainance/TenureChangeLetterModal";
 
 const TenureAuthorizationModal = ({
   config,
@@ -20,6 +20,16 @@ const TenureAuthorizationModal = ({
           record={record}
           onClose={onClose}
           onSuccess={onSuccess}
+        />
+      );
+
+    case "TENURECHANGELETTER":
+      return (
+        <TenureChangeLetterModal
+          config={config}
+          show={show}
+          record={record}
+          onClose={onClose}
         />
       );
     
