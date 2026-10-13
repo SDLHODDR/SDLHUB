@@ -7,6 +7,7 @@ const TenureAuthorizationModal = ({
   show,
   record,
   onClose,
+  onSuccess,
 }) => {
   if (!show || !record || !config?.type) return null;
 
@@ -18,6 +19,7 @@ const TenureAuthorizationModal = ({
           show={show}
           record={record}
           onClose={onClose}
+          onSuccess={onSuccess}
         />
       );
 

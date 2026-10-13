@@ -14,7 +14,7 @@ export const getTenureAuthorizationColumns = (formatDashDate, tid = 0) => {
       sortable: true,
       body: (rowData) =>
         (String(tid) === "25" ? rowData.CREATED_BY_NAME : rowData.EMP_NAME) || rowData.CREATED_BY_NAME || rowData.EMP_NAME || "—",
-      style: { width: "180px", whiteSpace: "nowrap" },
+      style: { width: "200px", whiteSpace: "nowrap" },
     },
 
     {
@@ -22,7 +22,7 @@ export const getTenureAuthorizationColumns = (formatDashDate, tid = 0) => {
       header: "Company",
       sortable: true,
       body: (rowData) => rowData.CNAME || "—",
-      style: { width: "120px", whiteSpace: "nowrap" },
+      style: { width: "100px", whiteSpace: "nowrap" },
     },
 
     {
@@ -37,7 +37,7 @@ export const getTenureAuthorizationColumns = (formatDashDate, tid = 0) => {
       header: "Department",
       sortable: true,
       body: (rowData) => rowData.DNAME || "—",
-      style: { width: "120px", whiteSpace: "nowrap" },
+      style: { width: "200px", whiteSpace: "nowrap" },
     },
     {
       field: "TRAN_DESC",
@@ -54,32 +54,32 @@ export const getTenureAuthorizationColumns = (formatDashDate, tid = 0) => {
           {rowData.TRAN_DESC || "—"}
         </div>
       ),
-      style: { minWidth: "280px" },
+      style: { minWidth: "320px" },
     },
-    {
-      field: "STATUS",
-      header: "Status",
-      sortable: true,
-      body: (rowData) => {
-        const status = String(rowData.STATUS || "").toUpperCase();
-        const statusInfo =
-          status === "O" || status === "N"
-            ? { label: "Pending", className: "bg-warning text-dark" }
-            : status === "C" || status === "A"
-              ? { label: "Accept", className: "bg-success" }
-              : status === "X" || status === "R"
-                ? { label: "Reject", className: "bg-danger" }
-                : { label: status || "Closed", className: "bg-secondary" };
-        return (
-          <span
-            className={`badge ${statusInfo.className}`}
-            style={{ fontSize: "12px", padding: "5px 10px" }}
-          >
-            {statusInfo.label}
-          </span>
-        );
-      },
-      style: { width: "120px", textAlign: "center" },
-    },
+    // {
+    //   field: "STATUS",
+    //   header: "Status",
+    //   sortable: true,
+    //   body: (rowData) => {
+    //     const status = String(rowData.STATUS || "").toUpperCase();
+    //     const statusInfo =
+    //       status === "O" || status === "N"
+    //         ? { label: "Pending", className: "bg-warning text-dark" }
+    //         : status === "C" || status === "A"
+    //           ? { label: "Accept", className: "bg-success" }
+    //           : status === "X" || status === "R"
+    //             ? { label: "Reject", className: "bg-danger" }
+    //             : { label: status || "Closed", className: "bg-secondary" };
+    //     return (
+    //       <span
+    //         className={`badge ${statusInfo.className}`}
+    //         style={{ fontSize: "12px", padding: "5px 10px" }}
+    //       >
+    //         {statusInfo.label}
+    //       </span>
+    //     );
+    //   },
+    //   style: { width: "120px", textAlign: "center" },
+    // },
   ];
 };

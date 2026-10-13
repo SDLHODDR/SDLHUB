@@ -10,6 +10,8 @@ const initialState = {
   status: "idle",
   error: null,
   markingReadIds: [],
+  portal: null,
+  currentRequestId: null,
 };
 
 const getNotificationRows = (response) => {
@@ -31,9 +33,9 @@ const refreshUnreadCount = (state) => {
 
 export const getNotifications = createAsyncThunk(
   "notifications/getAll",
-  async (_, { rejectWithValue }) => {
+  async (portal, { rejectWithValue }) => {
     try {
-      const response = await fetchNotificationsRequest();
+      const response = await fetchNotificationsRequest(portal);
       if (response?.status === false) {
         return rejectWithValue(response.message || "Unable to load notifications.");
       }
@@ -43,27 +45,32 @@ export const getNotifications = createAsyncThunk(
     }
   },
   {
-    condition: (_, { getState }) =>
-      ["idle", "failed"].includes(getState().notifications.status),
+    condition: (portal, { getState }) => {
+      const state = getState().notifications;
+      return !(
+        state.portal === portal &&
+        ["loading", "succeeded"].includes(state.status)
+      );
+    },
   },
 );
 
 export const markNotificationRead = createAsyncThunk(
   "notifications/markRead",
-  async (id, { rejectWithValue }) => {
+  async ({ id, portal }, { rejectWithValue }) => {
     try {
-      const response = await markNotificationReadRequest({ ID: id });
+      const response = await markNotificationReadRequest({ ID: id, portal });
       if (response?.status === false) {
         return rejectWithValue(response.message || "Unable to archive notification.");
       }
-      return { id, viewedOn: new Date().toISOString() };
+      return { id, portal, viewedOn: new Date().toISOString() };
     } catch (error) {
       return rejectWithValue(error?.message || "Unable to archive notification.");
     }
   },
   {
-    condition: (id, { getState }) =>
-      !getState().notifications.markingReadIds.includes(String(id)),
+    condition: ({ id, portal }, { getState }) =>
+      !getState().notifications.markingReadIds.includes(`${portal}:${id}`),
   },
 );
 
@@ -73,28 +80,40 @@ const notificationSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(getNotifications.pending, (state) => {
+      .addCase(getNotifications.pending, (state, action) => {
+        if (state.portal !== action.meta.arg) {
+          state.items = [];
+          state.unreadCount = 0;
+        }
+        state.portal = action.meta.arg;
+        state.currentRequestId = action.meta.requestId;
         state.status = "loading";
         state.error = null;
       })
       .addCase(getNotifications.fulfilled, (state, action) => {
+        if (state.currentRequestId !== action.meta.requestId) return;
         state.items = action.payload;
         state.status = "succeeded";
+        state.currentRequestId = null;
         refreshUnreadCount(state);
       })
       .addCase(getNotifications.rejected, (state, action) => {
-        if (action.meta.condition) return;
+        if (action.meta.condition || state.currentRequestId !== action.meta.requestId) return;
         state.status = "failed";
+        state.currentRequestId = null;
         state.error = action.payload || action.error.message;
       })
       .addCase(markNotificationRead.pending, (state, action) => {
-        state.markingReadIds.push(String(action.meta.arg));
+        const { id, portal } = action.meta.arg;
+        state.markingReadIds.push(`${portal}:${id}`);
       })
       .addCase(markNotificationRead.fulfilled, (state, action) => {
-        const id = String(action.payload.id);
-        state.markingReadIds = state.markingReadIds.filter((item) => item !== id);
+        const { id, portal } = action.payload;
+        const readKey = `${portal}:${id}`;
+        state.markingReadIds = state.markingReadIds.filter((item) => item !== readKey);
+        if (state.portal !== portal) return;
         const notification = state.items.find(
-          (item) => String(item.ID ?? item.id) === id,
+          (item) => String(item.ID ?? item.id) === String(id),
         );
         if (notification) {
           notification.VIEWED_ON = action.payload.viewedOn;
@@ -102,8 +121,9 @@ const notificationSlice = createSlice({
         }
       })
       .addCase(markNotificationRead.rejected, (state, action) => {
-        const id = String(action.meta.arg);
-        state.markingReadIds = state.markingReadIds.filter((item) => item !== id);
+        const { id, portal } = action.meta.arg;
+        const readKey = `${portal}:${id}`;
+        state.markingReadIds = state.markingReadIds.filter((item) => item !== readKey);
         state.error = action.payload || action.error.message;
       });
   },

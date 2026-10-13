@@ -1,24 +1,29 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import {
   getNotifications,
   markNotificationRead,
 } from "../store/notifications/notificationSlice";
+import { getPortalFromPath } from "../config/portalConfig";
 import { formatDate } from "../utils/formatUtils";
 
 const SDLHUBNotification = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const activePortal = getPortalFromPath(location.pathname).key;
   const wrapperRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("unread");
   const [selectedNotification, setSelectedNotification] = useState(null);
+  const [selectedPortal, setSelectedPortal] = useState(null);
   const { items, unreadCount, status, error, markingReadIds } = useSelector(
     (state) => state.notifications,
   );
 
   useEffect(() => {
-    dispatch(getNotifications());
-  }, [dispatch]);
+    dispatch(getNotifications(activePortal));
+  }, [activePortal, dispatch]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -54,19 +59,20 @@ const SDLHUBNotification = () => {
 
   const handleOpenNotification = (item) => {
     setSelectedNotification(item);
+    setSelectedPortal(activePortal);
   };
 
   const handleMarkSelectedRead = async () => {
     const id = selectedNotification?.ID ?? selectedNotification?.id;
     if (id == null) return;
 
-    const result = await dispatch(markNotificationRead(id));
+    const result = await dispatch(markNotificationRead({ id, portal: activePortal }));
     if (markNotificationRead.fulfilled.match(result)) {
       setSelectedNotification(null);
     }
   };
 
-  const handleRetry = () => dispatch(getNotifications());
+  const handleRetry = () => dispatch(getNotifications(activePortal));
 
   return (
     <div className="sdlhub-notification" ref={wrapperRef}>
@@ -140,13 +146,16 @@ const SDLHUBNotification = () => {
               </div>
             ) : visibleItems.length === 0 ? (
               <p className="sdlhub-notification__state">
-                {activeTab === "unread" ? "You're all caught up." : "No archived notifications."}
+                {activeTab === "unread" ? "No unread notifications found" : "No archived notifications found."}
               </p>
             ) : (
               <ul className="notification-list">
                 {visibleItems.map((item, index) => {
                   const id = item.ID ?? item.id ?? `${item.EMP_CODE}-${item.ASON_DATE}-${index}`;
-                  const isMarkingRead = markingReadIds.includes(String(id));
+                  const isMarkingRead = markingReadIds.includes(`${activePortal}:${id}`);
+                  const notificationDate = activeTab === "unread"
+                    ? item.ASON_DATE_date ?? item.ASON_DATE ?? item.ason_date
+                    : item.VIEWED_ON ?? item.viewed_on;
                   return (
                     <li className="notification-message" key={id}>
                       <button
@@ -161,8 +170,9 @@ const SDLHUBNotification = () => {
                         <span className="sdlhub-notification__message">
                           <span className="sdlhub-notification__description">{item.DESCR ?? item.descr}</span>
                           <span className="sdlhub-notification__meta">
-                            {item.ATTN_TYPE ?? item.attn_type ?? "Notification"}
-                            {(item.ASON_DATE ?? item.ason_date) && ` · ${formatDate(item.ASON_DATE ?? item.ason_date)}`}
+                            {/* {item.ATTN_TYPE ?? item.attn_type ?? "Notification"} */}
+                            {activeTab === "unread" ? "Published on : " : "Viewed on : "}
+                            {notificationDate && formatDate(notificationDate)}
                           </span>
                         </span>
                         {isMarkingRead && <span className="sdlhub-notification__spinner" aria-label="Archiving" />}
@@ -176,10 +186,14 @@ const SDLHUBNotification = () => {
         </section>
       )}
 
-      {isOpen && selectedNotification && (() => {
+      {isOpen && selectedNotification && selectedPortal === activePortal && (() => {
         const isSelectedUnread = !(selectedNotification.VIEWED_ON ?? selectedNotification.viewed_on);
         const selectedId = selectedNotification.ID ?? selectedNotification.id;
-        const isMarkingSelectedRead = markingReadIds.includes(String(selectedId));
+        const selectedReadKey = `${activePortal}:${selectedId}`;
+        const isMarkingSelectedRead = markingReadIds.includes(selectedReadKey);
+        const selectedDate = isSelectedUnread
+          ? selectedNotification.ASON_DATE_date ?? selectedNotification.ASON_DATE ?? selectedNotification.ason_date
+          : selectedNotification.VIEWED_ON ?? selectedNotification.viewed_on;
 
         return (
           <div
@@ -194,7 +208,9 @@ const SDLHUBNotification = () => {
               onClick={(event) => event.stopPropagation()}
             >
               <header className="sdlhub-notification__modal-header">
-                <h2 id="sdlhub-notification-modal-title">Notification</h2>
+                <h2 id="sdlhub-notification-modal-title">Notification 
+                ({selectedDate && formatDate(selectedDate)})
+                </h2>
                 <button
                   type="button"
                   className="sdlhub-notification__close"
@@ -204,22 +220,15 @@ const SDLHUBNotification = () => {
                   <i className="ti ti-x" aria-hidden="true" />
                 </button>
               </header>
-              <div className="sdlhub-notification__modal-meta">
-                {selectedNotification.ATTN_TYPE ?? selectedNotification.attn_type ?? "Notification"}
-                {(selectedNotification.ASON_DATE ?? selectedNotification.ason_date) &&
-                  ` · ${formatDate(selectedNotification.ASON_DATE ?? selectedNotification.ason_date)}`}
-              </div>
+              {/* <div className="sdlhub-notification__modal-meta"> */}
+                {/* {selectedNotification.ATTN_TYPE ?? selectedNotification.attn_type ?? "Notification"} */}
+                {/* {isSelectedUnread ? "Published on : " : "Viewed on : "}
+                {selectedDate && formatDate(selectedDate)} */}
+              {/* </div> */}
               <div className="sdlhub-notification__modal-message">
                 {selectedNotification.DESCR ?? selectedNotification.descr}
               </div>
               <footer className="sdlhub-notification__modal-actions">
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary"
-                  onClick={() => setSelectedNotification(null)}
-                >
-                  Cancel
-                </button>
                 {isSelectedUnread && (
                   <button
                     type="button"
@@ -227,9 +236,16 @@ const SDLHUBNotification = () => {
                     disabled={isMarkingSelectedRead}
                     onClick={handleMarkSelectedRead}
                   >
-                    {isMarkingSelectedRead ? "Marking as read..." : "Mark as read"}
+                    {isMarkingSelectedRead ? "Marking as read..." : "Mark as Read"}
                   </button>
                 )}
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => setSelectedNotification(null)}
+                >
+                  Cancel
+                </button>
               </footer>
             </section>
           </div>
