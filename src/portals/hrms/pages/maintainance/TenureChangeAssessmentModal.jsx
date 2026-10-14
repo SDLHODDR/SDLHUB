@@ -351,7 +351,7 @@ const TenureChangeAssessmentModal = ({ config, show, record, onClose, onSuccess 
                   </>
                 )}
 
-                <div className="row g-3 mt-2">
+                {questions.length > 0 && <div className="row g-3 mt-2">
                   <div className="col-lg-4 col-md-6">
                     <label className="form-label">Employee Type <span className="text-danger">*</span></label>
                     <select
@@ -403,7 +403,7 @@ const TenureChangeAssessmentModal = ({ config, show, record, onClose, onSuccess 
                     <textarea className="form-control" rows="2" value={assessment.remarks}
                       onChange={(event) => updateAssessment("remarks", event.target.value)} />
                   </div>
-                </div>
+                </div>}
               </div>
             ) : (
               <div className="alert alert-warning mb-0" role="alert">
@@ -412,7 +412,7 @@ const TenureChangeAssessmentModal = ({ config, show, record, onClose, onSuccess 
             )}
           </div>
 
-          <div className="modal-footer">
+          {questions.length > 0 && <div className="modal-footer">
             {actionMessage && <span className="small text-muted me-auto" role="status">{actionMessage}</span>}
             <button type="submit" className="btn btn-primary" disabled={loading || !employee || saving || submitting}>
               {saving ? "Saving..." : "Save"}
@@ -423,7 +423,7 @@ const TenureChangeAssessmentModal = ({ config, show, record, onClose, onSuccess 
               </button>
             )}
             <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-          </div>
+          </div>}
         </form>
       </div>
     </div>
