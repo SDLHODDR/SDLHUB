@@ -59,3 +59,16 @@ export const getTenureChangeDetails = ({
     },
     dedupe: false,
   });
+
+export const fetchEmpCTCHeads = ({ empCode, taskId, tenureChangeId, xpfbs } = {}) =>
+  hrmsRequest({
+    url: HRMS_API.REPORTS.FETCH_EMP_CTC_HEADS,
+    method: "GET",
+    params: {
+      REC_ID: empCode ?? "",
+      TASK_ID: taskId ?? "",
+      TENURE_CHANGE_ID: tenureChangeId ?? "",
+      XPFBS: xpfbs,
+    },
+    dedupe: false,
+  });
