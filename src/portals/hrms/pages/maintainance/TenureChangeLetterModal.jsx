@@ -19,9 +19,16 @@ const TenureChangeLetterModal = ({
   const [loading, setLoading] = useState(false);
   const [details, setDetails] = useState(null);
   const [staffType, setStaffType] = useState("");
-  const [previewUrl, setPreviewUrl] = useState("");
+
+  // Preview sub-modal state
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [pdfBlobUrl, setPdfBlobUrl] = useState("");
+  const [pdfLoading, setPdfLoading] = useState(false);
   const [generatingRef, setGeneratingRef] = useState(false);
+
+  // Embedded PDF state (when DOC_REF is already generated)
+  const [embeddedPdfUrl, setEmbeddedPdfUrl] = useState("");
+  const [embeddedLoading, setEmbeddedLoading] = useState(false);
 
   const empCode =
     record?.TRAN_CODE ||
@@ -32,6 +39,7 @@ const TenureChangeLetterModal = ({
   const taskId = record?.TASK_ID || "";
   const tenureChangeId = record?.TENURE_CHG_ID || "";
 
+  // Reset or load details on open/close
   useEffect(() => {
     if (show) {
       if (empCode) {
@@ -45,12 +53,37 @@ const TenureChangeLetterModal = ({
         });
       }
     } else {
+      cleanupBlobUrls();
       setDetails(null);
       setStaffType("");
-      setPreviewUrl("");
       setShowPreviewModal(false);
     }
   }, [show, empCode]);
+
+  // Load the embedded PDF whenever doc_ref is present on the record
+  useEffect(() => {
+    if (show && details?.doc_ref && empCode) {
+      loadEmbeddedPdf();
+    }
+  }, [show, details?.doc_ref, empCode, staffType]);
+
+  // Clean up object URLs on component unmount
+  useEffect(() => {
+    return () => {
+      cleanupBlobUrls();
+    };
+  }, []);
+
+  const cleanupBlobUrls = () => {
+    if (pdfBlobUrl) {
+      URL.revokeObjectURL(pdfBlobUrl.split("#")[0]);
+      setPdfBlobUrl("");
+    }
+    if (embeddedPdfUrl) {
+      URL.revokeObjectURL(embeddedPdfUrl.split("#")[0]);
+      setEmbeddedPdfUrl("");
+    }
+  };
 
   const fetchDetails = async () => {
     setLoading(true);
@@ -113,22 +146,23 @@ const TenureChangeLetterModal = ({
 
   const resolveTemplateUrl = (selectedType, code) => {
     let script = "confirmation_letter_revised.php";
-    if (selectedType === "E" || selectedType === "6") {
+    const typeStr = String(selectedType);
+
+    if (typeStr === "E" || typeStr === "6") {
       script = "extension_letter_trainee.php";
-    } else if (selectedType === "C" || selectedType === "2") {
+    } else if (typeStr === "C" || typeStr === "2") {
       script = "extension_letter_contract.php";
-    } else if (selectedType === "Pro" || selectedType === "5") {
+    } else if (typeStr === "Pro" || typeStr === "5") {
       script = "extension_letter_probation.php";
-    } else if (selectedType === "Prob") {
+    } else if (typeStr === "Prob") {
       script = "probation_letter.php";
     }
 
-    return `reports/pdfReport/${script}?EMP_CODE=${code}`;
+    const baseUrl = import.meta.env.VITE_BASE_URL || "";
+    return `${baseUrl}/hrms/reports/pdfReport/${script}?EMP_CODE=${encodeURIComponent(code)}`;
   };
 
-  const [pdfBlobUrl, setPdfBlobUrl] = useState("");
-  const [pdfLoading, setPdfLoading] = useState(false);
-
+  // Preview Button Handler (Modal popup)
   const handlePreviewTemplate = async () => {
     if (!staffType) {
       Swal.fire({
@@ -139,13 +173,7 @@ const TenureChangeLetterModal = ({
       return;
     }
 
-    let script = "confirmation_letter_revised.php";
-    if (staffType === "E") script = "extension_letter_trainee.php";
-    else if (staffType === "C") script = "extension_letter_contract.php";
-    else if (staffType === "Pro") script = "extension_letter_probation.php";
-    else if (staffType === "Prob") script = "probation_letter.php";
-
-    const url = `${import.meta.env.VITE_BASE_URL}/hrms/reports/pdfReport/${script}?EMP_CODE=${encodeURIComponent(empCode)}`;
+    const url = resolveTemplateUrl(staffType, empCode);
 
     setPdfLoading(true);
     setShowPreviewModal(true);
@@ -156,15 +184,12 @@ const TenureChangeLetterModal = ({
         withCredentials: true,
       });
 
-      // Revoke prior blob if exists to avoid memory leak
       if (pdfBlobUrl) {
         URL.revokeObjectURL(pdfBlobUrl.split("#")[0]);
       }
 
       const file = new Blob([response.data], { type: "application/pdf" });
       const rawUrl = URL.createObjectURL(file);
-
-      // Instruct PDF viewer to fit to page width and close the left thumbnail pane
       setPdfBlobUrl(`${rawUrl}#toolbar=1&navpanes=0&zoom=page-width`);
     } catch (error) {
       console.error("PDF Preview Error:", error);
@@ -172,6 +197,30 @@ const TenureChangeLetterModal = ({
       setShowPreviewModal(false);
     } finally {
       setPdfLoading(false);
+    }
+  };
+
+  // Embedded PDF loader for when reference code exists
+  const loadEmbeddedPdf = async () => {
+    const url = resolveTemplateUrl(staffType || details?.etype_id, empCode);
+    setEmbeddedLoading(true);
+    try {
+      const response = await axios.get(url, {
+        responseType: "blob",
+        withCredentials: true,
+      });
+
+      if (embeddedPdfUrl) {
+        URL.revokeObjectURL(embeddedPdfUrl.split("#")[0]);
+      }
+
+      const file = new Blob([response.data], { type: "application/pdf" });
+      const rawUrl = URL.createObjectURL(file);
+      setEmbeddedPdfUrl(`${rawUrl}#toolbar=1&navpanes=0&zoom=page-width`);
+    } catch (err) {
+      console.error("Failed to load embedded PDF document:", err);
+    } finally {
+      setEmbeddedLoading(false);
     }
   };
 
@@ -183,11 +232,20 @@ const TenureChangeLetterModal = ({
         tenureChangeId: details?.tenure_chg_id || tenureChangeId,
       });
 
-      const resData = response?.data?.data ? response.data : response;
+      const isSuccess =
+        response?.status === true ||
+        response?.success === true ||
+        response?.data?.status === true ||
+        response?.data?.success === true;
 
-      if (resData && (resData.status === true || resData.success === true)) {
+      const successMsg =
+        response?.message ||
+        response?.data?.message ||
+        "Reference Code generated Successfully!";
+
+      if (isSuccess) {
         Swal.fire({
-          title: "Reference Code generated Successfully!",
+          title: successMsg,
           icon: "success",
           timer: 1800,
           showConfirmButton: false,
@@ -199,13 +257,12 @@ const TenureChangeLetterModal = ({
       } else {
         Swal.fire(
           "Error",
-          resData?.message || "Failed to generate Reference Code.",
+          response?.message || response?.data?.message || "Failed to generate Reference Code.",
           "error"
         );
       }
     } catch (err) {
       console.error("Error generating reference code:", err);
-      // Read the actual error message from backend response
       const serverMessage =
         err?.response?.data?.message ||
         err?.response?.data?.error ||
@@ -240,25 +297,44 @@ const TenureChangeLetterModal = ({
             empCode,
             tenureChangeId: details?.tenure_chg_id || tenureChangeId,
             taskId,
+            authId: record?.ID || "",
           });
 
-          if (
-            res?.data &&
-            (res.data.status === true || res.data.status === "success")
-          ) {
-            Swal.fire("Success", "Task closed successfully.", "success");
+          const isSuccess =
+            res?.status === true ||
+            res?.success === true ||
+            res?.data?.success === true ||
+            res?.data?.status === true;
+
+          const successMsg =
+            res?.message ||
+            res?.data?.message ||
+            "Tenure change print task closed successfully.";
+
+          if (isSuccess) {
+            Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: successMsg,
+              timer: 1500,
+              showConfirmButton: false,
+            });
             onClose();
             if (onSuccess) onSuccess();
           } else {
             Swal.fire(
               "Error",
-              res?.data?.message || "Failed to close task.",
+              res?.message || res?.data?.message || "Failed to close task.",
               "error"
             );
           }
         } catch (error) {
           console.error("Error closing tenure print task:", error);
-          Swal.fire("Error", "Server error while closing task.", "error");
+          const errMsg =
+            error?.response?.data?.message ||
+            error?.message ||
+            "Server error while closing task.";
+          Swal.fire("Error", errMsg, "error");
         }
       }
     });
@@ -420,12 +496,27 @@ const TenureChangeLetterModal = ({
                           <i className="fas fa-print me-1"></i> Close Task
                         </button>
                       </div>
-                      <div style={{ height: "460px" }} className="border rounded overflow-hidden">
-                        <iframe
-                          title="Letter Document"
-                          className="w-100 h-100 border-0"
-                          src={resolveTemplateUrl(staffType || details.etype_id, empCode)}
-                        />
+
+                      <div
+                        style={{ height: "60vh", minHeight: "420px", background: "#525659" }}
+                        className="border rounded overflow-hidden position-relative"
+                      >
+                        {embeddedLoading ? (
+                          <div className="d-flex justify-content-center align-items-center h-100 text-white">
+                            <div className="spinner-border me-2" role="status" />
+                            <span>Loading Document...</span>
+                          </div>
+                        ) : embeddedPdfUrl ? (
+                          <iframe
+                            title="Letter Document"
+                            className="w-100 h-100 border-0"
+                            src={embeddedPdfUrl}
+                          />
+                        ) : (
+                          <div className="d-flex justify-content-center align-items-center h-100 text-light small">
+                            Unable to stream PDF letter document.
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
