@@ -44,6 +44,20 @@ export const submitTenureChangeAssessment = (payload) => {
   });
 };
 
+export const saveTenureChangeCtcBreakup = (payload) =>
+  hrmsRequest({
+    url: HRMS_API.REPORTS.SAVE_TENURE_CHANGE_ASSESSMENT,
+    method: "POST",
+    data: { ...payload, saveCTCBreakup: true },
+  });
+
+export const submitTenureChangeCtc = (payload) =>
+  hrmsRequest({
+    url: HRMS_API.REPORTS.SAVE_TENURE_CHANGE_ASSESSMENT,
+    method: "POST",
+    data: { ...payload, closeTenureCTCTask: true },
+  });
+
 export const getTenureChangeDetails = ({
   empCode,
   taskId,
@@ -72,7 +86,7 @@ export const fetchEmpCTCHeads = ({ empCode, taskId, tenureChangeId, xpfbs } = {}
     },
     dedupe: false,
   });
-
+  
   /* ===========================================================
     TENURE LETTER PRINT & CLOSE TASK SERVICES
   ============================================================ */

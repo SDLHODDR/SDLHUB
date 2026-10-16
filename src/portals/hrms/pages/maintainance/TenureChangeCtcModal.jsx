@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { fetchEmpCTCHeads } from "../../services/tenureChangeService";
+import {
+  fetchEmpCTCHeads,
+  saveTenureChangeCtcBreakup,
+  submitTenureChangeCtc,
+} from "../../services/tenureChangeService";
 import "../../assets/css/tenureChange.css";
 
 const formatAmount = (amount) => Number(amount || 0).toLocaleString("en-IN");
@@ -13,6 +17,10 @@ const TenureChangeCtcModalContent = ({ config, show, record, onClose, onSuccess 
   const [pfInput, setPfInput] = useState("0");
   const [monthlyAmounts, setMonthlyAmounts] = useState({});
   const [variableAmounts, setVariableAmounts] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [saveSucceeded, setSaveSucceeded] = useState(false);
+  const [actionMessage, setActionMessage] = useState("");
   const hasLoaded = useRef(false);
 
   useEffect(() => {
@@ -70,36 +78,124 @@ const TenureChangeCtcModalContent = ({ config, show, record, onClose, onSuccess 
     return sum;
   }, { monthly: 0, annual: 0 }), [details, monthlyAmounts]);
 
-  if (!show || !record) return null;
-
-  const handleSave = () => {
-    onSuccess?.({
-      employee: details.employee,
-      tenureChangeId: details.tenureChangeId,
-      taskId: details.taskId,
-      assessment: {
-        employeeType: details.employee.employeeType,
-        period: details.employee.period,
-        proposedCtc: details.employee.proposedCtc,
-        effectiveFrom: details.employee.effectiveFrom,
-        remarks: details.employee.remarks,
-        ctcStructure: {
-          pfInput,
-          variableHeads: (details.variableHeads ?? []).map((head) => ({
-            ...head,
-            monthly: Number(head.adCode === "XPFBS" ? pfInput : variableAmounts[head.adCode] ?? head.monthly ?? 0),
-          })),
-          rows: (details.rows ?? []).map((row) => ({
-            ...row,
-            monthly: Number(monthlyAmounts[row.adCode] ?? row.monthly ?? 0),
-            annual: Number(monthlyAmounts[row.adCode] ?? row.monthly ?? 0) * 12,
-          })),
-          totals: { ...details.structureTotals, ...totals },
-        },
-      },
-    });
-    onClose?.();
+  const buildPayload = () => {
+    const rows = details?.rows ?? [];
+    const variableHeads = details?.variableHeads ?? [];
+    return {
+      EMP_CODE: employeeCode,
+      TASK_ID: details?.taskId ?? record?.TASK_ID ?? "",
+      TENURE_CHG_ID: details?.tenureChangeId ?? tenureChangeId ?? "",
+      CTC_EFF_FROM: details?.ctcEffectiveFrom ?? details?.employee?.ctcEffectiveFrom ?? details?.employee?.effectiveFrom ?? "",
+      PROP_CTC: details?.employee?.proposedCtc ?? "",
+      sum_annually: totals.annual,
+      sum_annually_struct: details?.structureTotals?.proposedAnnual ?? 0,
+      AMOUNT_MNTHLY: Object.fromEntries(rows.map((row) => [
+        row.adCode,
+        Number(monthlyAmounts[row.adCode] ?? row.monthly ?? 0),
+      ])),
+      AMOUNT_ANNUALLY: Object.fromEntries(rows.map((row) => [
+        row.adCode,
+        Number(monthlyAmounts[row.adCode] ?? row.monthly ?? 0) * 12,
+      ])),
+      AMOUNT_MNTHLY_VAR: Object.fromEntries(variableHeads.map((head) => [
+        head.adCode,
+        Number(head.adCode === "XPFBS" ? pfInput : variableAmounts[head.adCode] ?? head.monthly ?? 0),
+      ])),
+      jd_id: details?.jdId ?? details?.employee?.jdId ?? "",
+    };
   };
+
+  const buildSuccessResult = () => ({
+    employee: details.employee,
+    tenureChangeId: details.tenureChangeId,
+    taskId: details.taskId,
+    assessment: {
+      employeeType: details.employee.employeeType,
+      period: details.employee.period,
+      proposedCtc: details.employee.proposedCtc,
+      effectiveFrom: details.employee.effectiveFrom,
+      remarks: details.employee.remarks,
+      ctcStructure: {
+        pfInput,
+        variableHeads: (details.variableHeads ?? []).map((head) => ({
+          ...head,
+          monthly: Number(head.adCode === "XPFBS" ? pfInput : variableAmounts[head.adCode] ?? head.monthly ?? 0),
+        })),
+        rows: (details.rows ?? []).map((row) => ({
+          ...row,
+          monthly: Number(monthlyAmounts[row.adCode] ?? row.monthly ?? 0),
+          annual: Number(monthlyAmounts[row.adCode] ?? row.monthly ?? 0) * 12,
+        })),
+        totals: { ...details.structureTotals, ...totals },
+      },
+    },
+  });
+
+  const updateCtcInput = (update) => {
+    update();
+    setSaveSucceeded(false);
+    setActionMessage("");
+  };
+
+  const handleSave = async () => {
+    console.log("details : ", details, " - saving: ", saving, " - submitting: ", submitting);
+    if (!details || saving || submitting) return;
+
+    const hasInvalidMonthlyAmount = (details.rows ?? []).some((row) => {
+      const value = monthlyAmounts[row.adCode] ?? row.monthly ?? "";
+      return value === "" || !Number.isFinite(Number(value)) || Number(value) < 0;
+    });
+    
+    const proposedCtc = Number(details.employee?.proposedCtc);
+    if (hasInvalidMonthlyAmount) {
+      setActionMessage("Enter a valid monthly amount for every CTC head.");
+      return;
+    }
+    if (!Number.isFinite(proposedCtc) || Math.abs(totals.annual - proposedCtc) > 100) {
+      setActionMessage("Incorrect CTC. The annual total must be within ₹100 of the proposed CTC.");
+      return;
+    }
+
+    setSaving(true);
+    setSaveSucceeded(false);
+    setActionMessage("");
+    try {
+      const response = await saveTenureChangeCtcBreakup(buildPayload());
+      if (response?.status === true || response?.success === true) {
+        setSaveSucceeded(true);
+        setActionMessage(response?.message || "CTC breakup saved.");
+      } else {
+        setActionMessage(response?.message || "CTC breakup could not be saved.");
+      }
+    } catch (error) {
+      setActionMessage(error?.message || "CTC breakup could not be saved.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!saveSucceeded || submitting || saving) return;
+
+    setSubmitting(true);
+    setActionMessage("");
+    try {
+      const response = await submitTenureChangeCtc(buildPayload());
+      if (response?.status === true || response?.success === true) {
+        setActionMessage(response?.message || "CTC submitted for authorization.");
+        onSuccess?.(buildSuccessResult());
+        onClose?.();
+      } else {
+        setActionMessage(response?.message || "CTC could not be submitted.");
+      }
+    } catch (error) {
+      setActionMessage(error?.message || "CTC could not be submitted.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (!show || !record) return null;
 
   return (
     <div className="modal fade show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1050 }} tabIndex="-1" role="dialog" aria-modal="true" aria-labelledby="tenure-ctc-title">
@@ -152,7 +248,7 @@ const TenureChangeCtcModalContent = ({ config, show, record, onClose, onSuccess 
                       <tr key={head.adCode}>
                         <td className="text-center">{index + 1}</td>
                         <td>{head.description} {head.adCode === "CPF" ? "(1: 12% of 15000 0: 12% of Basic)" : ""}</td>
-                        <td><input className="form-control form-control-sm text-end" type="number" min="0" max={head.adCode === "XPFBS" ? "1" : undefined} value={head.adCode === "XPFBS" ? pfInput : variableAmounts[head.adCode] ?? head.monthly ?? "0"} readOnly={!head.editable} onChange={(event) => head.adCode === "XPFBS" ? setPfInput(event.target.value) : setVariableAmounts((current) => ({ ...current, [head.adCode]: event.target.value }))} aria-label={`${head.description} amount`} /></td>
+                        <td><input className="form-control form-control-sm text-end" type="number" min="0" max={head.adCode === "XPFBS" ? "1" : undefined} value={head.adCode === "XPFBS" ? pfInput : variableAmounts[head.adCode] ?? head.monthly ?? "0"} readOnly={!head.editable} onChange={(event) => updateCtcInput(() => head.adCode === "XPFBS" ? setPfInput(event.target.value) : setVariableAmounts((current) => ({ ...current, [head.adCode]: event.target.value })))} aria-label={`${head.description} amount`} /></td>
                       </tr>
                     ))}
                     {details.variableHeads?.length === 0 && <tr><td colSpan="3" className="text-center text-muted">No variable CTC heads configured.</td></tr>}
@@ -173,7 +269,7 @@ const TenureChangeCtcModalContent = ({ config, show, record, onClose, onSuccess 
                           <td><input className="form-control form-control-sm text-end" value={formatAmount(row.currentAnnual)} disabled aria-label={`${row.description} current annual`} /></td>
                           <td><input className="form-control form-control-sm text-end" value={formatAmount(row.structureMonthly)} disabled aria-label={`${row.description} proposed monthly structure`} /></td>
                           <td><input className="form-control form-control-sm text-end" value={formatAmount(row.structureAnnual)} disabled aria-label={`${row.description} proposed annual structure`} /></td>
-                          <td><input className="form-control form-control-sm text-end" type="number" min="0" value={monthlyAmounts[row.adCode] ?? row.monthly ?? ""} readOnly={!row.editable} onChange={(event) => setMonthlyAmounts((current) => ({ ...current, [row.adCode]: event.target.value }))} aria-label={`${row.description} monthly amount`} /></td>
+                          <td><input className="form-control form-control-sm text-end" type="number" min="0" value={monthlyAmounts[row.adCode] ?? row.monthly ?? ""} readOnly={!row.editable} onChange={(event) => updateCtcInput(() => setMonthlyAmounts((current) => ({ ...current, [row.adCode]: event.target.value })))} aria-label={`${row.description} monthly amount`} /></td>
                           <td><input className="form-control form-control-sm text-end" value={formatAmount(monthly * 12)} disabled aria-label={`${row.description} annual amount`} /></td>
                         </tr>
                       );
@@ -196,7 +292,13 @@ const TenureChangeCtcModalContent = ({ config, show, record, onClose, onSuccess 
           </div>
 
           <div className="modal-footer">
-            <button type="button" className="btn btn-primary" onClick={handleSave} disabled={!details || loading}>Save CTC</button>
+            {actionMessage && <span className="small text-muted me-auto" role="status">{actionMessage}</span>}
+            <button type="button" className="btn btn-primary" onClick={handleSave} disabled={!details || loading || saving || submitting}>
+              {saving ? "Saving..." : "Save CTC"}
+            </button>
+            <button type="button" className="btn btn-warning" onClick={handleSubmit} disabled={!saveSucceeded || saving || submitting}>
+              {submitting ? "Submitting..." : "Submit"}
+            </button>
             <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
           </div>
         </div>

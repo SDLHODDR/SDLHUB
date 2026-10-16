@@ -153,18 +153,47 @@ const QuestionMaster = () => {
     }
   }, [questionMasterData])
 
-  // Top options combine every Question Group and Question Sub Group.
+  // Top options include only group/subgroup pairs used by question records.
   const questionOptions = useMemo(
-    () =>
-      groups.flatMap(group =>
-        subgroups.map(subgroup => ({
-          id: JSON.stringify([group.ID, subgroup.ID]),
-          label: `${group.NAME} - ${subgroup.NAME}`,
-          groupId: group.ID,
-          subGroupId: subgroup.ID
-        }))
-      ),
-    [groups, subgroups]
+    () => {
+      const optionsByPair = new Map()
+
+      listData.forEach(question => {
+        const group = groups.find(
+          option =>
+            option.ID === String(question.QGRP_ID) ||
+            option.NAME.toLowerCase() === question.GROUP_NAME.toLowerCase()
+        )
+        const subgroup = subgroups.find(
+          option =>
+            option.ID === String(question.QSGRP_ID) ||
+            option.NAME.toLowerCase() === question.SUBGROUP_NAME.toLowerCase()
+        )
+        const groupId = question.QGRP_ID || group?.ID
+        const subGroupId = question.QSGRP_ID || subgroup?.ID
+        const groupName = question.GROUP_NAME !== '-'
+          ? question.GROUP_NAME
+          : group?.NAME
+        const subGroupName = question.SUBGROUP_NAME !== '-'
+          ? question.SUBGROUP_NAME
+          : subgroup?.NAME
+
+        if (!groupId || !subGroupId || !groupName || !subGroupName) return
+
+        const id = JSON.stringify([groupId, subGroupId])
+        if (!optionsByPair.has(id)) {
+          optionsByPair.set(id, {
+            id,
+            label: `${groupName} - ${subGroupName}`,
+            groupId,
+            subGroupId
+          })
+        }
+      })
+
+      return Array.from(optionsByPair.values())
+    },
+    [groups, listData, subgroups]
   )
 
   // Table-mode search — driven only by the visible SDLSearch box.
