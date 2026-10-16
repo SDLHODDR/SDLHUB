@@ -133,6 +133,10 @@ export const HRMS_API = {
     SEND_TENURE_CHANGE: "/reports/tenureChange.php",
     SAVE_TENURE_CHANGE_ASSESSMENT: "/reports/tenureChange.php",
     GET_TENURE_CHANGE_DETAILS: "/reports/get_tenure_change_details.php",
+    GENERATE_TENURE_LETTER_REFERENCE: "/reports/generateTenureLetterReference.php",
+
+    GET_TENURE_LETTER_DETAILS: "/reports/getTenureLetterDetails.php",
+    CLOSE_TENURE_PRINT_TASK: "/reports/tenureChangeSave.php",
   },
 
    LOGS:{

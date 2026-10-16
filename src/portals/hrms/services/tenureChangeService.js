@@ -72,3 +72,50 @@ export const fetchEmpCTCHeads = ({ empCode, taskId, tenureChangeId, xpfbs } = {}
     },
     dedupe: false,
   });
+
+  /* ===========================================================
+    TENURE LETTER PRINT & CLOSE TASK SERVICES
+  ============================================================ */
+export const getTenureLetterDetails = ({
+    empCode,
+    tenureChangeId,
+    taskId
+}) =>
+    hrmsRequest({
+        url: HRMS_API.REPORTS.GET_TENURE_LETTER_DETAILS,
+        method: "GET",
+        params: {
+            EMP_CODE: empCode ?? "",
+            TENURE_CHG_ID: tenureChangeId ?? "",
+            TASK_ID: taskId ?? ""
+        },
+        dedupe: false
+    });
+
+export const generateTenureLetterReference = ({
+    empCode,
+    tenureChangeId
+}) =>
+    hrmsRequest({
+        url: HRMS_API.REPORTS.GENERATE_TENURE_LETTER_REFERENCE,
+        method: "POST",
+        data: {
+            EMP_CODE: empCode,
+            TENURE_CHG_ID: tenureChangeId
+        }
+    });
+
+export const closeTenurePrintTask = ({
+    empCode,
+    tenureChangeId,
+    taskId
+}) =>
+    hrmsRequest({
+        url: HRMS_API.REPORTS.CLOSE_TENURE_PRINT_TASK,
+        method: "POST",
+        data: {
+            EMP_CODE: empCode,
+            TENURE_CHG_ID: tenureChangeId,
+            TASK_ID: taskId
+        }
+    }); 
