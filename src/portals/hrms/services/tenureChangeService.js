@@ -72,7 +72,7 @@ export const fetchEmpCTCHeads = ({ empCode, taskId, tenureChangeId, xpfbs } = {}
     },
     dedupe: false,
   });
-  
+
   /* ===========================================================
     TENURE LETTER PRINT & CLOSE TASK SERVICES
   ============================================================ */
