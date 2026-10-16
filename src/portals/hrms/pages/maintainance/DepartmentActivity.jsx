@@ -91,8 +91,8 @@ const DepartmentActivity = () => {
         ACT_TYPE: getDisplayValue(item, ['ACT_TYPE', 'act_type', 'type'], '-'),
         ACT_TYPE_TEXT: getDisplayValue(
           item,
-          ['ACT_TYPE_TEXT', 'act_type', 'type'],
-          '-'
+          ['ACT_TYPE_TEXT', 'act_type_text'],
+          ACT_TYPES[item.ACT_TYPE ?? item.act_type] ?? '-'
         ),
         DISP_SEQ: item.DISP_SEQ ?? item.disp_seq ?? item.dispSeq ?? '',
         ACT_DESC: getDisplayValue(
@@ -125,16 +125,50 @@ const DepartmentActivity = () => {
   }, [listDeptMasterData])
 
   const activityOptions = useMemo(
-    () =>
-      deptOptions.flatMap(department =>
-        Object.entries(ACT_TYPES).map(([type, typeLabel]) => ({
-          id: JSON.stringify([department.id, type]),
-          label: `${department.label} - ${typeLabel}`,
-          departmentId: department.id,
-          type
-        }))
-      ),
-    [deptOptions]
+    () => {
+      const optionsByPair = new Map()
+
+      listData.forEach(activity => {
+        const activityTypeValues = [activity.ACT_TYPE, activity.ACT_TYPE_TEXT]
+          .filter(Boolean)
+          .map(value => String(value).trim())
+        const type = activityTypeValues
+          .map(value => {
+            const code = value.toUpperCase()
+            if (ACT_TYPES[code]) return code
+            return Object.entries(ACT_TYPES).find(
+              ([, label]) => label.toLowerCase() === value.toLowerCase()
+            )?.[0]
+          })
+          .find(Boolean)
+
+        const department = deptOptions.find(
+          option =>
+            option.id === String(activity.DEPT_ID) ||
+            option.label.toLowerCase() === String(activity.DEPT_DESC).toLowerCase()
+        )
+        const departmentId = activity.DEPT_ID
+          ? String(activity.DEPT_ID)
+          : department?.id
+        const departmentLabel =
+          activity.DEPT_DESC !== '-' ? activity.DEPT_DESC : department?.label
+
+        if (!departmentId || !departmentLabel || !type) return
+
+        const id = JSON.stringify([departmentId, type])
+        if (!optionsByPair.has(id)) {
+          optionsByPair.set(id, {
+            id,
+            label: `${departmentLabel} - ${ACT_TYPES[type]}`,
+            departmentId,
+            type
+          })
+        }
+      })
+
+      return Array.from(optionsByPair.values())
+    },
+    [deptOptions, listData]
   )
 
   // Table-mode search — driven only by the visible SDLSearch box.
