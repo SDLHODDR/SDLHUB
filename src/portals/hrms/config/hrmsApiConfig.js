@@ -137,6 +137,8 @@ export const HRMS_API = {
 
     GET_TENURE_LETTER_DETAILS: "/reports/getTenureLetterDetails.php",
     CLOSE_TENURE_PRINT_TASK: "/reports/tenureChangeSave.php",
+    GET_TENURE_CTC_DETAILS: "/reports/tenureCtcChange.php",
+    SAVE_TENURE_CTC_CHANGE: "/reports/tenureCtcChange.php",
   },
 
    LOGS:{

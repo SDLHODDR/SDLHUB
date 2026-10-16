@@ -227,457 +227,396 @@ const EmployeeData = () => {
     'TELEPHONE',
     'MOBILE_NUMBER',
     'EMERGENCY_CONTACT',
-      'TENURE_PERIOD'
+    'TENURE_PERIOD'
   ]
 
   const emailFields = ['PERSONAL_EMAIL', 'COMPANY_EMAIL']
 
-  const basicDetailsNumericFields = [
-  'AADHAAR_NO',
-  'ESI_NO',
-  'UAN_NO'
-]
+  const basicDetailsNumericFields = ['AADHAAR_NO', 'ESI_NO', 'UAN_NO']
 
-const basicDetailsAlphaNumericFields = [
-  'PAN_NO',
-  'DRIVING_LICENSE_NO',
-  'PASSPORT_NO',
-  'PF_NO',
-  'FPF_NO',
-  'MEMBER_ID',
-  'CITIZEN_NO'
-]
+  const basicDetailsAlphaNumericFields = [
+    'PAN_NO',
+    'DRIVING_LICENSE_NO',
+    'PASSPORT_NO',
+    'PF_NO',
+    'FPF_NO',
+    'MEMBER_ID',
+    'CITIZEN_NO'
+  ]
 
-const basicDetailsAlphaFields = [
-  'MOTHER_TONGUE',
-  'PF_NOMINEE'
-]
+  const basicDetailsAlphaFields = ['MOTHER_TONGUE', 'PF_NOMINEE']
 
-const bankNumericFields = [
-  'BANK_ACNO'
-]
+  const bankNumericFields = ['BANK_ACNO']
 
-const bankAlphaNumericFields = [
-  'BANK_IFSC'
-]
+  const bankAlphaNumericFields = ['BANK_IFSC']
 
-const bankAlphaFields = [
-  'BANK_NAME',
-  'BANK_BRANCH',
-  'BANK_NOMINEE'
-]
+  const bankAlphaFields = ['BANK_NAME', 'BANK_BRANCH', 'BANK_NOMINEE']
 
-const qualificationAlphaFields = [
-  'QUALIFICATION_INSTITUTE',
-  'QUALIFICATION_COURSE',
-  'QUALIFICATION_REMARK'
-]
+  const qualificationAlphaFields = [
+    'QUALIFICATION_INSTITUTE',
+    'QUALIFICATION_COURSE',
+    'QUALIFICATION_REMARK'
+  ]
 
-const qualificationGradeFields = [
-  'QUALIFICATION_GRADE'
-]
+  const qualificationGradeFields = ['QUALIFICATION_GRADE']
 
-const experienceAlphaNumericFields = [
-  'PREVIOUS_COMPANY',
-  'PREVIOUS_DESIGNATION',
-  'PREVIOUS_JOB_DESCRIPTION',
-  'PREVIOUS_LEAVE_REASON'
-]
+  const experienceAlphaNumericFields = [
+    'PREVIOUS_COMPANY',
+    'PREVIOUS_DESIGNATION',
+    'PREVIOUS_JOB_DESCRIPTION',
+    'PREVIOUS_LEAVE_REASON'
+  ]
 
-const experienceCompanyFields = [
-  'PREVIOUS_COMPANY'
-]
+  const experienceCompanyFields = ['PREVIOUS_COMPANY']
 
-const experienceSalaryFields = [
-  'PREVIOUS_GROSS_SALARY'
-]
+  const experienceSalaryFields = ['PREVIOUS_GROSS_SALARY']
 
-const basicDetailsMaxLengths = {
-  AADHAAR_NO: 12,
-  PAN_NO: 10,
-  DRIVING_LICENSE_NO: 16,
-  PASSPORT_NO: 8,
-  ESI_NO: 10,
-  MOTHER_TONGUE: 10,
-  PF_NO: 22,
-  FPF_NO: 22,
-  PF_NOMINEE: 100,
-  MEMBER_ID: 22,
-  UAN_NO: 12,
-  CITIZEN_NO: 12
-}
+  const basicDetailsMaxLengths = {
+    AADHAAR_NO: 12,
+    PAN_NO: 10,
+    DRIVING_LICENSE_NO: 16,
+    PASSPORT_NO: 8,
+    ESI_NO: 10,
+    MOTHER_TONGUE: 10,
+    PF_NO: 22,
+    FPF_NO: 22,
+    PF_NOMINEE: 100,
+    MEMBER_ID: 22,
+    UAN_NO: 12,
+    CITIZEN_NO: 12
+  }
 
-const bankMaxLengths = {
-  BANK_NAME: 25,
-  BANK_BRANCH: 15,
-  BANK_ACNO: 18,
-  BANK_IFSC: 11,
-  BANK_NOMINEE: 100
-}
+  const bankMaxLengths = {
+    BANK_NAME: 25,
+    BANK_BRANCH: 15,
+    BANK_ACNO: 18,
+    BANK_IFSC: 11,
+    BANK_NOMINEE: 100
+  }
 
-const qualificationMaxLengths = {
-  QUALIFICATION_INSTITUTE: 40,
-  QUALIFICATION_COURSE: 10,
-  QUALIFICATION_GRADE: 5,
-  QUALIFICATION_REMARK: 50
-}
+  const qualificationMaxLengths = {
+    QUALIFICATION_INSTITUTE: 40,
+    QUALIFICATION_COURSE: 10,
+    QUALIFICATION_GRADE: 5,
+    QUALIFICATION_REMARK: 50
+  }
 
-const experienceMaxLengths = {
-  PREVIOUS_COMPANY: 20,
-  PREVIOUS_DESIGNATION: 20,
-  PREVIOUS_GROSS_SALARY: 10,
-  PREVIOUS_JOB_DESCRIPTION: 100,
-  PREVIOUS_LEAVE_REASON: 100
-}
+  const experienceMaxLengths = {
+    PREVIOUS_COMPANY: 20,
+    PREVIOUS_DESIGNATION: 20,
+    PREVIOUS_GROSS_SALARY: 10,
+    PREVIOUS_JOB_DESCRIPTION: 100,
+    PREVIOUS_LEAVE_REASON: 100
+  }
 
   const handleFieldChange = (name, value) => {
-  let updatedValue = value
-  let error = ''
+    let updatedValue = value
+    let error = ''
 
-  // -----------------------------
-  // NAME + CITY FIELDS
-  // -----------------------------
-  if (nameAndCityFields.includes(name)) {
-    if (value.length > 15) {
-      error = 'Maximum 15 characters allowed'
+    // -----------------------------
+    // NAME + CITY FIELDS
+    // -----------------------------
+    if (nameAndCityFields.includes(name)) {
+      if (value.length > 15) {
+        error = 'Maximum 15 characters allowed'
+      }
+
+      if (/[^A-Za-z\s]/.test(value)) {
+        error = 'Only alphabets are allowed'
+      }
+
+      // Keep only valid characters and maximum length
+      updatedValue = value.replace(/[^A-Za-z\s]/g, '').slice(0, 15)
     }
 
-    if (/[^A-Za-z\s]/.test(value)) {
-      error = 'Only alphabets are allowed'
+    // -----------------------------
+    // NUMERIC FIELDS
+    // -----------------------------
+    if (numericFields.includes(name)) {
+      if (/\D/.test(value)) {
+        error = 'Only numbers are allowed'
+      }
+
+      let maxLength = 10
+
+      if (name === 'CURRENT_PINCODE' || name === 'PERMANENT_PINCODE') {
+        maxLength = 6
+      }
+
+      if (name === 'TELEPHONE') {
+        maxLength = 11
+      }
+
+      if (name === 'MOBILE_NUMBER' || name === 'EMERGENCY_CONTACT') {
+        maxLength = 10
+      }
+
+      if (name === 'TENURE_PERIOD') {
+        maxLength = 2
+      }
+
+      if (value.length > maxLength) {
+        error = `Maximum ${maxLength} digits allowed`
+      }
+
+      updatedValue = value.replace(/\D/g, '').slice(0, maxLength)
     }
 
-    // Keep only valid characters and maximum length
-    updatedValue = value
-      .replace(/[^A-Za-z\s]/g, '')
-      .slice(0, 15)
-  }
+    // -----------------------------
+    // EMAIL FIELDS
+    // -----------------------------
+    if (emailFields.includes(name)) {
+      if (/\s/.test(value)) {
+        error = 'Spaces are not allowed'
+      }
 
-  // -----------------------------
-  // NUMERIC FIELDS
-  // -----------------------------
-  if (numericFields.includes(name)) {
-    if (/\D/.test(value)) {
-      error = 'Only numbers are allowed'
+      if (value.length > 15) {
+        error = 'Maximum 15 characters allowed'
+      }
+
+      updatedValue = value.replace(/\s/g, '').slice(0, 15)
     }
 
-    let maxLength = 10
+    // -----------------------------
+    // EMAIL FIELDS
+    // -----------------------------
+    if (emailFields.includes(name)) {
+      if (/\s/.test(value)) {
+        error = 'Spaces are not allowed'
+      }
 
-    if (
-      name === 'CURRENT_PINCODE' ||
-      name === 'PERMANENT_PINCODE'
-    ) {
-      maxLength = 6
+      if (value.length > 15) {
+        error = 'Maximum 15 characters allowed'
+      }
+
+      updatedValue = value.replace(/\s/g, '').slice(0, 15)
     }
 
-    if (name === 'TELEPHONE') {
-      maxLength = 11
+    // -----------------------------
+    // BASIC DETAILS - NUMERIC
+    // -----------------------------
+    if (basicDetailsNumericFields.includes(name)) {
+      const maxLength = basicDetailsMaxLengths[name]
+
+      if (/\D/.test(value)) {
+        error = 'Only numbers are allowed'
+      }
+
+      if (value.length > maxLength) {
+        error = `Maximum ${maxLength} digits allowed`
+      }
+
+      updatedValue = value.replace(/\D/g, '').slice(0, maxLength)
     }
 
-    if (
-      name === 'MOBILE_NUMBER' ||
-      name === 'EMERGENCY_CONTACT'
-    ) {
-      maxLength = 10
+    // -----------------------------
+    // BASIC DETAILS - ALPHANUMERIC
+    // -----------------------------
+    if (basicDetailsAlphaNumericFields.includes(name)) {
+      const maxLength = basicDetailsMaxLengths[name]
+
+      if (/[^A-Za-z0-9]/.test(value)) {
+        error = 'Only letters and numbers are allowed'
+      }
+
+      if (value.length > maxLength) {
+        error = `Maximum ${maxLength} characters allowed`
+      }
+
+      updatedValue = value.replace(/[^A-Za-z0-9]/g, '').slice(0, maxLength)
     }
 
-    if (name === 'TENURE_PERIOD') {
-    maxLength = 2
-  }
+    // -----------------------------
+    // BASIC DETAILS - ALPHABETIC
+    // -----------------------------
+    if (basicDetailsAlphaFields.includes(name)) {
+      const maxLength = basicDetailsMaxLengths[name]
 
-    if (value.length > maxLength) {
-      error = `Maximum ${maxLength} digits allowed`
+      if (/[^A-Za-z\s]/.test(value)) {
+        error = 'Only letters are allowed'
+      }
+
+      if (value.length > maxLength) {
+        error = `Maximum ${maxLength} characters allowed`
+      }
+
+      updatedValue = value.replace(/[^A-Za-z\s]/g, '').slice(0, maxLength)
     }
 
-    updatedValue = value
-      .replace(/\D/g, '')
-      .slice(0, maxLength)
-  }
+    // -----------------------------
+    // BANK DETAILS - NUMERIC
+    // -----------------------------
+    if (bankNumericFields.includes(name)) {
+      const maxLength = bankMaxLengths[name]
 
-  // -----------------------------
-  // EMAIL FIELDS
-  // -----------------------------
-  if (emailFields.includes(name)) {
-    if (/\s/.test(value)) {
-      error = 'Spaces are not allowed'
+      if (/\D/.test(value)) {
+        error = 'Only numbers are allowed'
+      }
+
+      if (value.length > maxLength) {
+        error = `Maximum ${maxLength} digits allowed`
+      }
+
+      updatedValue = value.replace(/\D/g, '').slice(0, maxLength)
     }
 
-    if (value.length > 15) {
-      error = 'Maximum 15 characters allowed'
+    // -----------------------------
+    // BANK DETAILS - ALPHANUMERIC
+    // -----------------------------
+    if (bankAlphaNumericFields.includes(name)) {
+      const maxLength = bankMaxLengths[name]
+
+      if (/[^A-Za-z0-9]/.test(value)) {
+        error = 'Only letters and numbers are allowed'
+      }
+
+      if (value.length > maxLength) {
+        error = `Maximum ${maxLength} characters allowed`
+      }
+
+      updatedValue = value.replace(/[^A-Za-z0-9]/g, '').slice(0, maxLength)
     }
 
-    updatedValue = value
-      .replace(/\s/g, '')
-      .slice(0, 15)
+    // -----------------------------
+    // BANK DETAILS - ALPHABETIC
+    // -----------------------------
+    if (bankAlphaFields.includes(name)) {
+      const maxLength = bankMaxLengths[name]
+
+      if (/[^A-Za-z\s]/.test(value)) {
+        error = 'Only letters are allowed'
+      }
+
+      if (value.length > maxLength) {
+        error = `Maximum ${maxLength} characters allowed`
+      }
+
+      updatedValue = value.replace(/[^A-Za-z\s]/g, '').slice(0, maxLength)
+    }
+
+    // -----------------------------
+    // QUALIFICATION DETAILS - ALPHABETIC
+    // -----------------------------
+    if (qualificationAlphaFields.includes(name)) {
+      const maxLength = qualificationMaxLengths[name]
+
+      if (/[^A-Za-z.'\s]/.test(value)) {
+        error = 'Only letters are allowed'
+      }
+
+      if (value.length > maxLength) {
+        error = `Maximum ${maxLength} characters allowed`
+      }
+
+      updatedValue = value.replace(/[^A-Za-z.'\s]/g, '').slice(0, maxLength)
+    }
+
+    // -----------------------------
+    // QUALIFICATION DETAILS - GRADE
+    // -----------------------------
+    if (qualificationGradeFields.includes(name)) {
+      const maxLength = qualificationMaxLengths[name]
+
+      if (!/^[A-Za-z0-9.]*$/.test(value)) {
+        error = 'Only letters, numbers and decimal point are allowed'
+      }
+
+      // Only one decimal point is allowed
+      if ((value.match(/\./g) || []).length > 1) {
+        error = 'Only one decimal point is allowed'
+      }
+
+      if (value.length > maxLength) {
+        error = `Maximum ${maxLength} characters allowed`
+      }
+
+      updatedValue = value.replace(/[^A-Za-z0-9.]/g, '').slice(0, maxLength)
+
+      // Keep only the first decimal point if multiple are entered
+      const decimalParts = updatedValue.split('.')
+
+      if (decimalParts.length > 2) {
+        updatedValue = `${decimalParts[0]}.${decimalParts.slice(1).join('')}`
+      }
+    }
+
+    // -----------------------------
+    // EXPERIENCE - ORGANIZATION NAME
+    // -----------------------------
+    if (experienceCompanyFields.includes(name)) {
+      const maxLength = experienceMaxLengths[name]
+
+      if (/[^A-Za-z0-9.'\s]/.test(value)) {
+        error = 'Only letters, numbers, spaces and "\'" are allowed'
+      }
+
+      if (value.length > maxLength) {
+        error = `Maximum ${maxLength} characters allowed`
+      }
+
+      updatedValue = value.replace(/[^A-Za-z0-9.'\s]/g, '').slice(0, maxLength)
+    }
+
+    // -----------------------------
+    // EXPERIENCE - ALPHANUMERIC
+    // -----------------------------
+    if (experienceAlphaNumericFields.includes(name)) {
+      const maxLength = experienceMaxLengths[name]
+
+      if (/[^A-Za-z0-9\s]/.test(value)) {
+        error = 'Only letters and numbers are allowed'
+      }
+
+      if (value.length > maxLength) {
+        error = `Maximum ${maxLength} characters allowed`
+      }
+
+      updatedValue = value.replace(/[^A-Za-z0-9\s]/g, '').slice(0, maxLength)
+    }
+
+    // -----------------------------
+    // EXPERIENCE - GROSS SALARY
+    // -----------------------------
+    if (experienceSalaryFields.includes(name)) {
+      const maxLength = experienceMaxLengths[name]
+
+      if (!/^[0-9.]*$/.test(value)) {
+        error = 'Only numbers and decimal point are allowed'
+      }
+
+      if ((value.match(/\./g) || []).length > 1) {
+        error = 'Only one decimal point is allowed'
+      }
+
+      if (value.length > maxLength) {
+        error = `Maximum ${maxLength} characters allowed`
+      }
+
+      updatedValue = value.replace(/[^0-9.]/g, '').slice(0, maxLength)
+
+      const decimalParts = updatedValue.split('.')
+
+      if (decimalParts.length > 2) {
+        updatedValue = `${decimalParts[0]}.${decimalParts.slice(1).join('')}`
+      }
+    }
+
+    // -----------------------------
+    // UPDATE VALUE
+    // -----------------------------
+    setEmployeeData(prev => ({
+      ...prev,
+      [name]: updatedValue
+    }))
+
+    // -----------------------------
+    // UPDATE ERROR
+    // -----------------------------
+    setFieldErrors(prev => ({
+      ...prev,
+      [name]: error
+    }))
   }
-
-  // -----------------------------
-// EMAIL FIELDS
-// -----------------------------
-if (emailFields.includes(name)) {
-  if (/\s/.test(value)) {
-    error = 'Spaces are not allowed'
-  }
-
-  if (value.length > 15) {
-    error = 'Maximum 15 characters allowed'
-  }
-
-  updatedValue = value
-    .replace(/\s/g, '')
-    .slice(0, 15)
-}
-
-// -----------------------------
-// BASIC DETAILS - NUMERIC
-// -----------------------------
-if (basicDetailsNumericFields.includes(name)) {
-  const maxLength = basicDetailsMaxLengths[name]
-
-  if (/\D/.test(value)) {
-    error = 'Only numbers are allowed'
-  }
-
-  if (value.length > maxLength) {
-    error = `Maximum ${maxLength} digits allowed`
-  }
-
-  updatedValue = value
-    .replace(/\D/g, '')
-    .slice(0, maxLength)
-}
-
-// -----------------------------
-// BASIC DETAILS - ALPHANUMERIC
-// -----------------------------
-if (basicDetailsAlphaNumericFields.includes(name)) {
-  const maxLength = basicDetailsMaxLengths[name]
-
-  if (/[^A-Za-z0-9]/.test(value)) {
-    error = 'Only letters and numbers are allowed'
-  }
-
-  if (value.length > maxLength) {
-    error = `Maximum ${maxLength} characters allowed`
-  }
-
-  updatedValue = value
-    .replace(/[^A-Za-z0-9]/g, '')
-    .slice(0, maxLength)
-}
-
-// -----------------------------
-// BASIC DETAILS - ALPHABETIC
-// -----------------------------
-if (basicDetailsAlphaFields.includes(name)) {
-  const maxLength = basicDetailsMaxLengths[name]
-
-  if (/[^A-Za-z\s]/.test(value)) {
-    error = 'Only letters are allowed'
-  }
-
-  if (value.length > maxLength) {
-    error = `Maximum ${maxLength} characters allowed`
-  }
-
-  updatedValue = value
-    .replace(/[^A-Za-z\s]/g, '')
-    .slice(0, maxLength)
-}
-
-// -----------------------------
-// BANK DETAILS - NUMERIC
-// -----------------------------
-if (bankNumericFields.includes(name)) {
-  const maxLength = bankMaxLengths[name]
-
-  if (/\D/.test(value)) {
-    error = 'Only numbers are allowed'
-  }
-
-  if (value.length > maxLength) {
-    error = `Maximum ${maxLength} digits allowed`
-  }
-
-  updatedValue = value
-    .replace(/\D/g, '')
-    .slice(0, maxLength)
-}
-
-// -----------------------------
-// BANK DETAILS - ALPHANUMERIC
-// -----------------------------
-if (bankAlphaNumericFields.includes(name)) {
-  const maxLength = bankMaxLengths[name]
-
-  if (/[^A-Za-z0-9]/.test(value)) {
-    error = 'Only letters and numbers are allowed'
-  }
-
-  if (value.length > maxLength) {
-    error = `Maximum ${maxLength} characters allowed`
-  }
-
-  updatedValue = value
-    .replace(/[^A-Za-z0-9]/g, '')
-    .slice(0, maxLength)
-}
-
-// -----------------------------
-// BANK DETAILS - ALPHABETIC
-// -----------------------------
-if (bankAlphaFields.includes(name)) {
-  const maxLength = bankMaxLengths[name]
-
-  if (/[^A-Za-z\s]/.test(value)) {
-    error = 'Only letters are allowed'
-  }
-
-  if (value.length > maxLength) {
-    error = `Maximum ${maxLength} characters allowed`
-  }
-
-  updatedValue = value
-    .replace(/[^A-Za-z\s]/g, '')
-    .slice(0, maxLength)
-}
-
-// -----------------------------
-// QUALIFICATION DETAILS - ALPHABETIC
-// -----------------------------
-if (qualificationAlphaFields.includes(name)) {
-  const maxLength = qualificationMaxLengths[name]
-
-  if (/[^A-Za-z.'\s]/.test(value)) {
-    error = 'Only letters are allowed'
-  }
-
-  if (value.length > maxLength) {
-    error = `Maximum ${maxLength} characters allowed`
-  }
-
-  updatedValue = value
-    .replace(/[^A-Za-z.'\s]/g, '')
-    .slice(0, maxLength)
-}
-
-// -----------------------------
-// QUALIFICATION DETAILS - GRADE
-// -----------------------------
-if (qualificationGradeFields.includes(name)) {
-  const maxLength = qualificationMaxLengths[name]
-
-  if (!/^[A-Za-z0-9.]*$/.test(value)) {
-    error = 'Only letters, numbers and decimal point are allowed'
-  }
-
-  // Only one decimal point is allowed
-  if ((value.match(/\./g) || []).length > 1) {
-    error = 'Only one decimal point is allowed'
-  }
-
-  if (value.length > maxLength) {
-    error = `Maximum ${maxLength} characters allowed`
-  }
-
-  updatedValue = value
-    .replace(/[^A-Za-z0-9.]/g, '')
-    .slice(0, maxLength)
-
-  // Keep only the first decimal point if multiple are entered
-  const decimalParts = updatedValue.split('.')
-
-  if (decimalParts.length > 2) {
-    updatedValue = `${decimalParts[0]}.${decimalParts
-      .slice(1)
-      .join('')}`
-  }
-}
-
-// -----------------------------
-// EXPERIENCE - ORGANIZATION NAME
-// -----------------------------
-if (experienceCompanyFields.includes(name)) {
-  const maxLength = experienceMaxLengths[name]
-
-  if (/[^A-Za-z0-9.'\s]/.test(value)) {
-    error = "Only letters, numbers, spaces and \"'\" are allowed"
-  }
-
-  if (value.length > maxLength) {
-    error = `Maximum ${maxLength} characters allowed`
-  }
-
-  updatedValue = value
-    .replace(/[^A-Za-z0-9.'\s]/g, '')
-    .slice(0, maxLength)
-}
-
-// -----------------------------
-// EXPERIENCE - ALPHANUMERIC
-// -----------------------------
-if (experienceAlphaNumericFields.includes(name)) {
-  const maxLength = experienceMaxLengths[name]
-
-  if (/[^A-Za-z0-9\s]/.test(value)) {
-    error = 'Only letters and numbers are allowed'
-  }
-
-  if (value.length > maxLength) {
-    error = `Maximum ${maxLength} characters allowed`
-  }
-
-  updatedValue = value
-    .replace(/[^A-Za-z0-9\s]/g, '')
-    .slice(0, maxLength)
-}
-
-// -----------------------------
-// EXPERIENCE - GROSS SALARY
-// -----------------------------
-if (experienceSalaryFields.includes(name)) {
-  const maxLength = experienceMaxLengths[name]
-
-  if (!/^[0-9.]*$/.test(value)) {
-    error = 'Only numbers and decimal point are allowed'
-  }
-
-  if ((value.match(/\./g) || []).length > 1) {
-    error = 'Only one decimal point is allowed'
-  }
-
-  if (value.length > maxLength) {
-    error = `Maximum ${maxLength} characters allowed`
-  }
-
-  updatedValue = value
-    .replace(/[^0-9.]/g, '')
-    .slice(0, maxLength)
-
-  const decimalParts = updatedValue.split('.')
-
-  if (decimalParts.length > 2) {
-    updatedValue = `${decimalParts[0]}.${decimalParts
-      .slice(1)
-      .join('')}`
-  }
-}
-
-  // -----------------------------
-  // UPDATE VALUE
-  // -----------------------------
-  setEmployeeData(prev => ({
-    ...prev,
-    [name]: updatedValue
-  }))
-
-  // -----------------------------
-  // UPDATE ERROR
-  // -----------------------------
-  setFieldErrors(prev => ({
-    ...prev,
-    [name]: error
-  }))
-}
 
   const inputClass = 'form-control'
 
@@ -1256,66 +1195,101 @@ if (experienceSalaryFields.includes(name)) {
   } = options
 
   return (
-    <SDLInput
-      label={label}
-      required={required}
-      type={type}
-      value={employeeData[name] || ''}
-      disabled={disabled}
-      placeholder={placeholder}
-      error={fieldErrors[name] || ''}
-      onChange={e => handleFieldChange(name, e.target.value)}
-    />
+    <div style={styles.field}>
+      <label
+        style={{
+          ...styles.label,
+          fontSize: '12px',
+          lineHeight: '18px',
+          display: 'block',
+          marginBottom: '5px'
+        }}
+      >
+        {label}
+        {required && <span style={styles.required}>*</span>}
+      </label>
+
+      <SDLInput
+        type={type}
+        value={employeeData[name] || ''}
+        disabled={disabled}
+        placeholder={placeholder}
+        error={fieldErrors[name] || ''}
+        onChange={e => handleFieldChange(name, e.target.value)}
+      />
+    </div>
   )
 }
 
-  const renderSelect = (name, label, options, config = {}) => {
-    const { required = false, placeholder = `Select ${label}` } = config
+const renderSelect = (name, label, options, config = {}) => {
+  const { required = false } = config
 
-    return (
-      <div style={styles.field}>
-        <label style={styles.label}>
-          {label}
-          {required && <span style={styles.required}>*</span>}
-        </label>
+  return (
+    <div style={styles.field}>
+      <label
+        style={{
+          ...styles.label,
+          fontSize: '12px',
+          lineHeight: '18px',
+          display: 'block',
+          marginBottom: '5px'
+        }}
+      >
+        {label}
+        {required && <span style={styles.required}>*</span>}
+      </label>
 
-        <SDLReactSelect
-          value={employeeData[name] || ''}
-          options={options}
-          onChange={value => handleFieldChange(name, value)}
-          placeholder={placeholder}
-          isClearable
-          width='100%'
-        />
+      <SDLReactSelect
+        value={employeeData[name] || ''}
+        options={options}
+        onChange={value => handleFieldChange(name, value)}
+        placeholder=''
+        isClearable
+        width='100%'
+      />
 
-        {fieldErrors[name] && (
-          <div className='invalid-feedback' style={{ display: 'block' }}>
-            {fieldErrors[name]}
-          </div>
-        )}
-      </div>
-    )
-  }
+      {fieldErrors[name] && (
+        <div className='invalid-feedback' style={{ display: 'block' }}>
+          {fieldErrors[name]}
+        </div>
+      )}
+    </div>
+  )
+}
 
   const renderTextarea = (name, label, options = {}) => {
-    const { required = false } = options
+  const { required = false } = options
 
-    return (
-      <div style={styles.field}>
-        <label style={styles.label}>
-          {label}
-          {required && <span style={styles.required}>*</span>}
-        </label>
+  return (
+    <div style={styles.field}>
+      <label
+        style={{
+          ...styles.label,
+          fontSize: '12px',
+          lineHeight: '18px',
+          display: 'block',
+          marginBottom: '5px'
+        }}
+      >
+        {label}
+        {required && <span style={styles.required}>*</span>}
+      </label>
 
-        <textarea
-          className='form-control'
-          value={employeeData[name] || ''}
-          onChange={e => handleFieldChange(name, e.target.value)}
-          style={styles.textarea}
-        />
-      </div>
-    )
-  }
+      <textarea
+        className='form-control'
+        value={employeeData[name] || ''}
+        onChange={e => handleFieldChange(name, e.target.value)}
+        style={{
+          ...styles.textarea,
+          height: '134px',
+          minHeight: '134px',
+          resize: 'vertical',
+          boxSizing: 'border-box'
+        }}
+      />
+    </div>
+  )
+}
 
   /*
    * -------------------------------------------------------------
@@ -1327,52 +1301,88 @@ if (experienceSalaryFields.includes(name)) {
     <div>
       <div style={styles.sectionTitle}>Personal Information</div>
 
-      <div className='row mb-3'>
-        {/* TITLE + FIRST NAME */}
-        <div className='col-lg-4 col-md-6'>
-          <div className='row'>
-            <div className='col-5'>
-              {renderSelect('TITLE', 'Title', titleOptions, { required: true })}
+      {/* PERSONAL DETAILS + PHOTO */}
+      <div className='row align-items-stretch'>
+        {/* LEFT SIDE: FIRST TWO ROWS */}
+        <div className='col-lg-10'>
+          {/* ROW 1: PERSONAL INFORMATION */}
+          <div className='row mb-3'>
+            <div className='col'>
+              {renderSelect('TITLE', 'Title', titleOptions, {
+                required: true
+              })}
             </div>
 
-            <div className='col-7'>
-              {renderInput('FIRST_NAME', 'First Name', { required: true })}
+            <div className='col'>
+              {renderInput('FIRST_NAME', 'First Name', {
+                required: true
+              })}
+            </div>
+
+            <div className='col'>
+              {renderInput('MIDDLE_NAME', 'Middle Name', {
+                required: true
+              })}
+            </div>
+
+            <div className='col'>
+              {renderInput('LAST_NAME', 'Last Name', {
+                required: true
+              })}
+            </div>
+
+            <div className='col'>
+              {renderInput('DATE_OF_BIRTH', 'Date Of Birth', {
+                required: true,
+                type: 'date'
+              })}
+            </div>
+          </div>
+
+          {/* ROW 2: ADDRESSES + CURRENT CITY/STATE */}
+          <div className='row'>
+            <div className='col-lg-5 col-md-6'>
+              {renderTextarea('CURRENT_ADDRESS', 'Current Address', {
+                required: true
+              })}
+            </div>
+
+            <div className='col-lg-5 col-md-6'>
+              {renderTextarea('PERMANENT_ADDRESS', 'Permanent Address', {
+                required: true
+              })}
+            </div>
+
+            <div className='col-lg-2 col-md-6' style={{
+    paddingTop: '18px'
+  }}>
+              {renderInput('CURRENT_CITY', 'Current City', {
+                required: true
+              })}
+
+              {renderSelect('CURRENT_STATE', 'Current State', stateOptions, {
+                required: true
+              })}
             </div>
           </div>
         </div>
 
-        {/* MIDDLE NAME */}
-        <div className='col-lg-2 col-md-6'>
-          {renderInput('MIDDLE_NAME', 'Middle Name', { required: true })}
-        </div>
-
-        {/* LAST NAME */}
-        <div className='col-lg-2 col-md-6'>
-          {renderInput('LAST_NAME', 'Last Name', { required: true })}
-        </div>
-
-        {/* DATE OF BIRTH */}
-        <div className='col-lg-2 col-md-6'>
-          {renderInput('DATE_OF_BIRTH', 'Date Of Birth', {
-            required: true,
-            type: 'date'
-          })}
-        </div>
-
-        {/* PROFILE IMAGE */}
-        <div className='col-lg-2 col-md-6'>
+        {/* PHOTO: SPANS BOTH ROWS */}
+        <div className='col-lg-2'>
           <div
             style={{
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'flex-start',
-              paddingTop: '0'
+              height: '100%',
+              paddingTop: '22px'
             }}
           >
             <div
               style={{
-                width: '105px',
-                height: '105px',
+                width: '100%',
+                maxWidth: '130px',
+                height: '230px',
                 border: '2px solid #adb5bd',
                 backgroundColor: '#f1f1f1',
                 display: 'flex',
@@ -1392,12 +1402,7 @@ if (experienceSalaryFields.includes(name)) {
                   }}
                 />
               ) : (
-                <span
-                  style={{
-                    fontSize: '12px',
-                    color: '#888'
-                  }}
-                >
+                <span style={{ fontSize: '12px', color: '#888' }}>
                   No Photo
                 </span>
               )}
@@ -1406,42 +1411,7 @@ if (experienceSalaryFields.includes(name)) {
         </div>
       </div>
 
-      {/* CURRENT ADDRESS ROW */}
-      <div className='row'>
-        {/* CURRENT ADDRESS */}
-        <div className='col-lg-4 col-md-6'>
-          {renderTextarea('CURRENT_ADDRESS', 'Current Address', {
-            required: true
-          })}
-        </div>
-
-        {/* CURRENT CITY */}
-        <div className='col-lg-2 col-md-6'>
-          {renderInput('CURRENT_CITY', 'Current City', { required: true })}
-        </div>
-
-        {/* CURRENT STATE */}
-        <div className='col-lg-2 col-md-6'>
-          {renderSelect('CURRENT_STATE', 'Current State', stateOptions, {
-            required: true
-          })}
-        </div>
-
-        {/* CURRENT COUNTRY */}
-        <div className='col-lg-2 col-md-6'>
-          {renderSelect('CURRENT_COUNTRY', 'Current Country', countryOptions, {
-            required: true
-          })}
-        </div>
-
-        {/* CURRENT PINCODE */}
-        <div className='col-lg-2 col-md-6'>
-          {renderInput('CURRENT_PINCODE', 'Current Pincode', {
-            required: true
-          })}
-        </div>
-      </div>
-
+      {/* SAME AS CURRENT ADDRESS */}
       <div
         style={{
           marginBottom: '18px',
@@ -1457,15 +1427,24 @@ if (experienceSalaryFields.includes(name)) {
         <label style={styles.checkboxLabel}>Same as Current Address</label>
       </div>
 
-      <div className='row'>
-        <div className='col-lg-4 col-md-6'>
-          {renderTextarea('PERMANENT_ADDRESS', 'Permanent Address', {
+      {/* ROW 3: COUNTRY AND PINCODE FIELDS */}
+      <div className='row mb-3'>
+        <div className='col-lg-2 col-md-6'>
+          {renderSelect('CURRENT_COUNTRY', 'Current Country', countryOptions, {
             required: true
           })}
         </div>
 
         <div className='col-lg-2 col-md-6'>
-          {renderInput('PERMANENT_CITY', 'Permanent City', { required: true })}
+          {renderInput('CURRENT_PINCODE', 'Current Pincode', {
+            required: true
+          })}
+        </div>
+
+        <div className='col-lg-2 col-md-6'>
+          {renderInput('PERMANENT_CITY', 'Permanent City', {
+            required: true
+          })}
         </div>
 
         <div className='col-lg-2 col-md-6'>
@@ -1479,9 +1458,7 @@ if (experienceSalaryFields.includes(name)) {
             'PERMANENT_COUNTRY',
             'Permanent Country',
             countryOptions,
-            {
-              required: true
-            }
+            { required: true }
           )}
         </div>
 
@@ -1519,7 +1496,7 @@ if (experienceSalaryFields.includes(name)) {
         </div>
       </div>
 
-      <div className='row'>
+      <div className='row mt-3'>
         <div className='col-lg-4 col-md-6'>
           {renderSelect('COMPANY', 'Company', companyOptions, {
             required: true
