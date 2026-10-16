@@ -1121,9 +1121,9 @@ const JobDescription = () => {
         error = "Only letters, numbers, spaces and . ' - , ( ) are allowed"
       }
 
-      if (updatedValue.length > 100) {
-        updatedValue = updatedValue.slice(0, 100)
-        error = 'Maximum 100 characters are allowed'
+      if (updatedValue.length > 250) {
+        updatedValue = updatedValue.slice(0, 250)
+        error = 'Maximum 250 characters are allowed'
       }
     }
 
@@ -2837,7 +2837,7 @@ if (!isValid) {
                                 }
                                 isSearchable
                                 isClearable
-                                placeholder='Select Minimum Qualification'
+                                placeholder=''
                                 width='100%'
                               />
 
@@ -2863,7 +2863,7 @@ if (!isValid) {
                                 }
                                 isSearchable
                                 isClearable
-                                placeholder='Select Maximum Qualification'
+                                placeholder=''
                                 width='100%'
                               />
 
@@ -2914,6 +2914,19 @@ if (!isValid) {
                               handleFieldChange('DESCR', e.target.value)
                             }
                           />
+
+                          {/* Character count */}
+  <div className='text-end mt-1'>
+    <small
+      className={
+        (formData.DESCR || '').length >= 250
+          ? 'text-danger'
+          : 'text-muted'
+      }
+    >
+      {(formData.DESCR || '').length} / 250 characters
+    </small>
+  </div>
 
                           {errors.DESCR && (
                             <div className='invalid-feedback d-block'>
@@ -3200,18 +3213,21 @@ if (!isValid) {
                             {
                               key: 'CAPA_CODE',
                               label: 'Skill',
+                              width: '150px',
                               render: item =>
                                 item.CAPA_CODE ?? item.capa_code ?? '-'
                             },
                             {
                               key: 'CAPA_DESC',
                               label: 'Description',
+                              width: '400px',
                               render: item =>
                                 item.CAPA_DESC ?? item.capa_desc ?? '-'
                             },
                             {
                               key: 'CAPALVL_DESC',
                               label: 'Expertise Level',
+                              width: '100px',
                               render: item =>
                                 item.CAPALVL_DESC ?? item.capalvl_desc ?? '-'
                             }
@@ -3436,7 +3452,7 @@ if (!isValid) {
                             />
                           </div>
 
-                          <div className='col-md-3 mb-3'>
+                          <div className='col-md-2 mb-3'>
                             <label style={jdStyles.label}>
                               Formula<span style={jdStyles.required}>*</span>
                             </label>
@@ -3489,7 +3505,7 @@ if (!isValid) {
                             />
                           </div>
 
-                          <div className='col-md-1 mb-3'>
+                          <div className='col-md-2 mb-3'>
                             <label style={jdStyles.label}>Effective To</label>
 
                             <input
