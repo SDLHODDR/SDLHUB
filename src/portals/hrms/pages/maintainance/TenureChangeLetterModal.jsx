@@ -1,150 +1,557 @@
-import { useState } from "react";
-import { tenureTypeOptions } from "./tenureChangeOptions";
+import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
+import axios from "axios";
+
+import {
+  getTenureLetterDetails,
+  generateTenureLetterReference,
+  closeTenurePrintTask,
+} from "../../../hrms/services/tenureChangeService";
 import "../../assets/css/tenureChange.css";
 
-const TenureChangeLetterModalContent = ({ config, show, record, onClose, onSuccess }) => {
-  const employeeRecord = record?.employee ?? record ?? {};
-  const employee = {
-    code: employeeRecord.code ?? employeeRecord.empCode ?? employeeRecord.TRAN_CODE ?? employeeRecord.EMP_CODE_FOR ?? "-",
-    name: employeeRecord.name ?? employeeRecord.empName ?? employeeRecord.EMP_NAME ?? "-",
-    dateOfJoining: employeeRecord.dateOfJoining ?? employeeRecord.doj ?? employeeRecord.DOJ ?? "-",
-    designation: employeeRecord.designation ?? employeeRecord.DESIGNATION ?? "-",
-    department: employeeRecord.department ?? employeeRecord.DEPARTMENT ?? "-",
-    location: employeeRecord.location ?? employeeRecord.LOCATION ?? "-",
-    tenureDueDate: employeeRecord.tenureDueDate ?? employeeRecord.tenureDue ?? employeeRecord.TENURE_DUE_DATE ?? "-",
-    currentCtc: employeeRecord.currentCtc ?? employeeRecord.current_ctc ?? employeeRecord.CURR_CTC ?? "",
-    employeeType: employeeRecord.employeeType ?? employeeRecord.empType ?? employeeRecord.EMP_TYPE ?? "",
+const TenureChangeLetterModal = ({
+  config,
+  show,
+  record,
+  onClose,
+  onSuccess,
+}) => {
+  const [loading, setLoading] = useState(false);
+  const [details, setDetails] = useState(null);
+  const [staffType, setStaffType] = useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [generatingRef, setGeneratingRef] = useState(false);
+
+  const empCode =
+    record?.TRAN_CODE ||
+    record?.REC_ID ||
+    record?.EMP_CODE ||
+    record?.EMP_CODE_FOR ||
+    "";
+  const taskId = record?.TASK_ID || "";
+  const tenureChangeId = record?.TENURE_CHG_ID || "";
+
+  useEffect(() => {
+    if (show) {
+      if (empCode) {
+        fetchDetails();
+      } else {
+        setLoading(false);
+        Swal.fire({
+          icon: "error",
+          title: "Missing Information",
+          text: "Employee code (TRAN_CODE) is missing from the record.",
+        });
+      }
+    } else {
+      setDetails(null);
+      setStaffType("");
+      setPreviewUrl("");
+      setShowPreviewModal(false);
+    }
+  }, [show, empCode]);
+
+  const fetchDetails = async () => {
+    setLoading(true);
+    try {
+      const response = await getTenureLetterDetails({
+        empCode,
+        tenureChangeId,
+        taskId,
+      });
+
+      const resData = response?.data?.data ? response.data : response;
+
+      if (resData && (resData.status === true || resData.success === true)) {
+        const data = resData.data;
+        setDetails(data);
+
+        if (data?.etype_id) {
+          setStaffType(mapEtypeIdToMode(data.etype_id));
+        }
+
+        if (data.salary_approved === false || data.int_sal === 0) {
+          Swal.fire({
+            title: "Salary Approve!",
+            text: "Salary Approval pending at EPP system. Please get it approved, to print tenure change letter.",
+            icon: "warning",
+            confirmButtonColor: "#d33",
+            confirmButtonText: "Close",
+            allowOutsideClick: false,
+          });
+        }
+      } else {
+        Swal.fire(
+          "Error",
+          resData?.message || "Failed to load employee details.",
+          "error"
+        );
+      }
+    } catch (err) {
+      console.error("Error fetching tenure letter details:", err);
+      Swal.fire("Error", "Error connecting to the server.", "error");
+    } finally {
+      setLoading(false);
+    }
   };
-  const assessment = record?.assessment ?? record ?? {};
-  const [letterType, setLetterType] = useState(assessment.employeeType ?? employee.employeeType ?? "");
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [referenceCode, setReferenceCode] = useState("");
 
-  if (!show || !record) return null;
-
-  const effectiveFrom = assessment.effectiveFrom ?? assessment.EFF_FROM;
-  const effectiveDate = effectiveFrom
-    ? new Date(`${effectiveFrom}T00:00:00`).toLocaleDateString("en-GB", {
-        day: "2-digit", month: "short", year: "numeric",
-      })
-    : "-";
-  const currentCtc = employee.currentCtc ? Number(employee.currentCtc).toLocaleString("en-IN") : "-";
-  const proposedCtcValue = assessment.proposedCtc ?? assessment.PROP_CTC;
-  const proposedCtc = proposedCtcValue ? Number(proposedCtcValue).toLocaleString("en-IN") : "-";
-
-  const generateReferenceCode = () => {
-    setReferenceCode(`DEMO-TC-${new Date().getFullYear()}-0001`);
+  const mapEtypeIdToMode = (etypeId) => {
+    switch (String(etypeId)) {
+      case "1":
+        return "P";
+      case "6":
+        return "E";
+      case "2":
+        return "C";
+      case "5":
+        return "Pro";
+      default:
+        return "Prob";
+    }
   };
 
-  const handleDone = () => {
-    onSuccess?.({ employee, assessment, letterType, referenceCode });
-    onClose?.();
+  const resolveTemplateUrl = (selectedType, code) => {
+    let script = "confirmation_letter_revised.php";
+    if (selectedType === "E" || selectedType === "6") {
+      script = "extension_letter_trainee.php";
+    } else if (selectedType === "C" || selectedType === "2") {
+      script = "extension_letter_contract.php";
+    } else if (selectedType === "Pro" || selectedType === "5") {
+      script = "extension_letter_probation.php";
+    } else if (selectedType === "Prob") {
+      script = "probation_letter.php";
+    }
+
+    return `reports/pdfReport/${script}?EMP_CODE=${code}`;
   };
+
+  const [pdfBlobUrl, setPdfBlobUrl] = useState("");
+  const [pdfLoading, setPdfLoading] = useState(false);
+
+  const handlePreviewTemplate = async () => {
+    if (!staffType) {
+      Swal.fire({
+        icon: "info",
+        title: "Please Select",
+        text: "Please select a letter template first.",
+      });
+      return;
+    }
+
+    let script = "confirmation_letter_revised.php";
+    if (staffType === "E") script = "extension_letter_trainee.php";
+    else if (staffType === "C") script = "extension_letter_contract.php";
+    else if (staffType === "Pro") script = "extension_letter_probation.php";
+    else if (staffType === "Prob") script = "probation_letter.php";
+
+    const url = `${import.meta.env.VITE_BASE_URL}/hrms/reports/pdfReport/${script}?EMP_CODE=${encodeURIComponent(empCode)}`;
+
+    setPdfLoading(true);
+    setShowPreviewModal(true);
+
+    try {
+      const response = await axios.get(url, {
+        responseType: "blob",
+        withCredentials: true,
+      });
+
+      // Revoke prior blob if exists to avoid memory leak
+      if (pdfBlobUrl) {
+        URL.revokeObjectURL(pdfBlobUrl.split("#")[0]);
+      }
+
+      const file = new Blob([response.data], { type: "application/pdf" });
+      const rawUrl = URL.createObjectURL(file);
+
+      // Instruct PDF viewer to fit to page width and close the left thumbnail pane
+      setPdfBlobUrl(`${rawUrl}#toolbar=1&navpanes=0&zoom=page-width`);
+    } catch (error) {
+      console.error("PDF Preview Error:", error);
+      Swal.fire("Error", "Could not load the letter preview from server.", "error");
+      setShowPreviewModal(false);
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
+  const handleGenerateRefCode = async () => {
+    setGeneratingRef(true);
+    try {
+      const response = await generateTenureLetterReference({
+        empCode,
+        tenureChangeId: details?.tenure_chg_id || tenureChangeId,
+      });
+
+      const resData = response?.data?.data ? response.data : response;
+
+      if (resData && (resData.status === true || resData.success === true)) {
+        Swal.fire({
+          title: "Reference Code generated Successfully!",
+          icon: "success",
+          timer: 1800,
+          showConfirmButton: false,
+        });
+
+        setShowPreviewModal(false);
+        fetchDetails();
+        if (onSuccess) onSuccess();
+      } else {
+        Swal.fire(
+          "Error",
+          resData?.message || "Failed to generate Reference Code.",
+          "error"
+        );
+      }
+    } catch (err) {
+      console.error("Error generating reference code:", err);
+      // Read the actual error message from backend response
+      const serverMessage =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        "Server error while generating reference code.";
+
+      Swal.fire({
+        icon: "error",
+        title: "Reference Generation Failed",
+        html: `<div style="text-align:left; font-size:13px; max-height:200px; overflow:auto;">
+                 <b>Details:</b> ${serverMessage}
+               </div>`,
+      });
+    } finally {
+      setGeneratingRef(false);
+    }
+  };
+
+  const handleCloseTask = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to close this tenure print task?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, Close Task",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await closeTenurePrintTask({
+            empCode,
+            tenureChangeId: details?.tenure_chg_id || tenureChangeId,
+            taskId,
+          });
+
+          if (
+            res?.data &&
+            (res.data.status === true || res.data.status === "success")
+          ) {
+            Swal.fire("Success", "Task closed successfully.", "success");
+            onClose();
+            if (onSuccess) onSuccess();
+          } else {
+            Swal.fire(
+              "Error",
+              res?.data?.message || "Failed to close task.",
+              "error"
+            );
+          }
+        } catch (error) {
+          console.error("Error closing tenure print task:", error);
+          Swal.fire("Error", "Server error while closing task.", "error");
+        }
+      }
+    });
+  };
+
+  if (!show) return null;
 
   return (
-    <div className="modal fade show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1050 }} tabIndex="-1" role="dialog" aria-modal="true" aria-labelledby="tenure-letter-title">
-      <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <div className="modal-content shadow-lg border-0">
-          <div className="modal-header">
-            <div>
-              <h5 className="modal-title mb-1" id="tenure-letter-title">{config?.title || "Print Tenure Change Letter"}</h5>
-              <small className="text-muted">
-                Employee Code: <strong>{employee.code || "-"}</strong>
-                <span className="mx-2">|</span>
-                Task ID: <strong>{record.ID || "-"}</strong>
-                <span className="mx-2">|</span>
-                Workflow Task: <strong>{record.TASK_ID || "-"}</strong>
-              </small>
+    <>
+      {/* Primary Modal: Compact 3-Column Layout */}
+      <div
+        className="modal fade show d-block"
+        tabIndex="-1"
+        role="dialog"
+        style={{
+          backgroundColor: "rgba(15, 23, 42, 0.6)",
+          zIndex: 1050,
+        }}
+      >
+        <div
+          className="modal-dialog modal-xl modal-dialog-centered"
+          role="document"
+          style={{ maxWidth: "92%", width: "92%" }}
+        >
+          <div className="modal-content border-0 shadow-lg tenure-compact-modal">
+            {/* Header */}
+            <div className="modal-header py-2 px-4 d-flex justify-content-between align-items-center border-bottom bg-white">
+              <h5 className="modal-title font-weight-bold text-dark m-0">
+                Print Tenure Change Letter
+              </h5>
+              <button
+                type="button"
+                className="close"
+                onClick={onClose}
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
             </div>
-            <button type="button" className="close" onClick={onClose} aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          </div>
 
-          <div className="modal-body">
-            <div className="tenure-change-page">
-              <div className="row g-3 tenure-letter-summary">
-                <div className="col-lg-4">
-                  <div><strong>Employee:</strong> {employee.code} - {employee.name}</div>
-                  <div><strong>Employee Type:</strong> {letterType || assessment.employeeType || employee.employeeType || "-"}</div>
-                  <div><strong>Employee Period:</strong> {assessment.period ?? assessment.ETYPE_PERIOD ?? "-"} months</div>
-                  <div><strong>Proposed CTC:</strong> ₹{proposedCtc}</div>
+            {/* Body */}
+            <div className="modal-body px-4 py-3 bg-white">
+              {loading ? (
+                <div className="text-center py-4">
+                  <div
+                    className="spinner-border text-primary spinner-border-sm"
+                    role="status"
+                  />
+                  <span className="ms-2 text-muted fw-semibold small">
+                    Loading employee details...
+                  </span>
                 </div>
-                <div className="col-lg-4">
-                  <div><strong>Date of Joining:</strong> {employee.dateOfJoining}</div>
-                  <div><strong>Designation:</strong> {employee.designation}</div>
-                  <div><strong>Current CTC:</strong> ₹{currentCtc}</div>
-                  <div><strong>Department:</strong> {employee.department}</div>
-                </div>
-                <div className="col-lg-4">
-                  <div><strong>Tenure Due Date:</strong> {employee.tenureDueDate}</div>
-                  <div><strong>CTC Effective Date:</strong> {effectiveDate}</div>
-                  <div><strong>Location:</strong> {employee.location}</div>
-                  <div><strong>Remarks:</strong> {assessment.remarks ?? assessment.REMARKS ?? "-"}</div>
-                </div>
-              </div>
+              ) : details ? (
+                <>
+                  <div className="row g-2 tenure-legacy-grid">
+                    <div className="col-md-4">
+                      <span className="grid-label">Employee : </span>
+                      <span className="emp-highlighted-name">
+                        {details.emp_code} - {details.emp_name}
+                      </span>
+                    </div>
+                    <div className="col-md-4">
+                      <span className="grid-label">Date Of Joining : </span>
+                      <strong className="grid-val">{details.doj || "-"}</strong>
+                    </div>
+                    <div className="col-md-4">
+                      <span className="grid-label">Tenure Due Date : </span>
+                      <strong className="grid-val text-dark">{details.tenure_due_date || "-"}</strong>
+                    </div>
 
-              <div className="row align-items-end g-3 mt-3">
-                <div className="col-lg-3 col-md-5">
-                  <label className="form-label" htmlFor="tenure-letter-template">Letter Template</label>
-                  <select id="tenure-letter-template" className="form-select" value={letterType} onChange={(event) => { setLetterType(event.target.value); setReferenceCode(""); }}>
-                    <option value="">Select Letter Template</option>
-                    {tenureTypeOptions.map((type) => <option key={type} value={type}>{type}</option>)}
-                  </select>
-                </div>
-                <div className="col-auto">
-                  <button type="button" className="btn btn-warning tenure-preview-button" disabled={!letterType} onClick={() => { setReferenceCode(""); setPreviewOpen(true); }}>Preview Template</button>
-                </div>
-              </div>
+                    <div className="col-md-4">
+                      <span className="grid-label">Employee Type : </span>
+                      <strong className="grid-val text-uppercase">{details.emp_type || "-"}</strong>
+                    </div>
+                    <div className="col-md-4">
+                      <span className="grid-label">Designation : </span>
+                      <strong className="grid-val">{details.designation || "-"}</strong>
+                    </div>
+                    <div className="col-md-4">
+                      <span className="grid-label">Department : </span>
+                      <strong className="grid-val">{details.department || "-"}</strong>
+                    </div>
 
-              {referenceCode && <div className="alert alert-success mt-4 mb-0" role="status">Demo reference code: <strong>{referenceCode}</strong></div>}
+                    <div className="col-md-4">
+                      <span className="grid-label">Employee Period : </span>
+                      <strong className="grid-val">{details.emp_period ?? "0"}</strong>
+                    </div>
+                    <div className="col-md-4">
+                      <span className="grid-label">Current CTC : </span>
+                      <strong className="grid-val">₹ {Number(details.curr_ctc || 0).toLocaleString("en-IN")}</strong>
+                    </div>
+                    <div className="col-md-4">
+                      <span className="grid-label">CTC Effective Date : </span>
+                      <strong className="grid-val">{details.ctc_eff_from || "-"}</strong>
+                    </div>
+
+                    <div className="col-md-4">
+                      <span className="grid-label">Proposed CTC : </span>
+                      <strong className="grid-val">₹ {Number(details.prop_ctc || 0).toLocaleString("en-IN")}</strong>
+                    </div>
+                    <div className="col-md-4">
+                      <span className="grid-label">Location : </span>
+                      <strong className="grid-val">{details.location || "-"}</strong>
+                    </div>
+                    <div className="col-md-4">
+                      <span className="grid-label">Remarks : </span>
+                      <strong className="grid-val">{details.remarks || "-"}</strong>
+                    </div>
+                  </div>
+
+                  {!details.doc_ref ? (
+                    <div className="row align-items-center g-2 mt-3 pt-3 border-top">
+                      <div className="col-md-4 col-sm-6">
+                        <select
+                          id="STAFF_TYPE"
+                          className="form-select form-control custom-select-sm"
+                          value={staffType}
+                          onChange={(e) => setStaffType(e.target.value)}
+                        >
+                          <option value="">Please Select</option>
+                          {details.template_options ? (
+                            Object.entries(details.template_options).map(([key, label]) => (
+                              <option key={key} value={key}>
+                                {label}
+                              </option>
+                            ))
+                          ) : (
+                            <>
+                              <option value="P">Permanent</option>
+                              <option value="E">Trainee Extension</option>
+                              <option value="C">Contract Extension</option>
+                              <option value="Pro">Probation Extension</option>
+                              <option value="Prob">Probation</option>
+                            </>
+                          )}
+                        </select>
+                      </div>
+                      <div className="col-auto">
+                        <button
+                          type="button"
+                          className="btn btn-warning px-3 py-1 fw-bold text-dark legacy-preview-btn"
+                          onClick={handlePreviewTemplate}
+                        >
+                          Preview Template
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-3 pt-3 border-top">
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <span className="badge bg-success-subtle text-success border px-2 py-1">
+                          Reference Code: {details.doc_ref}
+                        </span>
+                        <button
+                          className="btn btn-outline-info btn-sm px-3"
+                          type="button"
+                          onClick={handleCloseTask}
+                        >
+                          <i className="fas fa-print me-1"></i> Close Task
+                        </button>
+                      </div>
+                      <div style={{ height: "460px" }} className="border rounded overflow-hidden">
+                        <iframe
+                          title="Letter Document"
+                          className="w-100 h-100 border-0"
+                          src={resolveTemplateUrl(staffType || details.etype_id, empCode)}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="alert alert-warning text-center py-2 m-0 small">
+                  Unable to load employee information.
+                </div>
+              )}
             </div>
-          </div>
 
-          <div className="modal-footer">
-            {referenceCode && <span className="text-success me-auto">Demo reference: {referenceCode}</span>}
-            <button type="button" className="btn btn-primary" onClick={handleDone}>Done</button>
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+            {/* Footer */}
+            <div className="modal-footer py-2 px-4 bg-light border-top d-flex justify-content-end">
+              <button
+                type="button"
+                className="btn btn-primary btn-sm px-4 fw-semibold"
+                style={{ backgroundColor: "#152e4d", borderColor: "#152e4d" }}
+                onClick={onClose}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {previewOpen && (
-        <div className="tenure-letter-modal-backdrop" role="presentation" onClick={(event) => { if (event.target === event.currentTarget) setPreviewOpen(false); }}>
-          <section className="tenure-letter-modal" role="dialog" aria-modal="true" aria-labelledby="tenure-letter-preview-title">
-            <header className="tenure-letter-modal-header">
-              <h5 id="tenure-letter-preview-title" className="mb-0">Letter Preview</h5>
-              <button type="button" className="btn-close" aria-label="Close" onClick={() => setPreviewOpen(false)} />
-            </header>
-            <div className="tenure-letter-toolbar">
-              <span className="fw-semibold">{letterType.toLowerCase().replaceAll(" ", "_")}_letter_preview</span>
-              <span>1 / 1</span><span>100%</span><span className="ms-auto" aria-hidden="true">↓ ▣ ⋮</span>
+      {/* Enlarged PDF Preview Modal (98vw Width, 96vh Height) */}
+      {showPreviewModal && (
+        <div
+          className="modal fade show d-block"
+          tabIndex="-1"
+          role="dialog"
+          style={{
+            backgroundColor: "rgba(10, 15, 29, 0.8)",
+            zIndex: 1060,
+          }}
+        >
+          <div
+            className="modal-dialog modal-dialog-centered m-auto"
+            role="document"
+            style={{
+              maxWidth: "98vw",
+              width: "98vw",
+              height: "96vh",
+              margin: "2vh auto",
+            }}
+          >
+            <div
+              className="modal-content shadow-2xl border-0 rounded-3 overflow-hidden d-flex flex-column"
+              style={{ height: "96vh" }}
+            >
+              {/* Header */}
+              <div className="modal-header py-2 px-3 bg-light border-bottom d-flex justify-content-between align-items-center flex-shrink-0">
+                <h6 className="modal-title font-weight-bold text-dark m-0 fs-6">
+                  Letter Preview — {details?.emp_name || "Employee"} ({empCode})
+                </h6>
+                <button
+                  type="button"
+                  className="btn-close"
+                  aria-label="Close"
+                  onClick={() => {
+                    if (pdfBlobUrl) URL.revokeObjectURL(pdfBlobUrl.split("#")[0]);
+                    setPdfBlobUrl("");
+                    setShowPreviewModal(false);
+                  }}
+                />
+              </div>
+
+              {/* Body: Occupies remaining vertical height */}
+              <div
+                className="modal-body p-0 flex-grow-1"
+                style={{
+                  background: "#525659",
+                  overflow: "hidden",
+                }}
+              >
+                {pdfLoading ? (
+                  <div className="d-flex justify-content-center align-items-center h-100 text-white">
+                    <div className="spinner-border me-2" role="status"></div>
+                    <span className="fw-semibold">Rendering Letter Preview...</span>
+                  </div>
+                ) : (
+                  pdfBlobUrl && (
+                    <iframe
+                      title="Letter Document"
+                      src={pdfBlobUrl}
+                      className="w-100 h-100 border-0 d-block"
+                      style={{ minHeight: "100%" }}
+                    />
+                  )
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="modal-footer py-2 px-3 bg-light border-top d-flex justify-content-between align-items-center flex-shrink-0">
+                <span className="text-muted small">
+                  Click <strong>Generate Reference Code</strong> to finalize reference numbering.
+                </span>
+                <div className="d-flex gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-warning btn-sm px-3 fw-bold text-dark"
+                    disabled={generatingRef || pdfLoading}
+                    onClick={handleGenerateRefCode}
+                  >
+                    {generatingRef ? "Generating..." : "Generate Reference Code"}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm px-3"
+                    onClick={() => {
+                      if (pdfBlobUrl) URL.revokeObjectURL(pdfBlobUrl.split("#")[0]);
+                      setPdfBlobUrl("");
+                      setShowPreviewModal(false);
+                    }}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="tenure-letter-preview-canvas">
-              <article className="tenure-letter-paper">
-                <div className="d-flex justify-content-between mb-4"><span>Ref: <strong>{referenceCode || "________________"}</strong></span><span>Date: {new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</span></div>
-                <p>To,<br /><strong>{employee.name}</strong><br />{employee.location}</p>
-                <p>Dear {employee.name.split(" ")[0]},</p>
-                <p>Pursuant to the terms and conditions of your employment, the management is pleased to confirm your tenure change to <strong>{letterType}</strong> with effect from <strong>{effectiveDate}</strong>.</p>
-                {(assessment.period ?? assessment.ETYPE_PERIOD) && <p>Your revised tenure period will be {assessment.period ?? assessment.ETYPE_PERIOD} months.</p>}
-                {(assessment.remarks ?? assessment.REMARKS) && <p>{assessment.remarks ?? assessment.REMARKS}</p>}
-                <p>All other terms and conditions of your employment shall remain unchanged.</p>
-                <p className="mt-5">Thanking you,<br /><br />For the Management</p>
-              </article>
-            </div>
-            <footer className="tenure-letter-modal-footer">
-              {referenceCode && <span className="text-success me-auto">Demo reference: {referenceCode}</span>}
-              <button type="button" className="btn btn-primary" onClick={generateReferenceCode}>{referenceCode ? "Generate Again" : "Generate Reference Code"}</button>
-            </footer>
-          </section>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
-};
-
-const TenureChangeLetterModal = (props) => {
-  if (!props.show || !props.record) return null;
-  const key = `${props.record.ID ?? ""}-${props.record.TASK_ID ?? ""}-${props.record.TRAN_CODE ?? props.record.EMP_CODE_FOR ?? ""}`;
-  return <TenureChangeLetterModalContent key={key} {...props} />;
 };
 
 export default TenureChangeLetterModal;
