@@ -27,6 +27,7 @@ import TenureChangeAuthorization from "../components/authorization/TenureChangeA
 import ViewLogs from "../portals/hrms/pages/reports/ViewLog";
 //import TenureChange from "../portals/hrms/pages/reports/TenureChange";
 import { TELEGRAM_ENABLED } from "../config/featureFlags";
+import TelegramNew from "../portals/telegram-new/TelegramNew";
 
 //-------------------Telegram Groups------------------------------------
 import SDLTelegramGroups from "../portals/telegram/pages/Groups";
@@ -78,6 +79,8 @@ export const hrmsRoutes = [
 
   ...(TELEGRAM_ENABLED
     ? [
+        { path: "telegram-new/", element: TelegramNew },
+        { path: "telegram-new/:view", element: TelegramNew },
         { path: "telegram/", element: SDLTelegramDashboard },
         { path: "telegram/groups", element: SDLTelegramGroups },
         { path: "telegram/members", element: SDLTelegramMembers },

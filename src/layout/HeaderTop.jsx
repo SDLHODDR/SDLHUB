@@ -12,6 +12,7 @@ import { PORTALS, getPortalFromPath } from "../config/portalConfig";
 import PortalSwitcher from "../components/portal-switcher/PortalSwitcher";
 import SDLHUBNotification from "../components/SDLHUBNotification";
 import { TELEGRAM_ENABLED } from "../config/featureFlags";
+import TelegramHeaderMenu from "../portals/telegram-new/TelegramHeaderMenu";
 
 const HeaderTop = () => {
   const navigate = useNavigate();
@@ -334,9 +335,7 @@ const HeaderTop = () => {
           </li>
           {TELEGRAM_ENABLED && (
             <li className="nav-item nav-item-box">
-              <Link to="/telegram/" className="nav-link" aria-label="Telegram" title="Telegram">
-                <i className="ti ti-brand-telegram fs-22" aria-hidden="true" />
-              </Link>
+              <TelegramHeaderMenu />
             </li>
           )}
           <li className="nav-item nav-item-box">
@@ -415,9 +414,7 @@ const HeaderTop = () => {
         <div className="mobile-notification d-flex align-items-center d-lg-none">
           <SDLHUBNotification />
           {TELEGRAM_ENABLED && (
-            <Link to="/telegram/" className="nav-link" aria-label="Telegram" title="Telegram">
-              <i className="ti ti-brand-telegram fs-22" aria-hidden="true" />
-            </Link>
+            <TelegramHeaderMenu mobile />
           )}
           {showAuthorization && AuthorizationComponent && (
             <AuthorizationComponent />

@@ -9,6 +9,7 @@ const TASK_CONFIG = {
   349: { icon: "ti-rocket", badgeClass: "badge-danger", active: false },
   357: { icon: "ti-file", badgeClass: "badge-danger", active: false },
   21:  { icon: "ti-file", badgeClass: "badge-danger", active: false },
+  22:  { icon: "ti-file", badgeClass: "badge-danger", active: false },
 };
 
 const DEFAULT_TASK_CONFIG = {
@@ -44,6 +45,7 @@ const ActivityHeader = ({ open, onToggle }) => (
 );
 
 const ActivityItem = ({ item, onNavigate }) => {
+  console.log("-------item---------", item);
   const badgeClass = item.badgeClass
     ? `${item.badgeClass} badge-xs`
     : "text-gray";

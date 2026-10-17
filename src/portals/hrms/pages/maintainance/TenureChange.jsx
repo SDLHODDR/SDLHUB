@@ -71,21 +71,48 @@ const TenureChange = () => {
   }, [employees, search]);
 
   const handleSend = async (employee) => {
-    const managerCode = employee.manager?.empCode || employee.mgr_code;
-    const managerName = employee.manager?.empName?.trim() || employee.managerName;
+    // console.log("==========Employee=======", employee);
+    // const managerCode = employee.manager?.empCode || employee.mgr_code;
+    // const managerName = employee.manager?.empName?.trim() || employee.managerName;
+    
+    // console.log("====managercode=====", managerCode);
+    // console.log("====manager code =====", managerCode);
+    // if (!managerCode && (managerCode !== "" || managerCode !== "Vacant")) {
+    //   notifyError("Manager code is not available for this employee.");
+    //   return;
+    // }
 
-    const confirmation = await confirmAction(
-      "Send tenure change for authorization?",
-      `This will generate a task for ${managerName || "the assigned manager"}.`,
-    );
+    // const confirmation = await confirmAction(
+    //   "Send tenure change for authorization?",
+    //   `This will generate a task for ${managerName || "the assigned manager"}.`,
+    // );
 
-    if (!confirmation?.isConfirmed) return;
+    // console.log("=========", confirmation);
+    // if (confirmation) return;
+    
+    // try {
+   
+      console.log("==========Employee=======", employee);
+      
+      const managerCode = employee.manager?.empCode || employee.mgr_code;
+      const managerName = employee.manager?.empName?.trim() || employee.managerName;
+      
+      // FIX: Check if it's missing, empty string, or explicitly "Vacant"
+      if (!managerCode || managerCode.trim() === "" || managerCode === "Vacant") {
+        notifyError("Manager code is not available for this employee.");
+        return;
+      }
 
-    if (!managerCode) {
-      notifyError("Manager code is not available for this employee.");
-      return;
-    }
-
+      // Rest of your confirmation logic...
+      const confirmation = await confirmAction(
+        "Send tenure change for authorization?",
+        `This will generate a task for ${managerName || "the assigned manager"}.`,
+      );
+      
+      // Note: Usually, if (confirmation) means proceed, so "return" here might exit early. 
+      // Make sure if(confirmation) is meant to cancel or proceed.
+      if (!confirmation) return; 
+    
     try {
       setSendingEmployeeCode(employee.empCode);
       const response = await sendTenureChangeForAuth(
@@ -158,21 +185,23 @@ const TenureChange = () => {
           className="btn btn-icon btn-sm btn-outline-primary"
           aria-label="Start tenure change assessment"
           title="Start tenure change assessment"
-          onClick={() => navigate("/hrms/maintainance/tenure-change/assessment", {
-            state: {
-              employee: {
-                code: employee.empCode,
-                name: employee.empName,
-                designation: employee.designation,
-                location: employee.location,
-                department: employee.department || "-",
-                employeeType: employee.empType,
-                dateOfJoining: employee.doj,
-                tenureDueDate: employee.tenureDue,
-                currentCtc: employee.currentCtc || "",
-              },
-            },
-          })}
+          onClick={() => handleSend(employee)}
+          disabled={sendingEmployeeCode === employee.code}
+          // onClick={() => navigate("/hrms/maintainance/tenure-change/assessment", {
+          //   state: {
+          //     employee: {
+          //       code: employee.empCode,
+          //       name: employee.empName,
+          //       designation: employee.designation,
+          //       location: employee.location,
+          //       department: employee.department || "-",
+          //       employeeType: employee.empType,
+          //       dateOfJoining: employee.doj,
+          //       tenureDueDate: employee.tenureDue,
+          //       currentCtc: employee.currentCtc || "",
+          //     },
+          //   },
+          // })}
         >
           {sendingEmployeeCode === employee.empCode ? "Sending..." : "Send"}
         </button>
