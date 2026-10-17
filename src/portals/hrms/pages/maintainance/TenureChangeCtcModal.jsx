@@ -142,43 +142,6 @@ const TenureChangeCtcModalContent = ({ config, show, record, onClose, onSuccess 
     setActionMessage("");
   };
 
-  const handleSave = async () => {
-    console.log("details : ", details, " - saving: ", saving, " - submitting: ", submitting);
-    if (!details || saving || submitting) return;
-
-    const hasInvalidMonthlyAmount = (details.rows ?? []).some((row) => {
-      const value = monthlyAmounts[row.adCode] ?? row.monthly ?? "";
-      return value === "" || !Number.isFinite(Number(value)) || Number(value) < 0;
-    });
-    
-    const proposedCtc = Number(details.employee?.proposedCtc);
-    if (hasInvalidMonthlyAmount) {
-      setActionMessage("Enter a valid monthly amount for every CTC head.");
-      return;
-    }
-    if (!Number.isFinite(proposedCtc) || Math.abs(totals.annual - proposedCtc) > 100) {
-      setActionMessage("Incorrect CTC. The annual total must be within ₹100 of the proposed CTC.");
-      return;
-    }
-
-    setSaving(true);
-    setSaveSucceeded(false);
-    setActionMessage("");
-    try {
-      const response = await saveTenureChangeCtcBreakup(buildPayload());
-      if (response?.status === true || response?.success === true) {
-        setSaveSucceeded(true);
-        setActionMessage(response?.message || "CTC breakup saved.");
-      } else {
-        setActionMessage(response?.message || "CTC breakup could not be saved.");
-      }
-    } catch (error) {
-      setActionMessage(error?.message || "CTC breakup could not be saved.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const handleSubmit = async () => {
     if (!saveSucceeded || submitting || saving) return;
 
