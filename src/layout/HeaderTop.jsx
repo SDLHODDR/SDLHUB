@@ -64,8 +64,12 @@ const HeaderTop = () => {
         dispatch(getHRMSAuthroizationTaskCount());
       }
     };
+    const refreshInterval = window.setInterval(refreshHrmsTaskCount, 30000);
     window.addEventListener("hrms-auth-tasks-changed", refreshHrmsTaskCount);
-    return () => window.removeEventListener("hrms-auth-tasks-changed", refreshHrmsTaskCount);
+    return () => {
+      window.clearInterval(refreshInterval);
+      window.removeEventListener("hrms-auth-tasks-changed", refreshHrmsTaskCount);
+    };
   }, [dispatch, activePortal.key]);
 
   useEffect(() => {
