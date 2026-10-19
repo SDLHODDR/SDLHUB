@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
@@ -19,6 +19,7 @@ import "../../assets/css/tenureChange.css";
 const TenureChange = () => {
   const dispatch = useDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
   const portal = getPortalFromPath(location.pathname);
   const [search, setSearch] = useState("");
   const [employees, setEmployees] = useState([]);
@@ -99,7 +100,15 @@ const TenureChange = () => {
       
       // FIX: Check if it's missing, empty string, or explicitly "Vacant"
       if (!managerCode || managerCode.trim() === "" || managerCode === "Vacant") {
-        notifyError("Manager code is not available for this employee.");
+        notifyError("Manager code is not available for this employee.", {
+          onClose: () =>
+            navigate("/hrms/masterdata/organogram", {
+              state: {
+                organogramId: employee.orgId,
+                selectedTab: "appraisalLevels",
+              },
+            }),
+        });
         return;
       }
 

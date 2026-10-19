@@ -8,14 +8,52 @@ import { isOrganogramReadOnly } from "./organogramStatus";
 import SaveButton from '../components/buttons/SaveButton'
 import CancelButton from '../components/buttons/CancelButton'
 
+const LocationsDataTable = ({
+  organogramId,
+  isEditing,
+  tableVersion,
+  locations,
+  loading,
+  columns,
+  loadPageData,
+}) => {
+  const [page, setPage] = useState({ first: 0, rows: 10 });
+
+  return (
+    <DataTable
+      key={`${organogramId}-${isEditing}-${tableVersion}`}
+      value={locations}
+      loading={loading}
+      dataKey='SNO'
+      size='small'
+      paginator={locations.length > page.rows}
+      first={page.first}
+      rows={page.rows}
+      rowsPerPageOptions={[10, 25, 50]}
+      onPage={(event) => {
+        setPage({ first: event.first, rows: event.rows });
+        loadPageData(
+          locations.slice(event.first, event.first + event.rows),
+          isEditing
+        );
+      }}
+      emptyMessage='No positions defined for this organogram.'
+    >
+      {columns}
+    </DataTable>
+  );
+};
+
 const LocationsTab = ({ organogramId, organogramStatus, onOrganogramSaved, showAll, onCancelEdit }) => {
   const [modalState, setModalState] = useState(null);
+  const [tableVersion, setTableVersion] = useState(0);
   const {
     organogramDetails,
     locations,
     loadingDetails,
     loadingLocations,
     reloadLocations,
+    loadPageData,
     getGeoMappingOptionsForRow,
     savingAll,
     handleCancelEdits,
@@ -46,19 +84,22 @@ const LocationsTab = ({ organogramId, organogramStatus, onOrganogramSaved, showA
   });
 
   const handleCloseModal = () => setModalState(null);
+  const handleReloadLocations = async () => {
+    setTableVersion((version) => version + 1);
+    await reloadLocations();
+  };
 
   return (
     <div>
-      <DataTable
-        key={isEditing ? 'edit' : 'view'}
-        value={locations}
+      <LocationsDataTable
+        organogramId={organogramId}
+        isEditing={isEditing}
+        tableVersion={tableVersion}
+        locations={locations}
         loading={isLoading}
-        dataKey='SNO'
-        size='small'
-        emptyMessage='No positions defined for this organogram.'
-      >
-        {columns}
-      </DataTable>
+        columns={columns}
+        loadPageData={loadPageData}
+      />
 
       {isEditing && (
         <div className='d-flex justify-content-end gap-2 mt-3'>
@@ -112,7 +153,7 @@ const LocationsTab = ({ organogramId, organogramStatus, onOrganogramSaved, showA
                     locId={modalState.locId}
                     showAll={false}
                     onCancelEdit={handleCloseModal}
-                    onSaved={reloadLocations}
+                    onSaved={handleReloadLocations}
                   />
                 ) : (
                   <AllowancesTab

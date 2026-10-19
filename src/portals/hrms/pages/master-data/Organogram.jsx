@@ -35,7 +35,9 @@ const Organogram = () => {
   /* ==========================================================
       STATE
   ========================================================== */
-  const [selectedOrganogram, setSelectedOrgonogram] = useState(null)
+  const [selectedOrganogram, setSelectedOrgonogram] = useState(
+    location.state?.organogramId ?? null
+  )
   const [orgonogram, setOrgonogram] = useState([])
 
   // Global list/form toggle shared by the tabs that support both views.
@@ -97,7 +99,8 @@ const Organogram = () => {
     organogramStatus,
     loadOrgonogram,
     showAll,
-    handleCancelEdit
+    handleCancelEdit,
+    location.state?.selectedTab
   );
 
   /* ==========================================================
@@ -194,15 +197,18 @@ const Organogram = () => {
                 selectedTab={selectedTab}
                 onTabChange={handleTabChange}
                 tabContent={
-                  showAll && selectedTab === 'organogram' ? (
-                    <OrganogramListView
-                      data={orgonogram}
-                      loading={loadingOrgonogram}
-                      onEdit={handleSelectFromList}
-                    />
-                  ) : (
-                    tabContent
-                  )
+                  <>
+                    <div hidden={!(showAll && selectedTab === 'organogram')}>
+                      <OrganogramListView
+                        data={orgonogram}
+                        loading={loadingOrgonogram}
+                        onEdit={handleSelectFromList}
+                      />
+                    </div>
+                    <div hidden={showAll && selectedTab === 'organogram'}>
+                      {tabContent}
+                    </div>
+                  </>
                 }
                 loading={loadingOrgonogram}
               />

@@ -179,6 +179,100 @@ const useLocationsTabHandler = (organogramId, onOrganogramSaved) => {
   // longer a separately-entered mode — it's just whichever state
   // `locations` is in versus this snapshot.
   const savedSnapshotRef = useRef([]);
+  const reportingCacheRef = useRef({});
+  const reportingRequestsRef = useRef(new Set());
+  const divisionCacheRef = useRef({});
+  const divisionRequestsRef = useRef(new Set());
+  const geoMappingCacheRef = useRef({});
+  const geoMappingRequestsRef = useRef(new Set());
+
+  const loadReportingForRows = useCallback(async (rows = []) => {
+    const rowsToLoad = rows.filter(
+      (row) =>
+        row.LOC_ID &&
+        !Object.hasOwn(reportingCacheRef.current, row.LOC_ID) &&
+        !reportingRequestsRef.current.has(row.LOC_ID)
+    );
+    if (!rowsToLoad.length) return;
+
+    rowsToLoad.forEach((row) => reportingRequestsRef.current.add(row.LOC_ID));
+    const reportingMap = await fetchReportingMap(rowsToLoad);
+    Object.assign(reportingCacheRef.current, reportingMap);
+    rowsToLoad.forEach((row) => reportingRequestsRef.current.delete(row.LOC_ID));
+
+    setLocations((prev) =>
+      prev.map((row) =>
+        reportingMap[row.LOC_ID]
+          ? { ...row, ...reportingMap[row.LOC_ID] }
+          : row
+      )
+    );
+  }, []);
+
+  const loadPageEnrichment = useCallback(async (rows = [], includeGeoOptions = false) => {
+    const geoIdsToLoad = empLevelPL === "15"
+      ? [...new Set(
+          rows
+            .map((row) => row.GEO_ID)
+            .filter((geoId) =>
+              geoId &&
+              !Object.hasOwn(divisionCacheRef.current, geoId) &&
+              !divisionRequestsRef.current.has(geoId)
+            )
+        )]
+      : [];
+
+    geoIdsToLoad.forEach((geoId) => divisionRequestsRef.current.add(geoId));
+
+    const geoKeysToLoad = includeGeoOptions
+      ? [...new Set(rows
+          .filter((row) => row.__divsnId)
+          .map((row) => buildGeoMappingCacheKey(row.__divsnId, row.EFFEC_FROM_RAW)))]
+          .filter((key) =>
+            !Object.hasOwn(geoMappingCacheRef.current, key) &&
+            !geoMappingRequestsRef.current.has(key)
+          )
+      : [];
+    geoKeysToLoad.forEach((key) => geoMappingRequestsRef.current.add(key));
+
+    const rowsForGeoOptions = rows.filter((row) =>
+      geoKeysToLoad.includes(buildGeoMappingCacheKey(row.__divsnId, row.EFFEC_FROM_RAW))
+    );
+
+    const [divisionMap, geoMappingMap] = await Promise.all([
+      geoIdsToLoad.length
+        ? fetchDivisionMap(rows.filter((row) => geoIdsToLoad.includes(row.GEO_ID)))
+        : Promise.resolve({}),
+      geoKeysToLoad.length
+        ? fetchGeoMappingOptionsMap(empLevelPL, rowsForGeoOptions)
+        : Promise.resolve({}),
+    ]);
+
+    Object.assign(divisionCacheRef.current, divisionMap);
+    Object.assign(geoMappingCacheRef.current, geoMappingMap);
+    geoIdsToLoad.forEach((geoId) => divisionRequestsRef.current.delete(geoId));
+    geoKeysToLoad.forEach((key) => geoMappingRequestsRef.current.delete(key));
+
+    if (Object.keys(geoMappingMap).length) {
+      setGeoMappingOptionsMap((prev) => ({ ...prev, ...geoMappingMap }));
+    }
+    if (Object.keys(divisionMap).length) {
+      setLocations((prev) =>
+        prev.map((row) =>
+          Object.hasOwn(divisionMap, row.GEO_ID)
+            ? { ...row, DIVSN_DESC: divisionMap[row.GEO_ID] }
+            : row
+        )
+      );
+    }
+  }, [empLevelPL]);
+
+  const loadPageData = useCallback(async (rows = [], includeGeoOptions = false) => {
+    await Promise.all([
+      loadReportingForRows(rows),
+      loadPageEnrichment(rows, includeGeoOptions),
+    ]);
+  }, [loadPageEnrichment, loadReportingForRows]);
 
   const loadDetailsAndLocations = useCallback(async () => {
     if (!organogramId) {
@@ -186,12 +280,24 @@ const useLocationsTabHandler = (organogramId, onOrganogramSaved) => {
       setLocations([]);
       setGeoMappingOptionsMap({});
       savedSnapshotRef.current = [];
+      reportingCacheRef.current = {};
+      reportingRequestsRef.current.clear();
+      divisionCacheRef.current = {};
+      divisionRequestsRef.current.clear();
+      geoMappingCacheRef.current = {};
+      geoMappingRequestsRef.current.clear();
       return;
     }
 
     try {
       setLoadingDetails(true);
       setLoadingLocations(true);
+      reportingCacheRef.current = {};
+      reportingRequestsRef.current.clear();
+      divisionCacheRef.current = {};
+      divisionRequestsRef.current.clear();
+      geoMappingCacheRef.current = {};
+      geoMappingRequestsRef.current.clear();
 
       const detailsRes = await getOrganogramDetails({ ID: organogramId });
       if (!detailsRes?.status) {
@@ -213,13 +319,18 @@ const useLocationsTabHandler = (organogramId, onOrganogramSaved) => {
           : [];
 
       const rowSkeletons = buildLocationRows(posiCount, savedRows, {}, {}, divsnId);
+      const firstPageRows = rowSkeletons.slice(0, 10);
+      const firstPageSavedRows = savedRows.slice(0, 10);
 
       const [divisionMap, geoMappingMap, reportingMap] = await Promise.all([
-        empLevel === "15" ? fetchDivisionMap(savedRows) : Promise.resolve({}),
-        fetchGeoMappingOptionsMap(empLevel, rowSkeletons),
-        fetchReportingMap(savedRows),
+        empLevel === "15" ? fetchDivisionMap(firstPageSavedRows) : Promise.resolve({}),
+        fetchGeoMappingOptionsMap(empLevel, firstPageRows),
+        fetchReportingMap(firstPageSavedRows),
       ]);
 
+      Object.assign(reportingCacheRef.current, reportingMap);
+      Object.assign(divisionCacheRef.current, divisionMap);
+      Object.assign(geoMappingCacheRef.current, geoMappingMap);
       setGeoMappingOptionsMap(geoMappingMap);
       const freshRows = buildLocationRows(posiCount, savedRows, divisionMap, reportingMap, divsnId);
       setLocations(freshRows);
@@ -388,6 +499,7 @@ const useLocationsTabHandler = (organogramId, onOrganogramSaved) => {
     loadingDetails,
     loadingLocations,
     reloadLocations: loadDetailsAndLocations,
+    loadPageData,
     getGeoMappingOptionsForRow,
     savingAll,
     handleCancelEdits,
