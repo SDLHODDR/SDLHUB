@@ -4,6 +4,7 @@ The new frontend reuses authenticated Telegram API calls already configured in S
 
 ## Reused PHP operations
 
+- `GET /telegram/counts`: aggregate group count, registered member count, and pending Telegram outbound-message count in one request.
 - `POST /telegram/groups/list`: group records and joined member counts.
 - `POST /telegram/groups/create`: PHP calls the MTProto service to create a group and persists the shared group record. The current MTProto implementation also adds the configured bot to the new group.
 - `GET /telegram/members/list`: membership records.
@@ -24,7 +25,7 @@ Suggested contract: `POST /telegram/invitations/generate` accepts `{ telegram_gr
 
 ### Telegram notification counts
 
-No Telegram-specific notification count route or notification categorization contract was found. Add an authenticated route returning `{ newGroups, newMembers, newMessages, totalUnread }` based on the ERP notification read state before showing real header badge counts.
+`GET /telegram/counts` returns `GROUP_COUNT`, `MEMBER_COUNT`, and `PENDING_MESSAGE_COUNT`. The message queue tracks delivery status, not whether an administrator has read a message, so the UI labels this count as pending messages rather than unread messages. A true unread count requires a persisted read-state contract.
 
 ### Message history and delivery status
 

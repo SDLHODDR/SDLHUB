@@ -12,6 +12,7 @@ import hrmsDeptActivitiesReducer from "./hrms/hrmsDeptActivitySlice";
 import hrmsPoliciesReducer from "./hrms/hrmsPolicySlice";
 import hrmsAuthorizationCountReducer from "./hrms/hrmsAuthorizationCountSlice";
 import notificationReducer from "./notifications/notificationSlice";
+import telegramCountReducer from "./telegram/telegramCountSlice";
 
 export const store = configureStore({
   reducer: {
@@ -23,6 +24,7 @@ export const store = configureStore({
     
     hrmsAuthCounts: hrmsAuthorizationCountReducer,
     notifications: notificationReducer,
+    telegramCounts: telegramCountReducer,
     hrmsAuthData: hrmsAuthorizationDataReducer,
     hrmsKRAAcivityData: hrmsKRAActivityReducer,
     hrmsquestionMasterData: hrmsQuestionMasterReducer, // <-- key must match the selector exactly

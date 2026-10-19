@@ -13,6 +13,7 @@ import PortalSwitcher from "../components/portal-switcher/PortalSwitcher";
 import SDLHUBNotification from "../components/SDLHUBNotification";
 import { TELEGRAM_ENABLED } from "../config/featureFlags";
 import TelegramHeaderMenu from "../portals/telegram-new/TelegramHeaderMenu";
+import { fetchTelegramCounts } from "../store/telegram/telegramCountSlice";
 
 const HeaderTop = () => {
   const navigate = useNavigate();
@@ -57,6 +58,12 @@ const HeaderTop = () => {
         break;
     }
   }, [dispatch, activePortal]);
+
+  useEffect(() => {
+    if (TELEGRAM_ENABLED) {
+      dispatch(fetchTelegramCounts());
+    }
+  }, [dispatch]);
 
   useEffect(() => {
     const refreshHrmsTaskCount = () => {

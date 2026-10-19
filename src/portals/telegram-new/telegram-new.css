@@ -54,7 +54,8 @@
 .telegram-new__invite-settings { display: flex; gap: 14px; margin-top: 14px; }
 .telegram-new__invite-settings label { min-width: 150px; display: grid; gap: 5px; font-size: 13px; font-weight: 600; }
 .telegram-header-menu { position: relative; }
-.telegram-header-menu > button { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; color: inherit; background: transparent; border: 0; }
+.telegram-header-menu > button { position: relative; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; color: inherit; background: transparent; border: 0; }
+.telegram-header-menu__badge { position: absolute; top: 0; right: 0; display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; color: #fff; background: #d63939; border: 1px solid #fff; border-radius: 10px; font-size: 10px; font-weight: 700; line-height: 1; }
 .telegram-header-menu__panel { position: absolute; z-index: 1100; top: calc(100% + 8px); right: 0; width: 290px; padding: 14px; background: #fff; border: 1px solid var(--telegram-line); border-radius: 5px; box-shadow: 0 10px 28px #10272c24; }
 .telegram-header-menu__panel h2 { margin: 0 0 5px; font-size: 15px; font-weight: 700; }
 .telegram-header-menu__panel p { margin: 0 0 9px; color: #607178; font-size: 12px; }

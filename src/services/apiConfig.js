@@ -58,6 +58,7 @@ export const PORTALAPI = {
   },
 
   TELEGRAM: {
+    COUNTS: "/telegram/counts",
     GROUPS: {
       LIST: "/telegram/groups/list",
       CREATE: "/telegram/groups/create",

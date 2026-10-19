@@ -3,6 +3,18 @@ import { getMockGroups } from "./mockData";
 import { telegramPSRAPI } from "../../../services/api";
 import { PORTALAPI } from "../../../services/apiConfig";
 
+export const getTelegramCounts = async () => {
+	const res = await telegramPSRAPI.get(PORTALAPI.TELEGRAM.COUNTS, {
+		withCredentials: true,
+	});
+
+	if (res.data?.success === false) {
+		throw new Error(res.data.message || "Unable to load Telegram counts.");
+	}
+
+	return res.data?.data ?? {};
+};
+
 export const getMockDataGroups = async () => {
   return new Promise((resolve) => {
     setTimeout(() => {
