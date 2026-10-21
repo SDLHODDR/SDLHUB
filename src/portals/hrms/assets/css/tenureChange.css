@@ -99,34 +99,146 @@
   min-width: 86px;
 }
 
-.tenure-assessment-modal {
+.tenure-effective-date-field {
+  position: static;
+}
+
+.tenure-effective-date-wrap {
+  position: relative;
+}
+
+.tenure-effective-date-wrap .input-group-text {
+  cursor: pointer;
+}
+
+.tenure-date-calendar {
+  position: fixed;
+  z-index: 2000;
+  width: 280px;
+  padding: 12px;
+  border: 1px solid #d7e0e8;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+}
+
+.tenure-date-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: #25364a;
+}
+
+.tenure-date-calendar-header button {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #25364a;
+}
+
+.tenure-date-calendar-header button:hover:not(:disabled) {
+  background: #f1f4f7;
+}
+
+.tenure-date-calendar-header button:disabled {
+  color: #c5cbd2;
+  cursor: not-allowed;
+}
+
+.tenure-date-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.tenure-date-calendar-weekdays {
+  margin-bottom: 4px;
+  color: #778394;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.tenure-date-calendar-grid button {
+  width: 32px;
+  height: 32px;
+  justify-self: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #25364a;
+}
+
+.tenure-date-calendar-grid button:hover:not(:disabled) {
+  background: #fff0df;
+  color: #c96a12;
+}
+
+.tenure-date-calendar-grid button:disabled {
+  color: #c5cbd2;
+  cursor: not-allowed;
+}
+
+.tenure-date-calendar-grid button.selected {
+  background: #fe9f43;
+  color: #fff;
+}
+
+/* .tenure-modal-backdrop {
   position: fixed !important;
   inset: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  overflow: hidden !important;
-  padding: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  padding: 16px !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+
+  background: rgba(15, 23, 42, 0.6) !important;
+  z-index: 1050 !important;
 }
 
-.tenure-assessment-modal .tenure-assessment-dialog {
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  width: min(1140px, calc(100vw - 2rem)) !important;
-  max-width: none !important;
-  max-height: calc(100vh - 2rem);
-  margin: 0 !important;
-  transform: translate(-50%, -50%) !important;
+.tenure-modal-backdrop > .modal-dialog {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+
+  flex: 0 1 auto !important;
+  width: 92% !important;
+  max-width: 1200px !important;
+  min-width: 0 !important;
+
+  margin: auto !important;
+  max-height: calc(100vh - 32px) !important;
 }
 
-.tenure-assessment-modal .modal-content {
-  max-height: calc(100vh - 2rem);
+.tenure-modal-backdrop > .modal-dialog > .modal-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  max-height: calc(100vh - 32px);
+  overflow: hidden;
 }
 
-.tenure-assessment-modal .modal-body {
+.tenure-modal-backdrop .modal-body {
   min-height: 0;
   overflow-y: auto;
-}
+} */
 
 .tenure-change-page .tenure-preview-button {
   height: 40px;
@@ -135,27 +247,26 @@
   justify-content: center;
 }
 
-.tenure-letter-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 1060;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2vh 3vw;
-  background: rgba(0, 0, 0, 0.58);
+/* .tenure-letter-modal-backdrop {
+  z-index: 1060 !important;
 }
 
 .tenure-letter-modal {
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  flex: 0 1 auto;
+  width: min(96vw, 1400px);
+  max-width: 1400px;
+  max-height: 94vh;
+  margin: auto !important;
   display: flex;
   flex-direction: column;
-  width: min(96vw, 1400px);
-  max-height: 94vh;
   overflow: hidden;
   border-radius: 0.4rem;
   background: #fff;
   box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.3);
-}
+} */
 
 .tenure-letter-modal-header,
 .tenure-letter-modal-footer {
@@ -219,10 +330,6 @@
     padding: 0.45rem;
   }
 
-  .tenure-letter-modal-backdrop {
-    padding: 1vh 2vw;
-  }
-
   .tenure-letter-preview-canvas {
     padding: 0.75rem;
   }
@@ -232,5 +339,4 @@
     padding: 2rem 1.25rem;
     font-size: 0.85rem;
   }
-
 }

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
+import useTenureModalCenter from "../../hooks/useTenureModalCenter";
 import { useLocation, useNavigate } from "react-router-dom";
 import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../config/portalConfig";
@@ -14,6 +16,7 @@ const TenureChangeLetter = () => {
   const [letterType, setLetterType] = useState(assessment.employeeType || "");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [referenceCode, setReferenceCode] = useState("");
+  const modalCenterStyle = useTenureModalCenter(previewOpen);
 
   if (!employee) {
     return (
@@ -103,8 +106,8 @@ const TenureChangeLetter = () => {
         </div>
       </div>
 
-      {previewOpen && (
-        <div className="tenure-letter-modal-backdrop" role="presentation" onClick={(event) => { if (event.target === event.currentTarget) setPreviewOpen(false); }}>
+      {previewOpen && createPortal(
+        <div className="tenure-modal-backdrop tenure-letter-modal-backdrop" style={modalCenterStyle} role="presentation" onClick={(event) => { if (event.target === event.currentTarget) setPreviewOpen(false); }}>
           <section className="tenure-letter-modal" role="dialog" aria-modal="true" aria-labelledby="tenure-letter-preview-title">
             <header className="tenure-letter-modal-header">
               <h5 id="tenure-letter-preview-title" className="mb-0">Letter Preview</h5>
@@ -137,7 +140,8 @@ const TenureChangeLetter = () => {
               </button>
             </footer>
           </section>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

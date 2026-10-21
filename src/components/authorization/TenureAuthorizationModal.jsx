@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import "../../portals/hrms/assets/css/tenureChange.css";
 import TenureChangeAssessmentModal from "../../portals/hrms/pages/maintainance/TenureChangeAssessmentModal";
 import TenureChangeCtcModal from "../../portals/hrms/pages/maintainance/TenureChangeCtcModal";
@@ -12,9 +13,10 @@ const TenureAuthorizationModal = ({
 }) => {
   if (!show || !record || !config?.type) return null;
 
+  let modalContent = null;
   switch (config.type) {
     case "EMPTENURECHG":
-      return (
+      modalContent = (
         <TenureChangeAssessmentModal
           config={config}
           show={show}
@@ -23,9 +25,11 @@ const TenureAuthorizationModal = ({
           onSuccess={onSuccess}
         />
       );
+      break;
 
      case "TENURECTCCHG":
-      return (
+    case "TENURECTCAPPR":
+      modalContent = (
         <TenureChangeCtcModal
           config={config}
           show={show}
@@ -34,9 +38,10 @@ const TenureAuthorizationModal = ({
           onSuccess={onSuccess}
         />
       );
+      break;
 
     case "TENURECHANGELETTER":
-      return (
+      modalContent = (
         <TenureChangeLetterModal
           config={config}
           show={show}
@@ -45,10 +50,13 @@ const TenureAuthorizationModal = ({
           onSuccess={onSuccess}
         />
       );
+      break;
     
     default:
       return null;
   }
+
+  return createPortal(modalContent, document.body);
 };
 
 export default TenureAuthorizationModal;
