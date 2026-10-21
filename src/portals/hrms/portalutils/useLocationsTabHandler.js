@@ -127,17 +127,17 @@ const fetchGeoMappingOptionsMap = async (empLevel, rows = []) => {
     REPORTING MANAGER
 ========================================================== */
 const fetchReportingMap = async (savedRows = []) => {
-  const rowsWithLocId = savedRows.filter((r) => r.ID);
+  const rowsWithLocId = savedRows.filter((row) => row.ID ?? row.LOC_ID);
   if (!rowsWithLocId.length) return {};
 
   const results = await Promise.all(
     rowsWithLocId.map((row) =>
       getOrgLocReportingManager({
-        LOC_ID: row.ID,
+        LOC_ID: row.ID ?? row.LOC_ID,
         EMP_CODE: row.EMP_CODE,
-        EFFEC_FROM: row.EFFEC_FROM,
+        EFFEC_FROM: row.EFFEC_FROM ?? row.EFFEC_FROM_RAW ?? row.FROM_DATE,
       }).catch((error) => {
-        console.error("Load reporting manager error:", row.ID, error);
+        console.error("Load reporting manager error:", row.ID ?? row.LOC_ID, error);
         return null;
       })
     )
@@ -145,11 +145,12 @@ const fetchReportingMap = async (savedRows = []) => {
 
   const map = {};
   rowsWithLocId.forEach((row, idx) => {
+    const locId = row.ID ?? row.LOC_ID;
     const responseData = results[idx]?.data ?? results[idx];
     const data = Array.isArray(responseData)
       ? responseData[0]
       : responseData?.data ?? responseData;
-    map[row.ID] = {
+    map[locId] = {
       REPORT_TO_DISPLAY:
         data?.REPORT_TO_DISPLAY ?? data?.REPORT_TO ?? data?.EMP_NAME ?? "",
       HAS_REPORTING: Boolean(
@@ -312,6 +313,7 @@ const useLocationsTabHandler = (organogramId, onOrganogramSaved) => {
       setEmpLevelPL(empLevel);
 
       const locationsRes = await getOrganogramLocations({ ID: organogramId });
+
       const savedRows = Array.isArray(locationsRes)
         ? locationsRes
         : Array.isArray(locationsRes?.data)

@@ -1,4 +1,5 @@
 import { DataTable } from "primereact/datatable";
+import { createPortal } from "react-dom";
 import { useState } from "react";
 import useLocationsTabHandler from "./useLocationsTabHandler";
 import { getLocationsColumns, renderLocationsColumns } from "./locationsColumns";
@@ -119,14 +120,19 @@ const LocationsTab = ({ organogramId, organogramStatus, onOrganogramSaved, showA
         </div>
       )}
 
-      {modalState && (
+      {modalState && createPortal(
         <div
           className="modal fade show d-block"
           tabIndex="-1"
           aria-hidden="false"
           aria-modal="true"
           role="dialog"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          style={{
+            backgroundColor: "rgba(0,0,0,0.5)",
+            position: "fixed",
+            inset: 0,
+            zIndex: 1055,
+          }}
         >
           <div className="modal-dialog modal-dialog-centered modal-xl">
             <div className="modal-content">
@@ -168,7 +174,8 @@ const LocationsTab = ({ organogramId, organogramStatus, onOrganogramSaved, showA
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
