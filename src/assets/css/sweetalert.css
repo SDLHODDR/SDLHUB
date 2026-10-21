@@ -61,6 +61,42 @@
     background: #f8f9fa !important;
 }
 
+/* Keep the Tenure Change confirmation actions compact and exactly equal. */
+.tenure-confirm-yes,
+.tenure-confirm-cancel {
+    box-sizing: border-box !important;
+    width: 78px !important;
+    min-width: 78px !important;
+    height: 38px !important;
+    padding: 6px 12px !important;
+    font-size: 1rem !important;
+    font-weight: 400 !important;
+    line-height: 24px !important;
+    border-radius: 6px !important;
+}
+
+.tenure-confirm-yes {
+    background: #28c76f !important;
+    border: 1px solid #28c76f !important;
+    color: #fff !important;
+}
+
+.tenure-confirm-yes:hover {
+    background: #24b263 !important;
+    border-color: #24b263 !important;
+}
+
+.tenure-confirm-cancel {
+    background: #092c4c !important;
+    border: 1px solid #092c4c !important;
+    color: #fff !important;
+}
+
+.tenure-confirm-cancel:hover {
+    background: #05192c !important;
+    border-color: #05192c !important;
+}
+
 /* SweetAlert Popup */
 .swal2-popup.dreampos-popup {
     border-radius: 12px !important;

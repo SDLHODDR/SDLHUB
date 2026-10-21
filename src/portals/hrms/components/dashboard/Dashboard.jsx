@@ -1,27 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import { getTenureChangeList } from "../../services/tenureChangeService";
+import { useSelector } from "react-redux";
+import { normalizeHrmsGroups } from "../../../../components/authorization/normalizeHrmsGroups";
 
 const Dashboard = () => {
-  const [upcomingTenureCount, setUpcomingTenureCount] = useState(null);
-
-  useEffect(() => {
-    let mounted = true;
-
-    getTenureChangeList()
-      .then((response) => {
-        if (mounted && response?.status) {
-          setUpcomingTenureCount(Array.isArray(response.data) ? response.data.length : 0);
-        }
-      })
-      .catch((error) => {
-        console.error("Unable to load upcoming tenure count:", error);
-      });
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const hrmsAuthData = useSelector((state) => state.hrmsAuthCounts.data);
+  const authorizationStatus = useSelector((state) => state.hrmsAuthCounts.status);
+  const tenureChangeGroup = normalizeHrmsGroups(hrmsAuthData).find(
+    (group) => group.key === "tenure-change",
+  );
+  const upcomingTenureCount = tenureChangeGroup
+    ? tenureChangeGroup.items.reduce((sum, item) => sum + (Number(item.count) || 0), 0)
+    : 0;
 
   return (
     <div className="container-fluid">
@@ -174,7 +164,7 @@ const Dashboard = () => {
                   </p>
 
                   <h3 className="mb-0">
-                    {upcomingTenureCount ?? "—"}
+                    {authorizationStatus === "idle" ? upcomingTenureCount : "—"}
                   </h3>
                 </div>
 

@@ -99,6 +99,97 @@
   min-width: 86px;
 }
 
+.tenure-effective-date-field {
+  position: static;
+}
+
+.tenure-effective-date-wrap {
+  position: relative;
+}
+
+.tenure-effective-date-wrap .input-group-text {
+  cursor: pointer;
+}
+
+.tenure-date-calendar {
+  position: fixed;
+  z-index: 2000;
+  width: 280px;
+  padding: 12px;
+  border: 1px solid #d7e0e8;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+}
+
+.tenure-date-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: #25364a;
+}
+
+.tenure-date-calendar-header button {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #25364a;
+}
+
+.tenure-date-calendar-header button:hover:not(:disabled) {
+  background: #f1f4f7;
+}
+
+.tenure-date-calendar-header button:disabled {
+  color: #c5cbd2;
+  cursor: not-allowed;
+}
+
+.tenure-date-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.tenure-date-calendar-weekdays {
+  margin-bottom: 4px;
+  color: #778394;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.tenure-date-calendar-grid button {
+  width: 32px;
+  height: 32px;
+  justify-self: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #25364a;
+}
+
+.tenure-date-calendar-grid button:hover:not(:disabled) {
+  background: #fff0df;
+  color: #c96a12;
+}
+
+.tenure-date-calendar-grid button:disabled {
+  color: #c5cbd2;
+  cursor: not-allowed;
+}
+
+.tenure-date-calendar-grid button.selected {
+  background: #fe9f43;
+  color: #fff;
+}
+
 /* .tenure-modal-backdrop {
   position: fixed !important;
   inset: 0 !important;

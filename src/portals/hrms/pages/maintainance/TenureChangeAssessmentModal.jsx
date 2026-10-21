@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import moment from 'moment'
 import {
   getTenureChangeDetails,
   saveTenureChangeAssessment,
@@ -27,6 +29,25 @@ const emptyAssessment = {
   remarks: ''
 }
 
+const TENURE_DATE_FORMATS = [
+  moment.ISO_8601,
+  'DD-MMM-YYYY',
+  'DD-MMM-YY',
+  'MM/DD/YYYY'
+]
+
+const toTenureDateISO = value => {
+  if (!value) return ''
+  const parsed = moment(String(value).trim(), TENURE_DATE_FORMATS, true)
+  return parsed.isValid() ? parsed.format('YYYY-MM-DD') : ''
+}
+
+const formatTenureDate = value => {
+  if (!value) return '-'
+  const parsed = moment(String(value).trim(), TENURE_DATE_FORMATS, true)
+  return parsed.isValid() ? parsed.format('DD-MMM-YYYY') : value
+}
+
 const TenureChangeAssessmentModal = ({
   config,
   show,
@@ -41,6 +62,12 @@ const TenureChangeAssessmentModal = ({
   const [ratingOptions, setRatingOptions] = useState([])
   const [typeOptions, setTypeOptions] = useState([])
   const [assessment, setAssessment] = useState(emptyAssessment)
+  const [calendarOpen, setCalendarOpen] = useState(false)
+  const [calendarPosition, setCalendarPosition] = useState({ top: 0, left: 0 })
+  const [calendarMonth, setCalendarMonth] = useState(() =>
+    moment().startOf('month')
+  )
+  const effectiveDateFieldRef = useRef(null)
   const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -60,6 +87,8 @@ const TenureChangeAssessmentModal = ({
       setRatingOptions([])
       setTypeOptions([])
       setAssessment(emptyAssessment)
+      setCalendarOpen(false)
+      setCalendarMonth(moment().startOf('month'))
       setAssessmentMeta({})
       setSaveSucceeded(false)
       setActionMessage('')
@@ -114,11 +143,11 @@ const TenureChangeAssessmentModal = ({
         const normalizedEmployee = {
           code: emp.emp_code ?? record.TRAN_CODE ?? '-',
           name: emp.name ?? '-',
-          dateOfJoining: emp.doj ?? '-',
+          dateOfJoining: formatTenureDate(emp.doj),
           designation: emp.designation ?? '-',
           department: emp.department ?? '-',
           employeeType: emp.current_emp_type ?? '-',
-          tenureDueDate: emp.tenure_due_date ?? '-',
+          tenureDueDate: formatTenureDate(emp.tenure_due_date),
           currentCtc: emp.current_ctc ?? ''
         }
 
@@ -139,7 +168,7 @@ const TenureChangeAssessmentModal = ({
           employeeType: String(meta.etype_id ?? ''),
           period: meta.etype_period ?? '',
           proposedCtc: meta.proposed_ctc ?? '',
-          effectiveFrom: meta.effective_from ?? '',
+          effectiveFrom: toTenureDateISO(meta.effective_from),
           remarks: meta.remarks ?? ''
         })
       } catch (error) {
@@ -201,9 +230,51 @@ const TenureChangeAssessmentModal = ({
     assessmentComplete &&
     Boolean(assessmentMeta.tenure_change_id ?? record?.ID)
 
+  const effectiveDateMinimum = (() => {
+    const currentMonthStart = moment().startOf('month')
+    const configuredMinimum = toTenureDateISO(
+      assessmentMeta.min_effective_date
+    )
+    return configuredMinimum
+      ? moment.max(
+          currentMonthStart,
+          moment(configuredMinimum, 'YYYY-MM-DD', true)
+        )
+      : currentMonthStart
+  })()
+
+  const isValidEffectiveDate = value => {
+    const date = moment(value, 'YYYY-MM-DD', true)
+    return (
+      date.isValid() &&
+      date.date() === 1 &&
+      !date.isBefore(effectiveDateMinimum, 'day')
+    )
+  }
+
+  const calendarGridStart = calendarMonth
+    .clone()
+    .startOf('month')
+    .startOf('week')
+  const calendarDays = Array.from({ length: 42 }, (_, index) =>
+    calendarGridStart.clone().add(index, 'days')
+  )
+  const calendarMinimumMonth = effectiveDateMinimum.clone().startOf('month')
+  const proposedCtcHasFraction =
+    assessment.proposedCtc !== '' &&
+    assessment.proposedCtc !== null &&
+    !Number.isInteger(Number(assessment.proposedCtc))
+
   const handleSave = async event => {
     event.preventDefault()
     if (!employee || saving) return
+    if (proposedCtcHasFraction) return
+    if (!isValidEffectiveDate(assessment.effectiveFrom)) {
+      setActionMessage(
+        'Effective From must be the 1st of a month and cannot be earlier than the allowed date.'
+      )
+      return
+    }
     setSaving(true)
     setSaveSucceeded(false)
     setActionMessage('')
@@ -225,6 +296,13 @@ const TenureChangeAssessmentModal = ({
 
   const handleSubmit = async () => {
     if (!canSubmit || submitting) return
+    if (proposedCtcHasFraction) return
+    if (!isValidEffectiveDate(assessment.effectiveFrom)) {
+      setActionMessage(
+        'Effective From must be the 1st of a month and cannot be earlier than the allowed date.'
+      )
+      return
+    }
     setSubmitting(true)
     setActionMessage('')
     try {
@@ -292,7 +370,7 @@ const TenureChangeAssessmentModal = ({
             </button>
           </div>
 
-          <div className='modal-body'>
+          <div className='modal-body' onScroll={() => setCalendarOpen(false)}>
             {loading ? (
               <div className='text-center py-5'>
                 <span
@@ -510,29 +588,181 @@ const TenureChangeAssessmentModal = ({
                     <div className='col-lg-4 col-md-6'>
                       <label className='form-label'>Proposed CTC</label>
                       <input
-                        className='form-control'
+                        className={`form-control${proposedCtcHasFraction ? ' is-invalid' : ''}`}
                         type='number'
                         min='0'
+                        step='any'
                         placeholder='Enter proposed CTC'
                         value={assessment.proposedCtc}
                         onChange={event =>
                           updateAssessment('proposedCtc', event.target.value)
                         }
+                        aria-invalid={proposedCtcHasFraction}
                       />
+                      {proposedCtcHasFraction && (
+                        <small className='text-danger d-block mt-1'>
+                          Proposed CTC must be a whole number.
+                        </small>
+                      )}
                     </div>
-                    <div className='col-lg-4 col-md-6'>
+                    <div
+                      ref={effectiveDateFieldRef}
+                      className='col-lg-4 col-md-6 tenure-effective-date-field'
+                    >
                       <label className='form-label'>
                         Effective From <span className='text-danger'>*</span>
                       </label>
-                      <input
-                        className='form-control'
-                        type='date'
-                        min={assessmentMeta.min_effective_date || undefined}
-                        value={assessment.effectiveFrom}
-                        onChange={event =>
-                          updateAssessment('effectiveFrom', event.target.value)
-                        }
-                      />
+                      <div className='input-group tenure-effective-date-wrap'>
+                        <input
+                          className='form-control'
+                          type='text'
+                          value={
+                            assessment.effectiveFrom
+                              ? formatTenureDate(assessment.effectiveFrom)
+                              : ''
+                          }
+                          placeholder='DD-Mon-YYYY'
+                          readOnly
+                          style={{
+                            border: '1px solid #6c757d',
+                            borderRight: 0,
+                            borderRadius: '0.375rem 0 0 0.375rem',
+                            boxShadow: 'none'
+                          }}
+                        />
+                        <button
+                          type='button'
+                          className='input-group-text position-relative'
+                          aria-label='Choose effective date'
+                          onClick={() => {
+                            const fieldRect = effectiveDateFieldRef.current?.getBoundingClientRect()
+                            if (fieldRect) {
+                              const calendarHeight = 300
+                              setCalendarPosition({
+                                top:
+                                  fieldRect.bottom + calendarHeight + 4 >
+                                  window.innerHeight
+                                    ? Math.max(8, fieldRect.top - calendarHeight - 4)
+                                    : fieldRect.bottom + 4,
+                                left: Math.max(
+                                  8,
+                                  Math.min(
+                                    fieldRect.right - 280,
+                                    window.innerWidth - 288
+                                  )
+                                )
+                              })
+                            }
+                            const selectedDate = moment(
+                              toTenureDateISO(assessment.effectiveFrom) ||
+                                effectiveDateMinimum.format('YYYY-MM-DD'),
+                              'YYYY-MM-DD',
+                              true
+                            )
+                            setCalendarMonth(
+                              moment
+                                .max(selectedDate, effectiveDateMinimum)
+                                .startOf('month')
+                            )
+                            setCalendarOpen(current => !current)
+                          }}
+                          style={{
+                            border: '1px solid #6c757d',
+                            borderLeft: 0,
+                            borderRadius: '0 0.375rem 0.375rem 0',
+                            backgroundColor: '#fff',
+                            color: '#6c757d'
+                          }}
+                        >
+                          <i className='ti ti-calendar' />
+                        </button>
+                      </div>
+                      <small className='text-muted d-block mt-1'>
+                        Effective from date will always be the 1st of the month.
+                      </small>
+                      {calendarOpen && createPortal(
+                        <div
+                          className='tenure-date-calendar'
+                          style={{
+                            top: `${calendarPosition.top}px`,
+                            left: `${Math.max(8, calendarPosition.left)}px`
+                          }}
+                        >
+                          <div className='tenure-date-calendar-header'>
+                            <button
+                              type='button'
+                              aria-label='Previous month'
+                              disabled={
+                                !calendarMonth
+                                  .clone()
+                                  .subtract(1, 'month')
+                                  .isSameOrAfter(calendarMinimumMonth, 'month')
+                              }
+                              onClick={() =>
+                                setCalendarMonth(current =>
+                                  current.clone().subtract(1, 'month')
+                                )
+                              }
+                            >
+                              <i className='ti ti-chevron-left' />
+                            </button>
+                            <strong>{calendarMonth.format('MMMM YYYY')}</strong>
+                            <button
+                              type='button'
+                              aria-label='Next month'
+                              onClick={() =>
+                                setCalendarMonth(current =>
+                                  current.clone().add(1, 'month')
+                                )
+                              }
+                            >
+                              <i className='ti ti-chevron-right' />
+                            </button>
+                          </div>
+                          <div className='tenure-date-calendar-grid tenure-date-calendar-weekdays'>
+                            {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(
+                              day => <span key={day}>{day}</span>
+                            )}
+                          </div>
+                          <div className='tenure-date-calendar-grid'>
+                            {calendarDays.map(day => {
+                              const isCurrentMonth = day.month() === calendarMonth.month()
+                              const isAllowed =
+                                isCurrentMonth &&
+                                day.date() === 1 &&
+                                !day.isBefore(effectiveDateMinimum, 'day')
+                              const isSelected =
+                                day.format('YYYY-MM-DD') ===
+                                toTenureDateISO(assessment.effectiveFrom)
+
+                              return (
+                                <button
+                                  key={day.format('YYYY-MM-DD')}
+                                  type='button'
+                                  disabled={!isAllowed}
+                                  className={isSelected ? 'selected' : ''}
+                                  aria-label={day.format('DD-MMM-YYYY')}
+                                  title={
+                                    isAllowed
+                                      ? day.format('DD-MMM-YYYY')
+                                      : 'Only the 1st of an allowed month can be selected'
+                                  }
+                                  onClick={() => {
+                                    updateAssessment(
+                                      'effectiveFrom',
+                                      day.format('YYYY-MM-DD')
+                                    )
+                                    setCalendarOpen(false)
+                                  }}
+                                >
+                                  {day.date()}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>,
+                        document.body
+                      )}
                     </div>
                     <div className='col-lg-4 col-md-6'>
                       <label className='form-label'>Next Appraisal Year</label>
