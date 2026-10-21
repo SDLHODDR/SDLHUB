@@ -77,7 +77,8 @@ export const notifyWarning = (
 
 export const confirmAction = async (
   title = "Are you sure?",
-  text = "This action cannot be undone"
+  text = "This action cannot be undone",
+  options = {}
 ) => {
   const result = await Swal.fire({
     icon: "warning",
@@ -88,8 +89,8 @@ export const confirmAction = async (
     cancelButtonText: "Cancel",
     customClass: {
       popup: "dreampos-popup",
-      confirmButton: "dreampos-btn-primary",
-      cancelButton: "btn btn-secondary",
+      confirmButton: options.confirmButtonClass || "dreampos-btn-primary",
+      cancelButton: options.cancelButtonClass || "btn btn-secondary",
     },
     buttonsStyling: false,
   });

@@ -7,6 +7,7 @@ import {
   getDesignationsMaster
 } from '../../services/departmentService'
 import { getMasterData } from '../../services/masterDataService'
+import { createCapabilityMaster } from '../../services/capablitiesService'
 import {
   getJobDescriptions,
   getJobDescriptionById,
@@ -516,6 +517,81 @@ const JobDescription = () => {
         description: item.CAPA_DESC ?? item.capa_desc ?? ''
       })),
     [skillList]
+  )
+
+  const handleAddNewSkill = useCallback(
+    async typedText => {
+      const enteredCode = String(typedText ?? '').trim()
+      if (!enteredCode) return null
+
+      const existingOption = skillOptions.find(
+        option => option.label.trim().toLowerCase() === enteredCode.toLowerCase()
+      )
+      if (existingOption) return existingOption
+
+      // Keep the UI label consistent with saveCapabilitiesMaster.php, which
+      // stores capability codes in ucfirst(lowercase) form.
+      const skillCode =
+        enteredCode.charAt(0).toUpperCase() + enteredCode.slice(1).toLowerCase()
+
+      try {
+        const response = await createCapabilityMaster({
+          CAPA_CODE: skillCode,
+          CAPA_DESC: skillCode
+        })
+
+        if (!response?.status) {
+          throw new Error(response?.message || 'Unable to create skill.')
+        }
+
+        let createdSkill = null
+        const createdId = response?.data?.CAPA_ID
+
+        if (createdId !== undefined && createdId !== null && createdId !== '') {
+          createdSkill = {
+            CAPA_ID: createdId,
+            CAPA_CODE: skillCode,
+            CAPA_DESC: skillCode
+          }
+        } else {
+          // The API reports duplicates as success without returning an ID.
+          // Reload once and select the existing master record in that case.
+          const refreshedSkills = normalizeRecords(await getSkillList())
+          createdSkill = refreshedSkills.find(
+            item =>
+              String(item.CAPA_CODE ?? item.capa_code ?? '')
+                .trim()
+                .toLowerCase() === skillCode.toLowerCase()
+          )
+          if (createdSkill) setSkillList(refreshedSkills)
+        }
+
+        if (!createdSkill) {
+          throw new Error('Skill was not returned by the skill master API.')
+        }
+
+        const newOption = {
+          value: createdSkill.CAPA_ID ?? createdSkill.capa_id,
+          label: createdSkill.CAPA_CODE ?? createdSkill.capa_code ?? skillCode,
+          description:
+            createdSkill.CAPA_DESC ?? createdSkill.capa_desc ?? skillCode
+        }
+
+        setSkillList(previous => {
+          const alreadyAdded = previous.some(
+            item =>
+              String(item.CAPA_ID ?? item.capa_id) === String(newOption.value)
+          )
+          return alreadyAdded ? previous : [...previous, createdSkill]
+        })
+
+        return newOption
+      } catch (error) {
+        notifyError(error?.message || 'Unable to create skill.')
+        return null
+      }
+    },
+    [skillOptions]
   )
 
   const skillLevelOptions = useMemo(
@@ -2050,6 +2126,42 @@ if (!isValid) {
 
     console.log('Job Description save payload:', payload)
 
+    // JD capability rows store only CAPA_ID and CAPALVL_ID. The displayed
+    // skill detail is read from HR_CAPABILITIES.CAPA_DESC, so persist a
+    // changed detail to the skill master before saving the JD assignment.
+    const selectedSkillMaster = skillList.find(
+      item =>
+        String(item.CAPA_ID ?? item.capa_id ?? '') === String(skillForm.code)
+    )
+    const currentMasterDescription =
+      selectedSkillMaster?.CAPA_DESC ?? selectedSkillMaster?.capa_desc ?? ''
+
+    if (
+      activeTab === 'skills' &&
+      skillForm.code &&
+      String(skillForm.details ?? '').trim() !==
+        String(currentMasterDescription).trim()
+    ) {
+      const skillMasterResponse = await createCapabilityMaster({
+        CAPA_ID: skillForm.code,
+        CAPA_DESC: skillForm.details
+      })
+
+      if (!skillMasterResponse?.status) {
+        throw new Error(
+          skillMasterResponse?.message || 'Unable to update skill details.'
+        )
+      }
+
+      setSkillList(previous =>
+        previous.map(item =>
+          String(item.CAPA_ID ?? item.capa_id ?? '') === String(skillForm.code)
+            ? { ...item, CAPA_DESC: skillForm.details }
+            : item
+        )
+      )
+    }
+
     const response = await saveJobDescription(payload)
 
     if (response?.status) {
@@ -3246,6 +3358,8 @@ if (!isValid) {
                               }}
                               isSearchable
                               isClearable
+                              allowAddNew
+                              onAddNew={handleAddNewSkill}
                               placeholder='Select Skill'
                               width='100%'
                             />
