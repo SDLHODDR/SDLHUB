@@ -80,6 +80,25 @@ const normalizeRecords = payload => {
   return []
 }
 
+const normalizeQuestionAssignments = rows =>
+  (Array.isArray(rows) ? rows : []).map(row => ({
+    ...row,
+    ID: row.ID ?? row.id ?? '',
+    JD_ID: row.JD_ID ?? row.jd_id ?? '',
+    QGRP_ID: String(row.QGRP_ID ?? row.qgrp_id ?? '').trim(),
+    QGRP_DESC: row.QGRP_DESC ?? row.qgrp_desc ?? '',
+    QGRP_TYPE: row.QGRP_TYPE ?? row.qgrp_type ?? '',
+    QSGRP_ID: String(row.QSGRP_ID ?? row.qsgrp_id ?? '').trim(),
+    QSGRP_DESC: row.QSGRP_DESC ?? row.qsgrp_desc ?? '',
+    QUESTION_ID:
+      row.QUESTION_ID ?? row.question_id ?? row.questionId ?? '',
+    QUESTION: row.QUESTION ?? row.question ?? '',
+    RATING_TYPE: row.RATING_TYPE ?? row.rating_type ?? '',
+    DISP_SEQ: row.DISP_SEQ ?? row.disp_seq ?? '',
+    EFF_FROM: row.EFF_FROM ?? row.eff_from ?? '',
+    EFF_TO: row.EFF_TO ?? row.eff_to ?? ''
+  }))
+
 const getDisplayValue = (item, keys, fallback = '') => {
   if (!item || typeof item !== 'object') return fallback
 
@@ -551,48 +570,73 @@ const JobDescription = () => {
     () =>
       normalizeRecords(questionGroupList)
         .map(item => ({
-          value: item.QGRP_ID,
+          value: String(item.QGRP_ID ?? '').trim(),
           label: item.QGRP_DESC
         }))
-        .filter(item => item.value && item.label),
+        .filter(item => item.value !== '' && item.label),
     [questionGroupList]
   )
 
   const questionTemplateQuestions = useMemo(() => {
-    const records = normalizeRecords(questionTemplateList)
+    const assignments = normalizeQuestionAssignments(
+      formData.QUESTION_TEMPLATE_LIST
+    )
+    const records = [
+      ...assignments,
+      ...normalizeRecords(questionTemplateList)
+    ]
 
     const grouped = new Map()
 
     records.forEach(item => {
       const questionId = String(item.QUESTION_ID ?? '')
+      const groupId = String(item.QGRP_ID ?? item.qgrp_id ?? '').trim()
+      const subGroupId = String(item.QSGRP_ID ?? item.qsgrp_id ?? '').trim()
 
       if (!questionId) return
 
-      if (!grouped.has(questionId)) {
-        grouped.set(questionId, {
+      // A saved JD assignment owns its group and subgroup. Keying only by
+      // question ID let a master-template row mask an assignment when its
+      // group metadata differed, making the saved row disappear on filter.
+      const key = `${groupId}:${questionId}`
+
+      if (!grouped.has(key)) {
+        grouped.set(key, {
           QUESTION_ID: questionId,
           QUESTION: item.QUESTION ?? '',
           RATING_TYPE: item.RATING_TYPE ?? '',
-          QGRP_ID: item.QGRP_ID ?? '',
+          QGRP_ID: groupId,
           QGRP_DESC: item.QGRP_DESC ?? '',
           QGRP_TYPE: item.QGRP_TYPE ?? '',
-          QSGRP_ID: item.QSGRP_ID ?? '',
+          QSGRP_ID: subGroupId,
           QSGRP_DESC: item.QSGRP_DESC ?? '',
+          DISP_SEQ: item.DISP_SEQ ?? item.disp_seq ?? '',
           OPTIONS: []
         })
       }
 
+      const question = grouped.get(key)
+      // Keep assignment metadata/text first, while filling blanks from the
+      // master-template row and attaching its options.
+      question.QUESTION ||= item.QUESTION ?? item.question ?? ''
+      question.QGRP_DESC ||= item.QGRP_DESC ?? item.qgrp_desc ?? ''
+      question.QSGRP_DESC ||= item.QSGRP_DESC ?? item.qsgrp_desc ?? ''
+      question.QSGRP_ID ||= subGroupId
+
       if (item.OPTION_ID && item.OPTS_TEXT) {
-        grouped.get(questionId).OPTIONS.push({
-          OPTION_ID: item.OPTION_ID,
-          OPTS_TEXT: item.OPTS_TEXT,
-          OPTS_SEQ: item.OPTS_SEQ
-        })
+        const options = question.OPTIONS
+        if (!options.some(option => String(option.OPTION_ID) === String(item.OPTION_ID))) {
+          options.push({
+            OPTION_ID: item.OPTION_ID,
+            OPTS_TEXT: item.OPTS_TEXT,
+            OPTS_SEQ: item.OPTS_SEQ
+          })
+        }
       }
     })
 
     return Array.from(grouped.values())
-  }, [questionTemplateList])
+  }, [formData.QUESTION_TEMPLATE_LIST, questionTemplateList])
 
   const questionOptionsMap = useMemo(() => {
     const map = {}
@@ -695,7 +739,9 @@ const JobDescription = () => {
     }
 
     return questions.filter(
-      item => String(item.QGRP_ID) === String(selectedQuestionGroup)
+      item =>
+        String(item.QGRP_ID ?? '').trim() ===
+        String(selectedQuestionGroup ?? '').trim()
     )
   }, [questionTemplateQuestions, selectedQuestionGroup])
 
@@ -806,6 +852,12 @@ const JobDescription = () => {
         return
       }
 
+      const savedQuestionAssignments = normalizeQuestionAssignments(
+        selectedJob.QUESTION_TEMPLATE_LIST
+      )
+      setSelectedQuestionGroup(savedQuestionAssignments[0]?.QGRP_ID ?? '')
+      setQuestionCurrentPage(1)
+
       setResponsibilitiesList(
         Array.isArray(selectedJob.RESPONSIBILITIES_LIST)
           ? selectedJob.RESPONSIBILITIES_LIST
@@ -907,6 +959,15 @@ const JobDescription = () => {
             }))
           : [],
 
+        QUESTION_TEMPLATE: savedQuestionAssignments.map(question => ({
+          QGRP_ID: question.QGRP_ID,
+          QGRP_TYPE: question.QGRP_TYPE,
+          QSGRP_ID: question.QSGRP_ID,
+          QUESTION_ID: question.QUESTION_ID,
+          DISP_SEQ: question.DISP_SEQ
+        })),
+        QUESTION_TEMPLATE_LIST: savedQuestionAssignments,
+
         // RESPONSIBILITIES_LIST: Array.isArray(selectedJob.RESPONSIBILITIES_LIST)
         //   ? selectedJob.RESPONSIBILITIES_LIST
         //   : [],
@@ -996,6 +1057,16 @@ const JobDescription = () => {
 
       setSelectedJobId(job.ID)
 
+      const savedQuestionAssignments = normalizeQuestionAssignments(
+        job.QUESTION_TEMPLATE_LIST
+      )
+      // Keep the Question Template tab in sync with this JD. The group
+      // selection previously carried over from the last JD, which could
+      // hide saved questions from a different group (for example Tenure
+      // Assessment while First Impression Report remained selected).
+      setSelectedQuestionGroup(savedQuestionAssignments[0]?.QGRP_ID ?? '')
+      setQuestionCurrentPage(1)
+
       setFormData(prev => ({
         ...prev,
 
@@ -1024,6 +1095,15 @@ const JobDescription = () => {
         REPT_JDID: job.REPT_JDID ?? '',
 
         JD_DOC_PATH: job.JD_DOC_PATH ?? '',
+
+        QUESTION_TEMPLATE: savedQuestionAssignments.map(question => ({
+          QGRP_ID: question.QGRP_ID,
+          QGRP_TYPE: question.QGRP_TYPE,
+          QSGRP_ID: question.QSGRP_ID,
+          QUESTION_ID: question.QUESTION_ID,
+          DISP_SEQ: question.DISP_SEQ
+        })),
+        QUESTION_TEMPLATE_LIST: savedQuestionAssignments,
 
         KRA: Array.isArray(job.KRA_LIST)
           ? job.KRA_LIST.map(item => item.KRA_ID)
@@ -1689,6 +1769,9 @@ const refreshSavedJobDetails = async jobId => {
     const skillsList = Array.isArray(job.SKILLS_LIST) ? job.SKILLS_LIST : []
     const allowancesList = Array.isArray(job.ALLOWANCES_LIST) ? job.ALLOWANCES_LIST : []
     const ctcHeadsList = Array.isArray(job.CTC_HEADS_LIST) ? job.CTC_HEADS_LIST : []
+    const questionTemplateList = normalizeQuestionAssignments(
+      job.QUESTION_TEMPLATE_LIST
+    )
     const inductionList = Array.isArray(job.INDUCTION_LIST) ? job.INDUCTION_LIST : []
     const responsibilitiesList = Array.isArray(job.RESPONSIBILITIES_LIST) ? job.RESPONSIBILITIES_LIST : []
     const induction = inductionList[0]
@@ -1702,6 +1785,14 @@ const refreshSavedJobDetails = async jobId => {
       SKILLS_LIST: skillsList,
       ALLOWANCES_LIST: allowancesList,
       CTC_HEADS_LIST: ctcHeadsList,
+      QUESTION_TEMPLATE: questionTemplateList.map(question => ({
+        QGRP_ID: question.QGRP_ID,
+        QGRP_TYPE: question.QGRP_TYPE,
+        QSGRP_ID: question.QSGRP_ID,
+        QUESTION_ID: question.QUESTION_ID,
+        DISP_SEQ: question.DISP_SEQ
+      })),
+      QUESTION_TEMPLATE_LIST: questionTemplateList,
       INDUCTION_LIST: inductionList,
       INDUCTION: induction
         ? {
