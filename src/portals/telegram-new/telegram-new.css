@@ -53,6 +53,9 @@
 .telegram-new__employee small { color: #607178; }
 .telegram-new__invite-settings { display: flex; gap: 14px; margin-top: 14px; }
 .telegram-new__invite-settings label { min-width: 150px; display: grid; gap: 5px; font-size: 13px; font-weight: 600; }
+.telegram-new__invitation-tabs { display: flex; gap: 18px; margin: -4px 0 18px; border-bottom: 1px solid var(--telegram-line); }
+.telegram-new__invitation-tabs button { padding: 0 2px 10px; color: #607178; background: transparent; border: 0; border-bottom: 2px solid transparent; }
+.telegram-new__invitation-tabs button.is-active { color: var(--telegram-teal); border-color: var(--telegram-teal); font-weight: 600; }
 .telegram-header-menu { position: relative; }
 .telegram-header-menu > button { position: relative; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; color: inherit; background: transparent; border: 0; }
 .telegram-header-menu__badge { position: absolute; top: 0; right: 0; display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; color: #fff; background: #d63939; border: 1px solid #fff; border-radius: 10px; font-size: 10px; font-weight: 700; line-height: 1; }

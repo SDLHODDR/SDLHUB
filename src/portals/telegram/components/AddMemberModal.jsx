@@ -343,9 +343,9 @@ console.log("Array?", Array.isArray(memberList));
             </div>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary me-2" onClick={onClose} > Cancel </button>
-				    <button type="button" className="btn btn-primary" disabled={loading} onClick={handleSubmit}>
+            <button type="button" className="btn btn-primary me-2" disabled={loading} onClick={handleSubmit}>
               {loading ? "Saving..." : "Save Member"}</button>
+            <button type="button" className="btn btn-secondary me-2" onClick={onClose} > Cancel </button>
           </div>
         </div>
       </div>

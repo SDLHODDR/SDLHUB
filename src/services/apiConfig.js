@@ -78,6 +78,10 @@ export const PORTALAPI = {
       GROUP_MEMBERS: "/telegram/members/group-members",
       SAVE_DM: "/telegram/members/save-member-dm",
     },
+    INVITATIONS: {
+      GENERATE: "/telegram/invitations/generate",
+      MINE: "/telegram/invitations/mine",
+    },
   },
 
   MYPROFILE: {

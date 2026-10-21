@@ -168,10 +168,11 @@ const CreateGroupModal = ({
 				</div>
 				{/* FOOTER */}
 				<div className="modal-footer">
-				  <button type="button" className="btn btn-secondary me-2" onClick={handleClose} > Cancel </button>
-				  <button type="submit" className="btn btn-primary" disabled={loading} >
-					{loading ? "Creating..." : "Create Group"}
-				  </button>
+					<button type="submit" className="btn btn-primary me-2" disabled={loading} >
+						{loading ? "Creating..." : "Create Group"}
+				  	</button>
+				  	<button type="button" className="btn btn-secondary me-2" onClick={handleClose} > Cancel </button>
+				  
 				</div>
 			  </form>
 			</div>

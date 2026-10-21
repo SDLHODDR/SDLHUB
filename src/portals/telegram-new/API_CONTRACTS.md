@@ -15,13 +15,12 @@ The new frontend reuses authenticated Telegram API calls already configured in S
 
 ## Backend gaps and constraints
 
-### Unique employee invitations
+### Employee invitations
 
-The existing PHP route `POST /telegram/invite/generate` accepts `chat_id` and calls Telegram Bot API `createChatInviteLink`; it does not accept an employee, expiry or usage limit and does not persist an employee mapping or HR notification. It is not used by the new UI.
-
-The Node MTProto service has `/generate-employee-invite` for a single `telegram_group_id` and `employee_code`, hardcodes a seven-day expiry and one-use limit, and returns a link. `TelegramNodeService::generateEmployeeInvite` wraps it, but no PHP route/controller calls that method. The helper does not persist invitation records or create employee notifications. A PHP operation is needed to validate access, generate one link per employee, persist the mapping and HR notification, handle partial batch failures and enforce idempotency. The existing member assignment route currently reuses the group-level `INVITE_LINK` and sends it through WhatsApp, so the new UI does not call it.
-
-Suggested contract: `POST /telegram/invitations/generate` accepts `{ telegram_group_id, employee_codes, expiry_days: 30, usage_limit: 1, idempotency_key }` and returns per-employee status and invitation metadata. Link visibility must be restricted by backend authorization.
+- `POST /telegram/invitations/generate` accepts `{ group_id: <telegram_group_id>, employees: [{ employee_code }], expiry_days: 30, usage_limit: 1 }`. PHP resolves the Telegram group ID to its local row, validates the active group and employee against HRMS, then calls MTProto once per employee and persists the invite link, hash and expiry in `PSR_MEMBER_GROUP_MAPPING`. Each link is limited to one use and expires after 30 days; batch results report individual failures.
+- `GET /telegram/invitations/mine` returns mappings for the authenticated session employee only.
+- The MTProto update handler detects a group join. The PHP callback checks pending single-use invite links with `messages.GetChatInviteImporters`; when the joining Telegram user is found on a link, PHP stores the Telegram user ID on the employee record and mapping and marks the mapping `JOINED`.
+- Apply `migrations/20261019_employee_telegram_invitations.sql` before enabling the endpoints. Links are private to the employee-scoped list endpoint.
 
 ### Telegram notification counts
 

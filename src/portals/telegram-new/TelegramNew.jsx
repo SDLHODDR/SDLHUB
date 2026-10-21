@@ -9,7 +9,9 @@ import {
   getDivisions,
   getGroups,
   getHRMSMembers,
+  getMyEmployeeInvitations,
   getMembers,
+  generateEmployeeInvitations,
   saveBroadCastMessage,
   saveMemberDM,
 } from "./telegramNewService";
@@ -41,6 +43,9 @@ const TelegramNew = () => {
   const [departmentId, setDepartmentId] = useState("");
   const [inviteSearch, setInviteSearch] = useState("");
   const [inviteEmployees, setInviteEmployees] = useState([]);
+  const [invitationMode, setInvitationMode] = useState("form");
+  const [myInvitations, setMyInvitations] = useState([]);
+  const [invitationLoading, setInvitationLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
@@ -116,6 +121,24 @@ const TelegramNew = () => {
     };
   }, [page, divisionId, departmentId]);
 
+  useEffect(() => {
+    if (page !== "invitations" || invitationMode !== "list") return undefined;
+    let mounted = true;
+    getMyEmployeeInvitations()
+      .then((response) => {
+        if (mounted) setMyInvitations(readRows(response?.data));
+      })
+      .catch((requestError) => {
+        if (mounted) setError(getErrorMessage(requestError, "Unable to load your invitations."));
+      })
+      .finally(() => {
+        if (mounted) setInvitationLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [page, invitationMode]);
+
   const activeGroups = groups.filter((group) => String(group.ACTIVE_FLAG) === "1");
   const joinedMembers = members.filter((member) => String(member.TELEGRAM_JOINED) === "1");
   const filteredGroups = useMemo(() => groups.filter((group) => {
@@ -168,6 +191,38 @@ const TelegramNew = () => {
       : [...current, employeeCode]);
   };
 
+  const handleGenerateInvitations = async () => {
+    setBusy(true);
+    try {
+      const selectedEmployees = employees
+        .filter((employee) => inviteEmployees.includes(employee.EMP_CODE))
+        .map((employee) => ({
+          employee_code: employee.EMP_CODE,
+          employee_name: `${employee.FNAME || ""} ${employee.LNAME || ""}`.trim(),
+          mobile_number: employee.CELL || "",
+        }));
+      const response = await generateEmployeeInvitations({
+        group_id: selectedInviteGroup?.TELEGRAM_GROUP_ID,
+        employees: selectedEmployees,
+        expiry_days: 30,
+        usage_limit: 1,
+      });
+      if (!response.success) throw new Error(response.message || "Unable to generate invitations.");
+      const results = response.data?.results || [];
+      const generatedCount = results.filter((item) => item.status === "GENERATED" || item.status === "ACTIVE").length;
+      setInviteEmployees([]);
+      await Swal.fire({
+        icon: results.some((item) => item.status === "FAILED") ? "warning" : "success",
+        title: "Invitation requests processed",
+        text: `${generatedCount} invitation link${generatedCount === 1 ? "" : "s"} ready. ${results.length - generatedCount} already joined or failed.`,
+      });
+    } catch (requestError) {
+      await Swal.fire({ icon: "error", title: "Invitation generation failed", text: getErrorMessage(requestError, "Unable to generate invitations.") });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <main className="telegram-new container-fluid py-4">
       <header className="telegram-new__header">
@@ -197,7 +252,7 @@ const TelegramNew = () => {
           <section className="telegram-new__metrics" aria-label="Telegram summary">
             <Metric label="Active groups" value={loading ? "..." : activeGroups.length} icon="ti-users" onClick={() => navigate("/telegram-new/groups")} />
             <Metric label="Inactive groups" value={loading ? "..." : groups.length - activeGroups.length} icon="ti-users-minus" onClick={() => navigate("/telegram-new/groups")} />
-            <Metric label="Members listed" value={loading ? "..." : members.length} icon="ti-user" onClick={() => navigate("/telegram-new/members")} />
+            <Metric label="Joined members" value={loading ? "..." : joinedMembers.length} icon="ti-user" onClick={() => navigate("/telegram-new/members")} />
             <Metric label="Pending invitations" value="Unavailable" icon="ti-link-off" onClick={() => navigate("/telegram-new/invitations")} />
             <Metric label="Message delivery" value="Unavailable" icon="ti-message-circle" onClick={() => navigate("/telegram-new/messages")} />
           </section>
@@ -259,7 +314,12 @@ const TelegramNew = () => {
 
       {page === "invitations" && (
         <section className="telegram-new__panel">
-          <div className="telegram-new__section-heading"><div><h2>Employee invitations</h2><p className="text-muted mb-0">Choose a group and employees for the planned unique-link workflow.</p></div></div>
+          <div className="telegram-new__section-heading"><div><h2>Invitations</h2><p className="text-muted mb-0">Generate employee-specific group links or review your invitations.</p></div></div>
+          <div className="telegram-new__invitation-tabs" role="tablist" aria-label="Invitation views">
+            <button type="button" role="tab" aria-selected={invitationMode === "form"} className={invitationMode === "form" ? "is-active" : ""} onClick={() => setInvitationMode("form")}>Generate invitations</button>
+            <button type="button" role="tab" aria-selected={invitationMode === "list"} className={invitationMode === "list" ? "is-active" : ""} onClick={() => { setInvitationLoading(true); setInvitationMode("list"); }}>My invitations</button>
+          </div>
+          {invitationMode === "form" ? (
           <div className="telegram-new__invite-form">
             <label className="form-label" htmlFor="telegram-invite-group">Telegram group</label>
             <select id="telegram-invite-group" className="form-select" value={groupIdFromUrl} onChange={(event) => navigate(`/telegram-new/invitations${event.target.value ? `?groupId=${encodeURIComponent(event.target.value)}` : ""}`)}><option value="">Select a group</option>{groups.map((group) => <option key={group.ID} value={group.ID}>{group.TITLE}</option>)}</select>
@@ -278,10 +338,15 @@ const TelegramNew = () => {
                 return <label className="telegram-new__employee" key={employeeCode}><input type="checkbox" checked={checked} onChange={() => handleInviteEmployeeToggle(employeeCode)} /><span><strong>{employeeName}</strong><small>{employeeCode} · {employee.DIVSN_DESC} · {employee.DEPT_DESC}</small></span></label>;
               }) : <p className="p-3 text-muted mb-0">No employees were returned for these filters.</p>}
             </div>
-            <div className="telegram-new__invite-settings"><label>Expiry<select className="form-select" defaultValue="30"><option value="30">30 days</option></select></label><label>Uses per link<input className="form-control" value="1" readOnly aria-label="Uses per invitation link" /></label></div>
-            <div className="telegram-new__notice" role="note"><strong>Unique MTProto invitation generation is not wired through PHP.</strong><span>The current PHP invite route calls Telegram Bot API with a shared chat ID. The separate MTProto helper accepts one group and employee but does not persist mappings or create HR_Notification records. The existing member assignment route sends shared links through WhatsApp, so this screen will not call either route.</span></div>
-            <button type="button" className="btn btn-primary" disabled title="Requires a PHP endpoint that generates and persists unique MTProto links">Generate invitation links</button>
+            <div className="telegram-new__invite-settings"><label>Expiry<select className="form-select" value="30" disabled><option value="30">30 days</option></select></label><label>Uses per link<input className="form-control" value="1" readOnly aria-label="Uses per invitation link" /></label></div>
+            <div className="telegram-new__notice" role="note"><strong>Each selected employee receives a unique, single-use Telegram link.</strong><span>Links expire after 30 days. Telegram join updates are matched against the individual link before the employee membership is marked joined.</span></div>
+            <button type="button" className="btn btn-primary" onClick={handleGenerateInvitations} disabled={!groupIdFromUrl || inviteEmployees.length === 0 || busy}>{busy ? "Generating..." : "Generate invitation links"}</button>
           </div>
+          ) : (
+            <div className="table-responsive"><table className="table align-middle telegram-new__table"><thead><tr><th>Group</th><th>Invite link</th><th>Expires</th><th>Status</th></tr></thead><tbody>
+              {invitationLoading ? <tr><td colSpan="4" className="text-center py-4">Loading invitations...</td></tr> : myInvitations.length ? myInvitations.map((invitation) => <tr key={invitation.ID}><td>{invitation.GROUP_NAME || "Telegram group"}</td><td>{invitation.INVITE_LINK && String(invitation.IS_ACTIVE) === "1" ? <a href={invitation.INVITE_LINK} target="_blank" rel="noreferrer">Open Telegram invite</a> : "—"}</td><td>{invitation.EXPIRES_AT || "No expiry"}</td><td><Status value={invitation.GROUP_STATUS || "Pending"} positive={invitation.GROUP_STATUS === "JOINED"} /></td></tr>) : <tr><td colSpan="4" className="text-center text-muted py-4">No invitations were found for your employee account.</td></tr>}
+            </tbody></table></div>
+          )}
         </section>
       )}
 

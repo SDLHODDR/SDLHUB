@@ -92,8 +92,8 @@ const SendDirectMessageModal = ({
           </div>
 
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary me-2" onClick={onClose} > Cancel </button>
-				    <button type="button" className="btn btn-primary" onClick={handleSave}> Send Message </button>
+            <button type="button" className="btn btn-primary me-2" onClick={handleSave}> Send Message </button>
+            <button type="button" className="btn btn-secondary me-2" onClick={onClose} > Cancel </button>    
           </div>
         </div>
       </div>

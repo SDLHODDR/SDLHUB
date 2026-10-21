@@ -52,8 +52,8 @@ const GroupBroadcastModal = ({
             </div>
           </div>
           <div className="modal-footer">
+            <button type="submit" className="btn btn-primary me-2" onClick={handleSubmit} > Send </button>
             <button className="btn btn-secondary me-2" onClick={onClose} > Cancel </button>
-				    <button type="submit" className="btn btn-primary" onClick={handleSubmit} > Send </button>
           </div>
         </div>
       </div>
