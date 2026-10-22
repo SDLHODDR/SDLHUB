@@ -43,17 +43,27 @@ export const getTenureAuthorizationColumns = (formatDashDate, tid = 0) => {
       field: "TRAN_DESC",
       header: "Task Description",
       sortable: true,
-      body: (rowData) => (
-        <div
-          style={{
-            lineHeight: "1.4",
-            fontSize: "13px",
-            wordBreak: "break-word",
-          }}
-        >
-          {rowData.TRAN_DESC || "—"}
-        </div>
-      ),
+      body: (rowData) => {
+        const description = String(rowData.TRAN_DESC || "").trim();
+        const displayDescription =
+          String(tid) === "26" &&
+          /CTC Change Letter for\s*$/i.test(description) &&
+          rowData.TENURE_EMP_NAME
+            ? `${description} ${rowData.TENURE_EMP_NAME}`
+            : description || "—";
+
+        return (
+          <div
+            style={{
+              lineHeight: "1.4",
+              fontSize: "13px",
+              wordBreak: "break-word",
+            }}
+          >
+            {displayDescription}
+          </div>
+        );
+      },
       style: { minWidth: "320px" },
     },
     // {
