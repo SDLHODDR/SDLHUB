@@ -108,15 +108,16 @@ const TenureChange = () => {
 
     // FIX: Check if it's missing, empty string, or explicitly "Vacant"
     if (!managerCode || managerCode.trim() === '' || managerCode === 'Vacant') {
-      notifyError('Manager code is not available for this employee.', {
-        onClose: () =>
-          navigate('/hrms/masterdata/organogram', {
-            state: {
-              organogramId: employee.orgId,
-              selectedTab: 'appraisalLevels'
-            }
-          })
-      })
+      // notifyError('Manager code is not available for this employee.', {
+      //   onClose: () =>
+      //     navigate('/hrms/masterdata/organogram', {
+      //       state: {
+      //         organogramId: employee.orgId,
+      //         selectedTab: 'appraisalLevels'
+      //       }
+      //     })
+      // })
+      notifyError('Manager code is not available for this employee.', null);
       return
     }
 
@@ -209,7 +210,7 @@ const TenureChange = () => {
     },
     {
       field: 'approvalText',
-      header: 'Appr Level',
+      header: 'Appraiser',
       body: approvalLevelBody,
       style: { width: '12%' }
     },
