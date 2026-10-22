@@ -332,7 +332,7 @@ const TenureChangeAssessmentModal = ({
 
   return (
     <div
-      className='modal fade show d-block'
+      className='modal fade show d-block tenure-modal-backdrop'
       tabIndex='-1'
       role='dialog'
       aria-modal='true'

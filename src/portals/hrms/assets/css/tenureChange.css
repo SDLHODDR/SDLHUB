@@ -190,7 +190,7 @@
   color: #fff;
 }
 
-/* .tenure-modal-backdrop {
+.tenure-modal-backdrop {
   position: fixed !important;
   inset: 0 !important;
   width: 100% !important;
@@ -200,13 +200,13 @@
   align-items: center !important;
   justify-content: center !important;
 
-  padding: 16px !important;
+  /* padding: 16px !important; */
   box-sizing: border-box !important;
   overflow-x: hidden !important;
   overflow-y: auto !important;
 
   background: rgba(15, 23, 42, 0.6) !important;
-  z-index: 1050 !important;
+  z-index: 1055 !important;
 }
 
 .tenure-modal-backdrop > .modal-dialog {
@@ -217,12 +217,13 @@
   left: auto !important;
   transform: none !important;
 
-  flex: 0 1 auto !important;
-  width: 92% !important;
+  flex: 0 1 1200px !important;
+  width: min(92vw, 1200px) !important;
   max-width: 1200px !important;
   min-width: 0 !important;
+  min-height: 0 !important;
 
-  margin: auto !important;
+  margin-left: 9% !important;
   max-height: calc(100vh - 32px) !important;
 }
 
@@ -238,7 +239,7 @@
 .tenure-modal-backdrop .modal-body {
   min-height: 0;
   overflow-y: auto;
-} */
+}
 
 .tenure-change-page .tenure-preview-button {
   height: 40px;
@@ -302,6 +303,7 @@
   overflow: auto;
   padding: 1.5rem;
   background: #242424;
+  margin-left: 9% !important;
 }
 
 .tenure-letter-paper {
@@ -315,6 +317,30 @@
   font-size: 0.95rem;
   line-height: 1.65;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.tenure-template-select,
+.legacy-preview-btn {
+  height: 38px;
+}
+
+.legacy-preview-btn {
+  width: 180px;
+  white-space: nowrap;
+}
+
+.tenure-letter-preview-title {
+  font-size: 1.125rem;
+  line-height: 1.4;
+}
+
+.tenure-letter-preview-close {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
 }
 
 @media (max-width: 767.98px) {

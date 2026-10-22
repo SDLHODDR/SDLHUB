@@ -111,7 +111,7 @@ const TenureChangeLetter = () => {
           <section className="tenure-letter-modal" role="dialog" aria-modal="true" aria-labelledby="tenure-letter-preview-title">
             <header className="tenure-letter-modal-header">
               <h5 id="tenure-letter-preview-title" className="mb-0">Letter Preview</h5>
-              <button type="button" className="btn-close" aria-label="Close" onClick={() => setPreviewOpen(false)} />
+              <button type="button" className="close" aria-label="Close" onClick={() => setPreviewOpen(false)} />
             </header>
             <div className="tenure-letter-toolbar">
               <span className="fw-semibold">{letterType.toLowerCase().replaceAll(" ", "_")}_letter_preview</span>
