@@ -357,7 +357,7 @@ const TenureChangeLetterModal = ({
     <>
       {/* Primary Modal: Compact 3-Column Layout */}
       <div
-        className='modal fade show d-block'
+        className='modal fade show d-block tenure-modal-backdrop'
         tabIndex='-1'
         role='dialog'
         aria-modal='true'
@@ -371,12 +371,21 @@ const TenureChangeLetterModal = ({
           <div className='modal-content border-0 shadow-lg tenure-compact-modal'>
             {/* Header */}
             <div className='modal-header py-2 px-4 d-flex justify-content-between align-items-center border-bottom bg-white'>
-              <h5
-                className='modal-title font-weight-bold text-dark m-0'
-                id='tenure-letter-title'
-              >
-                Print Tenure Change Letter
-              </h5>
+              <div>
+                <h5
+                  className='modal-title font-weight-bold text-dark m-0'
+                  id='tenure-letter-title'
+                >
+                  Print Tenure Change Letter
+                </h5>
+                <small className='text-muted'>
+                  Employee Code: <strong>{details?.emp_code || empCode || '-'}</strong>
+                  <span className='mx-2'>|</span>
+                  Task ID: <strong>{record?.ID || '-'}</strong>
+                  <span className='mx-2'>|</span>
+                  Workflow Task: <strong>{record?.TASK_ID || config?.id || '-'}</strong>
+                </small>
+              </div>
               <button
                 type='button'
                 className='close'
@@ -403,79 +412,79 @@ const TenureChangeLetterModal = ({
                 <>
                   <div className='row g-2 tenure-legacy-grid'>
                     <div className='col-md-4'>
-                      <span className='grid-label'>Employee : </span>
-                      <span className='emp-highlighted-name'>
+                      <strong className='grid-label'>Employee : </strong>
+                      <span className='grid-val'>
                         {details.emp_code} - {details.emp_name}
                       </span>
                     </div>
                     <div className='col-md-4'>
-                      <span className='grid-label'>Date Of Joining : </span>
-                      <strong className='grid-val'>{details.doj || '-'}</strong>
+                      <strong className='grid-label'>Date Of Joining : </strong>
+                      <span className='grid-val'>{details.doj || '-'}</span>
                     </div>
                     <div className='col-md-4'>
-                      <span className='grid-label'>Tenure Due Date : </span>
-                      <strong className='grid-val text-dark'>
+                      <strong className='grid-label'>Tenure Due Date : </strong>
+                      <span className='grid-val text-dark'>
                         {details.tenure_due_date || '-'}
-                      </strong>
+                      </span>
                     </div>
 
                     <div className='col-md-4'>
-                      <span className='grid-label'>Employee Type : </span>
-                      <strong className='grid-val text-uppercase'>
+                      <strong className='grid-label'>Employee Type : </strong>
+                      <span className='grid-val text-uppercase'>
                         {details.emp_type || '-'}
-                      </strong>
+                      </span>
                     </div>
                     <div className='col-md-4'>
-                      <span className='grid-label'>Designation : </span>
-                      <strong className='grid-val'>
+                      <strong className='grid-label'>Designation : </strong>
+                      <span className='grid-val'>
                         {details.designation || '-'}
-                      </strong>
+                      </span>
                     </div>
                     <div className='col-md-4'>
-                      <span className='grid-label'>Department : </span>
-                      <strong className='grid-val'>
+                      <strong className='grid-label'>Department : </strong>
+                      <span className='grid-val'>
                         {details.department || '-'}
-                      </strong>
+                      </span>
                     </div>
 
                     <div className='col-md-4'>
-                      <span className='grid-label'>Employee Period : </span>
-                      <strong className='grid-val'>
+                      <strong className='grid-label'>Employee Period : </strong>
+                      <span className='grid-val'>
                         {details.emp_period ?? '0'}
-                      </strong>
+                      </span>
                     </div>
                     <div className='col-md-4'>
-                      <span className='grid-label'>Current CTC : </span>
-                      <strong className='grid-val'>
+                      <strong className='grid-label'>Current CTC : </strong>
+                      <span className='grid-val'>
                         ₹{' '}
                         {Number(details.curr_ctc || 0).toLocaleString('en-IN')}
-                      </strong>
+                      </span>
                     </div>
                     <div className='col-md-4'>
-                      <span className='grid-label'>CTC Effective Date : </span>
-                      <strong className='grid-val'>
+                      <strong className='grid-label'>CTC Effective Date : </strong>
+                      <span className='grid-val'>
                         {details.ctc_eff_from || '-'}
-                      </strong>
+                      </span>
                     </div>
 
                     <div className='col-md-4'>
-                      <span className='grid-label'>Proposed CTC : </span>
-                      <strong className='grid-val'>
+                      <strong className='grid-label'>Proposed CTC : </strong>
+                      <span className='grid-val'>
                         ₹{' '}
                         {Number(details.prop_ctc || 0).toLocaleString('en-IN')}
-                      </strong>
+                      </span>
                     </div>
                     <div className='col-md-4'>
-                      <span className='grid-label'>Location : </span>
-                      <strong className='grid-val'>
+                      <strong className='grid-label'>Location : </strong>
+                      <span className='grid-val'>
                         {details.location || '-'}
-                      </strong>
+                      </span>
                     </div>
                     <div className='col-md-4'>
-                      <span className='grid-label'>Remarks : </span>
-                      <strong className='grid-val'>
+                      <strong className='grid-label'>Remarks : </strong>
+                      <span className='grid-val'>
                         {details.remarks || '-'}
-                      </strong>
+                      </span>
                     </div>
                   </div>
 
@@ -484,7 +493,7 @@ const TenureChangeLetterModal = ({
                       <div className='col-md-4 col-sm-6'>
                         <select
                           id='STAFF_TYPE'
-                          className='form-select form-control custom-select-sm'
+                          className='form-select tenure-template-select'
                           value={staffType}
                           onChange={e => setStaffType(e.target.value)}
                         >
@@ -511,7 +520,7 @@ const TenureChangeLetterModal = ({
                       <div className='col-auto'>
                         <button
                           type='button'
-                          className='btn btn-warning px-3 py-1 fw-bold text-dark legacy-preview-btn'
+                          className='btn btn-warning fw-bold text-dark legacy-preview-btn'
                           onClick={handlePreviewTemplate}
                         >
                           Preview Template
@@ -597,16 +606,16 @@ const TenureChangeLetterModal = ({
           >
             <div
               className='modal-content shadow-2xl border-0 rounded-3 overflow-hidden d-flex flex-column'
-              style={{ height: '96vh' }}
+              style={{ height: '96vh', marginLeft: '7%', marginTop: '2%' }}
             >
               {/* Header */}
               <div className='modal-header py-2 px-3 bg-light border-bottom d-flex justify-content-between align-items-center flex-shrink-0'>
-                <h6 className='modal-title font-weight-bold text-dark m-0 fs-6'>
+                <h5 className='modal-title font-weight-bold text-dark m-0 tenure-letter-preview-title'>
                   Letter Preview — {details?.emp_name || 'Employee'} ({empCode})
-                </h6>
+                </h5>
                 <button
                   type='button'
-                  className='btn-close'
+                  className='close tenure-letter-preview-close'
                   aria-label='Close'
                   onClick={() => {
                     if (pdfBlobUrl)
@@ -614,7 +623,9 @@ const TenureChangeLetterModal = ({
                     setPdfBlobUrl('')
                     setShowPreviewModal(false)
                   }}
-                />
+                >
+                  <span aria-hidden='true'>&times;</span>
+                </button>
               </div>
 
               {/* Body: Occupies remaining vertical height */}
