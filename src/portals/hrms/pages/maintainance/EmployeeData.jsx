@@ -133,6 +133,27 @@ const INITIAL_EMPLOYEE_DATA = {
   KRA: []
 }
 
+const getApiField = (record, ...names) => {
+  if (!record || typeof record !== 'object') return undefined
+
+  for (const name of names) {
+    const value = record[name]
+    if (value !== undefined && value !== null) return value
+
+    const matchingKey = Object.keys(record).find(
+      key => key.replace(/_/g, '').toLowerCase() === name.replace(/_/g, '').toLowerCase()
+    )
+    if (matchingKey && record[matchingKey] != null) return record[matchingKey]
+  }
+
+  return undefined
+}
+
+const asRecordList = value => {
+  if (Array.isArray(value)) return value
+  return value && typeof value === 'object' ? [value] : []
+}
+
 const EmployeeData = () => {
   const location = useLocation()
   const portal = getPortalFromPath(location.pathname)
@@ -917,26 +938,40 @@ const EmployeeData = () => {
       const response = await getEmployeeById(employeeId)
 
       if (response?.status) {
-        const employee = response.data?.employee || {}
-        const officeDetails = response.data?.officeDetails || []
-        const tenureDetails = response.data?.tenure || []
+        const responseData = response.data?.data ?? response.data ?? response
+        const employee = getApiField(responseData, 'employee') || {}
+        const officeDetails = asRecordList(
+          getApiField(responseData, 'officeDetails', 'OFFICE_DETAILS')
+        )
+        const tenureDetails = asRecordList(getApiField(responseData, 'tenure'))
         const currentTenure = tenureDetails[0] || {}
-        const reportsTo = response.data?.reportsTo?.[0] || {}
+        const reportsTo =
+          asRecordList(getApiField(responseData, 'reportsTo'))[0] || {}
         const reportsToName = [reportsTo.FNAME, reportsTo.LNAME]
           .filter(value => value && value !== '.')
           .join(' ')
         const currentOffice = officeDetails[0] || {}
-        const bankDetails = response.data?.banks || []
+        const bankDetails = asRecordList(getApiField(responseData, 'banks'))
         const currentBank = bankDetails[0] || {}
-        const qualificationDetails = response.data?.education || []
+        const qualificationDetails = asRecordList(
+          getApiField(responseData, 'education')
+        )
         const currentQualification = qualificationDetails[0] || {}
-        const experienceDetails = response.data?.experience || []
+        const experienceDetails = asRecordList(
+          getApiField(responseData, 'experience')
+        )
         const currentExperience = experienceDetails[0] || {}
-        const referenceDetails = response.data?.references || []
-        const familyDetails = response.data?.family || []
-        const documentDetails = response.data?.documents || []
-        const applicationAccess = response.data?.userAccess || []
-        const kraDetails = response.data?.kra || []
+        const referenceDetails = asRecordList(
+          getApiField(responseData, 'references')
+        )
+        const familyDetails = asRecordList(getApiField(responseData, 'family'))
+        const documentDetails = asRecordList(
+          getApiField(responseData, 'documents')
+        )
+        const applicationAccess = asRecordList(
+          getApiField(responseData, 'userAccess')
+        )
+        const kraDetails = asRecordList(getApiField(responseData, 'kra'))
 
         console.log('Selected employee data:', employee)
 
@@ -944,12 +979,24 @@ const EmployeeData = () => {
         setActiveTab('personal')
 
         setOfficeMasters({
-          departments: response.data?.officeMasters?.departments || [],
-          designations: response.data?.officeMasters?.designations || [],
-          divisions: response.data?.officeMasters?.divisions || [],
-          organograms: response.data?.officeMasters?.organograms || [],
-          organogramLocations:
-            response.data?.officeMasters?.organogramLocations || []
+          departments: asRecordList(
+            getApiField(getApiField(responseData, 'officeMasters'), 'departments')
+          ),
+          designations: asRecordList(
+            getApiField(getApiField(responseData, 'officeMasters'), 'designations')
+          ),
+          divisions: asRecordList(
+            getApiField(getApiField(responseData, 'officeMasters'), 'divisions')
+          ),
+          organograms: asRecordList(
+            getApiField(getApiField(responseData, 'officeMasters'), 'organograms')
+          ),
+          organogramLocations: asRecordList(
+            getApiField(
+              getApiField(responseData, 'officeMasters'),
+              'organogramLocations'
+            )
+          )
         })
 
         setEmployeeData({
@@ -1005,13 +1052,15 @@ const EmployeeData = () => {
           CITIZEN_NO: employee.CITIZEN_NO || '',
 
           // Office Details
-          DEPARTMENT: currentOffice.DEPT_ID || '',
-          DESIGNATION: currentOffice.DESI_ID || '',
-          DIVISION: currentOffice.DIVSN_ID || '',
-          ORGANOGRAM: currentOffice.ORG_ID || '',
-          ORGANOGRAM_LOCATION: currentOffice.ORG_LOC_ID || '',
-          EFFECTIVE_FROM: formatDateForInput(currentOffice.EFFEC_FROM),
-          EFFECTIVE_TO: formatDateForInput(currentOffice.EFFEC_TO),
+          DEPARTMENT: getApiField(currentOffice, 'DEPT_ID') || '',
+          DESIGNATION: getApiField(currentOffice, 'DESI_ID') || '',
+          DIVISION: getApiField(currentOffice, 'DIVSN_ID') || '',
+          ORGANOGRAM: getApiField(currentOffice, 'ORG_ID') || '',
+          ORGANOGRAM_LOCATION: getApiField(currentOffice, 'ORG_LOC_ID') || '',
+          EFFECTIVE_FROM: formatDateForInput(
+            getApiField(currentOffice, 'EFFEC_FROM')
+          ),
+          EFFECTIVE_TO: formatDateForInput(getApiField(currentOffice, 'EFFEC_TO')),
 
           REPORTS_TO: reportsToName,
           OFFICE_DETAILS: officeDetails,
@@ -1649,7 +1698,15 @@ const renderSelect = (name, label, options, config = {}) => {
   const getOptionLabel = (options, value) => {
     const option = options.find(item => String(item.value) === String(value))
 
-    return option?.label || '-'
+    return option?.label || (value ? String(value) : '-')
+  }
+
+  const withCurrentOfficeOption = (options, value) => {
+    if (!value || options.some(item => String(item.value) === String(value))) {
+      return options
+    }
+
+    return [...options, { value: String(value), label: String(value) }]
   }
 
   const renderOfficeDetailsTab = () => (
@@ -1665,22 +1722,38 @@ const renderSelect = (name, label, options, config = {}) => {
       <div className='row'>
         {/* Division */}
         <div className='col-lg-4 col-md-6'>
-          {renderSelect('DIVISION', 'Division', divisionOptions)}
+          {renderSelect(
+            'DIVISION',
+            'Division',
+            withCurrentOfficeOption(divisionOptions, employeeData.DIVISION)
+          )}
         </div>
 
         {/* Department */}
         <div className='col-lg-4 col-md-6'>
-          {renderSelect('DEPARTMENT', 'Department', departmentOptions)}
+          {renderSelect(
+            'DEPARTMENT',
+            'Department',
+            withCurrentOfficeOption(departmentOptions, employeeData.DEPARTMENT)
+          )}
         </div>
 
         {/* Designation */}
         <div className='col-lg-4 col-md-6'>
-          {renderSelect('DESIGNATION', 'Designation', designationOptions)}
+          {renderSelect(
+            'DESIGNATION',
+            'Designation',
+            withCurrentOfficeOption(designationOptions, employeeData.DESIGNATION)
+          )}
         </div>
 
         {/* Organogram */}
         <div className='col-lg-6 col-md-6'>
-          {renderSelect('ORGANOGRAM', 'Organogram', organogramOptions)}
+          {renderSelect(
+            'ORGANOGRAM',
+            'Organogram',
+            withCurrentOfficeOption(organogramOptions, employeeData.ORGANOGRAM)
+          )}
         </div>
 
         {/* Organogram Location */}
@@ -1688,7 +1761,10 @@ const renderSelect = (name, label, options, config = {}) => {
           {renderSelect(
             'ORGANOGRAM_LOCATION',
             'Organogram Location',
-            organogramLocationOptions
+            withCurrentOfficeOption(
+              organogramLocationOptions,
+              employeeData.ORGANOGRAM_LOCATION
+            )
           )}
         </div>
 
@@ -1746,12 +1822,22 @@ const renderSelect = (name, label, options, config = {}) => {
             {(employeeData.OFFICE_DETAILS || []).length > 0 ? (
               employeeData.OFFICE_DETAILS.map((item, index) => (
                 <tr key={item.ID || index}>
-                  <td>{getOptionLabel(organogramOptions, item.ORG_ID)}</td>
                   <td>
-                    {getOptionLabel(organogramLocationOptions, item.ORG_LOC_ID)}
+                    {getOptionLabel(
+                      organogramOptions,
+                      getApiField(item, 'ORG_ID')
+                    )}
                   </td>
-                  <td>{formatDateForDisplay(item.EFFEC_FROM)}</td>
-                  <td>{formatDateForDisplay(item.EFFEC_TO)}</td>
+                  <td>
+                    {getOptionLabel(
+                      organogramLocationOptions,
+                      getApiField(item, 'ORG_LOC_ID')
+                    )}
+                  </td>
+                  <td>
+                    {formatDateForDisplay(getApiField(item, 'EFFEC_FROM'))}
+                  </td>
+                  <td>{formatDateForDisplay(getApiField(item, 'EFFEC_TO'))}</td>
                   <td>{employeeData.REPORTS_TO || '-'}</td>
                 </tr>
               ))

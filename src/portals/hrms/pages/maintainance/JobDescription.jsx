@@ -212,6 +212,11 @@ const JobDescription = () => {
   const [questionGroupList, setQuestionGroupList] = useState([])
   const [selectedQuestionGroup, setSelectedQuestionGroup] = useState('')
   const [questionCurrentPage, setQuestionCurrentPage] = useState(1)
+  const [unmappedQuestionCurrentPage, setUnmappedQuestionCurrentPage] =
+    useState(1)
+  const [selectedQuestionIdsToMap, setSelectedQuestionIdsToMap] = useState([])
+  const [selectedQuestionIdsToUnmap, setSelectedQuestionIdsToUnmap] =
+    useState([])
   const QUESTION_PAGE_SIZE = 10
   const [departmentReferenceList, setDepartmentReferenceList] = useState([])
   const [divisionList, setDivisionList] = useState([])
@@ -807,35 +812,80 @@ const JobDescription = () => {
       .filter(item => item.value && item.label)
   }, [organogramList, divisionList, departments, designations])
 
-  const filteredQuestionTemplateQuestions = useMemo(() => {
-    const questions = questionTemplateQuestions || []
-
-    if (!selectedQuestionGroup) {
-      return questions
-    }
-
-    return questions.filter(
-      item =>
-        String(item.QGRP_ID ?? '').trim() ===
-        String(selectedQuestionGroup ?? '').trim()
+  const mappedQuestionTemplateQuestions = useMemo(() => {
+    const assignments = normalizeQuestionAssignments(
+      formData.QUESTION_TEMPLATE
     )
-  }, [questionTemplateQuestions, selectedQuestionGroup])
 
-  const questionTotalPages = Math.ceil(
-    filteredQuestionTemplateQuestions.length / QUESTION_PAGE_SIZE
+    return assignments.map(assignment => {
+      const questionId = String(assignment.QUESTION_ID ?? '')
+      const groupId = String(assignment.QGRP_ID ?? '').trim()
+      const masterQuestion =
+        questionTemplateQuestions.find(
+          item =>
+            String(item.QUESTION_ID ?? '') === questionId &&
+            String(item.QGRP_ID ?? '').trim() === groupId
+        ) ||
+        questionTemplateQuestions.find(
+          item => String(item.QUESTION_ID ?? '') === questionId
+        )
+
+      return {
+        ...masterQuestion,
+        ...assignment,
+        QUESTION: assignment.QUESTION || masterQuestion?.QUESTION || '',
+        QGRP_DESC: assignment.QGRP_DESC || masterQuestion?.QGRP_DESC || '',
+        QSGRP_DESC: assignment.QSGRP_DESC || masterQuestion?.QSGRP_DESC || '',
+        OPTIONS: masterQuestion?.OPTIONS || []
+      }
+    })
+  }, [formData.QUESTION_TEMPLATE, questionTemplateQuestions])
+
+  const mappedQuestionIds = useMemo(
+    () =>
+      new Set(
+        mappedQuestionTemplateQuestions.map(question =>
+          String(question.QUESTION_ID ?? '')
+        )
+      ),
+    [mappedQuestionTemplateQuestions]
   )
 
-  const paginatedQuestionTemplateQuestions = useMemo(() => {
-    const startIndex = (questionCurrentPage - 1) * QUESTION_PAGE_SIZE
+  const unmappedQuestionTemplateQuestions = useMemo(
+    () =>
+      questionTemplateQuestions.filter(
+        question => !mappedQuestionIds.has(String(question.QUESTION_ID ?? ''))
+      ),
+    [questionTemplateQuestions, mappedQuestionIds]
+  )
 
-    return filteredQuestionTemplateQuestions.slice(
-      startIndex,
-      startIndex + QUESTION_PAGE_SIZE
-    )
-  }, [filteredQuestionTemplateQuestions, questionCurrentPage])
+  const filteredMappedQuestions = useMemo(
+    () =>
+      selectedQuestionGroup
+        ? mappedQuestionTemplateQuestions.filter(
+            question =>
+              String(question.QGRP_ID ?? '').trim() ===
+              String(selectedQuestionGroup).trim()
+          )
+        : mappedQuestionTemplateQuestions,
+    [mappedQuestionTemplateQuestions, selectedQuestionGroup]
+  )
+
+  const filteredUnmappedQuestions = useMemo(
+    () =>
+      selectedQuestionGroup
+        ? unmappedQuestionTemplateQuestions.filter(
+            question =>
+              String(question.QGRP_ID ?? '').trim() ===
+              String(selectedQuestionGroup).trim()
+          )
+        : unmappedQuestionTemplateQuestions,
+    [unmappedQuestionTemplateQuestions, selectedQuestionGroup]
+  )
 
   useEffect(() => {
     setQuestionCurrentPage(1)
+    setUnmappedQuestionCurrentPage(1)
   }, [selectedQuestionGroup])
 
   const resetForm = () => {
@@ -843,6 +893,9 @@ const JobDescription = () => {
     setSelectedJobId('')
     setSelectedQuestionGroup('')
     setQuestionCurrentPage(1)
+    setUnmappedQuestionCurrentPage(1)
+    setSelectedQuestionIdsToMap([])
+    setSelectedQuestionIdsToUnmap([])
     setInductionDataList([])
     setFormData({
       ...INITIAL_FORM_DATA,
@@ -931,8 +984,11 @@ const JobDescription = () => {
       const savedQuestionAssignments = normalizeQuestionAssignments(
         selectedJob.QUESTION_TEMPLATE_LIST
       )
+      setSelectedQuestionIdsToMap([])
+      setSelectedQuestionIdsToUnmap([])
       setSelectedQuestionGroup(savedQuestionAssignments[0]?.QGRP_ID ?? '')
       setQuestionCurrentPage(1)
+      setUnmappedQuestionCurrentPage(1)
 
       setResponsibilitiesList(
         Array.isArray(selectedJob.RESPONSIBILITIES_LIST)
@@ -1136,12 +1192,15 @@ const JobDescription = () => {
       const savedQuestionAssignments = normalizeQuestionAssignments(
         job.QUESTION_TEMPLATE_LIST
       )
+      setSelectedQuestionIdsToMap([])
+      setSelectedQuestionIdsToUnmap([])
       // Keep the Question Template tab in sync with this JD. The group
       // selection previously carried over from the last JD, which could
       // hide saved questions from a different group (for example Tenure
       // Assessment while First Impression Report remained selected).
       setSelectedQuestionGroup(savedQuestionAssignments[0]?.QGRP_ID ?? '')
       setQuestionCurrentPage(1)
+      setUnmappedQuestionCurrentPage(1)
 
       setFormData(prev => ({
         ...prev,
@@ -1445,6 +1504,175 @@ const JobDescription = () => {
       arr[idx] = { ...(arr[idx] || {}), [field]: value }
       return { ...prev, [key]: arr }
     })
+  }
+
+  const renderQuestionTable = (title, questions, page, setPage, selectionType) => {
+    const totalPages = Math.ceil(questions.length / QUESTION_PAGE_SIZE)
+    const startIndex = (page - 1) * QUESTION_PAGE_SIZE
+    const pageQuestions = questions.slice(
+      startIndex,
+      startIndex + QUESTION_PAGE_SIZE
+    )
+
+    return (
+      <section className='mb-4' key={title}>
+        <h6 className='mb-2'>{title}</h6>
+        <div className='table-responsive'>
+          <table className='table table-bordered table-hover'>
+            <thead className='table-light'>
+              <tr>
+                <th style={{ width: '50px' }}></th>
+                <th style={{ width: '15%' }}>Group</th>
+                <th>Question</th>
+                <th style={{ width: '100px' }}>Sequence</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pageQuestions.length ? (
+                pageQuestions.map(question => {
+                  const questionId =
+                    question.QUESTION_ID ??
+                    question.question_id ??
+                    question.ID ??
+                    question.id
+                  const groupId = question.QGRP_ID ?? question.qgrp_id ?? ''
+                  const subGroupId =
+                    question.QSGRP_ID ?? question.qsgrp_id ?? ''
+                  const subGroupName =
+                    question.QSGRP_DESC ?? question.qsgrp_desc ?? ''
+                  const questionText =
+                    question.QUESTION ??
+                    question.question ??
+                    question.QUES_DESCR ??
+                    ''
+                  const mappedQuestion = (
+                    formData.QUESTION_TEMPLATE || []
+                  ).find(
+                    item =>
+                      String(
+                        item.QUESTION_ID ??
+                          item.question_id ??
+                          item.questionId
+                      ) === String(questionId)
+                  )
+                  const selectedIds =
+                    selectionType === 'map'
+                      ? selectedQuestionIdsToMap
+                      : selectedQuestionIdsToUnmap
+                  const isSelected = selectedIds.includes(String(questionId))
+
+                  return (
+                    <tr key={`${groupId}-${subGroupId}-${questionId}`}>
+                      <td className='text-center'>
+                        <input
+                          type='checkbox'
+                          checked={isSelected}
+                          onChange={event => {
+                            const setSelectedIds =
+                              selectionType === 'map'
+                                ? setSelectedQuestionIdsToMap
+                                : setSelectedQuestionIdsToUnmap
+                            setSelectedIds(previous =>
+                              event.target.checked
+                                ? previous.includes(String(questionId))
+                                  ? previous
+                                  : [...previous, String(questionId)]
+                                : previous.filter(
+                                    id => id !== String(questionId)
+                                  )
+                            )
+                          }}
+                        />
+                      </td>
+                      <td>{subGroupName || '-'}</td>
+                      <td>{questionText || '-'}</td>
+                      <td>
+                        {mappedQuestion?.DISP_SEQ ?? question.DISP_SEQ ?? '-'}
+                      </td>
+                    </tr>
+                  )
+                })
+              ) : (
+                <tr>
+                  <td colSpan='4' className='text-center'>
+                    No questions found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        {totalPages > 1 && (
+          <div className='d-flex justify-content-between align-items-center mt-2'>
+            <div className='text-muted small'>
+              Showing {startIndex + 1} -{' '}
+              {Math.min(startIndex + QUESTION_PAGE_SIZE, questions.length)} of{' '}
+              {questions.length} questions
+            </div>
+            <nav>
+              <ul className='pagination pagination-sm mb-0'>
+                <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
+                  <button
+                    type='button'
+                    className='page-link'
+                    disabled={page === 1}
+                    onClick={() => setPage(current => Math.max(current - 1, 1))}
+                  >
+                    Previous
+                  </button>
+                </li>
+                <li className='page-item disabled'>
+                  <span className='page-link'>
+                    {page} / {totalPages}
+                  </span>
+                </li>
+                <li
+                  className={`page-item ${page === totalPages ? 'disabled' : ''}`}
+                >
+                  <button
+                    type='button'
+                    className='page-link'
+                    disabled={page === totalPages}
+                    onClick={() =>
+                      setPage(current => Math.min(current + 1, totalPages))
+                    }
+                  >
+                    Next
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        )}
+      </section>
+    )
+  }
+
+  const getQuestionTemplateToSave = () => {
+    const unmapIds = new Set(selectedQuestionIdsToUnmap)
+    const assignments = normalizeQuestionAssignments(
+      formData.QUESTION_TEMPLATE
+    ).filter(question => !unmapIds.has(String(question.QUESTION_ID)))
+    const assignmentsById = new Map(
+      assignments.map(question => [String(question.QUESTION_ID), question])
+    )
+
+    selectedQuestionIdsToMap.forEach(questionId => {
+      const question = questionTemplateQuestions.find(
+        item => String(item.QUESTION_ID ?? '') === String(questionId)
+      )
+      if (!question) return
+
+      assignmentsById.set(String(questionId), {
+        QGRP_ID: question.QGRP_ID ?? question.qgrp_id ?? '',
+        QGRP_TYPE: question.QGRP_TYPE ?? question.qgrp_type ?? '',
+        QSGRP_ID: question.QSGRP_ID ?? question.qsgrp_id ?? '',
+        QUESTION_ID: question.QUESTION_ID ?? question.question_id ?? questionId,
+        DISP_SEQ: question.DISP_SEQ ?? question.disp_seq ?? ''
+      })
+    })
+
+    return Array.from(assignmentsById.values())
   }
 
   const validateForm = () => {
@@ -2055,7 +2283,7 @@ if (!isValid) {
 
         case 'questions':
           payload.question_template = JSON.stringify(
-            formData.QUESTION_TEMPLATE || []
+            getQuestionTemplateToSave()
           )
           break
 
@@ -2117,7 +2345,7 @@ if (!isValid) {
         skills: JSON.stringify(formData.SKILLS || []),
         allowances: JSON.stringify(formData.ALLOWANCES || []),
         ctc_heads: JSON.stringify(formData.CTC_HEADS || []),
-        question_template: formData.QUESTION_TEMPLATE,
+        question_template: JSON.stringify(getQuestionTemplateToSave()),
         dept_references: formData.DEPT_REFERENCES,
         division_mapping: formData.DIVISION_MAPPING,
         induction: JSON.stringify(formData.INDUCTION || {})
@@ -2174,6 +2402,11 @@ if (!isValid) {
         // Promote a newly created JD to edit mode so later saves update it.
         setFormData(prev => ({ ...prev, id: savedJobId }))
         await refreshSavedJobDetails(savedJobId)
+      }
+
+      if (activeTab === 'questions' || !isExistingJD) {
+        setSelectedQuestionIdsToMap([])
+        setSelectedQuestionIdsToUnmap([])
       }
 
       if (isExistingJD) {
@@ -2247,6 +2480,30 @@ if (!isValid) {
 
     setSaving(true)
     try {
+      if (
+        selectedQuestionIdsToMap.length > 0 ||
+        selectedQuestionIdsToUnmap.length > 0
+      ) {
+        const questionTemplate = getQuestionTemplateToSave()
+        const questionResponse = await saveJobDescription({
+          id: formData.id,
+          tab: 'questions',
+          question_template: JSON.stringify(questionTemplate)
+        })
+
+        if (!questionResponse?.status) {
+          notifyError(
+            questionResponse?.message ||
+              'Unable to update the JD question mapping.'
+          )
+          return
+        }
+
+        setSelectedQuestionIdsToMap([])
+        setSelectedQuestionIdsToUnmap([])
+        await refreshSavedJobDetails(formData.id)
+      }
+
       const updateResponse = await saveJobDescription({
         id: formData.id,
         tab: 'basic',
@@ -3826,248 +4083,19 @@ if (!isValid) {
                           </div>
                         </div>
 
-                        {/* QUESTIONS TABLE */}
-                        <div className='table-responsive'>
-                          <table className='table table-bordered table-hover'>
-                            <thead className='table-light'>
-                              <tr>
-                                <th style={{ width: '50px' }}></th>
-                                <th style={{ width: '18%' }}>Question Group</th>
-                                <th style={{ width: '15%' }}>Group</th>
-                                <th>Question</th>
-                                <th style={{ width: '25%' }}>Options</th>
-                                <th style={{ width: '100px' }}>Sequence</th>
-                                <th style={{ width: '100px' }}>Sequence</th>
-                              </tr>
-                            </thead>
-
-                            <tbody>
-                              {paginatedQuestionTemplateQuestions.length > 0 ? (
-                                paginatedQuestionTemplateQuestions.map(
-                                  (question, idx) => {
-                                    const questionId =
-                                      question.QUESTION_ID ??
-                                      question.question_id ??
-                                      question.ID ??
-                                      question.id
-
-                                    const groupId =
-                                      question.QGRP_ID ?? question.qgrp_id ?? ''
-
-                                    const subGroupId =
-                                      question.QSGRP_ID ??
-                                      question.qsgrp_id ??
-                                      ''
-
-                                    const groupName =
-                                      question.QGRP_DESC ??
-                                      question.qgrp_desc ??
-                                      ''
-
-                                    const subGroupName =
-                                      question.QSGRP_DESC ??
-                                      question.qsgrp_desc ??
-                                      ''
-
-                                    const questionText =
-                                      question.QUESTION ??
-                                      question.question ??
-                                      question.QUES_DESCR ??
-                                      ''
-
-                                    const existingQuestion = (
-                                      formData.QUESTION_TEMPLATE || []
-                                    ).find(
-                                      item =>
-                                        String(
-                                          item.QUESTION_ID ??
-                                            item.question_id ??
-                                            item.questionId
-                                        ) === String(questionId)
-                                    )
-
-                                    return (
-                                      <tr
-                                        key={`${groupId}-${subGroupId}-${questionId}`}
-                                      >
-                                        {/* CHECKBOX */}
-                                        <td className='text-center'>
-                                          <input
-                                            type='checkbox'
-                                            checked={Boolean(existingQuestion)}
-                                            onChange={e => {
-                                              if (e.target.checked) {
-                                                addArrayItem(
-                                                  'QUESTION_TEMPLATE',
-                                                  {
-                                                    QGRP_ID: groupId,
-                                                    QGRP_TYPE:
-                                                      question.QGRP_TYPE ??
-                                                      question.qgrp_type ??
-                                                      '',
-                                                    QSGRP_ID: subGroupId,
-                                                    QUESTION_ID: questionId,
-                                                    DISP_SEQ:
-                                                      question.DISP_SEQ ??
-                                                      question.disp_seq ??
-                                                      ''
-                                                  }
-                                                )
-                                              } else {
-                                                setFormData(prev => ({
-                                                  ...prev,
-                                                  QUESTION_TEMPLATE: (
-                                                    prev.QUESTION_TEMPLATE || []
-                                                  ).filter(
-                                                    item =>
-                                                      String(
-                                                        item.QUESTION_ID ??
-                                                          item.question_id ??
-                                                          item.questionId
-                                                      ) !== String(questionId)
-                                                  )
-                                                }))
-                                              }
-                                            }}
-                                          />
-                                        </td>
-
-                                        {/* QUESTION GROUP */}
-                                        <td>
-                                          {questionGroupOptions.find(
-                                            option =>
-                                              String(option.value) ===
-                                              String(groupId)
-                                          )?.label ||
-                                            groupName ||
-                                            '-'}
-                                        </td>
-
-                                        {/* GROUP */}
-                                        <td>{subGroupName || '-'}</td>
-
-                                        {/* QUESTION */}
-                                        <td>{questionText || '-'}</td>
-
-                                        {/* OPTIONS */}
-                                        <td>
-                                          {question.OPTIONS?.length > 0
-                                            ? question.OPTIONS.map(
-                                                option => option.OPTS_TEXT
-                                              ).join(',')
-                                            : '-'}
-                                        </td>
-
-                                        {/* SEQUENCE */}
-                                        <td>
-                                          {existingQuestion?.DISP_SEQ ??
-                                            question.DISP_SEQ ??
-                                            '-'}
-                                        </td>
-                                      </tr>
-                                    )
-                                  }
-                                )
-                              ) : (
-                                <tr>
-                                  <td colSpan='7' className='text-center'>
-                                    No questions found
-                                  </td>
-                                </tr>
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
-
-                        {/* PAGINATION */}
-                        {questionTotalPages > 1 && (
-                          <div className='d-flex justify-content-between align-items-center mt-3'>
-                            <div className='text-muted small'>
-                              Showing{' '}
-                              {(questionCurrentPage - 1) * QUESTION_PAGE_SIZE +
-                                1}
-                              {' - '}
-                              {Math.min(
-                                questionCurrentPage * QUESTION_PAGE_SIZE,
-                                filteredQuestionTemplateQuestions.length
-                              )}{' '}
-                              of {filteredQuestionTemplateQuestions.length}{' '}
-                              questions
-                            </div>
-
-                            <nav>
-                              <ul className='pagination mb-0'>
-                                {/* PREVIOUS */}
-                                <li
-                                  className={`page-item ${
-                                    questionCurrentPage === 1 ? 'disabled' : ''
-                                  }`}
-                                >
-                                  <button
-                                    type='button'
-                                    className='page-link'
-                                    disabled={questionCurrentPage === 1}
-                                    onClick={() =>
-                                      setQuestionCurrentPage(prev =>
-                                        Math.max(prev - 1, 1)
-                                      )
-                                    }
-                                  >
-                                    Previous
-                                  </button>
-                                </li>
-
-                                {/* PAGE NUMBERS */}
-                                {Array.from(
-                                  { length: questionTotalPages },
-                                  (_, index) => index + 1
-                                ).map(page => (
-                                  <li
-                                    key={page}
-                                    className={`page-item ${
-                                      questionCurrentPage === page
-                                        ? 'active'
-                                        : ''
-                                    }`}
-                                  >
-                                    <button
-                                      type='button'
-                                      className='page-link'
-                                      onClick={() =>
-                                        setQuestionCurrentPage(page)
-                                      }
-                                    >
-                                      {page}
-                                    </button>
-                                  </li>
-                                ))}
-
-                                {/* NEXT */}
-                                <li
-                                  className={`page-item ${
-                                    questionCurrentPage === questionTotalPages
-                                      ? 'disabled'
-                                      : ''
-                                  }`}
-                                >
-                                  <button
-                                    type='button'
-                                    className='page-link'
-                                    disabled={
-                                      questionCurrentPage === questionTotalPages
-                                    }
-                                    onClick={() =>
-                                      setQuestionCurrentPage(prev =>
-                                        Math.min(prev + 1, questionTotalPages)
-                                      )
-                                    }
-                                  >
-                                    Next
-                                  </button>
-                                </li>
-                              </ul>
-                            </nav>
-                          </div>
+                        {renderQuestionTable(
+                          'Mapped Questions',
+                          filteredMappedQuestions,
+                          questionCurrentPage,
+                          setQuestionCurrentPage,
+                          'unmap'
+                        )}
+                        {renderQuestionTable(
+                          'Unmapped Questions',
+                          filteredUnmappedQuestions,
+                          unmappedQuestionCurrentPage,
+                          setUnmappedQuestionCurrentPage,
+                          'map'
                         )}
                       </div>
                     )}
