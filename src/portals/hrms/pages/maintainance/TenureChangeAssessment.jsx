@@ -7,7 +7,17 @@ import {
   tenureRatingQuestions,
   tenureTypeOptions,
 } from "./tenureChangeOptions";
+import SDLCalendar from "../../../../components/calendar/SDLCalendar";
+import { parseDateValue } from "../../../../utils/formatUtils";
 import "../../assets/css/tenureChange.css";
+
+const toDateInputValue = (date) => {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 const TenureChangeAssessment = () => {
   const navigate = useNavigate();
@@ -151,7 +161,11 @@ const TenureChangeAssessment = () => {
             </div>
             <div className="col-lg-4 col-md-6">
               <label className="form-label">Effective From <span className="text-danger">*</span></label>
-              <input className="form-control" type="date" value={assessment.effectiveFrom} onChange={(event) => updateAssessment("effectiveFrom", event.target.value)} />
+              <SDLCalendar
+                value={parseDateValue(assessment.effectiveFrom)}
+                allowAllDates
+                onChange={(date) => updateAssessment("effectiveFrom", toDateInputValue(date))}
+              />
             </div>
             <div className="col-lg-4 col-md-6">
               <label className="form-label">Next Appraisal Year <span className="text-danger">*</span></label>

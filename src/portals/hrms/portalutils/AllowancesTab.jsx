@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
-import { Calendar } from "primereact/calendar";
+import SDLCalendar from "../../../components/calendar/SDLCalendar";
 import SDLReactMultiSelect from "../../../components/SDLReactMultiSelect";
 import useAllowancesTabHandler from "./useAllowancesTabHandler";
 import { getAllowancesColumns, renderAllowancesColumns } from "./allowancesColumns";
@@ -68,12 +68,12 @@ const AllowancesTab = ({ organogramId, organogramStatus, locId, showAll, onCance
           </div>
           <div className="col-xl-3 col-lg-4 col-md-5">
             <label className="form-label">Effective From</label>
-            <Calendar
+            <SDLCalendar
               value={effectiveFrom}
-              onChange={(e) => setEffectiveFrom(e.value)}
+              onChange={setEffectiveFrom}
               dateFormat={DATE_PICKER_FORMAT}
               locale={DATE_PICKER_LOCALE}
-              showIcon
+              allowAllDates
               appendTo="self"
               baseZIndex={2000}
               className="w-100"

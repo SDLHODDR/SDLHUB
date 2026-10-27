@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
-import { Calendar } from "primereact/calendar";
+import SDLCalendar from "../../../components/calendar/SDLCalendar";
 import SDLReactSelect from "../../../components/SDLReactSelect";
 import useApprLevelTabHandler from "./useApprLevelTabHandler";
 import { getApprLevelColumns, renderApprLevelColumns } from "./apprLevelColumns";
@@ -74,12 +74,12 @@ const AppraisalLevelsTab = ({ organogramId, organogramStatus, showAll, onCancelE
             <div className="row mb-3">
               <div className="col-xl-5 col-lg-6 col-md-8">
                 <label className="form-label">Effective From</label>
-                <Calendar
+                <SDLCalendar
                   value={effectiveFrom}
-                  onChange={(e) => setEffectiveFrom(e.value)}
+                  onChange={setEffectiveFrom}
                   dateFormat={DATE_PICKER_FORMAT}
                   locale={DATE_PICKER_LOCALE}
-                  showIcon
+                  allowAllDates
                   className="w-100"
                   disabled={isLoading}
                 />
