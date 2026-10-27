@@ -72,6 +72,9 @@ const TenureChangeCtcModalContent = ({
   const [pfInput, setPfInput] = useState('0')
   const [ctcHeads, setCtcHeads] = useState([])
   const [monthlyAmounts, setMonthlyAmounts] = useState({})
+  const [sameAsStructure, setSameAsStructure] = useState(false)
+  const [monthlyAmountsBeforeStructure, setMonthlyAmountsBeforeStructure] =
+    useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -92,8 +95,8 @@ const TenureChangeCtcModalContent = ({
         const details = response.data?.data ?? response.data ?? {}
         setApiDetails(details)
         const rows = details.ctcHeads ?? details.ctc_heads ?? details.rows ?? []
-        setCtcHeads(
-          rows.map((row, index) => ({
+        const normalizedHeads = rows
+          .map((row, index) => ({
             ...row,
             code: row.code ?? row.AD_CODE ?? row.adCode ?? String(index),
             name:
@@ -118,16 +121,23 @@ const TenureChangeCtcModalContent = ({
                 Number(row.monthly ?? 0) * 12
             )
           }))
-        )
+          .filter(
+            head =>
+              String(head.code).toUpperCase() !== 'XPFBS' &&
+              !/basic criteria for pf/i.test(head.name)
+          )
+        setCtcHeads(normalizedHeads)
         setPfInput(String(details.pfInput ?? details.XPFBS ?? '0'))
         setMonthlyAmounts(
           Object.fromEntries(
-            rows.map((row, index) => [
-              row.code ?? row.AD_CODE ?? row.adCode ?? String(index),
-              row.monthlyAmount ?? row.MONTHLY_AMOUNT ?? ''
+            normalizedHeads.map(head => [
+              head.code,
+              head.monthlyAmount ?? head.MONTHLY_AMOUNT ?? ''
             ])
           )
         )
+        setSameAsStructure(false)
+        setMonthlyAmountsBeforeStructure(null)
       })
       .catch(requestError => {
         if (active)
@@ -157,16 +167,29 @@ const TenureChangeCtcModalContent = ({
 
   if (!show || !record) return null
 
-  const handleSave = async () => {
+  const handleSave = async (action = 'submit') => {
+    const hasInvalidMonthlyAmount = ctcHeads.some(head => {
+      const value = monthlyAmounts[head.code]
+      return (
+        value === '' ||
+        value == null ||
+        !Number.isFinite(Number(value)) ||
+        Number(value) < 0
+      )
+    })
+    if (hasInvalidMonthlyAmount) {
+      setError(
+        'Enter a monthly amount for every CTC head, or select “Same as per structure”.'
+      )
+      return
+    }
+
     setSaving(true)
     setError('')
     try {
       const submittedRows = ctcHeads.map(head => {
         const enteredMonthly = monthlyAmounts[head.code]
-        const monthly =
-          enteredMonthly === '' || enteredMonthly == null
-            ? head.structureMonthly
-            : Number(enteredMonthly)
+        const monthly = Number(enteredMonthly)
         return {
           ad_code: head.code,
           name: head.name,
@@ -186,19 +209,24 @@ const TenureChangeCtcModalContent = ({
         emp_code: employee.code,
         pf_input: Number(pfInput || 0),
         proposed_ctc: proposedCtc,
-        ctc_heads: submittedRows
+        ctc_heads: submittedRows,
+        action
       })
       if (!response?.status)
         throw new Error(response?.message || 'Unable to save CTC changes.')
       notifySuccess(
         response.message ||
-          (isFinalCtcStep
-            ? 'Final CTC saved and sent for tenure letter printing.'
-            : 'CTC changes saved and sent for final authorization.')
+          (action === 'save'
+            ? 'CTC values saved successfully.'
+            : isFinalCtcStep
+              ? 'Final CTC saved and sent for tenure letter printing.'
+              : 'CTC changes saved and sent for final authorization.')
       )
-      window.dispatchEvent(new Event('hrms-auth-tasks-changed'))
-      onSuccess?.()
-      onClose?.()
+      if (action === 'submit') {
+        window.dispatchEvent(new Event('hrms-auth-tasks-changed'))
+        onSuccess?.()
+        onClose?.()
+      }
     } catch (requestError) {
       setError(requestError.message || 'Unable to save CTC changes.')
     } finally {
@@ -319,7 +347,7 @@ const TenureChangeCtcModalContent = ({
               </div>
             )}
             <div className='tenure-change-page'>
-              <div className='row g-2 mb-3 tenure-employee-summary'>
+              <div className='row g-2 mb-0 tenure-employee-summary'>
                 <div className='col-lg-4'>
                   <div>
                     <strong>Employee:</strong> {employee.name} ({employee.code})
@@ -332,10 +360,6 @@ const TenureChangeCtcModalContent = ({
                     {formatAmount(
                       assessment.proposedCtc ?? assessment.PROP_CTC
                     )}
-                  </div>
-                  <div>
-                    <strong>Assessment Remarks:</strong>{' '}
-                    {assessment.remarks ?? assessment.REMARKS ?? '-'}
                   </div>
                 </div>
                 <div className='col-lg-4'>
@@ -351,21 +375,27 @@ const TenureChangeCtcModalContent = ({
                     {assessment.period ?? assessment.ETYPE_PERIOD ?? '0'}
                   </div>
                   <div>
-                    <strong>Location:</strong> {employee.location || '-'}
+                    <strong>Current CTC:</strong> ₹
+                    {formatAmount(employee.currentCtc)}
                   </div>
                 </div>
                 <div className='col-lg-4'>
                   <div>
-                    <strong>Designation:</strong> {employee.designation || '-'}
-                  </div>
-                  <div>
-                    <strong>Current CTC:</strong> ₹
-                    {formatAmount(employee.currentCtc)}
+                    <strong>Location:</strong> {employee.location || '-'}
                   </div>
                   <div>
                     <strong>Effective From:</strong>{' '}
                     {assessment.effectiveFrom ?? assessment.EFF_FROM ?? '-'}
                   </div>
+                  <div>
+                    <strong>Assessment Remarks:</strong>{' '}
+                    {assessment.remarks ?? assessment.REMARKS ?? '-'}
+                  </div>
+                </div>
+              </div>
+              <div className='row mt-0 mb-2 tenure-ctc-designation'>
+                <div className='col-12'>
+                  <strong>Designation:</strong> {employee.designation || '-'}
                 </div>
               </div>
 
@@ -376,7 +406,7 @@ const TenureChangeCtcModalContent = ({
                       <tr>
                         <th>No</th>
                         <th>CTC Head</th>
-                        <th className='text-center'>Input (1/0)</th>
+                        <th className='text-center'>Calculation Basis</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -387,14 +417,15 @@ const TenureChangeCtcModalContent = ({
                           Basic)
                         </td>
                         <td>
-                          <input
-                            className='form-control form-control-sm text-end'
-                            type='number'
-                            min='0'
+                          <select
+                            className='form-select form-select-sm'
                             value={pfInput}
                             onChange={event => setPfInput(event.target.value)}
-                            aria-label='PF calculation input'
-                          />
+                            aria-label='PF calculation basis'
+                          >
+                            <option value='0'>12% of 15000</option>
+                            <option value='1'>12% of Basic</option>
+                          </select>
                         </td>
                       </tr>
                     </tbody>
@@ -515,6 +546,47 @@ const TenureChangeCtcModalContent = ({
                       </tr>
                     </tbody>
                   </table>
+                  <div className='form-check mb-2'>
+                    <input
+                      id='tenure-same-as-structure'
+                      className='form-check-input'
+                      type='checkbox'
+                      checked={sameAsStructure}
+                      onChange={event => {
+                        const checked = event.target.checked
+                        setSameAsStructure(checked)
+                        if (checked) {
+                          setMonthlyAmountsBeforeStructure(monthlyAmounts)
+                          setMonthlyAmounts(current => ({
+                            ...current,
+                            ...Object.fromEntries(
+                              ctcHeads
+                                .filter(
+                                  head =>
+                                    current[head.code] === '' ||
+                                    current[head.code] == null
+                                )
+                                .map(head => [
+                                  head.code,
+                                  String(head.structureMonthly)
+                                ])
+                            )
+                          }))
+                        } else {
+                          if (monthlyAmountsBeforeStructure) {
+                            setMonthlyAmounts(monthlyAmountsBeforeStructure)
+                          }
+                          setMonthlyAmountsBeforeStructure(null)
+                        }
+                      }}
+                    />
+                    <label
+                      className='form-check-label'
+                      htmlFor='tenure-same-as-structure'
+                    >
+                      Same as per structure
+                    </label>
+                  </div>
                 </div>
               )}
             </div>
@@ -523,12 +595,21 @@ const TenureChangeCtcModalContent = ({
           <div className='modal-footer'>
 
 <SaveButton
-  onClick={handleSave}
+  onClick={() => handleSave('save')}
   disabled={loading || saving || ctcHeads.length === 0}
   isSubmitting={saving}
   className='me-2'
 >
-  {isFinalCtcStep ? 'Save' : 'Save CTC'}
+  Save
+</SaveButton>
+
+<SaveButton
+  onClick={() => handleSave('submit')}
+  disabled={loading || saving || ctcHeads.length === 0}
+  isSubmitting={saving}
+  className='me-2'
+>
+  Submit
 </SaveButton>
 
 <CancelButton

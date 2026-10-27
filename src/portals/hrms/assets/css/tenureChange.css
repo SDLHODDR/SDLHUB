@@ -12,7 +12,8 @@
 }
 
 .tenure-change-page .tenure-employee-summary,
-.tenure-change-page .tenure-letter-summary {
+.tenure-change-page .tenure-letter-summary,
+.tenure-change-page .tenure-ctc-designation {
   color: #25364a;
   font-size: 0.9rem;
   line-height: 1.8;
@@ -25,6 +26,18 @@
   color: #087796;
   font-size: 0.85rem;
   font-weight: 700;
+}
+
+.tenure-change-page .tenure-rating-section-row th {
+  padding: 0.55rem 0.75rem;
+  background: #fff;
+  color: #087796;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.tenure-change-page .tenure-rating-subgroup-row th {
+  background: #d1d3d4;
 }
 
 .tenure-change-page .tenure-rating-table {
@@ -48,6 +61,11 @@
 .tenure-change-page .tenure-rating-question {
   width: 29%;
   font-weight: 600;
+}
+
+.tenure-change-page .tenure-rating-table textarea.tenure-rating-answer {
+  height: 7rem !important;
+  min-height: 7rem !important;
 }
 
 .tenure-change-page .tenure-rating-options {

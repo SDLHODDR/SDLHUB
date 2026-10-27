@@ -35,6 +35,7 @@ const TENURE_DATE_FORMATS = [
   'DD-MMM-YY',
   'MM/DD/YYYY'
 ]
+const MAX_PROPOSED_CTC = 10_000_000
 
 const toTenureDateISO = value => {
   if (!value) return ''
@@ -46,6 +47,22 @@ const formatTenureDate = value => {
   if (!value) return '-'
   const parsed = moment(String(value).trim(), TENURE_DATE_FORMATS, true)
   return parsed.isValid() ? parsed.format('DD-MMM-YYYY') : value
+}
+
+const getEmployeeTypeValue = type =>
+  type?.VALUE ?? type?.value ?? type?.ETYPE_ID ?? type
+
+const getEmployeeTypeLabel = type =>
+  type?.LABEL ?? type?.label ?? type?.EMP_TYPE ?? type
+
+const isPermanentType = (value, options = []) => {
+  const selectedOption = options.find(
+    option => String(getEmployeeTypeValue(option)) === String(value)
+  )
+  const label = String(
+    selectedOption ? getEmployeeTypeLabel(selectedOption) : value
+  ).trim().toLowerCase()
+  return label.includes('permanent') || ['1', 'p'].includes(label)
 }
 
 const TenureChangeAssessmentModal = ({
@@ -166,7 +183,9 @@ const TenureChangeAssessmentModal = ({
           ...emptyAssessment,
           ratings,
           employeeType: String(meta.etype_id ?? ''),
-          period: meta.etype_period ?? '',
+          period: isPermanentType(meta.etype_id, empTypes)
+            ? ''
+            : meta.etype_period ?? '',
           proposedCtc: meta.proposed_ctc ?? '',
           effectiveFrom: toTenureDateISO(meta.effective_from),
           remarks: meta.remarks ?? ''
@@ -207,7 +226,9 @@ const TenureChangeAssessmentModal = ({
       tenure_change_id: assessmentMeta.tenure_change_id ?? record?.ID ?? null,
       jd_id: assessmentMeta.jd_id ?? null,
       etype_id: assessment.employeeType,
-      etype_period: assessment.period,
+      etype_period: isPermanentType(assessment.employeeType, typeOptions)
+        ? ''
+        : assessment.period,
       proposed_ctc: assessment.proposedCtc,
       effective_from: assessment.effectiveFrom,
       next_appraisal_year: assessment.nextAppraisalYear,
@@ -219,7 +240,7 @@ const TenureChangeAssessmentModal = ({
       improvement: assessment.improvement,
       appraiser_comments: assessment.appraiserComments
     }),
-    [employee, record, assessmentMeta, assessment, questions]
+    [employee, record, assessmentMeta, assessment, questions, typeOptions]
   )
 
   const assessmentComplete =
@@ -264,11 +285,15 @@ const TenureChangeAssessmentModal = ({
     assessment.proposedCtc !== '' &&
     assessment.proposedCtc !== null &&
     !Number.isInteger(Number(assessment.proposedCtc))
+  const proposedCtcExceedsLimit =
+    assessment.proposedCtc !== '' &&
+    assessment.proposedCtc !== null &&
+    Number(assessment.proposedCtc) > MAX_PROPOSED_CTC
 
   const handleSave = async event => {
     event.preventDefault()
     if (!employee || saving) return
-    if (proposedCtcHasFraction) return
+    if (proposedCtcHasFraction || proposedCtcExceedsLimit) return
     if (!isValidEffectiveDate(assessment.effectiveFrom)) {
       setActionMessage(
         'Effective From must be the 1st of a month and cannot be earlier than the allowed date.'
@@ -296,7 +321,7 @@ const TenureChangeAssessmentModal = ({
 
   const handleSubmit = async () => {
     if (!canSubmit || submitting) return
-    if (proposedCtcHasFraction) return
+    if (proposedCtcHasFraction || proposedCtcExceedsLimit) return
     if (!isValidEffectiveDate(assessment.effectiveFrom)) {
       setActionMessage(
         'Effective From must be the 1st of a month and cannot be earlier than the allowed date.'
@@ -325,10 +350,12 @@ const TenureChangeAssessmentModal = ({
 
   if (!show || !record) return null
 
-  const optionValue = option =>
-    option?.VALUE ?? option?.value ?? option?.ETYPE_ID ?? option
-  const optionLabel = option =>
-    option?.LABEL ?? option?.label ?? option?.EMP_TYPE ?? option
+  const optionValue = getEmployeeTypeValue
+  const optionLabel = getEmployeeTypeLabel
+  const isPermanentEmployeeType = isPermanentType(
+    assessment.employeeType,
+    typeOptions
+  )
 
   return (
     <div
@@ -386,7 +413,7 @@ const TenureChangeAssessmentModal = ({
               </div>
             ) : employee ? (
               <div className='tenure-change-page'>
-                <div className='row g-3 mb-3 tenure-employee-summary'>
+                <div className='row g-3 mb-0 tenure-employee-summary'>
                   <div className='col-lg-4'>
                     <div>
                       <strong>Employee:</strong> {employee.code} -{' '}
@@ -402,17 +429,19 @@ const TenureChangeAssessmentModal = ({
                       <strong>Date of Joining:</strong> {employee.dateOfJoining}
                     </div>
                     <div>
-                      <strong>Designation:</strong> {employee.designation}
+                      <strong>Department:</strong> {employee.department}
                     </div>
                   </div>
                   <div className='col-lg-4'>
                     <div>
                       <strong>Tenure Due Date:</strong> {employee.tenureDueDate}
                     </div>
-                    <div>
-                      <strong>Department:</strong> {employee.department}
-                    </div>
                   </div>
+                </div>
+                <div className='row mt-1 mb-3 tenure-employee-designation'>
+                    <div className='col-12'>
+                      <strong>Designation:</strong> {employee.designation}
+                    </div>
                 </div>
 
                 {questions.length === 0 ? (
@@ -422,25 +451,46 @@ const TenureChangeAssessmentModal = ({
                   </div>
                 ) : (
                   <>
-                    <div className='tenure-rating-section-title'>GENERAL</div>
                     <div className='table-responsive tenure-rating-table-wrap'>
                       <table className='table table-bordered tenure-rating-table mb-0'>
                         <tbody>
-                          {questions.map((question, index) => (
-                            <tr key={question.id}>
-                              {index === 0 && (
-                                <th
-                                  className='tenure-rating-group'
-                                  rowSpan={questions.length}
-                                >
-                                  {question.subgroup || 'PERSONAL'}
+                          <tr className='tenure-rating-section-row'>
+                            <th colSpan='2'>GENERAL</th>
+                          </tr>
+                          <tr className='tenure-rating-section-row tenure-rating-subgroup-row'>
+                            <th colSpan='2'>
+                              {questions[0]?.subgroup || 'PERSONAL'}
+                            </th>
+                          </tr>
+                          {questions.map((question, index) => {
+                            const isCommentQuestion =
+                              /area of improvement|appraiser.?s comments/i.test(
+                                question.question
+                              )
+
+                            return (
+                              <tr key={question.id}>
+                                <th className='tenure-rating-question'>
+                                  {index + 1}) {question.question}
                                 </th>
-                              )}
-                              <th className='tenure-rating-question'>
-                                {index + 1}) {question.question}
-                              </th>
-                              <td>
-                                {question.input_type === 'checkbox' ? (
+                                <td>
+                                  {isCommentQuestion ? (
+                                    <textarea
+                                      className='form-control tenure-rating-answer'
+                                      rows='4'
+                                      value={
+                                        assessment.ratings[question.id] ??
+                                        question.saved_answer ??
+                                        ''
+                                      }
+                                      onChange={event =>
+                                        updateRating(
+                                          question.id,
+                                          event.target.value
+                                        )
+                                      }
+                                    />
+                                  ) : question.input_type === 'checkbox' ? (
                                   <div className='tenure-rating-options'>
                                     {question.options.map(option => {
                                       const selected = String(
@@ -516,25 +566,26 @@ const TenureChangeAssessmentModal = ({
                                     ))}
                                   </div>
                                 ) : (
-                                  <textarea
-                                    className='form-control'
-                                    rows='2'
-                                    value={
-                                      assessment.ratings[question.id] ??
-                                      question.saved_answer ??
-                                      ''
-                                    }
-                                    onChange={event =>
-                                      updateRating(
-                                        question.id,
-                                        event.target.value
-                                      )
-                                    }
-                                  />
-                                )}
-                              </td>
-                            </tr>
-                          ))}
+                                    <textarea
+                                      className='form-control tenure-rating-answer'
+                                      rows='4'
+                                      value={
+                                        assessment.ratings[question.id] ??
+                                        question.saved_answer ??
+                                        ''
+                                      }
+                                      onChange={event =>
+                                        updateRating(
+                                          question.id,
+                                          event.target.value
+                                        )
+                                      }
+                                    />
+                                  )}
+                                </td>
+                              </tr>
+                            )
+                          })}
                         </tbody>
                       </table>
                     </div>
@@ -550,9 +601,18 @@ const TenureChangeAssessmentModal = ({
                       <select
                         className='form-select tenure-change-select'
                         value={assessment.employeeType}
-                        onChange={event =>
-                          updateAssessment('employeeType', event.target.value)
-                        }
+                        onChange={event => {
+                          const value = event.target.value
+                          setAssessment(current => ({
+                            ...current,
+                            employeeType: value,
+                            period: isPermanentType(value, typeOptions)
+                              ? ''
+                              : current.period
+                          }))
+                          setSaveSucceeded(false)
+                          setActionMessage('')
+                        }}
                       >
                         <option value=''>Select Employee Type</option>
                         {typeOptions.map((type, index) => (
@@ -571,7 +631,8 @@ const TenureChangeAssessmentModal = ({
                         className='form-control'
                         type='number'
                         min='0'
-                        value={assessment.period}
+                        value={isPermanentEmployeeType ? '' : assessment.period}
+                        disabled={isPermanentEmployeeType}
                         onChange={event =>
                           updateAssessment('period', event.target.value)
                         }
@@ -586,22 +647,30 @@ const TenureChangeAssessmentModal = ({
                       />
                     </div>
                     <div className='col-lg-4 col-md-6'>
-                      <label className='form-label'>Proposed CTC</label>
+                      <label className='form-label'>
+                        Proposed CTC <small className='text-muted'>(in lakhs e.g. 30000)</small>
+                      </label>
                       <input
-                        className={`form-control${proposedCtcHasFraction ? ' is-invalid' : ''}`}
+                        className={`form-control${proposedCtcHasFraction || proposedCtcExceedsLimit ? ' is-invalid' : ''}`}
                         type='number'
                         min='0'
+                        max={MAX_PROPOSED_CTC}
                         step='any'
                         placeholder='Enter proposed CTC'
                         value={assessment.proposedCtc}
                         onChange={event =>
                           updateAssessment('proposedCtc', event.target.value)
                         }
-                        aria-invalid={proposedCtcHasFraction}
+                        aria-invalid={proposedCtcHasFraction || proposedCtcExceedsLimit}
                       />
                       {proposedCtcHasFraction && (
                         <small className='text-danger d-block mt-1'>
                           Proposed CTC must be a whole number.
+                        </small>
+                      )}
+                      {proposedCtcExceedsLimit && (
+                        <small className='text-danger d-block mt-1'>
+                          Proposed CTC cannot exceed 1 crore (10,000,000).
                         </small>
                       )}
                     </div>
@@ -610,7 +679,8 @@ const TenureChangeAssessmentModal = ({
                       className='col-lg-4 col-md-6 tenure-effective-date-field'
                     >
                       <label className='form-label'>
-                        Effective From <span className='text-danger'>*</span>
+                        Effective From <span className='text-danger'>*</span>{' '}
+                        <small className='text-muted'>(1st of every month)</small>
                       </label>
                       <div className='input-group tenure-effective-date-wrap'>
                         <input
@@ -677,9 +747,6 @@ const TenureChangeAssessmentModal = ({
                           <i className='ti ti-calendar' />
                         </button>
                       </div>
-                      <small className='text-muted d-block mt-1'>
-                        Effective from date will always be the 1st of the month.
-                      </small>
                       {calendarOpen && createPortal(
                         <div
                           className='tenure-date-calendar'
