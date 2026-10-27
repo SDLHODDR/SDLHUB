@@ -203,7 +203,7 @@ const TenureChangeAssessmentModal = ({
   const postData = useMemo(
     () => ({
       emp_code: employee?.code ?? record?.TRAN_CODE ?? '',
-      task_id: record?.TASK_ID ?? assessmentMeta.task_id ?? '',
+      task_id: record?.ID ?? assessmentMeta.task_id ?? '',
       tenure_change_id: assessmentMeta.tenure_change_id ?? record?.ID ?? null,
       jd_id: assessmentMeta.jd_id ?? null,
       etype_id: assessment.employeeType,
@@ -350,7 +350,7 @@ const TenureChangeAssessmentModal = ({
           <div className='modal-header'>
             <div>
               <h5 className='modal-title mb-1' id='tenure-assessment-title'>
-                {config?.title || 'Employee Tenure Change'}
+                {config?.title || 'Employee Tenure Change 1234'}
               </h5>
               <small className='text-muted'>
                 Employee Code: <strong>{record.TRAN_CODE || '-'}</strong>
@@ -823,7 +823,7 @@ const TenureChangeAssessmentModal = ({
               {canSubmit && (
                 <button
                   type='button'
-                  className='btn btn-warning'
+                  className='btn btn-warning me-2'
                   onClick={handleSubmit}
                   disabled={submitting || saving}
                 >

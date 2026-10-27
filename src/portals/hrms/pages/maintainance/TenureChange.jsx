@@ -102,7 +102,8 @@ const TenureChange = () => {
 
     console.log('==========Employee=======', employee)
 
-    const managerCode = employee.manager?.empCode || employee.mgr_code
+    //const managerCode = employee.manager?.empCode || employee.mgr_code
+    const managerCode = employee.manager?.manager_code || employee.mgr_code
     const managerName =
       employee.manager?.empName?.trim() || employee.managerName
 

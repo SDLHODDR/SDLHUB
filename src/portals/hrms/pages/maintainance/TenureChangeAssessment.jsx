@@ -57,7 +57,7 @@ const TenureChangeAssessment = () => {
   return (
     <div className="tenure-change-page">
       <div className="page-header">
-        <div className="page-title"><h4>Employee Tenure Change</h4></div>
+        <div className="page-title"><h4>Employee Tenure Change1234445555</h4></div>
         <BreadcrumbNav items={[
           { text: "Home", link: `/${portal.key}/dashboard` },
           { text: "Tenure Change", link: "/hrms/maintainance/tenure-change" },
@@ -168,7 +168,7 @@ const TenureChangeAssessment = () => {
 
           <div className="d-flex justify-content-end gap-2 mt-4">
             <button type="submit" className="btn btn-primary">Save</button>
-            <button type="button" className="btn btn-secondary" onClick={() => navigate("/hrms/maintainance/tenure-change")}>Cancel</button>
+            <button type="button" className="btn btn-secondary" onClick={() => navigate("/hrms/maintainance/tenure-change")}>Cancel 123</button>
           </div>
           <p className="small text-muted text-end mt-3 mb-0">This prototype stores assessment data only for the current navigation session.</p>
         </div>
