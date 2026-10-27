@@ -91,6 +91,8 @@ const TenureChangeAssessmentModal = ({
   const [submitting, setSubmitting] = useState(false)
   const [saveSucceeded, setSaveSucceeded] = useState(false)
   const [actionMessage, setActionMessage] = useState('')
+  const [periodInputError, setPeriodInputError] = useState('')
+  const [proposedCtcInputError, setProposedCtcInputError] = useState('')
 
   useEffect(() => {
     if (!show || !record) return undefined
@@ -109,6 +111,8 @@ const TenureChangeAssessmentModal = ({
       setAssessmentMeta({})
       setSaveSucceeded(false)
       setActionMessage('')
+      setPeriodInputError('')
+      setProposedCtcInputError('')
 
       try {
         console.log(record.TRAN_CODE, record.TASK_ID, record.ID)
@@ -293,7 +297,12 @@ const TenureChangeAssessmentModal = ({
   const handleSave = async event => {
     event.preventDefault()
     if (!employee || saving) return
-    if (proposedCtcHasFraction || proposedCtcExceedsLimit) return
+    if (
+      periodInputError ||
+      proposedCtcInputError ||
+      proposedCtcHasFraction ||
+      proposedCtcExceedsLimit
+    ) return
     if (!isValidEffectiveDate(assessment.effectiveFrom)) {
       setActionMessage(
         'Effective From must be the 1st of a month and cannot be earlier than the allowed date.'
@@ -307,7 +316,7 @@ const TenureChangeAssessmentModal = ({
       const response = await saveTenureChangeAssessment(postData)
       if (response?.status === true || response?.success === true) {
         setSaveSucceeded(true)
-        setActionMessage(response?.message || 'Assessment saved.')
+        setActionMessage('Employee Tenure Change saved successfully.')
         //onSuccess?.();
       } else {
         setActionMessage(response?.message || 'Assessment could not be saved.')
@@ -321,7 +330,12 @@ const TenureChangeAssessmentModal = ({
 
   const handleSubmit = async () => {
     if (!canSubmit || submitting) return
-    if (proposedCtcHasFraction || proposedCtcExceedsLimit) return
+    if (
+      periodInputError ||
+      proposedCtcInputError ||
+      proposedCtcHasFraction ||
+      proposedCtcExceedsLimit
+    ) return
     if (!isValidEffectiveDate(assessment.effectiveFrom)) {
       setActionMessage(
         'Effective From must be the 1st of a month and cannot be earlier than the allowed date.'
@@ -628,15 +642,32 @@ const TenureChangeAssessmentModal = ({
                     <div className='col-lg-4 col-md-6'>
                       <label className='form-label'>Period (In Months)</label>
                       <input
-                        className='form-control'
-                        type='number'
-                        min='0'
+                        className={`form-control text-end${periodInputError ? ' is-invalid' : ''}`}
+                        type='text'
+                        inputMode='numeric'
+                        pattern='[0-9]*'
+                        maxLength={2}
                         value={isPermanentEmployeeType ? '' : assessment.period}
                         disabled={isPermanentEmployeeType}
-                        onChange={event =>
-                          updateAssessment('period', event.target.value)
-                        }
+                        aria-invalid={Boolean(periodInputError)}
+                        onChange={event => {
+                          const value = event.target.value
+                          if (!/^\d*$/.test(value)) {
+                            setPeriodInputError('Period must be a whole number.')
+                            setSaveSucceeded(false)
+                            setActionMessage('')
+                            return
+                          }
+                          setPeriodInputError('')
+                          if (value !== '' && Number(value) > 60) return
+                          updateAssessment('period', value)
+                        }}
                       />
+                      {periodInputError && (
+                        <small className='text-danger d-block mt-1'>
+                          {periodInputError}
+                        </small>
+                      )}
                     </div>
                     <div className='col-lg-4 col-md-6'>
                       <label className='form-label'>Current CTC</label>
@@ -651,18 +682,29 @@ const TenureChangeAssessmentModal = ({
                         Proposed CTC <small className='text-muted'>(in lakhs e.g. 30000)</small>
                       </label>
                       <input
-                        className={`form-control${proposedCtcHasFraction || proposedCtcExceedsLimit ? ' is-invalid' : ''}`}
-                        type='number'
-                        min='0'
-                        max={MAX_PROPOSED_CTC}
-                        step='any'
-                        placeholder='Enter proposed CTC'
+                        className={`form-control text-end${proposedCtcInputError || proposedCtcHasFraction || proposedCtcExceedsLimit ? ' is-invalid' : ''}`}
+                        type='text'
+                        inputMode='numeric'
+                        pattern='[0-9]*'
                         value={assessment.proposedCtc}
-                        onChange={event =>
-                          updateAssessment('proposedCtc', event.target.value)
-                        }
-                        aria-invalid={proposedCtcHasFraction || proposedCtcExceedsLimit}
+                        onChange={event => {
+                          const value = event.target.value
+                          if (!/^\d*$/.test(value)) {
+                            setProposedCtcInputError('Proposed CTC must be a whole number.')
+                            setSaveSucceeded(false)
+                            setActionMessage('')
+                            return
+                          }
+                          setProposedCtcInputError('')
+                          updateAssessment('proposedCtc', value)
+                        }}
+                        aria-invalid={Boolean(proposedCtcInputError) || proposedCtcHasFraction || proposedCtcExceedsLimit}
                       />
+                      {proposedCtcInputError && (
+                        <small className='text-danger d-block mt-1'>
+                          {proposedCtcInputError}
+                        </small>
+                      )}
                       {proposedCtcHasFraction && (
                         <small className='text-danger d-block mt-1'>
                           Proposed CTC must be a whole number.
@@ -875,7 +917,10 @@ const TenureChangeAssessmentModal = ({
           {questions.length > 0 && (
             <div className='modal-footer'>
               {actionMessage && (
-                <span className='small text-muted me-auto' role='status'>
+                <span
+                  className={`small me-auto ${saveSucceeded ? 'text-success' : 'text-danger'}`}
+                  role='status'
+                >
                   {actionMessage}
                 </span>
               )}
@@ -890,7 +935,7 @@ const TenureChangeAssessmentModal = ({
               {canSubmit && (
                 <button
                   type='button'
-                  className='btn btn-warning'
+                  className='btn btn-success'
                   onClick={handleSubmit}
                   disabled={submitting || saving}
                 >
