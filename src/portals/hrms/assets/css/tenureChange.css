@@ -36,6 +36,10 @@
   font-weight: 700;
 }
 
+.tenure-change-page .tenure-rating-subgroup-row th {
+  background: #d1d3d4;
+}
+
 .tenure-change-page .tenure-rating-table {
   border-color: #d7e0e8;
   font-size: 0.88rem;
