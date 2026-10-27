@@ -5,8 +5,7 @@
 .sdl-calendar-wrapper {
   position: relative;
   width: 100%;
-  border: 1px solid #6c757d;
-  border-radius: 4px;
+  min-width: 0;
 }
 
 /* =========================================================
@@ -24,6 +23,7 @@
   padding: 0.5rem 0.75rem !important;
   font-size: 14px;
   flex: 1 1 auto;
+  border: 1px solid #6c757d !important;
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
@@ -36,7 +36,7 @@
   background: #ffffff !important;
   background-color: #ffffff !important;
   color: #000000 !important;
-  border: 1px solid #dee2e6 !important;
+  border: 1px solid #6c757d !important;
   border-left: 0 !important;
   box-shadow: none !important;
   border-radius: 0 4px 4px 0 !important;
@@ -57,7 +57,7 @@
 .sdl-calendar-wrapper button.p-datepicker-trigger:focus,
 .sdl-calendar-wrapper button.p-datepicker-trigger:active {
   background: #ffffff !important;
-  border-color: #dee2e6 !important;
+  border-color: #6c757d !important;
   box-shadow: none !important;
 }
 
@@ -66,21 +66,43 @@
 ========================================================= */
 
 body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) {
-  width: 330px !important;
-  min-width: 330px !important;
-  max-width: 330px !important;
+  width: 280px !important;
+  min-width: 280px !important;
+  max-width: 280px !important;
   box-sizing: border-box !important;
   z-index: 3000 !important;
   background: #ffffff !important;
-  border: 1px solid #dee2e6 !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid #d7e0e8 !important;
+  border-radius: 0 !important;
+  padding: 8px !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18) !important;
 }
 
 body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) .p-datepicker-header {
   width: 100% !important;
   box-sizing: border-box !important;
   background: #ffffff !important;
-  border-bottom: 1px solid #f1f3f5 !important;
+  border: 0 !important;
+  padding: 0.25rem 0.25rem 0.5rem !important;
+  color: #25364a !important;
+}
+
+body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) .p-datepicker-title {
+  color: #25364a !important;
+  font-weight: 700 !important;
+}
+
+body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) .p-datepicker-prev,
+body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) .p-datepicker-next {
+  width: 2rem !important;
+  height: 2rem !important;
+  border-radius: 4px !important;
+  color: #25364a !important;
+}
+
+body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) .p-datepicker-prev:hover,
+body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) .p-datepicker-next:hover {
+  background: #f1f4f7 !important;
 }
 
 body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) .p-monthpicker,
@@ -101,11 +123,50 @@ body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) table td {
 }
 
 body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) table td > span {
-  width: 2rem;
-  height: 2rem;
+  width: 2rem !important;
+  height: 2rem !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50% !important;
+  color: #25364a;
+}
+
+body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) table th {
+  padding: 0.35rem 0.1rem !important;
+  color: #778394 !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+}
+
+body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) table td {
+  padding: 0.1rem !important;
+}
+
+body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) table td > span:not(.p-disabled):not(.p-highlight):hover {
+  background: #fff0df !important;
+  color: #c96a12 !important;
+}
+
+body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) table td > span.p-highlight,
+body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) table td.p-datepicker-today > span {
+  background: #fe9f43 !important;
+  color: #ffffff !important;
+}
+
+body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) table td > span.p-disabled {
+  color: #c5cbd2 !important;
+  opacity: 1 !important;
+}
+
+.sdl-calendar-day-holiday {
+  text-decoration: underline dotted;
+  text-decoration-color: #dc3545;
+}
+
+.sdl-calendar-day-optional {
+  text-decoration: underline dotted;
+  text-decoration-color: #ff9800;
 }
 
 /* =========================================================

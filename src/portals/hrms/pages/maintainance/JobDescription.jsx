@@ -41,6 +41,16 @@ import SaveButton from '../../components/buttons/SaveButton'
 import CancelButton from '../../components/buttons/CancelButton'
 import ViewToggleButton from '../../components/buttons/ViewToggleButton'
 import SDLInput from '../../../../components/SDLInput'
+import SDLCalendar from '../../../../components/calendar/SDLCalendar'
+import { parseDateValue } from '../../../../utils/formatUtils'
+
+const toDateInputValue = date => {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return ''
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload
@@ -3801,14 +3811,13 @@ if (!isValid) {
                               From Date<span style={jdStyles.required}>*</span>
                             </label>
 
-                            <input
-                              type='date'
-                              className='form-control'
-                              value={allowanceForm.fromDate}
-                              onChange={e =>
+                            <SDLCalendar
+                              value={parseDateValue(allowanceForm.fromDate)}
+                              allowAllDates
+                              onChange={date =>
                                 setAllowanceForm(prev => ({
                                   ...prev,
-                                  fromDate: e.target.value
+                                  fromDate: toDateInputValue(date)
                                 }))
                               }
                             />
@@ -3817,14 +3826,13 @@ if (!isValid) {
                           <div className='col-md-2 mb-3'>
                             <label style={jdStyles.label}>To Date</label>
 
-                            <input
-                              type='date'
-                              className='form-control'
-                              value={allowanceForm.toDate}
-                              onChange={e =>
+                            <SDLCalendar
+                              value={parseDateValue(allowanceForm.toDate)}
+                              allowAllDates
+                              onChange={date =>
                                 setAllowanceForm(prev => ({
                                   ...prev,
-                                  toDate: e.target.value
+                                  toDate: toDateInputValue(date)
                                 }))
                               }
                             />
@@ -3954,14 +3962,13 @@ if (!isValid) {
                               <span style={jdStyles.required}>*</span>
                             </label>
 
-                            <input
-                              type='date'
-                              className='form-control'
-                              value={ctcForm.from}
-                              onChange={e =>
+                            <SDLCalendar
+                              value={parseDateValue(ctcForm.from)}
+                              allowAllDates
+                              onChange={date =>
                                 setCtcForm(prev => ({
                                   ...prev,
-                                  from: e.target.value
+                                  from: toDateInputValue(date)
                                 }))
                               }
                             />
@@ -3970,14 +3977,13 @@ if (!isValid) {
                           <div className='col-md-2 mb-3'>
                             <label style={jdStyles.label}>Effective To</label>
 
-                            <input
-                              type='date'
-                              className='form-control'
-                              value={ctcForm.to}
-                              onChange={e =>
+                            <SDLCalendar
+                              value={parseDateValue(ctcForm.to)}
+                              allowAllDates
+                              onChange={date =>
                                 setCtcForm(prev => ({
                                   ...prev,
-                                  to: e.target.value
+                                  to: toDateInputValue(date)
                                 }))
                               }
                             />

@@ -1,5 +1,5 @@
 import { Column } from "primereact/column";
-import { Calendar } from "primereact/calendar";
+import SDLCalendar from "../../../components/calendar/SDLCalendar";
 import SDLActionButtons from "../../../components/SDLActionButtons";
 import SDLReactSelect from "../../../components/SDLReactSelect";
 import {
@@ -49,12 +49,12 @@ export const getLocationsColumns = ({
       const fieldError = row._errors?.FROM_DATE;
       return (
         <div>
-          <Calendar
+          <SDLCalendar
             value={toEditableDate(row.FROM_DATE)}
-            onChange={(e) => updateBulkRowField(row.SNO, "FROM_DATE", e.value)}
+            onChange={(date) => updateBulkRowField(row.SNO, "FROM_DATE", date)}
             dateFormat={DATE_PICKER_FORMAT}
             locale={DATE_PICKER_LOCALE}
-            showIcon
+            allowAllDates
             className={`sdl-locations-calendar${fieldError ? " p-invalid" : ""}`}
           />
           {fieldError && <div className="invalid-feedback d-block">{fieldError}</div>}
@@ -70,12 +70,12 @@ export const getLocationsColumns = ({
     body: (row) => {
       if (!isEditing) return formatDate(row.TO_DATE);
       return (
-        <Calendar
+        <SDLCalendar
           value={toEditableDate(row.TO_DATE)}
-          onChange={(e) => updateBulkRowField(row.SNO, "TO_DATE", e.value)}
+          onChange={(date) => updateBulkRowField(row.SNO, "TO_DATE", date)}
           dateFormat={DATE_PICKER_FORMAT}
           locale={DATE_PICKER_LOCALE}
-          showIcon
+          allowAllDates
           className="sdl-locations-calendar"
         />
       );
