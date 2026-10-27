@@ -35,6 +35,7 @@ const TENURE_DATE_FORMATS = [
   'DD-MMM-YY',
   'MM/DD/YYYY'
 ]
+const MAX_PROPOSED_CTC = 10_000_000
 
 const toTenureDateISO = value => {
   if (!value) return ''
@@ -284,11 +285,15 @@ const TenureChangeAssessmentModal = ({
     assessment.proposedCtc !== '' &&
     assessment.proposedCtc !== null &&
     !Number.isInteger(Number(assessment.proposedCtc))
+  const proposedCtcExceedsLimit =
+    assessment.proposedCtc !== '' &&
+    assessment.proposedCtc !== null &&
+    Number(assessment.proposedCtc) > MAX_PROPOSED_CTC
 
   const handleSave = async event => {
     event.preventDefault()
     if (!employee || saving) return
-    if (proposedCtcHasFraction) return
+    if (proposedCtcHasFraction || proposedCtcExceedsLimit) return
     if (!isValidEffectiveDate(assessment.effectiveFrom)) {
       setActionMessage(
         'Effective From must be the 1st of a month and cannot be earlier than the allowed date.'
@@ -316,7 +321,7 @@ const TenureChangeAssessmentModal = ({
 
   const handleSubmit = async () => {
     if (!canSubmit || submitting) return
-    if (proposedCtcHasFraction) return
+    if (proposedCtcHasFraction || proposedCtcExceedsLimit) return
     if (!isValidEffectiveDate(assessment.effectiveFrom)) {
       setActionMessage(
         'Effective From must be the 1st of a month and cannot be earlier than the allowed date.'
@@ -452,7 +457,7 @@ const TenureChangeAssessmentModal = ({
                           <tr className='tenure-rating-section-row'>
                             <th colSpan='2'>GENERAL</th>
                           </tr>
-                          <tr className='tenure-rating-section-row'>
+                          <tr className='tenure-rating-section-row tenure-rating-subgroup-row'>
                             <th colSpan='2'>
                               {questions[0]?.subgroup || 'PERSONAL'}
                             </th>
@@ -646,20 +651,26 @@ const TenureChangeAssessmentModal = ({
                         Proposed CTC <small className='text-muted'>(in lakhs e.g. 30000)</small>
                       </label>
                       <input
-                        className={`form-control${proposedCtcHasFraction ? ' is-invalid' : ''}`}
+                        className={`form-control${proposedCtcHasFraction || proposedCtcExceedsLimit ? ' is-invalid' : ''}`}
                         type='number'
                         min='0'
+                        max={MAX_PROPOSED_CTC}
                         step='any'
                         placeholder='Enter proposed CTC'
                         value={assessment.proposedCtc}
                         onChange={event =>
                           updateAssessment('proposedCtc', event.target.value)
                         }
-                        aria-invalid={proposedCtcHasFraction}
+                        aria-invalid={proposedCtcHasFraction || proposedCtcExceedsLimit}
                       />
                       {proposedCtcHasFraction && (
                         <small className='text-danger d-block mt-1'>
                           Proposed CTC must be a whole number.
+                        </small>
+                      )}
+                      {proposedCtcExceedsLimit && (
+                        <small className='text-danger d-block mt-1'>
+                          Proposed CTC cannot exceed 1 crore (10,000,000).
                         </small>
                       )}
                     </div>
