@@ -40,7 +40,13 @@ export const submitTenureChangeAssessment = payload => {
   return hrmsRequest({
     url: HRMS_API.REPORTS.SAVE_TENURE_CHANGE_ASSESSMENT,
     method: 'POST',
-    data: { ...submitPayload, CloseConfirmInt: true }
+    data: {
+      ...submitPayload,
+      closeConfirmInt: true,
+      EMP_CODE: submitPayload.emp_code,
+      TASK_ID: submitPayload.task_id,
+      EFF_FROM: submitPayload.effective_from,
+    }
   })
 }
 
