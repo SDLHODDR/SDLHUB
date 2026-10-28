@@ -882,15 +882,8 @@ const JobDescription = () => {
   )
 
   const filteredUnmappedQuestions = useMemo(
-    () =>
-      selectedQuestionGroup
-        ? unmappedQuestionTemplateQuestions.filter(
-            question =>
-              String(question.QGRP_ID ?? '').trim() ===
-              String(selectedQuestionGroup).trim()
-          )
-        : unmappedQuestionTemplateQuestions,
-    [unmappedQuestionTemplateQuestions, selectedQuestionGroup]
+    () => unmappedQuestionTemplateQuestions,
+    [unmappedQuestionTemplateQuestions]
   )
 
   useEffect(() => {
@@ -1666,6 +1659,11 @@ const JobDescription = () => {
     const assignmentsById = new Map(
       assignments.map(question => [String(question.QUESTION_ID), question])
     )
+    const selectedGroup = normalizeRecords(questionGroupList).find(
+      group =>
+        String(group.QGRP_ID ?? group.qgrp_id ?? '').trim() ===
+        String(selectedQuestionGroup).trim()
+    )
 
     selectedQuestionIdsToMap.forEach(questionId => {
       const question = questionTemplateQuestions.find(
@@ -1674,8 +1672,10 @@ const JobDescription = () => {
       if (!question) return
 
       assignmentsById.set(String(questionId), {
-        QGRP_ID: question.QGRP_ID ?? question.qgrp_id ?? '',
-        QGRP_TYPE: question.QGRP_TYPE ?? question.qgrp_type ?? '',
+        // Unmapped master questions are group independent. Apply the group
+        // currently selected above the tables when assigning them to this JD.
+        QGRP_ID: selectedQuestionGroup,
+        QGRP_TYPE: selectedGroup?.QGRP_TYPE ?? selectedGroup?.qgrp_type ?? '',
         QSGRP_ID: question.QSGRP_ID ?? question.qsgrp_id ?? '',
         QUESTION_ID: question.QUESTION_ID ?? question.question_id ?? questionId,
         DISP_SEQ: question.DISP_SEQ ?? question.disp_seq ?? ''
@@ -2132,6 +2132,15 @@ const handleSave = async event => {
   // For a new JD, send the complete payload.
   const isExistingJD = Boolean(formData.id)
 
+  if (
+    activeTab === 'questions' &&
+    selectedQuestionIdsToMap.length > 0 &&
+    !selectedQuestionGroup
+  ) {
+    notifyError('Select a question group before mapping questions.')
+    return false
+  }
+
   if (isExistingJD && activeTab === 'responsibilities') {
     return await handleSaveResponsibility()
   }
@@ -2487,6 +2496,14 @@ if (!isValid) {
     }
 
     if (!validateForm()) return
+
+    if (
+      selectedQuestionIdsToMap.length > 0 &&
+      !selectedQuestionGroup
+    ) {
+      notifyError('Select a question group before mapping questions.')
+      return
+    }
 
     setSaving(true)
     try {

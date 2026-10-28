@@ -165,6 +165,21 @@ const TenureChangeCtcModalContent = ({
     [monthlyAmounts]
   )
 
+  const proposedCtcValue =
+    assessment.proposedCtc ?? assessment.PROP_CTC ?? ''
+  const proposedCtcTarget = Number(
+    String(proposedCtcValue).replace(/[₹,\s]/g, '')
+  )
+  const hasProposedCtc =
+    proposedCtcValue !== '' &&
+    proposedCtcValue !== null &&
+    Number.isFinite(proposedCtcTarget)
+  const proposedCtcDifference = hasProposedCtc
+    ? Math.abs(Math.round((totals.annual - proposedCtcTarget) * 100) / 100)
+    : 0
+  const proposedCtcMismatch =
+    hasProposedCtc && proposedCtcDifference > 100
+
   if (!show || !record) return null
 
   const handleSave = async (action = 'submit') => {
@@ -183,6 +198,7 @@ const TenureChangeCtcModalContent = ({
       )
       return
     }
+    if (proposedCtcMismatch) return
 
     setSaving(true)
     setError('')
@@ -387,15 +403,17 @@ const TenureChangeCtcModalContent = ({
                     <strong>Effective From:</strong>{' '}
                     {assessment.effectiveFrom ?? assessment.EFF_FROM ?? '-'}
                   </div>
-                  <div>
-                    <strong>Assessment Remarks:</strong>{' '}
-                    {assessment.remarks ?? assessment.REMARKS ?? '-'}
-                  </div>
                 </div>
               </div>
-              <div className='row mt-0 mb-2 tenure-ctc-designation'>
+              <div className='row mt-0 tenure-ctc-designation'>
                 <div className='col-12'>
                   <strong>Designation:</strong> {employee.designation || '-'}
+                </div>
+              </div>
+              <div className='row mt-0 mb-2 tenure-ctc-assessment-remarks'>
+                <div className='col-12'>
+                  <strong>Assessment Remarks:</strong>{' '}
+                  {assessment.remarks ?? assessment.REMARKS ?? '-'}
                 </div>
               </div>
 
@@ -411,14 +429,13 @@ const TenureChangeCtcModalContent = ({
                     </thead>
                     <tbody>
                       <tr>
-                        <td className='text-center'>1</td>
+                        <td className='text-start'>1</td>
                         <td>
-                          Basic Criteria for PF (1: 12% of 15000 0: 12% of
-                          Basic)
+                          Basic Criteria for PF
                         </td>
                         <td>
                           <select
-                            className='form-select form-select-sm'
+                            className='form-select form-select-sm tenure-pf-basis-select'
                             value={pfInput}
                             onChange={event => setPfInput(event.target.value)}
                             aria-label='PF calculation basis'
@@ -430,6 +447,48 @@ const TenureChangeCtcModalContent = ({
                       </tr>
                     </tbody>
                   </table>
+
+                  <div className='form-check mb-2'>
+                    <input
+                      id='tenure-same-as-structure'
+                      className='form-check-input'
+                      type='checkbox'
+                      checked={sameAsStructure}
+                      onChange={event => {
+                        const checked = event.target.checked
+                        setSameAsStructure(checked)
+                        if (checked) {
+                          setMonthlyAmountsBeforeStructure(monthlyAmounts)
+                          setMonthlyAmounts(current => ({
+                            ...current,
+                            ...Object.fromEntries(
+                              ctcHeads
+                                .filter(
+                                  head =>
+                                    current[head.code] === '' ||
+                                    current[head.code] == null
+                                )
+                                .map(head => [
+                                  head.code,
+                                  String(head.structureMonthly)
+                                ])
+                            )
+                          }))
+                        } else {
+                          if (monthlyAmountsBeforeStructure) {
+                            setMonthlyAmounts(monthlyAmountsBeforeStructure)
+                          }
+                          setMonthlyAmountsBeforeStructure(null)
+                        }
+                      }}
+                    />
+                    <label
+                      className='form-check-label'
+                      htmlFor='tenure-same-as-structure'
+                    >
+                      Same as per structure
+                    </label>
+                  </div>
 
                   <table className='table table-sm tenure-ctc-table mb-2'>
                     <thead>
@@ -546,47 +605,14 @@ const TenureChangeCtcModalContent = ({
                       </tr>
                     </tbody>
                   </table>
-                  <div className='form-check mb-2'>
-                    <input
-                      id='tenure-same-as-structure'
-                      className='form-check-input'
-                      type='checkbox'
-                      checked={sameAsStructure}
-                      onChange={event => {
-                        const checked = event.target.checked
-                        setSameAsStructure(checked)
-                        if (checked) {
-                          setMonthlyAmountsBeforeStructure(monthlyAmounts)
-                          setMonthlyAmounts(current => ({
-                            ...current,
-                            ...Object.fromEntries(
-                              ctcHeads
-                                .filter(
-                                  head =>
-                                    current[head.code] === '' ||
-                                    current[head.code] == null
-                                )
-                                .map(head => [
-                                  head.code,
-                                  String(head.structureMonthly)
-                                ])
-                            )
-                          }))
-                        } else {
-                          if (monthlyAmountsBeforeStructure) {
-                            setMonthlyAmounts(monthlyAmountsBeforeStructure)
-                          }
-                          setMonthlyAmountsBeforeStructure(null)
-                        }
-                      }}
-                    />
-                    <label
-                      className='form-check-label'
-                      htmlFor='tenure-same-as-structure'
-                    >
-                      Same as per structure
-                    </label>
-                  </div>
+                  {proposedCtcMismatch && (
+                    <div className='alert alert-danger mb-2' role='alert'>
+                      Final CTC (₹{formatAmount(totals.annual)}) must match
+                      Proposed CTC (₹{formatAmount(proposedCtcTarget)}) within
+                      ₹100. Current difference: ₹
+                      {formatAmount(proposedCtcDifference)}.
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -603,14 +629,14 @@ const TenureChangeCtcModalContent = ({
   Save
 </SaveButton>
 
-<SaveButton
+<button
+  type='button'
+  className='btn btn-success me-2'
   onClick={() => handleSave('submit')}
   disabled={loading || saving || ctcHeads.length === 0}
-  isSubmitting={saving}
-  className='me-2'
 >
-  Submit
-</SaveButton>
+  {saving ? 'Processing...' : 'Submit'}
+</button>
 
 <CancelButton
   onClick={onClose}
