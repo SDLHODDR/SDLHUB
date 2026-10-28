@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import SDLDataTable from '../../../../components/datatable/SDLDataTable'
 import SDLSearch from '../../../../components/datatable/SDLSearch'
@@ -8,18 +8,21 @@ import { getPortalFromPath } from '../../../../config/portalConfig'
 import {
   confirmAction,
   notifyError,
-  notifySuccess
+  notifySuccess,
+  notifyWarning
 } from '../../../../services/alertService'
 import { getHRMSAuthroizationTaskCount } from '../../../../store/hrms/hrmsAuthorizationCountSlice'
 //import { demoTenureEmployees } from "./tenureChangeDemoData";
-import { sendTenureChangeForAuth } from '../../services/tenureChangeService'
-import { getTenureChangeList } from '../../services/tenureChangeService'
+import {
+  getTenureChangeDetails,
+  getTenureChangeList,
+  sendTenureChangeForAuth
+} from '../../services/tenureChangeService'
 import '../../assets/css/tenureChange.css'
 
 const TenureChange = () => {
   const dispatch = useDispatch()
   const location = useLocation()
-  const navigate = useNavigate()
   const portal = getPortalFromPath(location.pathname)
   const [search, setSearch] = useState('')
   const [employees, setEmployees] = useState([])
@@ -117,8 +120,49 @@ const TenureChange = () => {
       //       }
       //     })
       // })
-      notifyError('Manager code is not available for this employee.', null);
+      notifyWarning('Manager code is not available for this employee.');
       return
+    }
+
+    setSendingEmployeeCode(employee.empCode)
+    try {
+      const detailsResponse = await getTenureChangeDetails({
+        empCode: employee.empCode
+      })
+      const detailsPayload =
+        detailsResponse?.data?.data ??
+        detailsResponse?.data ??
+        detailsResponse?.response?.data ??
+        {}
+
+      if (
+        !(
+          detailsResponse?.status === true ||
+          detailsResponse?.success === true ||
+          Array.isArray(detailsPayload?.questions)
+        )
+      ) {
+        notifyError(
+          detailsResponse?.message ||
+            'Unable to verify tenure assessment questions. The task was not created.'
+        )
+        return
+      }
+
+      if (!Array.isArray(detailsPayload.questions) || detailsPayload.questions.length === 0) {
+        notifyError(
+          'No tenure assessment questions are configured for this tenure. Add questions to the employee’s Job Description before creating the task.'
+        )
+        return
+      }
+    } catch (error) {
+      notifyError(
+        error?.message ||
+          'Unable to verify tenure assessment questions. The task was not created.'
+      )
+      return
+    } finally {
+      setSendingEmployeeCode(null)
     }
 
     // Rest of your confirmation logic...
@@ -225,7 +269,7 @@ const TenureChange = () => {
           aria-label='Start tenure change assessment'
           title='Start tenure change assessment'
           onClick={() => handleSend(employee)}
-          disabled={sendingEmployeeCode === employee.code}
+          disabled={sendingEmployeeCode === employee.empCode}
           // onClick={() => navigate("/hrms/maintainance/tenure-change/assessment", {
           //   state: {
           //     employee: {
