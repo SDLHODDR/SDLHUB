@@ -41,6 +41,16 @@ import SaveButton from '../../components/buttons/SaveButton'
 import CancelButton from '../../components/buttons/CancelButton'
 import ViewToggleButton from '../../components/buttons/ViewToggleButton'
 import SDLInput from '../../../../components/SDLInput'
+import SDLCalendar from '../../../../components/calendar/SDLCalendar'
+import { parseDateValue } from '../../../../utils/formatUtils'
+
+const toDateInputValue = date => {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return ''
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload
@@ -872,15 +882,8 @@ const JobDescription = () => {
   )
 
   const filteredUnmappedQuestions = useMemo(
-    () =>
-      selectedQuestionGroup
-        ? unmappedQuestionTemplateQuestions.filter(
-            question =>
-              String(question.QGRP_ID ?? '').trim() ===
-              String(selectedQuestionGroup).trim()
-          )
-        : unmappedQuestionTemplateQuestions,
-    [unmappedQuestionTemplateQuestions, selectedQuestionGroup]
+    () => unmappedQuestionTemplateQuestions,
+    [unmappedQuestionTemplateQuestions]
   )
 
   useEffect(() => {
@@ -1656,6 +1659,11 @@ const JobDescription = () => {
     const assignmentsById = new Map(
       assignments.map(question => [String(question.QUESTION_ID), question])
     )
+    const selectedGroup = normalizeRecords(questionGroupList).find(
+      group =>
+        String(group.QGRP_ID ?? group.qgrp_id ?? '').trim() ===
+        String(selectedQuestionGroup).trim()
+    )
 
     selectedQuestionIdsToMap.forEach(questionId => {
       const question = questionTemplateQuestions.find(
@@ -1664,8 +1672,10 @@ const JobDescription = () => {
       if (!question) return
 
       assignmentsById.set(String(questionId), {
-        QGRP_ID: question.QGRP_ID ?? question.qgrp_id ?? '',
-        QGRP_TYPE: question.QGRP_TYPE ?? question.qgrp_type ?? '',
+        // Unmapped master questions are group independent. Apply the group
+        // currently selected above the tables when assigning them to this JD.
+        QGRP_ID: selectedQuestionGroup,
+        QGRP_TYPE: selectedGroup?.QGRP_TYPE ?? selectedGroup?.qgrp_type ?? '',
         QSGRP_ID: question.QSGRP_ID ?? question.qsgrp_id ?? '',
         QUESTION_ID: question.QUESTION_ID ?? question.question_id ?? questionId,
         DISP_SEQ: question.DISP_SEQ ?? question.disp_seq ?? ''
@@ -2122,6 +2132,15 @@ const handleSave = async event => {
   // For a new JD, send the complete payload.
   const isExistingJD = Boolean(formData.id)
 
+  if (
+    activeTab === 'questions' &&
+    selectedQuestionIdsToMap.length > 0 &&
+    !selectedQuestionGroup
+  ) {
+    notifyError('Select a question group before mapping questions.')
+    return false
+  }
+
   if (isExistingJD && activeTab === 'responsibilities') {
     return await handleSaveResponsibility()
   }
@@ -2477,6 +2496,14 @@ if (!isValid) {
     }
 
     if (!validateForm()) return
+
+    if (
+      selectedQuestionIdsToMap.length > 0 &&
+      !selectedQuestionGroup
+    ) {
+      notifyError('Select a question group before mapping questions.')
+      return
+    }
 
     setSaving(true)
     try {
@@ -3801,14 +3828,13 @@ if (!isValid) {
                               From Date<span style={jdStyles.required}>*</span>
                             </label>
 
-                            <input
-                              type='date'
-                              className='form-control'
-                              value={allowanceForm.fromDate}
-                              onChange={e =>
+                            <SDLCalendar
+                              value={parseDateValue(allowanceForm.fromDate)}
+                              allowAllDates
+                              onChange={date =>
                                 setAllowanceForm(prev => ({
                                   ...prev,
-                                  fromDate: e.target.value
+                                  fromDate: toDateInputValue(date)
                                 }))
                               }
                             />
@@ -3817,14 +3843,13 @@ if (!isValid) {
                           <div className='col-md-2 mb-3'>
                             <label style={jdStyles.label}>To Date</label>
 
-                            <input
-                              type='date'
-                              className='form-control'
-                              value={allowanceForm.toDate}
-                              onChange={e =>
+                            <SDLCalendar
+                              value={parseDateValue(allowanceForm.toDate)}
+                              allowAllDates
+                              onChange={date =>
                                 setAllowanceForm(prev => ({
                                   ...prev,
-                                  toDate: e.target.value
+                                  toDate: toDateInputValue(date)
                                 }))
                               }
                             />
@@ -3954,14 +3979,13 @@ if (!isValid) {
                               <span style={jdStyles.required}>*</span>
                             </label>
 
-                            <input
-                              type='date'
-                              className='form-control'
-                              value={ctcForm.from}
-                              onChange={e =>
+                            <SDLCalendar
+                              value={parseDateValue(ctcForm.from)}
+                              allowAllDates
+                              onChange={date =>
                                 setCtcForm(prev => ({
                                   ...prev,
-                                  from: e.target.value
+                                  from: toDateInputValue(date)
                                 }))
                               }
                             />
@@ -3970,14 +3994,13 @@ if (!isValid) {
                           <div className='col-md-2 mb-3'>
                             <label style={jdStyles.label}>Effective To</label>
 
-                            <input
-                              type='date'
-                              className='form-control'
-                              value={ctcForm.to}
-                              onChange={e =>
+                            <SDLCalendar
+                              value={parseDateValue(ctcForm.to)}
+                              allowAllDates
+                              onChange={date =>
                                 setCtcForm(prev => ({
                                   ...prev,
-                                  to: e.target.value
+                                  to: toDateInputValue(date)
                                 }))
                               }
                             />

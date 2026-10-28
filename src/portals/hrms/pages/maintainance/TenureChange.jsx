@@ -9,10 +9,13 @@ import { getPortalFromPath } from '../../../../config/portalConfig'
 import {
   confirmAction,
   notifyError,
-  notifySuccess
+  notifySuccess,
+  notifyWarning
 } from '../../../../services/alertService'
 import { getHRMSAuthroizationTaskCount } from '../../../../store/hrms/hrmsAuthorizationCountSlice'
+//import { demoTenureEmployees } from "./tenureChangeDemoData";
 import {
+  getTenureChangeDetails,
   getTenureChangeList,
   sendTenureChangeForAuth
 } from '../../services/tenureChangeService'

@@ -12,6 +12,16 @@ import { getPortalFromPath } from '../../../../config/portalConfig'
 import SDLReactSelect from '../../../../components/SDLReactSelect'
 import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
 import SDLInput from '../../../../components/SDLInput'
+import SDLCalendar from '../../../../components/calendar/SDLCalendar'
+import { parseDateValue } from '../../../../utils/formatUtils'
+
+const toDateInputValue = date => {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return ''
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
 const INITIAL_EMPLOYEE_DATA = {
   // Employee selection
@@ -1240,8 +1250,37 @@ const EmployeeData = () => {
     required = false,
     type = 'text',
     disabled = false,
+    readOnly = false,
     placeholder = ''
   } = options
+
+  if (type === 'date') {
+    const dateError = fieldErrors[name] || ''
+    return (
+      <div style={styles.field}>
+        <label
+          style={{
+            ...styles.label,
+            fontSize: '12px',
+            lineHeight: '18px',
+            display: 'block',
+            marginBottom: '5px'
+          }}
+        >
+          {label}
+          {required && <span style={styles.required}>*</span>}
+        </label>
+        <SDLCalendar
+          value={parseDateValue(employeeData[name])}
+          allowAllDates
+          disabled={disabled}
+          inputClassName={dateError ? 'p-invalid' : ''}
+          onChange={date => handleFieldChange(name, toDateInputValue(date))}
+        />
+        {dateError && <div className='invalid-feedback d-block'>{dateError}</div>}
+      </div>
+    )
+  }
 
   return (
     <div style={styles.field}>

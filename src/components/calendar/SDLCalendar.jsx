@@ -33,6 +33,12 @@ const SDLCalendar = ({
   minDate,
   maxDate,
   allowAllDates = false,
+  dateFormat = "dd-M-yy",
+  locale,
+  appendTo = () => document.body,
+  baseZIndex = 3000,
+  wrapperClassName = "",
+  inputClassName = "",
   className = "datepickers customdatePics",
 }) => {
   /* =========================================================
@@ -183,17 +189,9 @@ const SDLCalendar = ({
       date.month === today.getMonth() &&
       date.year === today.getFullYear();
 
-    const classNameTxt =
-      {
-        W: "bg-danger-transparent",
-        H: "bg-danger-transparent",
-        O: "bg-warning-transparent",
-      }[holiday?.type] || (isToday ? "bg-primary" : "bg-light");
-
     const content = (
       <span
-        className={`badge ${classNameTxt}`}
-        style={{ fontSize: "12px" }}
+        className={`sdl-calendar-day${holiday?.type === "W" || holiday?.type === "H" ? " sdl-calendar-day-holiday" : ""}${holiday?.type === "O" ? " sdl-calendar-day-optional" : ""}${isToday ? " sdl-calendar-day-today" : ""}`}
       >
         {date.day}
       </span>
@@ -271,25 +269,27 @@ const SDLCalendar = ({
       className={
         isInline
           ? "sdl-calendar-wrapper sdl-calendar-inline-wrapper"
-          : "sdl-calendar-wrapper"
+          : `sdl-calendar-wrapper ${wrapperClassName}`.trim()
       }
     >
       <Calendar
         className={isInline ? "sdl-inline-calendar" : className}
+        inputClassName={inputClassName}
         value={selectedDate}
         onChange={handleChange}
         inline={isInline}
         disabled={disabled}
         minDate={minDate}
         maxDate={maxDate}
-        dateFormat="dd-M-yy"
+        dateFormat={dateFormat}
+        locale={locale}
         dateTemplate={dateTemplate}
         showIcon={!isInline}
         placeholder={!isInline ? "dd-Mon-yyyy" : undefined}
         /* Mount popup overlay to body so PrimeReact calculates proper positions */
-        appendTo={() => document.body}
+        appendTo={appendTo}
         autoZIndex={true}
-        baseZIndex={3000}
+        baseZIndex={baseZIndex}
         panelClassName="sdl-calendar-panel"
       />
     </div>

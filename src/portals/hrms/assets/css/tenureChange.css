@@ -117,6 +117,13 @@
   min-width: 86px;
 }
 
+.tenure-change-page .tenure-pf-basis-select {
+  width: 260px;
+  max-width: 100%;
+  display: block;
+  margin-left: auto;
+}
+
 .tenure-effective-date-field {
   position: static;
 }

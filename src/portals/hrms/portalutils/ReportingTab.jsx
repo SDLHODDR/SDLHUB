@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
-import { Calendar } from "primereact/calendar";
+import SDLCalendar from "../../../components/calendar/SDLCalendar";
 import SDLReactSelect from "../../../components/SDLReactSelect";
 import {
   DATE_PICKER_FORMAT,
@@ -88,12 +88,12 @@ const ReportingTab = ({ organogramId, organogramStatus, locId, repId, showAll, o
           </div>
           <div className="col-xl-3 col-lg-4 col-md-5">
             <label className="form-label">Effective From</label>
-            <Calendar
+            <SDLCalendar
               value={newEffectiveFrom}
-              onChange={(e) => setNewEffectiveFrom(e.value)}
+              onChange={setNewEffectiveFrom}
               dateFormat={DATE_PICKER_FORMAT}
               locale={DATE_PICKER_LOCALE}
-              showIcon
+              allowAllDates
               appendTo="self"
               baseZIndex={2000}
               className="w-100"
@@ -102,12 +102,12 @@ const ReportingTab = ({ organogramId, organogramStatus, locId, repId, showAll, o
           </div>
           <div className="col-xl-3 col-lg-4 col-md-5">
             <label className="form-label">Effective To</label>
-            <Calendar
+            <SDLCalendar
               value={newEffectiveTo}
-              onChange={(e) => setNewEffectiveTo(e.value)}
+              onChange={setNewEffectiveTo}
               dateFormat={DATE_PICKER_FORMAT}
               locale={DATE_PICKER_LOCALE}
-              showIcon
+              allowAllDates
               appendTo="self"
               baseZIndex={2000}
               className="w-100"
