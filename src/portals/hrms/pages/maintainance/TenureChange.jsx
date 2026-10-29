@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
+
 import SDLDataTable from '../../../../components/datatable/SDLDataTable'
 import SDLSearch from '../../../../components/datatable/SDLSearch'
 import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
@@ -24,6 +25,7 @@ const TenureChange = () => {
   const dispatch = useDispatch()
   const location = useLocation()
   const portal = getPortalFromPath(location.pathname)
+
   const [search, setSearch] = useState('')
   const [employees, setEmployees] = useState([])
   const [loading, setLoading] = useState(true)
@@ -33,11 +35,13 @@ const TenureChange = () => {
     let mounted = true
 
     const loadEmployees = async () => {
+      setLoading(true)
+
       try {
-        setLoading(true)
         const response = await getTenureChangeList()
 
         if (!mounted) return
+
         if (response?.status) {
           setEmployees(Array.isArray(response.data) ? response.data : [])
         } else {
@@ -48,14 +52,18 @@ const TenureChange = () => {
         }
       } catch (error) {
         if (!mounted) return
+
         setEmployees([])
-        notifyError(error?.message || 'Unable to load upcoming tenure changes.')
+        notifyError(
+          error?.message || 'Unable to load upcoming tenure changes.'
+        )
       } finally {
         if (mounted) setLoading(false)
       }
     }
 
     loadEmployees()
+
     return () => {
       mounted = false
     }
@@ -63,6 +71,7 @@ const TenureChange = () => {
 
   const visibleEmployees = useMemo(() => {
     const query = search.trim().toLowerCase()
+
     if (!query) return employees
 
     return employees.filter(employee =>
@@ -74,7 +83,7 @@ const TenureChange = () => {
         employee.empType,
         employee.approvalText
       ].some(value =>
-        String(value || '')
+        String(value ?? '')
           .toLowerCase()
           .includes(query)
       )
@@ -82,123 +91,84 @@ const TenureChange = () => {
   }, [employees, search])
 
   const handleSend = async employee => {
-    // console.log("==========Employee=======", employee);
-    // const managerCode = employee.manager?.empCode || employee.mgr_code;
-    // const managerName = employee.manager?.empName?.trim() || employee.managerName;
+    const employeeCode = String(employee?.empCode ?? '').trim()
 
-    // console.log("====managercode=====", managerCode);
-    // console.log("====manager code =====", managerCode);
-    // if (!managerCode && (managerCode !== "" || managerCode !== "Vacant")) {
-    //   notifyError("Manager code is not available for this employee.");
-    //   return;
-    // }
-
-    // const confirmation = await confirmAction(
-    //   "Send tenure change for authorization?",
-    //   `This will generate a task for ${managerName || "the assigned manager"}.`,
-    // );
-
-    // console.log("=========", confirmation);
-    // if (confirmation) return;
-
-    // try {
-
-    console.log('==========Employee=======', employee)
-
-    const managerCode = employee.manager?.empCode || employee.mgr_code
-    const managerName =
-      employee.manager?.empName?.trim() || employee.managerName
-
-    // FIX: Check if it's missing, empty string, or explicitly "Vacant"
-    if (!managerCode || managerCode.trim() === '' || managerCode === 'Vacant') {
-      // notifyError('Manager code is not available for this employee.', {
-      //   onClose: () =>
-      //     navigate('/hrms/masterdata/organogram', {
-      //       state: {
-      //         organogramId: employee.orgId,
-      //         selectedTab: 'appraisalLevels'
-      //       }
-      //     })
-      // })
-      notifyWarning('Manager code is not available for this employee.');
+    if (!employeeCode) {
+      notifyError('Employee code is not available.')
       return
     }
 
-    setSendingEmployeeCode(employee.empCode)
+    // Support either the nested manager object or the flat API fields.
+    const managerCandidates = [
+      employee?.manager?.manager_code,
+      employee?.mgr_code,
+      employee?.manager?.empCode
+    ]
+    const rawManagerCode = managerCandidates.find(value => {
+      const code = String(value ?? '').trim().toLowerCase()
+      return code !== '' && code !== 'vacant' && code !== '-'
+    })
+    const managerCode = String(rawManagerCode ?? '').trim()
+    const managerName = String(
+      employee?.manager?.empName ?? employee?.managerName ?? ''
+    ).trim()
+
+    if (!managerCode || ['vacant', '-'].includes(managerCode.toLowerCase())) {
+      notifyError('Manager code is not available for this employee.')
+      return
+    }
+
+    // Prevent duplicate submissions for the same employee.
+    if (sendingEmployeeCode !== null) return
+
+    let confirmation
+
     try {
-      const detailsResponse = await getTenureChangeDetails({
-        empCode: employee.empCode
-      })
-      const detailsPayload =
-        detailsResponse?.data?.data ??
-        detailsResponse?.data ??
-        detailsResponse?.response?.data ??
-        {}
-
-      if (
-        !(
-          detailsResponse?.status === true ||
-          detailsResponse?.success === true ||
-          Array.isArray(detailsPayload?.questions)
-        )
-      ) {
-        notifyError(
-          detailsResponse?.message ||
-            'Unable to verify tenure assessment questions. The task was not created.'
-        )
-        return
-      }
-
-      if (!Array.isArray(detailsPayload.questions) || detailsPayload.questions.length === 0) {
-        notifyError(
-          'No tenure assessment questions are configured for this tenure. Add questions to the employee’s Job Description before creating the task.'
-        )
-        return
-      }
-    } catch (error) {
-      notifyError(
-        error?.message ||
-          'Unable to verify tenure assessment questions. The task was not created.'
+      confirmation = await confirmAction(
+        'Send tenure change for authorization?',
+        `This will generate a task for ${
+          managerName || 'the assigned manager'
+        }.`,
+        {
+          confirmButtonClass: 'tenure-confirm-yes',
+          cancelButtonClass: 'tenure-confirm-cancel'
+        }
       )
+    } catch (error) {
+      notifyError(error?.message || 'Unable to open the confirmation dialog.')
       return
-    } finally {
-      setSendingEmployeeCode(null)
     }
 
-    // Rest of your confirmation logic...
-    const confirmation = await confirmAction(
-      'Send tenure change for authorization?',
-      `This will generate a task for ${managerName || 'the assigned manager'}.`,
-      {
-        confirmButtonClass: 'tenure-confirm-yes',
-        cancelButtonClass: 'tenure-confirm-cancel'
-      }
-    )
-
-    // Note: Usually, if (confirmation) means proceed, so "return" here might exit early.
-    // Make sure if(confirmation) is meant to cancel or proceed.
+    // This assumes confirmAction resolves to true when the user confirms.
+    // If your alertService returns a SweetAlert result object, check
+    // confirmation.isConfirmed instead.
     if (!confirmation) return
 
+    setSendingEmployeeCode(employeeCode)
+
     try {
-      setSendingEmployeeCode(employee.empCode)
       const response = await sendTenureChangeForAuth(
-        employee.empCode,
+        employeeCode,
         managerCode
       )
 
       if (response?.status) {
         setEmployees(currentEmployees =>
           currentEmployees.filter(
-            currentEmployee => currentEmployee.empCode !== employee.empCode
+            currentEmployee =>
+              String(currentEmployee?.empCode ?? '').trim() !== employeeCode
           )
         )
+
         dispatch(getHRMSAuthroizationTaskCount())
+
         notifySuccess(
           response.message || 'Tenure change sent for authorization.'
         )
       } else {
         notifyError(
-          response?.message || 'Unable to send tenure change for authorization.'
+          response?.message ||
+            'Unable to send tenure change for authorization.'
         )
       }
     } catch (error) {
@@ -213,18 +183,21 @@ const TenureChange = () => {
 
   const approvalLevelBody = employee => {
     if (
-      Array.isArray(employee.approvalLevels) &&
-      employee.approvalLevels.length
+      Array.isArray(employee?.approvalLevels) &&
+      employee.approvalLevels.length > 0
     ) {
       return (
         <div>
           {employee.approvalLevels.map((level, index) => {
             const levelNumber = level?.level ?? index + 1
-            const managerName = level?.empName?.trim() || level?.empCode || '-'
+            const levelName =
+              String(level?.empName ?? '').trim() ||
+              String(level?.empCode ?? '').trim() ||
+              '-'
 
             return (
-              <div key={`${levelNumber}-${level?.empCode || index}`}>
-                {levelNumber}. {managerName}
+              <div key={`${levelNumber}-${level?.empCode ?? index}`}>
+                {levelNumber}. {levelName}
               </div>
             )
           })}
@@ -232,7 +205,7 @@ const TenureChange = () => {
       )
     }
 
-    return employee.approvalText || '-'
+    return employee?.approvalText || '-'
   }
 
   const columns = [
@@ -262,94 +235,89 @@ const TenureChange = () => {
       field: 'action',
       header: 'Action',
       style: { width: '6%', textAlign: 'center' },
-      body: employee => (
-        <button
-          type='button'
-          className='btn btn-icon btn-sm btn-outline-primary'
-          aria-label='Start tenure change assessment'
-          title='Start tenure change assessment'
-          onClick={() => handleSend(employee)}
-          disabled={sendingEmployeeCode === employee.empCode}
-          // onClick={() => navigate("/hrms/maintainance/tenure-change/assessment", {
-          //   state: {
-          //     employee: {
-          //       code: employee.empCode,
-          //       name: employee.empName,
-          //       designation: employee.designation,
-          //       location: employee.location,
-          //       department: employee.department || "-",
-          //       employeeType: employee.empType,
-          //       dateOfJoining: employee.doj,
-          //       tenureDueDate: employee.tenureDue,
-          //       currentCtc: employee.currentCtc || "",
-          //     },
-          //   },
-          // })}
-        >
-          {sendingEmployeeCode === employee.empCode ? (
-            <i className='ti ti-send'></i>
-          ) : (
-            <i className='ti ti-send'></i>
-          )}
-        </button>
-      )
+      body: employee => {
+        const employeeCode = String(employee?.empCode ?? '').trim()
+        const isSending =
+          sendingEmployeeCode !== null &&
+          sendingEmployeeCode === employeeCode
+
+        return (
+          <button
+            type="button"
+            className="btn btn-icon btn-sm btn-outline-primary"
+            aria-label="Send tenure change for authorization"
+            title="Send tenure change for authorization"
+            onClick={() => handleSend(employee)}
+            disabled={sendingEmployeeCode !== null}
+          >
+            {isSending ? (
+              <span
+                className="spinner-border spinner-border-sm"
+                role="status"
+                aria-label="Sending"
+              />
+            ) : (
+              <i className="ti ti-send" aria-hidden="true" />
+            )}
+          </button>
+        )
+      }
     }
   ]
 
   return (
     <>
-      <div className='page-header' style={{ marginBottom: '8px' }}>
-        <div className='add-item d-flex'>
-          <div className='page-title'>
+      <div className="page-header" style={{ marginBottom: '8px' }}>
+        <div className="add-item d-flex">
+          <div className="page-title">
             <h4>Upcoming Employee Tenure Change</h4>
           </div>
         </div>
 
         <BreadcrumbNav
           items={[
-            { text: 'Home', link: `/${portal.key}/dashboard` },
+            { text: 'Home', link: `/${portal?.key || 'hrms'}/dashboard` },
             { text: 'Tenure Change' }
           ]}
         />
       </div>
 
-      <div className='row'>
-        <div className='col-12 px-0'>
-          <div className='card'>
-            <div className='card-body'>
-            <div className='d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3'>
-              {/* <h5 className='mb-0'>Upcoming Employee Tenure Change</h5> */}
-              <div
-                style={{
-                  width: '330px',
-                  minWidth: '330px',
-                  maxWidth: '330px',
-                  flexShrink: 0
-                }}
-              >
-                <SDLSearch
-                  value={search}
-                  onChange={setSearch}
-                  placeholder='Search employees...'
-                  className='mb-0'
+      <div className="row">
+        <div className="col-12 px-0">
+          <div className="card">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+                <div
                   style={{
                     width: '330px',
-                    minWidth: '330px',
-                    maxWidth: '330px'
+                    minWidth: 'min(330px, 100%)',
+                    maxWidth: '100%',
+                    flexShrink: 0
                   }}
-                />
+                >
+                  <SDLSearch
+                    value={search}
+                    onChange={setSearch}
+                    placeholder="Search employees..."
+                    className="mb-0"
+                    style={{ width: '100%' }}
+                  />
+                </div>
               </div>
-            </div>
-            <div className='card-body pt-3'>
+
               <SDLDataTable
                 data={visibleEmployees}
                 columns={columns}
                 rows={10}
                 loading={loading}
                 emptyMessage={
-                  loading ? ' ' : 'No upcoming tenure changes found'
+                  loading
+                    ? ' '
+                    : search.trim()
+                      ? 'No employees match your search.'
+                      : 'No upcoming tenure changes found.'
                 }
-                className='tenure-change-table'
+                className="tenure-change-table"
                 tableStyle={{
                   width: '100%',
                   minWidth: '100%',
@@ -359,7 +327,6 @@ const TenureChange = () => {
               />
             </div>
           </div>
-        </div>
         </div>
       </div>
     </>

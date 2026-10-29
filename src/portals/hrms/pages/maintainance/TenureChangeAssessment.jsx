@@ -23,6 +23,7 @@ const TenureChangeAssessment = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const employee = location.state?.employee;
+  const currentCtcValue = employee?.currentCtc ?? employee?.current_ctc ?? employee?.curr_ctc ?? employee?.CURR_CTC ?? "";
   const portal = getPortalFromPath(location.pathname);
   const [assessment, setAssessment] = useState({
     ratings: {},
@@ -43,7 +44,7 @@ const TenureChangeAssessment = () => {
   const handleSave = (event) => {
     event.preventDefault();
     const proposedCtc = Number(String(assessment.proposedCtc).replace(/[^\d.-]/g, ""));
-    const currentCtcText = String(employee.currentCtc ?? "").replace(/[^\d.-]/g, "");
+    const currentCtcText = String(currentCtcValue).replace(/[^\d.-]/g, "");
     const currentCtc = currentCtcText ? Number(currentCtcText) : NaN;
     const hasCtcChange = assessment.proposedCtc !== "" &&
       (!Number.isFinite(currentCtc) || proposedCtc !== currentCtc);
@@ -153,7 +154,7 @@ const TenureChangeAssessment = () => {
             </div>
             <div className="col-lg-4 col-md-6">
               <label className="form-label">Current CTC</label>
-              <input className="form-control" value={employee.currentCtc || "-"} disabled />
+              <input className="form-control" value={currentCtcValue !== "" && currentCtcValue != null ? currentCtcValue : "-"} disabled />
             </div>
             <div className="col-lg-4 col-md-6">
               <label className="form-label">Proposed CTC</label>

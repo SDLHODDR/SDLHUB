@@ -376,7 +376,7 @@ const TenureChangeLetterModal = ({
                   className='modal-title font-weight-bold text-dark m-0'
                   id='tenure-letter-title'
                 >
-                  Print Tenure Change Letter
+                  Print Tenure Change Letter 
                 </h5>
                 <small className='text-muted'>
                   Employee Code: <strong>{details?.emp_code || empCode || '-'}</strong>
@@ -435,12 +435,6 @@ const TenureChangeLetterModal = ({
                       </span>
                     </div>
                     <div className='col-md-4'>
-                      <strong className='grid-label'>Designation : </strong>
-                      <span className='grid-val'>
-                        {details.designation || '-'}
-                      </span>
-                    </div>
-                    <div className='col-md-4'>
                       <strong className='grid-label'>Department : </strong>
                       <span className='grid-val'>
                         {details.department || '-'}
@@ -480,7 +474,13 @@ const TenureChangeLetterModal = ({
                         {details.location || '-'}
                       </span>
                     </div>
-                    <div className='col-md-4'>
+                    <div className='col-12'>
+                      <strong className='grid-label'>Designation : </strong>
+                      <span className='grid-val'>
+                        {details.designation || '-'}
+                      </span>
+                    </div>
+                    <div className='col-12'>
                       <strong className='grid-label'>Remarks : </strong>
                       <span className='grid-val'>
                         {details.remarks || '-'}

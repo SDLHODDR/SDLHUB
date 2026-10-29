@@ -226,8 +226,13 @@ const TenureChangeAssessmentModal = ({
   const postData = useMemo(
     () => ({
       emp_code: employee?.code ?? record?.TRAN_CODE ?? '',
+      user_task_id: record?.ID ?? '',
       task_id: record?.TASK_ID ?? assessmentMeta.task_id ?? '',
-      tenure_change_id: assessmentMeta.tenure_change_id ?? record?.ID ?? null,
+      tenure_change_id:
+        assessmentMeta.tenure_change_id ||
+        record?.TENURE_CHANGE_ID ||
+        record?.ID ||
+        null,
       jd_id: assessmentMeta.jd_id ?? null,
       etype_id: assessment.employeeType,
       etype_period: isPermanentType(assessment.employeeType, typeOptions)
@@ -247,13 +252,13 @@ const TenureChangeAssessmentModal = ({
     [employee, record, assessmentMeta, assessment, questions, typeOptions]
   )
 
-  const assessmentComplete =
-    questions.every(q => Boolean(assessment.ratings[q.id])) &&
-    Boolean(assessment.employeeType)
   const canSubmit =
     saveSucceeded &&
-    assessmentComplete &&
-    Boolean(assessmentMeta.tenure_change_id ?? record?.ID)
+    Boolean(
+      assessmentMeta.tenure_change_id ||
+      record?.TENURE_CHANGE_ID ||
+      record?.ID
+    )
 
   const effectiveDateMinimum = (() => {
     const currentMonthStart = moment().startOf('month')
@@ -315,6 +320,13 @@ const TenureChangeAssessmentModal = ({
     try {
       const response = await saveTenureChangeAssessment(postData)
       if (response?.status === true || response?.success === true) {
+        const savedTenureId = response?.data?.tenure_change_id
+        if (savedTenureId) {
+          setAssessmentMeta(current => ({
+            ...current,
+            tenure_change_id: savedTenureId
+          }))
+        }
         setSaveSucceeded(true)
         setActionMessage('Employee Tenure Change saved successfully.')
         //onSuccess?.();
@@ -932,16 +944,19 @@ const TenureChangeAssessmentModal = ({
               >
                 Save
               </SaveButton>
-              {canSubmit && (
-                <button
-                  type='button'
-                  className='btn btn-success'
-                  onClick={handleSubmit}
-                  disabled={submitting || saving}
-                >
-                  {submitting ? 'Submitting...' : 'Submit'}
-                </button>
-              )}
+              <button
+                type='button'
+                className='btn btn-success me-2'
+                onClick={handleSubmit}
+                disabled={!canSubmit || submitting || saving}
+                title={
+                  !saveSucceeded
+                    ? 'Save the assessment before submitting.'
+                    : undefined
+                }
+              >
+                {submitting ? 'Submitting...' : 'Submit'}
+              </button>
               <CancelButton onClick={onClose} disabled={saving || submitting} />
             </div>
           )}
