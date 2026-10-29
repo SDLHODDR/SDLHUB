@@ -20,6 +20,12 @@ const AuthProvider = ({ children }) => {
 
         const res = await checkSession();
 
+        if (res?.csrf_token) {
+          localStorage.setItem("csrf_token", res.csrf_token);
+        } else if (!res?.logged_in) {
+          localStorage.removeItem("csrf_token");
+        }
+
         if (isMounted) {
           setUser(res?.logged_in ? normalizeUser(res) : null);
         }
