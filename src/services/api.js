@@ -158,7 +158,7 @@ const attachInterceptor = (instance) => {
       return response;
     },
 
-    (error) => {
+    async (error) => {
 
       // Cleanup controller
       if (error?.config?._controller) {
@@ -178,6 +178,34 @@ const attachInterceptor = (instance) => {
         error?.code === "ERR_CANCELED"
       ) {
         return Promise.reject(error);
+      }
+
+      const requestConfig = error?.config;
+      const isCsrfRejection =
+        error?.response?.status === 403 &&
+        String(error?.response?.data?.message || "")
+          .toLowerCase()
+          .includes("invalid csrf token");
+
+      // A session change in another tab can leave localStorage with an old
+      // token. Refresh from this session and retry once; CSRF validation runs
+      // before the protected handler, so the rejected request has not run.
+      if (isCsrfRejection && requestConfig && !requestConfig._csrfRetry) {
+        requestConfig._csrfRetry = true;
+
+        try {
+          const sessionResponse = await coreAPI.get("/session_check.php");
+          const currentToken = sessionResponse?.data?.csrf_token;
+
+          if (currentToken) {
+            localStorage.setItem("csrf_token", currentToken);
+            requestConfig.headers = requestConfig.headers || {};
+            requestConfig.headers["X-CSRF-Token"] = currentToken;
+            return instance.request(requestConfig);
+          }
+        } catch {
+          // Keep the original CSRF error if the session cannot be refreshed.
+        }
       }
 
       return Promise.reject(error);
