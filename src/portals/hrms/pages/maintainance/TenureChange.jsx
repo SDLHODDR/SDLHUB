@@ -99,14 +99,21 @@ const TenureChange = () => {
     }
 
     // Support either the nested manager object or the flat API fields.
-    const rawManagerCode =
-      employee?.manager?.empCode ?? employee?.mgr_code ?? ''
-    const managerCode = String(rawManagerCode).trim()
+    const managerCandidates = [
+      employee?.manager?.manager_code,
+      employee?.mgr_code,
+      employee?.manager?.empCode
+    ]
+    const rawManagerCode = managerCandidates.find(value => {
+      const code = String(value ?? '').trim().toLowerCase()
+      return code !== '' && code !== 'vacant' && code !== '-'
+    })
+    const managerCode = String(rawManagerCode ?? '').trim()
     const managerName = String(
       employee?.manager?.empName ?? employee?.managerName ?? ''
     ).trim()
 
-    if (!managerCode || managerCode.toLowerCase() === 'vacant') {
+    if (!managerCode || ['vacant', '-'].includes(managerCode.toLowerCase())) {
       notifyError('Manager code is not available for this employee.')
       return
     }
