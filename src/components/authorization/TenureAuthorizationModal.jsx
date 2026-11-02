@@ -27,7 +27,7 @@ const TenureAuthorizationModal = ({
       );
       break;
 
-     case "TENURECTCCHG":
+    case "TENURECTCCHG":
     case "TENURECTCAPPR":
       modalContent = (
         <TenureChangeCtcModal

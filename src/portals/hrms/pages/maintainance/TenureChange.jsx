@@ -109,12 +109,13 @@ const TenureChange = () => {
       return code !== '' && code !== 'vacant' && code !== '-'
     })
     const managerCode = String(rawManagerCode ?? '').trim()
-    const managerName = String(
-      employee?.manager?.empName ?? employee?.managerName ?? ''
-    ).trim()
+    /*const managerName = String(
+-      employee?.manager?.empName ?? employee?.managerName ?? ''
+-    ).trim()*/
+    const managerName = String(employee?.appraisalManager ?? '').trim()
 
-    if (!managerCode || ['vacant', '-'].includes(managerCode.toLowerCase())) {
-      notifyError('Manager code is not available for this employee.')
+    if (!managerName) {
+      notifyWarning('Appraisal manager is not available for this employee.')
       return
     }
 
@@ -140,9 +141,19 @@ const TenureChange = () => {
     }
 
     // This assumes confirmAction resolves to true when the user confirms.
-    // If your alertService returns a SweetAlert result object, check
-    // confirmation.isConfirmed instead.
     if (!confirmation) return
+
+    // if (!managerCode || ['vacant', '-'].includes(managerCode.toLowerCase())) {
+    //   notifyWarning('Manager code is not available for this employee.')
+    //   return
+    // }
+
+    if (Number(employee?.questions_set) !== 1) {
+      notifyWarning(
+        'No tenure assessment questions are configured for this employee.'
+      )
+      return
+    }
 
     setSendingEmployeeCode(employeeCode)
 

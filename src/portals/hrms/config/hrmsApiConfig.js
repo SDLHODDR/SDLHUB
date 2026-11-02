@@ -132,7 +132,7 @@ export const HRMS_API = {
     FETCH_EMP_CTC_HEADS: "/reports/fetchEmpCTCHeads.php",
     SEND_TENURE_CHANGE: "/reports/tenureChange.php",
     SAVE_TENURE_CHANGE_ASSESSMENT: "/reports/tenureChange.php",
-    GET_TENURE_CHANGE_DETAILS: "/reports/get_tenure_change_details.php",
+    GET_TENURE_CHANGE_DETAILS: "/reports/getTenureChangeDetails.php",
     GENERATE_TENURE_LETTER_REFERENCE: "/reports/generateTenureLetterReference.php",
 
     GET_TENURE_LETTER_DETAILS: "/reports/getTenureLetterDetails.php",
