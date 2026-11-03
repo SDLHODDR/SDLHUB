@@ -76,7 +76,9 @@ const TenureChangeCtcModalContent = ({
   const [monthlyAmountsBeforeStructure, setMonthlyAmountsBeforeStructure] =
     useState(null)
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+  // Which action is in progress ('save' | 'submit'), so only that button shows Processing.
+  const [savingAction, setSavingAction] = useState('')
+  const saving = savingAction !== ''
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -200,7 +202,7 @@ const TenureChangeCtcModalContent = ({
     }
     if (proposedCtcMismatch) return
 
-    setSaving(true)
+    setSavingAction(action)
     setError('')
     try {
       const submittedRows = ctcHeads.map(head => {
@@ -246,7 +248,7 @@ const TenureChangeCtcModalContent = ({
     } catch (requestError) {
       setError(requestError.message || 'Unable to save CTC changes.')
     } finally {
-      setSaving(false)
+      setSavingAction('')
     }
   }
 
@@ -623,7 +625,7 @@ const TenureChangeCtcModalContent = ({
 <SaveButton
   onClick={() => handleSave('save')}
   disabled={loading || saving || ctcHeads.length === 0}
-  isSubmitting={saving}
+  isSubmitting={savingAction === 'save'}
   className='me-2'
 >
   Save
@@ -635,7 +637,7 @@ const TenureChangeCtcModalContent = ({
   onClick={() => handleSave('submit')}
   disabled={loading || saving || ctcHeads.length === 0}
 >
-  {saving ? 'Processing...' : 'Submit'}
+  {savingAction === 'submit' ? 'Processing...' : 'Submit'}
 </button>
 
 <CancelButton

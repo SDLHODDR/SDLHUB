@@ -46,6 +46,8 @@ export const useTenureAuthorizationHandler = (tid = 0) => {
     const loadEmployeeNames = async () => {
       const nameResults = await Promise.all(
         authMasterData.map(async (record) => {
+          // Store may still hold the previous task list right after navigation.
+          if (record.TASK_ID && String(record.TASK_ID) !== String(tid)) return null;
           const empCode = record.EMP_CODE_FOR || record.TRAN_CODE;
           if (!empCode) return null;
 

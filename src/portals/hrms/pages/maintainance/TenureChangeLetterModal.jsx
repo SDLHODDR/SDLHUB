@@ -238,7 +238,8 @@ const TenureChangeLetterModal = ({
     try {
       const response = await generateTenureLetterReference({
         empCode,
-        tenureChangeId: details?.tenure_chg_id || tenureChangeId
+        tenureChangeId: details?.tenure_chg_id || tenureChangeId,
+        authId: record?.ID || ''
       })
 
       const isSuccess =

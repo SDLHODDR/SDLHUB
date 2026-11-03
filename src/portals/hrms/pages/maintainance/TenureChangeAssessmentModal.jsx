@@ -9,6 +9,8 @@ import {
 import "../../assets/css/tenureChange.css";
 import SaveButton from "../../components/buttons/SaveButton";
 import CancelButton from "../../components/buttons/CancelButton";
+import { getHRMSAuthroizationTaskCount} from "../../../../store/hrms/hrmsAuthorizationCountSlice";
+import { useDispatch } from "react-redux";
 
 const emptyAssessment = {
   ratings: {},
@@ -93,6 +95,7 @@ const TenureChangeAssessmentModal = ({
   const [periodInputError, setPeriodInputError] = useState("");
   const [proposedCtcInputError, setProposedCtcInputError] = useState("");
   const [validationErrors, setValidationErrors] = useState({});
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!show || !record) return undefined;
@@ -387,9 +390,11 @@ const TenureChangeAssessmentModal = ({
       return;
     setSubmitting(true);
     setActionMessage("");
+
     try {
       const response = await submitTenureChangeAssessment(postData);
       if (response?.status === true || response?.success === true) {
+                dispatch(getHRMSAuthroizationTaskCount());
         setActionMessage(response?.message || "Assessment submitted.");
         onSuccess?.();
         onClose();
