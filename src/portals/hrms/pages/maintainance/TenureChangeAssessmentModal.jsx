@@ -9,6 +9,7 @@ import {
 import "../../assets/css/tenureChange.css";
 import SaveButton from "../../components/buttons/SaveButton";
 import CancelButton from "../../components/buttons/CancelButton";
+import { notifyError, notifySuccess } from "../../../../services/alertService";
 
 const emptyAssessment = {
   ratings: {},
@@ -89,7 +90,6 @@ const TenureChangeAssessmentModal = ({
   const [saving, setSaving] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [saveSucceeded, setSaveSucceeded] = useState(false);
-  const [actionMessage, setActionMessage] = useState("");
   const [periodInputError, setPeriodInputError] = useState("");
   const [proposedCtcInputError, setProposedCtcInputError] = useState("");
   const [validationErrors, setValidationErrors] = useState({});
@@ -110,7 +110,6 @@ const TenureChangeAssessmentModal = ({
       setCalendarMonth(moment().startOf("month"));
       setAssessmentMeta({});
       setSaveSucceeded(false);
-      setActionMessage("");
       setPeriodInputError("");
       setProposedCtcInputError("");
       setValidationErrors({});
@@ -193,6 +192,7 @@ const TenureChangeAssessmentModal = ({
             : (meta.etype_period ?? ""),
           proposedCtc: meta.proposed_ctc ?? "",
           effectiveFrom: toTenureDateISO(meta.effective_from),
+          nextAppraisalYear: String(meta.next_appraisal_year ?? ""),
           remarks: meta.remarks ?? "",
         });
       } catch (error) {
@@ -213,7 +213,6 @@ const TenureChangeAssessmentModal = ({
     setAssessment((current) => ({ ...current, [field]: value }));
     setValidationErrors((current) => ({ ...current, [field]: "" }));
     setSaveSucceeded(false);
-    setActionMessage("");
   };
 
   const updateRating = (questionId, value) => {
@@ -223,7 +222,6 @@ const TenureChangeAssessmentModal = ({
     }));
     setValidationErrors((current) => ({ ...current, [questionId]: "" }));
     setSaveSucceeded(false);
-    setActionMessage("");
   };
 
   const postData = useMemo(
@@ -351,7 +349,6 @@ const TenureChangeAssessmentModal = ({
       return;
     setSaving(true);
     setSaveSucceeded(false);
-    setActionMessage("");
     try {
       const response = await saveTenureChangeAssessment(postData);
       if (response?.status === true || response?.success === true) {
@@ -363,13 +360,13 @@ const TenureChangeAssessmentModal = ({
           }));
         }
         setSaveSucceeded(true);
-        setActionMessage("Employee Tenure Change saved successfully.");
+        notifySuccess(response?.message || "Employee Tenure Change saved successfully.");
         //onSuccess?.();
       } else {
-        setActionMessage(response?.message || "Assessment could not be saved.");
+        notifyError(response?.message || "Assessment could not be saved.");
       }
     } catch (error) {
-      setActionMessage(error?.message || "Assessment could not be saved.");
+      notifyError(error?.message || "Assessment could not be saved.");
     } finally {
       setSaving(false);
     }
@@ -386,20 +383,17 @@ const TenureChangeAssessmentModal = ({
     )
       return;
     setSubmitting(true);
-    setActionMessage("");
     try {
       const response = await submitTenureChangeAssessment(postData);
       if (response?.status === true || response?.success === true) {
-        setActionMessage(response?.message || "Assessment submitted.");
+        notifySuccess(response?.message || "Assessment submitted.");
         onSuccess?.();
         onClose();
       } else {
-        setActionMessage(
-          response?.message || "Assessment could not be submitted.",
-        );
+        notifyError(response?.message || "Assessment could not be submitted.");
       }
     } catch (error) {
-      setActionMessage(error?.message || "Assessment could not be submitted.");
+      notifyError(error?.message || "Assessment could not be submitted.");
     } finally {
       setSubmitting(false);
     }
@@ -685,7 +679,6 @@ const TenureChangeAssessmentModal = ({
                             period: isPermanentType(value, typeOptions) ? "" : current.period,
                           }));
                           setSaveSucceeded(false);
-                          setActionMessage("");
                         }}
                       >
                         <option value="">Select Employee Type</option>
@@ -726,7 +719,6 @@ const TenureChangeAssessmentModal = ({
                               "Period must be a whole number.",
                             );
                             setSaveSucceeded(false);
-                            setActionMessage("");
                             return;
                           }
                           setPeriodInputError("");
@@ -768,7 +760,6 @@ const TenureChangeAssessmentModal = ({
                               "Proposed CTC must be a whole number.",
                             );
                             setSaveSucceeded(false);
-                            setActionMessage("");
                             return;
                           }
                           setProposedCtcInputError("");
@@ -1009,14 +1000,6 @@ const TenureChangeAssessmentModal = ({
 
           {questions.length > 0 && (
             <div className="modal-footer">
-              {actionMessage && (
-                <span
-                  className={`small me-auto ${saveSucceeded ? "text-success" : "text-danger"}`}
-                  role="status"
-                >
-                  {actionMessage}
-                </span>
-              )}
               <SaveButton
                 type="submit"
                 disabled={loading || !employee || saving || submitting}
