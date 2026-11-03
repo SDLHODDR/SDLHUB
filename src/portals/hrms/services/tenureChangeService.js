@@ -42,7 +42,7 @@ export const submitTenureChangeAssessment = payload => {
     method: 'POST',
     data: {
       ...submitPayload,
-      closeConfirmInt: true,
+      CloseConfirmInt: true,
       EMP_CODE: submitPayload.emp_code,
       TASK_ID: submitPayload.task_id,
       EFF_FROM: submitPayload.effective_from,
