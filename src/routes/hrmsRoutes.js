@@ -25,6 +25,7 @@ import ExitAuthorization from "../components/authorization/ExitAuthorization";
 import MastersAuthorization from "../components/authorization/MastersAuthorization";
 import TenureChangeAuthorization from "../components/authorization/TenureChangeAuthorization";
 import ViewLogs from "../portals/hrms/pages/reports/ViewLog";
+import SeparationRequest from "../portals/hrms/pages/separation/SeparationRequest";
 //import TenureChange from "../portals/hrms/pages/reports/TenureChange";
 import { TELEGRAM_ENABLED } from "../config/featureFlags";
 import TelegramNew from "../portals/telegram-new/TelegramNew";
@@ -64,6 +65,9 @@ export const hrmsRoutes = [
   { path: "hrms/maintainance/tenure-change/letter", element: TenureChangeLetter },
 
   { path: "hrms/maintainance/employee-access", element: EmployeeAccess },
+
+  // Separation (menu PROG_URL "separation")
+  { path: "hrms/separation", element: SeparationRequest },
 
   // Authorization
 	{path: "hrms/taskauthorization/J/:tid", element: JoiningAuthorization,},

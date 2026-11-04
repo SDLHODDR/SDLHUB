@@ -1,5 +1,7 @@
-/* ===== MODAL CONTENT ===== */
-.modal-content {  
+/* ===== MODAL CONTENT =====
+   Scoped to the conference booking modal: this file loads globally,
+   so an unscoped .modal-content rule shrinks every modal in the app. */
+.conference-booking-modal .modal-content {
     width: 87% !important;
 }
 

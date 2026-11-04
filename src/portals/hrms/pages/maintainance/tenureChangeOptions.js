@@ -87,7 +87,7 @@ export const tenureAssessmentQuestionIds = [
 ];
 
 export const tenureAssessmentSubmitPostData = {
-  closeConfirmInt: true,
+  CloseConfirmInt: true,
   jd_id: 3,
   TASK_ID: 17331,
   EMP_CODE: "05063",

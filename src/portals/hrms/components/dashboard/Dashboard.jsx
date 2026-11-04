@@ -6,6 +6,7 @@ import { normalizeHrmsGroups } from "../../../../components/authorization/normal
 const Dashboard = () => {
   const hrmsAuthData = useSelector((state) => state.hrmsAuthCounts.data);
   const authorizationStatus = useSelector((state) => state.hrmsAuthCounts.status);
+  const authorizationError = useSelector((state) => state.hrmsAuthCounts.error);
   const tenureChangeGroup = normalizeHrmsGroups(hrmsAuthData).find(
     (group) => group.key === "tenure-change",
   );
@@ -164,7 +165,17 @@ const Dashboard = () => {
                   </p>
 
                   <h3 className="mb-0">
-                    {authorizationStatus === "idle" ? upcomingTenureCount : "—"}
+                    {authorizationStatus === "idle" ? (
+                      upcomingTenureCount
+                    ) : authorizationError ? (
+                      "—"
+                    ) : (
+                      <span
+                        className="spinner-border spinner-border-sm text-primary"
+                        role="status"
+                        aria-label="Loading"
+                      />
+                    )}
                   </h3>
                 </div>
 

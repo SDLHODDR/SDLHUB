@@ -107,24 +107,26 @@ export const getTenureLetterDetails = ({ empCode, tenureChangeId, taskId }) =>
     dedupe: false
   })
 
-export const generateTenureLetterReference = ({ empCode, tenureChangeId }) =>
+export const generateTenureLetterReference = ({ empCode, tenureChangeId, authId }) =>
   hrmsRequest({
     url: HRMS_API.REPORTS.GENERATE_TENURE_LETTER_REFERENCE,
     method: 'POST',
     data: {
       EMP_CODE: empCode,
-      TENURE_CHG_ID: tenureChangeId
+      TENURE_CHG_ID: tenureChangeId,
+      AUTH_ID: authId
     }
   })
 
-export const closeTenurePrintTask = ({ empCode, tenureChangeId, taskId }) =>
+export const closeTenurePrintTask = ({ empCode, tenureChangeId, taskId, authId }) =>
   hrmsRequest({
     url: HRMS_API.REPORTS.CLOSE_TENURE_PRINT_TASK,
     method: 'POST',
     data: {
       EMP_CODE: empCode,
       TENURE_CHG_ID: tenureChangeId,
-      TASK_ID: taskId
+      TASK_ID: taskId,
+      AUTH_ID: authId
     }
   })
 
