@@ -872,7 +872,7 @@ const ConferenceBookingModal = ({
       ======================================================== */}
 
       <div
-        className='modal fade show'
+        className='modal fade show conference-booking-modal'
         style={{
           display: 'block'
         }}

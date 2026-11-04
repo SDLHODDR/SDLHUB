@@ -112,3 +112,24 @@
 .swal2-html-container {
     font-size: 15px !important;
 }
+
+/* ==============================
+   Equal-size alert actions
+   Every SweetAlert action button (Yes / Confirm, Deny, Cancel) shares one
+   size, whichever class it uses (dreampos-btn-*, Bootstrap btn, swal2-styled).
+   Colours stay with each button's own class.
+============================== */
+.swal2-popup .swal2-actions .swal2-confirm,
+.swal2-popup .swal2-actions .swal2-deny,
+.swal2-popup .swal2-actions .swal2-cancel {
+    box-sizing: border-box !important;
+    min-width: 100px !important;
+    height: 40px !important;
+    padding: 0 20px !important;
+    margin: 0 6px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    line-height: 38px !important;
+    border-radius: 6px !important;
+    white-space: nowrap;
+}

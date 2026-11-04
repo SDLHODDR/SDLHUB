@@ -248,7 +248,8 @@
   min-width: 0 !important;
   min-height: 0 !important;
 
-  margin-left: 9% !important;
+  /* Centered by the flex backdrop; auto margins keep it centered at any width. */
+  margin: 16px auto !important;
   max-height: calc(100vh - 32px) !important;
 }
 
@@ -328,7 +329,6 @@
   overflow: auto;
   padding: 1.5rem;
   background: #242424;
-  margin-left: 9% !important;
 }
 
 .tenure-letter-paper {

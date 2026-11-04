@@ -607,7 +607,7 @@ const TenureChangeLetterModal = ({
           >
             <div
               className='modal-content shadow-2xl border-0 rounded-3 overflow-hidden d-flex flex-column'
-              style={{ height: '96vh', marginLeft: '7%', marginTop: '2%' }}
+              style={{ height: '96vh' }}
             >
               {/* Header */}
               <div className='modal-header py-2 px-3 bg-light border-bottom d-flex justify-content-between align-items-center flex-shrink-0'>

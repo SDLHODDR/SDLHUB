@@ -1,34 +1,53 @@
 export const getExitAuthorizationColumns = (formatDashDate, tid = 0, exitTaskIds = [], joinTaskIds = []) => {
   return [
     {
+      field: "CREATED_SORT",
       header: "Date",
+      sortable: true,
       body: (rowData) => formatDashDate(rowData.CREATED_ON),
+      style: { width: "130px", whiteSpace: "nowrap" },
     },
     {
+      field: "CREATED_BY_NAME",
       header: "Created By",
-      body: (rowData) => rowData.CREATED_BY_NAME,
+      sortable: true,
+      body: (rowData) => rowData.CREATED_BY_NAME || "—",
+      style: { width: "200px", whiteSpace: "nowrap" },
     },
     {
+      field: "CNAME",
       header: "Company",
-      body: (rowData) => rowData.CNAME,
+      sortable: true,
+      body: (rowData) => rowData.CNAME || "—",
+      style: { width: "100px", whiteSpace: "nowrap" },
     },
     {
+      field: "DIVSN",
       header: "Division",
-      body: (rowData) => rowData.DIVSN,
+      sortable: true,
+      body: (rowData) => rowData.DIVSN || "—",
+      style: { width: "120px", whiteSpace: "nowrap" },
     },
     {
+      field: "DNAME",
       header: "Department",
-      body: (rowData) => rowData.DNAME,
+      sortable: true,
+      body: (rowData) => rowData.DNAME || "—",
+      style: { width: "200px", whiteSpace: "nowrap" },
     },
-    ...(exitTaskIds.includes(String(tid))
+    ...((exitTaskIds || []).includes(String(tid))
       ? [
           {
             header: "Department - Designation - Location",
-            body: (rowData) => `${rowData.EXIT_DEPT} - ${rowData.EXIT_DESIG} - ${rowData.EXIT_LOC}`,
+            body: (rowData) =>
+              [rowData.EXIT_DEPT, rowData.EXIT_DESIG, rowData.EXIT_LOC]
+                .filter(Boolean)
+                .join(" - ") || "—",
+            style: { minWidth: "260px" },
           },
         ]
       : []),
-    ...(joinTaskIds.includes(String(tid))
+    ...((joinTaskIds || []).includes(String(tid))
       ? [
           {
             header: "Department - Designation - Location",
@@ -45,9 +64,21 @@ export const getExitAuthorizationColumns = (formatDashDate, tid = 0, exitTaskIds
         ]
       : []),
     {
+      field: "TRAN_DESC",
       header: "Task Description",
       sortable: true,
-      body: (rowData) => rowData.TRAN_DESC,
+      body: (rowData) => (
+        <div
+          style={{
+            lineHeight: "1.4",
+            fontSize: "13px",
+            wordBreak: "break-word",
+          }}
+        >
+          {rowData.TRAN_DESC || "—"}
+        </div>
+      ),
+      style: { minWidth: "320px" },
     },
   ];
 };

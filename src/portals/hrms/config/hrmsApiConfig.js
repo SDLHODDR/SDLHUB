@@ -144,4 +144,16 @@ export const HRMS_API = {
    LOGS:{
     GET_ERROR_LOGS: "/reports/getErrorLogs.php",
   },
+
+  EXIT: {
+    GET_SEPARATION_REQUESTS: "/exit/getSeparationRequests.php",
+    SAVE_SEPARATION_REQUEST: "/exit/saveSeparationRequest.php",
+    GET_TASK_DETAILS: "/exit/getExitTaskDetails.php",
+    SAVE_SEPARATION: "/exit/saveExitSeparation.php",
+    SAVE_INTERVIEW: "/exit/saveExitInterview.php",
+    SAVE_ACTIVITY: "/exit/saveExitActivity.php",
+    DEACTIVATE_EMPLOYEE: "/exit/deactivateExitEmployee.php",
+    GENERATE_LETTER_REFERENCE: "/exit/generateExitLetterReference.php",
+    CLOSE_LETTER_TASK: "/exit/closeExitLetterTask.php",
+  },
 };
