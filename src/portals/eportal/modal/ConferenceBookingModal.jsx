@@ -10,14 +10,14 @@ import {
   notifySuccess,
   notifyError,
   confirmAction
-} from '../../../services/alertService'
+} from '../../../shared/services/alertService'
 
-import AuthContext from '../../../auth/AuthContext'
+import AuthContext from '../../../shared/auth/AuthContext'
 import Select from 'react-select'
 import '../assets/css/conferencebookingmodal.css'
-import SDLCalendar from '../../../components/calendar/SDLCalendar'
+import SDLCalendar from '../../../shared/components/calendar/SDLCalendar'
 import { CONFERENCE_MESSAGES } from '../constants/conferenceMessages'
-import { getAuthroizationTaskCount } from '../../../store/eportal/ePortalAuthorizationCountSlice'
+import { getAuthroizationTaskCount } from '../store/ePortalAuthorizationCountSlice'
 
 /* ============================================================
    DEFAULT FORM DATA

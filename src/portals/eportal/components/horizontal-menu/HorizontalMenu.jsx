@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { getMenu } from "../../services/menuService";
-import { LOGOS } from "../../../../assets/assets";
-import { notifyError } from "../../../../services/alertService";
+import { LOGOS } from "../../../../shared/assets/assets";
+import { notifyError } from "../../../../shared/services/alertService";
 
 const HorizontalMenu = () => {
 	const location = useLocation();

@@ -1,8 +1,8 @@
-import SDLActionButtons from "../../../../components/SDLActionButtons"; // adjust to match your real relative path
+import SDLActionButtons from "../../../../shared/components/buttons/SDLActionButtons"; // adjust to match your real relative path
 import { getOutdoorDutyActions } from "./outdoorDutyActions"; // adjust path
 import { IconWithTooltip } from "../tooltipHelper";
-import { formatDashDate } from "../formatUtils";
-import Badge from "../../components/Badge";
+import { formatDashDate } from "../../../../shared/utils/formatUtils";
+import Badge from "../../../../shared/components/Badge";
 
 export const outdoorDutyColumns = (handlers) => {
   const actions = getOutdoorDutyActions(handlers);

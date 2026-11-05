@@ -1,4 +1,4 @@
-import { normalizeRecords, getDisplayValue } from "../../../utils/formatUtils";
+import { normalizeRecords, getDisplayValue } from "../../../shared/utils/commonUtils";
 
 export const mapCompanyOptions = (payload) =>
   normalizeRecords(payload).map((item) => ({

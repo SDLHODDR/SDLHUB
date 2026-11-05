@@ -4,8 +4,8 @@ import {
   getReportingParentOptions,
   saveOrgLocReporting,
 } from "../services/orgonogramService";
-import { notifyError, notifySuccess } from "../../../services/alertService";
-import { formatDateForApi } from "../../../utils/formatUtils";
+import { notifyError, notifySuccess } from "../../../shared/services/alertService";
+import { formatDateForApi } from "../../../shared/utils/commonUtils";
 
 const useReportingTabHandler = (locId, organogramId, repId = null) => {
   const [reportingRows, setReportingRows] = useState([]);

@@ -17,15 +17,15 @@ import {
   notifyError,
   notifyWarning,
   confirmAction
-} from '../../../../services/alertService'
+} from '../../../../shared/services/alertService'
 
-import BreadcrumbNav from '../breadcrumb-nav/BreadcrumbNav'
+import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
 import EportalPageLoader from '../loader/EportalPageLoader'
 
 import { EMPLOYEE_ACCESS_MESSAGES } from '../../constants/employeeAccessConstants'
 import '../../assets/css/wideContentPages.css'
 
-import { getPortalFromPath } from '../../../../config/portalConfig'
+import { getPortalFromPath } from '../../../../shared/config/portalConfig'
 
 const EmployeeAccess = () => {
   const [companies, setCompanies] = useState([])

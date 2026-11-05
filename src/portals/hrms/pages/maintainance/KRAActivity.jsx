@@ -1,26 +1,26 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { getKRAActivityDataResponse } from '../../../../store/hrms/hrmsKRAActivitySlice'
-import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
+import { getKRAActivityDataResponse } from '../../store/hrmsKRAActivitySlice'
+import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
 import { useKRAActivityHandler } from '../../portalutils/useKRAActivityHandler'
 import {
   normalizeRecords,
   getDisplayValue
-} from '../../../../utils/formatUtils'
-import { getPortalFromPath } from '../../../../config/portalConfig'
+} from '../../../../shared/utils/commonUtils'
+import { getPortalFromPath } from '../../../../shared/config/portalConfig'
 import { kraActivityColumns } from '../../portalutils/kraActivityColumns'
 import {
   getKRAMasterData,
   createKRAMaster
 } from '../../services/kraActivityService'
-import SDLSearch from '../../../../components/datatable/SDLSearch'
-import SDLDataTable from '../../../../components/datatable/SDLDataTable'
-import SDLReactSelect from '../../../../components/SDLReactSelect'
+import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
+import SDLDataTable from '../../../../shared/components/datatable/SDLDataTable'
+import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import '../../assets/departmentDesignation.css'
-// import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
-import ViewToggleButton from '../../components/buttons/ViewToggleButton'
-import SDLInput from '../../../../components/SDLInput'
+// import "../../../../../_archive/src/portals/eportal/assets/css/sdlFormUiEnhancements.css"
+import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
+import SDLInput from '../../../../shared/components/form/SDLInput'
 
 const KRAActivity = () => {
   const dispatch = useDispatch()

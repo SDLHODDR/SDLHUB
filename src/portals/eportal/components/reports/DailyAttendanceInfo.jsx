@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { getAttendance } from "../../services/attendanceService";
-import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
-import SDLDataTable from "../../../../components/datatable/SDLDataTable";
-import Badge from "../Badge";
-import { getPortalFromPath } from "../../../../config/portalConfig";
+import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
+import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable";
+import Badge from "../../../../shared/components/Badge";
+import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/wideContentPages.css";
 import EportalPageLoader from "../loader/EportalPageLoader";
 

@@ -1,7 +1,7 @@
-// import SDLActionButtons from "../../../components/SDLActionButtons";
-// import { getDepartmentActivityActions } from "./departmentActivityActions";
-import EditButton from '../components/buttons/EditButton';
-import DeleteButton from '../components/buttons/DeleteButton';
+// import SDLActionButtons from "../../../shared/components/buttons/SDLActionButtons";
+// import { getDepartmentActivityActions } from "../../../../_archive/src/portals/hrms/portalutils/departmentActivityActions";
+import EditButton from '../../../shared/components/buttons/EditButton';
+import DeleteButton from '../../../shared/components/buttons/DeleteButton';
 
 const serialBody = (rowData, options) =>
   options.rowIndex + 1 + (options.props.first || 0);

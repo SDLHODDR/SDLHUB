@@ -1,25 +1,25 @@
 import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { getLeavesDataResponse } from "../../../../store/eportal/ePortalLeavesSlice";
-import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
+import { getLeavesDataResponse } from "../../store/ePortalLeavesSlice";
+import { getAuthroizationTaskCount } from "../../store/ePortalAuthorizationCountSlice";
 
 import { createLeavesHandlers } from "../../utils/LeavesHandlers";
 import EportalPageLoader from "../loader/EportalPageLoader";
 
-import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
-import SDLDataTable from "../../../../components/datatable/SDLDataTable";
-import SDLSearch from "../../../../components/datatable/SDLSearch";
-import SDLCalendar from "../../../../components/calendar/SDLCalendar";
+import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
+import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable";
+import SDLSearch from "../../../../shared/components/datatable/SDLSearch";
+import SDLCalendar from "../../../../shared/components/calendar/SDLCalendar";
 
 import LeavesModal from "../../modal/LeavesModal";
 import { leavesColumns } from "../../utils/columnHandlers/leavesColumns";
 
-import { notifyError } from "../../../../services/alertService";
+import { notifyError } from "../../../../shared/services/alertService";
 
 import { getLRDataDetails } from "../../services/leavesService";
 
-import { getPortalFromPath } from "../../../../config/portalConfig";
+import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/wideContentPages.css";
 
 const Leaves = () => {

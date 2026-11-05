@@ -1,5 +1,5 @@
-import { eportalRequest } from "../../../services/request";
-import { downloadFile } from "../../../services/downloadFile";
+import { eportalRequest } from "../../../shared/services/request";
+import { downloadFile } from "../../../shared/services/downloadFile";
 import { EPORTAL_API } from "../config/eportalApiConfig";
 
 /* ==========================================

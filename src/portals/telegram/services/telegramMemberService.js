@@ -1,5 +1,5 @@
-import { telegramPSRAPI } from "../../../services/api";
-import { PORTALAPI } from "../../../services/apiConfig";
+import { telegramPSRAPI } from "../../../shared/services/api";
+import { PORTALAPI } from "../../../shared/services/apiConfig";
 
 export const getMembers = async (payload = {}) => {
   const res = await telegramPSRAPI.get(

@@ -1,6 +1,6 @@
-import SDLActionButtons from "../../../components/SDLActionButtons";
+import SDLActionButtons from "../../../shared/components/buttons/SDLActionButtons";
 import { getOrganogramActions } from "./organogramActions";
-import { formatDate } from "../../../utils/formatUtils";
+import { formatDate } from "../../../shared/utils/commonUtils";
 
 const serialBody = (rowData, options) =>
   options.rowIndex + 1 + (options.props.first || 0);

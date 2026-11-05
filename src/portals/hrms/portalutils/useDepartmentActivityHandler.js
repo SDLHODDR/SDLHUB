@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { saveDeptActivity, deleteDeptActivity } from "../services/departmentActivityService";
-import { notifySuccess, notifyError, confirmAction } from "../../../services/alertService";
+import { notifySuccess, notifyError, confirmAction } from "../../../shared/services/alertService";
 
 export const useDepartmentActivityHandler = ({
   form,

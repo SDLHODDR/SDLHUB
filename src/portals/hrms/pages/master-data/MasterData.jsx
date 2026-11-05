@@ -4,10 +4,10 @@ import {
   getMasterData,
   saveMasterData
 } from '../../services/masterDataService'
-import BreadcrumbNav from '../../../eportal/components/breadcrumb-nav/BreadcrumbNav'
-import { notifyError, notifySuccess } from '../../../../services/alertService'
-import { getPortalFromPath } from '../../../../config/portalConfig'
-import EditButton from '../../components/buttons/EditButton'
+import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
+import { notifyError, notifySuccess } from '../../../../shared/services/alertService'
+import { getPortalFromPath } from '../../../../shared/config/portalConfig'
+import EditButton from '../../../../shared/components/buttons/EditButton'
 
 import '../../assets/css/masterData.css'
 

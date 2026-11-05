@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
-import SDLCalendar from "../../../components/calendar/SDLCalendar";
-import SDLReactSelect from "../../../components/SDLReactSelect";
+import SDLCalendar from "../../../shared/components/calendar/SDLCalendar";
+import SDLReactSelect from "../../../shared/components/form/SDLReactSelect";
 import useApprLevelTabHandler from "./useApprLevelTabHandler";
 import { getApprLevelColumns, renderApprLevelColumns } from "./apprLevelColumns";
 import { isOrganogramReadOnly } from "./organogramStatus";
-import { DATE_PICKER_FORMAT, DATE_PICKER_LOCALE } from "../../../utils/formatUtils";
+import { DATE_PICKER_FORMAT, DATE_PICKER_LOCALE } from "../../../shared/utils/commonUtils";
 
 const AppraisalLevelsTab = ({ organogramId, organogramStatus, showAll, onCancelEdit }) => {
   const {

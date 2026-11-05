@@ -1,17 +1,17 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
-import { getPortalFromPath } from '../../../../config/portalConfig'
-import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
-import SDLSearch from '../../../../components/datatable/SDLSearch'
+import { getPortalFromPath } from '../../../../shared/config/portalConfig'
+import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
+import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
 import {
   getDepartmentDesignationMap,
   getDesignationsMaster,
   saveDepartmentDesignationMap
 } from '../../services/departmentService'
-import { notifySuccess, notifyError } from '../../../../services/alertService'
+import { notifySuccess, notifyError } from '../../../../shared/services/alertService'
 import '../../assets/departmentDesignation.css'
-import SDLReactMultiSelect from '../../../../components/SDLReactMultiSelect'
-import UpdateButton from '../../components/buttons/UpdateButton'
+import SDLReactMultiSelect from '../../../../shared/components/form/SDLReactMultiSelect'
+import UpdateButton from '../../../../shared/components/buttons/UpdateButton'
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload

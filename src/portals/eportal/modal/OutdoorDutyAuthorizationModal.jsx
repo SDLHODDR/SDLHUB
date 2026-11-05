@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { getGpAttdData, authGPData, rejectGPData, closeTaskData } from "../services/outdoorDutyService";
-import { notifyError, notifySuccess } from "../../../services/alertService";
-import SDLAuthorizationActionButtons from "../../../components/SDLAuthorizationActionButtons";
+import { notifyError, notifySuccess } from "../../../shared/services/alertService";
+import SDLAuthorizationActionButtons from "../../../shared/components/buttons/SDLAuthorizationActionButtons";
 import AttendanceLogForOD from "./AttendanceLogForOD";
 
 const FILE_BASE_URL = import.meta.env.VITE_FILE_BASE_URL || "";

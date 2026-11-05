@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { normalizeHrmsGroups } from "../../../../components/authorization/normalizeHrmsGroups";
+import { normalizeHrmsGroups } from "../../authorization/normalizeHrmsGroups";
 
 const Dashboard = () => {
   const hrmsAuthData = useSelector((state) => state.hrmsAuthCounts.data);

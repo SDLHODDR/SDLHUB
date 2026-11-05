@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
-import SDLCalendar from "../../../components/calendar/SDLCalendar";
-import SDLReactSelect from "../../../components/SDLReactSelect";
+import SDLCalendar from "../../../shared/components/calendar/SDLCalendar";
+import SDLReactSelect from "../../../shared/components/form/SDLReactSelect";
 import {
   DATE_PICKER_FORMAT,
   DATE_PICKER_LOCALE,
   parseDateValue,
-} from "../../../utils/formatUtils";
+} from "../../../shared/utils/commonUtils";
 import useReportingTabHandler from "./useReportingTabHandler";
 import { getReportingColumns, renderReportingColumns } from "./reportingColumns";
 import { isOrganogramReadOnly } from "./organogramStatus";

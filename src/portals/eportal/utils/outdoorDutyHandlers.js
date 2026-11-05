@@ -5,7 +5,7 @@ import {
   closeGPTicket,
 } from "../services/outdoorDutyService";
 
-import { notifySuccess, confirmAction, notifyError } from "../../../services/alertService";
+import { notifySuccess, confirmAction, notifyError } from "../../../shared/services/alertService";
 
 export const createOutdoorDutyHandlers = ({ handleSuccess, openModal }) => {
   const sendAuth = async (id) => {

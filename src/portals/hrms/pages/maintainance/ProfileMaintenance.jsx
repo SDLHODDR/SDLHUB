@@ -10,17 +10,17 @@ import {
   getProfileAccess,
   saveProfileAccess
 } from '../../services/profileMaintenanceService'
-import BreadcrumbNav from '../../../eportal/components/breadcrumb-nav/BreadcrumbNav'
+import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
 import {
   notifySuccess,
   notifyError,
   notifyWarning,
   confirmAction
-} from '../../../../services/alertService'
-import { getPortalFromPath } from '../../../../config/portalConfig'
+} from '../../../../shared/services/alertService'
+import { getPortalFromPath } from '../../../../shared/config/portalConfig'
 // import '../../assets/css/profileMaintenance.css'
-import SDLReactSelect from '../../../../components/SDLReactSelect'
-import SDLSearch from '../../../../components/datatable/SDLSearch'
+import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
+import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
 import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
 
 const ProfileMaintenance = () => {

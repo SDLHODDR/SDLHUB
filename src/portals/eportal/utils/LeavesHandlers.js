@@ -1,8 +1,8 @@
 import {
   deleteLRData,
 } from "../services/leavesService";
-//import { getLeavesDataResponse } from "../../../store/eportal/ePortalLeavesSlice";
-import { confirmAction, notifyError, notifySuccess } from "../../../services/alertService";
+//import { getLeavesDataResponse } from "../store/ePortalLeavesSlice";
+import { confirmAction, notifyError, notifySuccess } from "../../../shared/services/alertService";
 
 export const createLeavesHandlers = ({ handleSuccess, openModal }) => {
   

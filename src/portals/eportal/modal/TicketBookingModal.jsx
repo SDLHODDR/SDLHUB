@@ -6,9 +6,9 @@ import {
   editTBRData,
   editTBRDataAUTH,
 } from "../services/ticketbookingService";
-import { notifyError, notifySuccess } from "../../../services/alertService";
+import { notifyError, notifySuccess } from "../../../shared/services/alertService";
 //import Select from "react-select";
-import SDLReactSelect from "../../../components/SDLReactSelect";
+import SDLReactSelect from "../../../shared/components/form/SDLReactSelect";
 
 const TicketBookingModal = ({
   formSettings,

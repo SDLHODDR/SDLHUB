@@ -1,8 +1,8 @@
-// import SDLActionButtons from "../../../components/SDLActionButtons";
+// import SDLActionButtons from "../../../shared/components/buttons/SDLActionButtons";
 import { buildOptionsFromRow } from './questionOptionsUtils'
 import { getQuestionMasterActions } from './questionMasterActions'
-import EditButton from '../components/buttons/EditButton'
-import DeleteButton from '../components/buttons/DeleteButton'
+import EditButton from '../../../shared/components/buttons/EditButton'
+import DeleteButton from '../../../shared/components/buttons/DeleteButton'
 
 const serialBody = (rowData, options) => options.rowIndex + 1
 

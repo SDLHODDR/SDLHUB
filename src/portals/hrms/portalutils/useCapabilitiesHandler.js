@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { saveCapabilities } from "../services/capablitiesService";
-import { notifySuccess, notifyError } from "../../../services/alertService";
+import { notifySuccess, notifyError } from "../../../shared/services/alertService";
 
 export const useCapabilitiesHandler = ({
   formData,

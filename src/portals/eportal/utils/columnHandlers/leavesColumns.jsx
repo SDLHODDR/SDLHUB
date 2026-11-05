@@ -1,7 +1,7 @@
 //import { renderLeaveActions } from "./leavesActions";
-import Badge from "../../components/Badge";
+import Badge from "../../../../shared/components/Badge";
 import { IconWithTooltip } from "../tooltipHelper";
-import { formatDashDate } from "../formatUtils";
+import { formatDashDate } from "../../../../shared/utils/formatUtils";
 
 export const leavesColumns = (handlers) => [
   {

@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
-import SDLCalendar from "../../../components/calendar/SDLCalendar";
-import SDLReactMultiSelect from "../../../components/SDLReactMultiSelect";
+import SDLCalendar from "../../../shared/components/calendar/SDLCalendar";
+import SDLReactMultiSelect from "../../../shared/components/form/SDLReactMultiSelect";
 import useAllowancesTabHandler from "./useAllowancesTabHandler";
 import { getAllowancesColumns, renderAllowancesColumns } from "./allowancesColumns";
 import { isOrganogramReadOnly } from "./organogramStatus";
-import { DATE_PICKER_FORMAT, DATE_PICKER_LOCALE } from "../../../utils/formatUtils";
+import { DATE_PICKER_FORMAT, DATE_PICKER_LOCALE } from "../../../shared/utils/commonUtils";
 
 const AllowancesTab = ({ organogramId, organogramStatus, locId, showAll, onCancelEdit }) => {
   const {

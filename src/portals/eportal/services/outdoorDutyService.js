@@ -1,7 +1,7 @@
-import { eportalRequest, request } from "../../../services/request"; // central handler
+import { eportalRequest, request } from "../../../shared/services/request"; // central handler
 import { EPORTAL_API } from "../config/eportalApiConfig";
-import { eportalAPI } from "../../../services/api";
-import { PORTALAPI } from "../../../services/apiConfig";
+import { eportalAPI } from "../../../shared/services/api";
+import { PORTALAPI } from "../../../shared/services/apiConfig";
 
 /* ---------------------------
    OUTDOOR DUTIES API

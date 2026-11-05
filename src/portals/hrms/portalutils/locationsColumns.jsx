@@ -1,13 +1,13 @@
 import { Column } from "primereact/column";
-import SDLCalendar from "../../../components/calendar/SDLCalendar";
-import SDLActionButtons from "../../../components/SDLActionButtons";
-import SDLReactSelect from "../../../components/SDLReactSelect";
+import SDLCalendar from "../../../shared/components/calendar/SDLCalendar";
+import SDLActionButtons from "../../../shared/components/buttons/SDLActionButtons";
+import SDLReactSelect from "../../../shared/components/form/SDLReactSelect";
 import {
   DATE_PICKER_FORMAT,
   DATE_PICKER_LOCALE,
   formatDate,
   parseDateValue,
-} from "../../../utils/formatUtils";
+} from "../../../shared/utils/commonUtils";
 
 const getGeoLocationDisplay = (row, organogramDetails) => {
   if (organogramDetails?.EMP_LEVEL === "15") {

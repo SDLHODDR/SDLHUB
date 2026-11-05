@@ -4,9 +4,9 @@ import {
   notifySuccess,
   notifyError,
   notifyWarning,
-} from "../../../../services/alertService";
-import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
-import { getPortalFromPath } from "../../../../config/portalConfig";
+} from "../../../../shared/services/alertService";
+import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
+import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import EportalPageLoader from "../loader/EportalPageLoader";
 import "../../assets/css/wideContentPages.css";
 

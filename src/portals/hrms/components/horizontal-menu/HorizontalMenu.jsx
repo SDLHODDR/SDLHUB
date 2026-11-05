@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 import { getHrmsMenu } from "../../services/hrmsMenuService";
-import { notifyError } from "../../../../services/alertService";
+import { notifyError } from "../../../../shared/services/alertService";
 
 const STORAGE_KEY = "HRMS_MENU_CACHE";
 

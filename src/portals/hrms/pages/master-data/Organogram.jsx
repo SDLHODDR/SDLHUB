@@ -1,14 +1,14 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Dropdown } from 'primereact/dropdown'
-import BreadcrumbNav from '../../../eportal/components/breadcrumb-nav/BreadcrumbNav'
-import SDLReactSelect from '../../../../components/SDLReactSelect'
+import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
+import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import {
   //notifySuccess,
   notifyError
   //notifyWarning,
   //confirmAction,
-} from '../../../../services/alertService'
+} from '../../../../shared/services/alertService'
 import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
 import useSDLTabComponentHandler from '../../portalutils/useSDLTabComponentHandler'
 import OrganogramListView from '../../portalutils/OrganogramListView'
@@ -17,10 +17,10 @@ import {
   //getProfileAccess,
   //saveProfileAccess,
 } from '../../services/orgonogramService'
-import { getPortalFromPath } from '../../../../config/portalConfig'
+import { getPortalFromPath } from '../../../../shared/config/portalConfig'
 // import "../../assets/css/profileMaintenance.css";
-import SDLSearch from '../../../../components/datatable/SDLSearch'
-import ViewToggleButton from '../../components/buttons/ViewToggleButton'
+import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
+import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
 
 const Organogram = () => {
   /* ==========================================================

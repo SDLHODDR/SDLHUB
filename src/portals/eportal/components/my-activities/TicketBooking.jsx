@@ -1,17 +1,17 @@
 import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getTicketBookingDataResponse } from "../../../../store/eportal/ePortalTicketBookingSlice";
+import { getTicketBookingDataResponse } from "../../store/ePortalTicketBookingSlice";
 import { createTicketBookingHandlers } from "../../utils/ticketBookingHandlers";
-import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
-import SDLDataTable from "../../../../components/datatable/SDLDataTable";
-import SDLSearch from "../../../../components/datatable/SDLSearch";
-import SDLCalendar from "../../../../components/calendar/SDLCalendar";
+import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
+import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable";
+import SDLSearch from "../../../../shared/components/datatable/SDLSearch";
+import SDLCalendar from "../../../../shared/components/calendar/SDLCalendar";
 import TicketBookingModal from "../../modal/TicketBookingModal";
 import { ticketBookingColumns } from "../../utils/columnHandlers/ticketBookingColumns";
-import { getAuthroizationTaskCount } from "../../../../store/eportal/ePortalAuthorizationCountSlice";
-import { notifyWarning } from "../../../../services/alertService";
-import { getPortalFromPath } from "../../../../config/portalConfig";
-import "../../assets/css/companyPolicies.css";
+import { getAuthroizationTaskCount } from "../../store/ePortalAuthorizationCountSlice";
+import { notifyWarning } from "../../../../shared/services/alertService";
+import { getPortalFromPath } from "../../../../shared/config/portalConfig";
+import "../../../../shared/assets/css/companyPolicies.css";
 import "../../assets/css/ticketBooking.css";
 
 const TicketBooking = () => {

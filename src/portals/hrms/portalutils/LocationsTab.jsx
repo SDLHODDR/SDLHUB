@@ -6,8 +6,8 @@ import { getLocationsColumns, renderLocationsColumns } from "./locationsColumns"
 import ReportingTab from "./ReportingTab";
 import AllowancesTab from "./AllowancesTab";
 import { isOrganogramReadOnly } from "./organogramStatus";
-import SaveButton from '../components/buttons/SaveButton'
-import CancelButton from '../components/buttons/CancelButton'
+import SaveButton from '../../../shared/components/buttons/SaveButton'
+import CancelButton from '../../../shared/components/buttons/CancelButton'
 
 const LocationsDataTable = ({
   organogramId,

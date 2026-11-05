@@ -1,4 +1,4 @@
-import SDLDataTable from "../../../components/datatable/SDLDataTable";
+import SDLDataTable from "../../../shared/components/datatable/SDLDataTable";
 import { organogramColumns } from "./organogramColumns";
 
 // Table-mode view for the Organogram tab — mirrors KRAActivity's list

@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { getPayslips } from "../../services/payslipService";
 import { getDocuments } from "../../services/documentService";
-import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
-import { getPortalFromPath } from "../../../../config/portalConfig";
+import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
+import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/wideContentPages.css";
 import EportalPageLoader from "../loader/EportalPageLoader";
 

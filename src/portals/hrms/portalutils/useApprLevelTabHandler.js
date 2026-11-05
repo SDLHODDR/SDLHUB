@@ -4,8 +4,8 @@ import {
   getApprLevelOptions,
   saveApprLevel,
 } from "../services/orgonogramService";
-import { notifyError, notifySuccess } from "../../../services/alertService";
-import { formatDateForApi } from "../../../utils/formatUtils";
+import { notifyError, notifySuccess } from "../../../shared/services/alertService";
+import { formatDateForApi } from "../../../shared/utils/commonUtils";
 
 const useApprLevelTabHandler = (organogramId) => {
   const [apprLevels, setApprLevels] = useState([]);

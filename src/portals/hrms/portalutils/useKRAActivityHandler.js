@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { saveKRAActivity, deleteKRAActivity } from "../services/kraActivityService";
-import { notifySuccess, notifyError, confirmAction } from "../../../services/alertService";
+import { notifySuccess, notifyError, confirmAction } from "../../../shared/services/alertService";
 
 export const useKRAActivityHandler = ({
   formData,

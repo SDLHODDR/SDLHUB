@@ -1,5 +1,5 @@
-import { formatDashDate } from '../../eportal/utils/formatUtils'
-import EditButton from '../components/buttons/EditButton'
+import { formatDashDate } from '../../../shared/utils/formatUtils'
+import EditButton from '../../../shared/components/buttons/EditButton'
 
 export const policyColumns = ({ handleEdit }) => [
   {

@@ -1,6 +1,6 @@
-import { eportalRequest } from "../../../services/request";
+import { eportalRequest } from "../../../shared/services/request";
 import { EPORTAL_API } from "../config/eportalApiConfig";
-import { downloadFile } from "../../../services/downloadFile";
+import { downloadFile } from "../../../shared/services/downloadFile";
 
 /* ============================
    GET CONFERENCE ROOMS

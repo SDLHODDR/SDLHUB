@@ -5,8 +5,8 @@ import {
   saveAllowance,
   deleteAllowance,
 } from "../services/orgonogramService";
-import { notifyError, notifySuccess, confirmAction } from "../../../services/alertService";
-import { formatDateForApi } from "../../../utils/formatUtils";
+import { notifyError, notifySuccess, confirmAction } from "../../../shared/services/alertService";
+import { formatDateForApi } from "../../../shared/utils/commonUtils";
 
 const asArray = (res) =>
   Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : [];

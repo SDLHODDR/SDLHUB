@@ -1,10 +1,10 @@
 import useOrganogramFormHandler from "./useOrganogramFormHandler";
-import SDLReactSelect from "../../../components/SDLReactSelect";
+import SDLReactSelect from "../../../shared/components/form/SDLReactSelect";
 import { isOrganogramReadOnly } from "./organogramStatus";
 //import Select from "react-select";
-import SDLInput from '../../../components/SDLInput'
-import SaveButton from '../components/buttons/SaveButton'
-import CancelButton from '../components/buttons/CancelButton'
+import SDLInput from '../../../shared/components/form/SDLInput'
+import SaveButton from '../../../shared/components/buttons/SaveButton'
+import CancelButton from '../../../shared/components/buttons/CancelButton'
 
 const OrganogramTab = ({ organogramId, organogramStatus, onOrganogramSaved }) => {
   //const isEditMode = !!organogramId;

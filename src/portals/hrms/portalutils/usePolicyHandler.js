@@ -8,9 +8,9 @@ import {
   notifySuccess,
   notifyError,
   confirmAction
-} from '../../../services/alertService'
+} from '../../../shared/services/alertService'
 import { validateDocFile } from './policyOptionsUtils'
-import { toDateInputValue } from '../../../utils/formatUtils'
+import { toDateInputValue } from '../../../shared/utils/commonUtils'
 import moment from 'moment'
 
 export const usePolicyHandler = ({

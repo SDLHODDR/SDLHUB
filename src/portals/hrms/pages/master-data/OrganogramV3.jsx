@@ -2,21 +2,21 @@ import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { Dropdown } from "primereact/dropdown";
 
-import BreadcrumbNav from "../../../eportal/components/breadcrumb-nav/BreadcrumbNav";
+import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
 
 import {
   //notifySuccess,
   notifyError,
   //notifyWarning,
   //confirmAction,
-} from "../../../../services/alertService";
+} from "../../../../shared/services/alertService";
 
 // import SDLTabsComponent from "../../components/tabs/SDLTabsComponent";
 // import useSDLTabComponentHandler from "../../portalutils/useSDLTabComponentHandler";
 
 
 
-import { getPortalFromPath } from "../../../../config/portalConfig";
+import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/profileMaintenance.css";
 
 const Organogram = () => {

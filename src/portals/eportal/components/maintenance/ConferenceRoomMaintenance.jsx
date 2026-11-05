@@ -6,14 +6,14 @@ import {
   updateConferenceRoomStatus,
 } from "../../services/conferenceRoomMaintenanceService";
 
-import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
+import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
 
-import SDLDataTable from "../../../../components/datatable/SDLDataTable";
-import SDLSearch from "../../../../components/datatable/SDLSearch";
+import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable";
+import SDLSearch from "../../../../shared/components/datatable/SDLSearch";
 
-import { getPortalFromPath } from "../../../../config/portalConfig";
+import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 
-import { notifyError, notifySuccess } from "../../../../services/alertService";
+import { notifyError, notifySuccess } from "../../../../shared/services/alertService";
 import "../../assets/css/wideContentPages.css";
 import EportalPageLoader from "../loader/EportalPageLoader";
 

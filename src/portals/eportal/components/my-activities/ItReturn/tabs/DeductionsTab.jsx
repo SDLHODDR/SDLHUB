@@ -8,7 +8,7 @@ import {
 import {
   notifySuccess,
   notifyError,
-} from "../../../../../../services/alertService";
+} from "../../../../../../shared/services/alertService";
 
 import { ITR_MESSAGES } from "../../../../constants/itrMessages";
 import EportalPageLoader from "../../../loader/EportalPageLoader";

@@ -1,5 +1,5 @@
-import { hrmsAPI } from "../../../services/api";
-import { request } from "../../../services/request";
+import { hrmsAPI } from "../../../shared/services/api";
+import { request } from "../../../shared/services/request";
 import {HRMS_API} from "../config/hrmsApiConfig"
 
 // Fetch departments list or details

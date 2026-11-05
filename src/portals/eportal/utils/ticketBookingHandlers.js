@@ -3,7 +3,7 @@ import {
   resendauthTBDataDetails,
   closeTBTicket,
 } from "../services/ticketbookingService";
-import { confirmAction, notifyError, notifySuccess } from "../../../services/alertService";
+import { confirmAction, notifyError, notifySuccess } from "../../../shared/services/alertService";
 
 export const createTicketBookingHandlers = ({ handleSuccess }) => {
   const sendAuth = async (id) => {

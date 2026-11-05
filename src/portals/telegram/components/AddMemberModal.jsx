@@ -11,7 +11,7 @@ import {
   getDivisions,
 	getDepartments,
 } from "../services/telegramService";
-import AuthContext from "../../../auth/AuthContext";
+import AuthContext from "../../../shared/auth/AuthContext";
 import Swal from "sweetalert2";
 
 const AddMemberModal = ({ show, onClose, onSave }) => {

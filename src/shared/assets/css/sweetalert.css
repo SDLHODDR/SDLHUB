@@ -1,0 +1,135 @@
+/* ==============================
+   DreamPOS SweetAlert Buttons
+============================== */
+
+.dreampos-btn-primary,
+.dreampos-btn-danger,
+.dreampos-btn-warning,
+.dreampos-btn-outline {
+    border-radius: 6px !important;
+    padding: 10px 24px !important;
+    font-weight: 600 !important;
+    min-width: 100px !important;
+    transition: all .2s ease;
+}
+
+/* Success */
+.dreampos-btn-primary {
+    background: #28c76f !important;
+    border: 1px solid #28c76f !important;
+    color: #fff !important;
+}
+
+/* Danger */
+.dreampos-btn-danger {
+    background: #ea5455 !important;
+    border: 1px solid #ea5455 !important;
+    color: #fff !important;
+}
+
+/* Warning */
+.dreampos-btn-warning {
+    background: #ff9f43 !important;
+    border: 1px solid #ff9f43 !important;
+    color: #fff !important;
+}
+
+/* Secondary */
+.dreampos-btn-outline {
+    background: #fff !important;
+    border: 1px solid #dcdcdc !important;
+    color: #6c757d !important;
+}
+
+/* Hover */
+.dreampos-btn-primary:hover {
+    background: #24b263 !important;
+    border-color: #24b263 !important;
+}
+
+.dreampos-btn-danger:hover {
+    background: #d73d40 !important;
+    border-color: #d73d40 !important;
+}
+
+.dreampos-btn-warning:hover {
+    background: #f38a22 !important;
+    border-color: #f38a22 !important;
+}
+
+.dreampos-btn-outline:hover {
+    background: #f8f9fa !important;
+}
+
+/* Keep the Tenure Change confirmation actions compact and exactly equal. */
+.tenure-confirm-yes,
+.tenure-confirm-cancel {
+    box-sizing: border-box !important;
+    width: 78px !important;
+    min-width: 78px !important;
+    height: 38px !important;
+    padding: 6px 12px !important;
+    font-size: 1rem !important;
+    font-weight: 400 !important;
+    line-height: 24px !important;
+    border-radius: 6px !important;
+}
+
+.tenure-confirm-yes {
+    background: #28c76f !important;
+    border: 1px solid #28c76f !important;
+    color: #fff !important;
+}
+
+.tenure-confirm-yes:hover {
+    background: #24b263 !important;
+    border-color: #24b263 !important;
+}
+
+.tenure-confirm-cancel {
+    background: #092c4c !important;
+    border: 1px solid #092c4c !important;
+    color: #fff !important;
+}
+
+.tenure-confirm-cancel:hover {
+    background: #05192c !important;
+    border-color: #05192c !important;
+}
+
+/* SweetAlert Popup */
+.swal2-popup.dreampos-popup {
+    border-radius: 12px !important;
+    padding: 1.8rem !important;
+}
+
+/* Title */
+.swal2-title {
+    font-weight: 600 !important;
+}
+
+/* Content */
+.swal2-html-container {
+    font-size: 15px !important;
+}
+
+/* ==============================
+   Equal-size alert actions
+   Every SweetAlert action button (Yes / Confirm, Deny, Cancel) shares one
+   size, whichever class it uses (dreampos-btn-*, Bootstrap btn, swal2-styled).
+   Colours stay with each button's own class.
+============================== */
+.swal2-popup .swal2-actions .swal2-confirm,
+.swal2-popup .swal2-actions .swal2-deny,
+.swal2-popup .swal2-actions .swal2-cancel {
+    box-sizing: border-box !important;
+    min-width: 100px !important;
+    height: 40px !important;
+    padding: 0 20px !important;
+    margin: 0 6px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    line-height: 38px !important;
+    border-radius: 6px !important;
+    white-space: nowrap;
+}

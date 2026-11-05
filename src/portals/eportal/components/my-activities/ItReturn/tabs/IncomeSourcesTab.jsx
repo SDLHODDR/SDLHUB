@@ -9,7 +9,7 @@ import {
   notifySuccess,
   notifyError,
   notifyWarning,
-} from "../../../../../../services/alertService";
+} from "../../../../../../shared/services/alertService";
 
 import { ITR_MESSAGES } from "../../../../constants/itrMessages";
 

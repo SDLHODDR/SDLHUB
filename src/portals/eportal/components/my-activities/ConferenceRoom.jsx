@@ -11,12 +11,12 @@ import ConferenceScheduler from "./ConferenceScheduler";
 import { OverlayTrigger } from "react-bootstrap";
 import { renderConferenceTooltip } from "../../utils/tooltipHelper";
 
-import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
-import Badge from "../Badge";
+import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
+import Badge from "../../../../shared/components/Badge";
 
-import SDLCalendar from "../../../../components/calendar/SDLCalendar";
+import SDLCalendar from "../../../../shared/components/calendar/SDLCalendar";
 
-import { getPortalFromPath } from "../../../../config/portalConfig";
+import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/wideContentPages.css";
 
 const ConferenceRoom = () => {

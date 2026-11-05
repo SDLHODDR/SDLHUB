@@ -9,11 +9,11 @@ import {
     notifySuccess,
     notifyError,
     notifyWarning
-} from "../../../../../../services/alertService";
+} from "../../../../../../shared/services/alertService";
 
 import { ITR_MESSAGES } from "../../../../constants/itrMessages";
 
-import SDLCalendar from '../../../../../../components/calendar/SDLCalendar'
+import SDLCalendar from '../../../../../../shared/components/calendar/SDLCalendar'
 
 export const Form12BTab = ({ editable }) => {
 

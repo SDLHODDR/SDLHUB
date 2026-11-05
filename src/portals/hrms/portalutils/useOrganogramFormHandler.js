@@ -15,8 +15,8 @@ import {
   getOrgLocReportingRows,
   saveOrganogram,
 } from "../services/orgonogramService";
-import { notifyError, notifySuccess } from "../../../services/alertService";
-import { getHRMSAuthroizationTaskCount } from "../../../store/hrms/hrmsAuthorizationCountSlice";
+import { notifyError, notifySuccess } from "../../../shared/services/alertService";
+import { getHRMSAuthroizationTaskCount } from "../store/hrmsAuthorizationCountSlice";
 import { normalizeOrganogramStatus } from "./organogramStatus";
 
 const INITIAL_FORM_STATE = {

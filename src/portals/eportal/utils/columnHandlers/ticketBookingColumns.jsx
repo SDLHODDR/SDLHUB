@@ -1,8 +1,8 @@
-import SDLActionButtons from "../../../../components/SDLActionButtons"; // adjust path
+import SDLActionButtons from "../../../../shared/components/buttons/SDLActionButtons"; // adjust path
 import { getTicketBookingActions } from "./ticketBookingActions"; // adjust path
 import { IconWithTooltip } from "../tooltipHelper";
-import { formatDashDate } from "../formatUtils";
-import Badge from "../../components/Badge";
+import { formatDashDate } from "../../../../shared/utils/formatUtils";
+import Badge from "../../../../shared/components/Badge";
 
 export const ticketBookingColumns = (handlers) => {
   const actions = getTicketBookingActions(handlers);

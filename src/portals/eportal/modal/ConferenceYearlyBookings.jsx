@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import SDLDataTable from "../../../components/datatable/SDLDataTable";
-import SDLSearch from "../../../components/datatable/SDLSearch";
+import SDLDataTable from "../../../shared/components/datatable/SDLDataTable";
+import SDLSearch from "../../../shared/components/datatable/SDLSearch";
 
 import {
   getConferenceYearlyBookings,

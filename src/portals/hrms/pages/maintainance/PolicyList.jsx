@@ -1,26 +1,26 @@
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
-import { getPolicyDataResponse } from '../../../../store/hrms/hrmsPolicySlice'
+import { getPolicyDataResponse } from '../../store/hrmsPolicySlice'
 import {
   getCompanyMaster,
   getDepartmentMaster,
   getDivisionMaster
 } from '../../services/policyService'
-import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
-import { getPortalFromPath } from '../../../../config/portalConfig'
-import SDLSearch from '../../../../components/datatable/SDLSearch'
-import SDLDataTable from '../../../../components/datatable/SDLDataTable'
-import SDLTagSelect from '../../../../components/SDLTagSelect'
+import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
+import { getPortalFromPath } from '../../../../shared/config/portalConfig'
+import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
+import SDLDataTable from '../../../../shared/components/datatable/SDLDataTable'
+import SDLTagSelect from '../../../../shared/components/form/SDLTagSelect'
 import SDLDropdownSelect from '../../components/forms/SDLDropdownSelect'
-import SDLCalendar from '../../../../components/calendar/SDLCalendar'
-import SDLReactSelect from '../../../../components/SDLReactSelect'
-import SDLReactMultiSelect from '../../../../components/SDLReactMultiSelect'
+import SDLCalendar from '../../../../shared/components/calendar/SDLCalendar'
+import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
+import SDLReactMultiSelect from '../../../../shared/components/form/SDLReactMultiSelect'
 import {
   normalizeRecords,
   getDisplayValue,
   formatDate
-} from '../../../../utils/formatUtils'
+} from '../../../../shared/utils/commonUtils'
 import { policyColumns } from '../../portalutils/policyColumns'
 import {
   mapCompanyOptions,
@@ -29,10 +29,10 @@ import {
 } from '../../portalutils/policyOptionsUtils'
 import { usePolicyHandler } from '../../portalutils/usePolicyHandler'
 import moment from 'moment'
-import SaveButton from '../../components/buttons/SaveButton'
-import CancelButton from '../../components/buttons/CancelButton'
-import ViewToggleButton from '../../components/buttons/ViewToggleButton'
-import SDLInput from '../../../../components/SDLInput'
+import SaveButton from '../../../../shared/components/buttons/SaveButton'
+import CancelButton from '../../../../shared/components/buttons/CancelButton'
+import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
+import SDLInput from '../../../../shared/components/form/SDLInput'
 
 const emptyForm = {
   ID: '',

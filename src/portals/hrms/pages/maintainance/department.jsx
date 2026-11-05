@@ -14,17 +14,17 @@ import {
   notifySuccess,
   notifyError,
   confirmAction
-} from '../../../../services/alertService'
-import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
-import { getPortalFromPath } from '../../../../config/portalConfig'
-import SDLSearch from '../../../../components/datatable/SDLSearch'
-import SDLDataTable from '../../../../components/datatable/SDLDataTable'
-import SaveButton from '../../components/buttons/SaveButton'
-import EditButton from '../../components/buttons/EditButton'
-import CancelButton from '../../components/buttons/CancelButton'
-import SDLReactSelect from '../../../../components/SDLReactSelect'
-import SDLInput from '../../../../components/SDLInput'
-import ViewToggleButton from '../../components/buttons/ViewToggleButton'
+} from '../../../../shared/services/alertService'
+import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
+import { getPortalFromPath } from '../../../../shared/config/portalConfig'
+import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
+import SDLDataTable from '../../../../shared/components/datatable/SDLDataTable'
+import SaveButton from '../../../../shared/components/buttons/SaveButton'
+import EditButton from '../../../../shared/components/buttons/EditButton'
+import CancelButton from '../../../../shared/components/buttons/CancelButton'
+import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
+import SDLInput from '../../../../shared/components/form/SDLInput'
+import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload

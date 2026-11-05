@@ -1,0 +1,75 @@
+import HRMSDashboard from "./components/dashboard/Dashboard";
+import KRAActivity from "./pages/maintainance/KRAActivity"
+import QuestionMaster from "./pages/maintainance/QuestionMaster";
+import Capabilities from "./pages/maintainance/Capabilities";
+import MasterData from "./pages/master-data/MasterData";
+import DivisionDocMapping from "./pages/master-data/DivisionDocumentMapping";
+
+import DepartmentActivity from "./pages/maintainance/DepartmentActivity";
+import Department from "./pages/maintainance/department";
+import ProfileMaintenance from "./pages/maintainance/ProfileMaintenance";
+import DepartmentDesignationMap from "./pages/maintainance/DepartmentDesignationMap";
+import JobDescription from "./pages/maintainance/JobDescription";
+import PolicyList from "./pages/maintainance/PolicyList";
+import Organogram from "./pages/master-data/Organogram";
+import OrganogramV3 from "./pages/master-data/OrganogramV3";
+import EmployeeAccess from "./pages/maintainance/EmployeeAccess";
+import EmployeeData from "./pages/maintainance/EmployeeData";
+import TenureChange from "./pages/tenure/TenureChange";
+import TenureChangeAssessment from "./pages/tenure/TenureChangeAssessment";
+import TenureChangeCtc from "./pages/tenure/TenureChangeCtc";
+import TenureChangeLetter from "./pages/tenure/TenureChangeLetter";
+
+import JoiningAuthorization from "./authorization/joining/JoiningAuthorization";
+import ExitAuthorization from "./authorization/exit/ExitAuthorization";
+import MastersAuthorization from "./authorization/masters/MastersAuthorization";
+import TenureChangeAuthorization from "./authorization/tenure/TenureChangeAuthorization";
+import ViewLogs from "./pages/reports/ViewLog";
+import SeparationRequest from "./pages/separation/SeparationRequest";
+//import TenureChange from "../portals/hrms/pages/reports/TenureChange";
+// // import DepartmentTable from "../portals/hrms/components/DepartmentTable";
+// // import Department from "../portals/hrms/components/Department";
+
+export const hrmsRoutes = [
+  { path: "hrms/dashboard", element: HRMSDashboard,},
+  { path: "hrms/masterdata/mastermaster", element: MasterData, },
+  { path: "hrms/masterdata/organogram", element: Organogram, },
+  { path: "hrms/masterdata/division-doc-mapping", element: DivisionDocMapping, },
+  { path: "hrms/masterdata/organogram-v3", element: OrganogramV3, },
+
+  { path: "hrms/maintainance/profilemaintenance", element: ProfileMaintenance, },
+  { path: "hrms/maintainance/kra-activity", element: KRAActivity },
+  { path: "hrms/maintainance/questionmaster", element: QuestionMaster },
+  
+  { path: "hrms/maintainance/department", element: Department },
+  { path: "hrms/maintainance/department-designation", element: DepartmentDesignationMap },
+  { path: "hrms/masterdata/jobdescription", element: JobDescription },
+  { path: "hrms/maintainance/capabilities", element: Capabilities },
+  { path: "hrms/maintainance/department-activity", element: DepartmentActivity },
+  { path: "hrms/maintainance/policylist", element: PolicyList },
+  { path: "hrms/maintainance/employee-data", element: EmployeeData },
+  { path: "hrms/maintainance/tenure-change", element: TenureChange },
+  { path: "hrms/maintainance/tenure-change/assessment", element: TenureChangeAssessment },
+  { path: "hrms/maintainance/tenure-change/ctc", element: TenureChangeCtc },
+  { path: "hrms/maintainance/tenure-change/letter", element: TenureChangeLetter },
+
+  { path: "hrms/maintainance/employee-access", element: EmployeeAccess },
+
+  // Separation (menu PROG_URL "separation")
+  { path: "hrms/separation", element: SeparationRequest },
+
+  // Authorization
+	{path: "hrms/taskauthorization/J/:tid", element: JoiningAuthorization,},
+	{path: "hrms/taskauthorization/E/:tid", element: ExitAuthorization,},
+	//{path: "hrms/taskauthorization/R/:tid", element: RecruitmentAuthorization,},
+	// {path: "hrms/taskauthorization/357", element: OthersAuthorization,},
+  {path: "hrms/taskauthorization/T/:tid", element: TenureChangeAuthorization,},
+	//{path: "hrms/taskauthorization/A/:tid", element: AppraisalAuthorization,},
+	// {path: "hrms/taskauthorization/349", element: EmployeeTransferAuthorization,},
+  { path: "hrms/reports/view-logs", element: ViewLogs },
+  // { path: "hrms/reports/tenure-change", element: TenureChange },
+  {path: "hrms/taskauthorization/M/:tid", element: MastersAuthorization,},
+
+  // { path: "hrms/maintainance/department", element: Department }
+
+];

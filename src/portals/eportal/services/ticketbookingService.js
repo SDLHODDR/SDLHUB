@@ -1,6 +1,6 @@
-import { eportalRequest } from "../../../services/request"; // central handler
+import { eportalRequest } from "../../../shared/services/request"; // central handler
 import { EPORTAL_API } from "../config/eportalApiConfig";
-import { PORTALAPI } from "../../../services/apiConfig";
+import { PORTALAPI } from "../../../shared/services/apiConfig";
 
 // export const getTBRDataDetails = async (payload = {}) => {
 //   const res = await eportalAPI.post(

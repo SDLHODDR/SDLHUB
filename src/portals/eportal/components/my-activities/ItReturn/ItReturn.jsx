@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import BreadcrumbNav from "../../breadcrumb-nav/BreadcrumbNav";
+import BreadcrumbNav from "../../../../../shared/components/BreadcrumbNav";
 
 import Form12BTab from "./tabs/Form12BTab";
 import IncomeSourcesTab from "./tabs/IncomeSourcesTab";

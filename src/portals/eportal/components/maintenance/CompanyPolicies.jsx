@@ -1,12 +1,12 @@
 import { useEffect, useState, useMemo } from "react";
 
 import { getPolicies } from "../../services/policyService";
-import "../../assets/css/companyPolicies.css";
+import "../../../../shared/assets/css/companyPolicies.css";
 
-import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
-import SDLDataTable from "../../../../components/datatable/SDLDataTable"; // Update path if required
-import SDLSearch from "../../../../components/datatable/SDLSearch";
-import { getPortalFromPath } from "../../../../config/portalConfig";
+import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
+import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable"; // Update path if required
+import SDLSearch from "../../../../shared/components/datatable/SDLSearch";
+import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/wideContentPages.css";
 import EportalPageLoader from "../loader/EportalPageLoader";
 

@@ -8,7 +8,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "../../assets/css/profileMaintenance.css";
 
-import SDLDataTable from "../../../../components/datatable/SDLDataTable";
+import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable";
 import "../../assets/css/wideContentPages.css";
 import EportalPageLoader from "../loader/EportalPageLoader";
 
@@ -27,13 +27,13 @@ import {
   notifyError,
   notifyWarning,
   confirmAction,
-} from "../../../../services/alertService";
+} from "../../../../shared/services/alertService";
 
-import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
+import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
 
 import { PROFILE_MAINTENANCE_MESSAGES } from "../../constants/profileMaintenanceConstants";
 
-import { getPortalFromPath } from "../../../../config/portalConfig";
+import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import { Alignment } from "ckeditor5";
 
 const ProfileMaintenance = () => {

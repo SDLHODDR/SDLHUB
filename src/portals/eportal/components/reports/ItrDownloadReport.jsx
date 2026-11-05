@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
-import SDLDataTable from "../../../../components/datatable/SDLDataTable";
-import SDLSearch from "../../../../components/datatable/SDLSearch";``
-import SDLCalendar from "../../../../components/calendar/SDLCalendar";
+import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable";
+import SDLSearch from "../../../../shared/components/datatable/SDLSearch";``
+import SDLCalendar from "../../../../shared/components/calendar/SDLCalendar";
 import {
   getItrDownloadReport,
   exportItrDownloadReport,
@@ -10,11 +10,11 @@ import {
   notifySuccess,
   notifyError,
   confirmAction,
-} from "../../../../services/alertService";
-import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
-import Badge from "../Badge";
+} from "../../../../shared/services/alertService";
+import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
+import Badge from "../../../../shared/components/Badge";
 
-import { getPortalFromPath } from "../../../../config/portalConfig";
+import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/wideContentPages.css";
 import EportalPageLoader from "../loader/EportalPageLoader";
 

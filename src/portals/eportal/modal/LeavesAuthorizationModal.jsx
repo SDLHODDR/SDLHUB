@@ -1,9 +1,9 @@
 // import { useState, useEffect, useRef } from "react";
 import { useState, useEffect } from "react";
 import { authLRData, rejectLRData, getAuthLRSwipperData } from "../services/leavesService";
-import { notifyError, notifySuccess } from "../../../services/alertService";
-import SDLFormField from "../../../components/SDLFormField"
-import SDLAuthorizationActionButtons from "../../../components/SDLAuthorizationActionButtons";
+import { notifyError, notifySuccess } from "../../../shared/services/alertService";
+import SDLFormField from "../../../shared/components/form/SDLFormField"
+import SDLAuthorizationActionButtons from "../../../shared/components/buttons/SDLAuthorizationActionButtons";
 import moment from "moment";
 import AuthModalLeavesList from "./AuthModalLeavesList";
 

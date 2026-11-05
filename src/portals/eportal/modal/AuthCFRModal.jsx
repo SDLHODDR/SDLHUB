@@ -7,7 +7,7 @@ import {
   rejectCBRData,
 } from "../services/conferenceService";
 
-import { notifyError, notifySuccess } from "../../../services/alertService";
+import { notifyError, notifySuccess } from "../../../shared/services/alertService";
 
 
 const getByteLength = (value) =>

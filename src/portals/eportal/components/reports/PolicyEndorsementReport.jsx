@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 
-import SDLDataTable from "../../../../components/datatable/SDLDataTable";
-import SDLSearch from "../../../../components/datatable/SDLSearch";
+import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable";
+import SDLSearch from "../../../../shared/components/datatable/SDLSearch";
 
 import {
   getPolicyEndorsementReport,
@@ -9,15 +9,15 @@ import {
   exportPolicyAcceptanceReport,
 } from "../../services/policyEndorsementReportService";
 
-import { notifyError, notifySuccess } from "../../../../services/alertService";
+import { notifyError, notifySuccess } from "../../../../shared/services/alertService";
 
 import "../../assets/css/policyEndorsementReport.css";
 import "../../assets/css/wideContentPages.css";
 
-import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
-import Badge from "../Badge";
+import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
+import Badge from "../../../../shared/components/Badge";
 
-import { getPortalFromPath } from "../../../../config/portalConfig";
+import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import EportalPageLoader from "../loader/EportalPageLoader";
 
 const PolicyEndorsementReport = () => {

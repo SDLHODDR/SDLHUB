@@ -1,4 +1,4 @@
-import { eportalRequest } from "../../../services/request"; // central handler
+import { eportalRequest } from "../../../shared/services/request"; // central handler
 import { EPORTAL_API } from "../config/eportalApiConfig";
 
 /* ---------------------------

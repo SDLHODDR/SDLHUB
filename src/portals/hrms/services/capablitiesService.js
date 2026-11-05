@@ -1,4 +1,4 @@
-import { hrmsRequest } from "../../../services/request";
+import { hrmsRequest } from "../../../shared/services/request";
 import { HRMS_API } from "../config/hrmsApiConfig";
 
 export const getCapabilities = async (payload = {}) => {

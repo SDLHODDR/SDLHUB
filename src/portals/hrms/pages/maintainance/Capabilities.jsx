@@ -1,23 +1,23 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
-import { getPortalFromPath } from '../../../../config/portalConfig'
-import SDLSearch from '../../../../components/datatable/SDLSearch'
-import SDLDataTable from '../../../../components/datatable/SDLDataTable'
-import { getCapabilitiesDataResponse } from '../../../../store/hrms/hrmsCapabilitiesSlice'
+import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
+import { getPortalFromPath } from '../../../../shared/config/portalConfig'
+import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
+import SDLDataTable from '../../../../shared/components/datatable/SDLDataTable'
+import { getCapabilitiesDataResponse } from '../../store/hrmsCapabilitiesSlice'
 import {
   normalizeRecords,
   getDisplayValue
-} from '../../../../utils/formatUtils'
+} from '../../../../shared/utils/commonUtils'
 import { capabilitiesColumns } from '../../portalutils/capabilitiesColumns'
 import { useCapabilitiesHandler } from '../../portalutils/useCapabilitiesHandler'
-import SDLReactSelect from '../../../../components/SDLReactSelect'
-// import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
-import SaveButton from '../../components/buttons/SaveButton'
-import CancelButton from '../../components/buttons/CancelButton'
-import ViewToggleButton from '../../components/buttons/ViewToggleButton'
-import SDLInput from '../../../../components/SDLInput'
+import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
+// import "../../../../../_archive/src/portals/eportal/assets/css/sdlFormUiEnhancements.css"
+import SaveButton from '../../../../shared/components/buttons/SaveButton'
+import CancelButton from '../../../../shared/components/buttons/CancelButton'
+import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
+import SDLInput from '../../../../shared/components/form/SDLInput'
 
 const Capabilities = () => {
   const dispatch = useDispatch()

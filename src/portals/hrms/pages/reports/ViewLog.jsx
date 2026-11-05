@@ -1,16 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 
-import BreadcrumbNav from "../../components/breadcrumb-nav/BreadcrumbNav";
-import SDLDataTable from "../../../../components/datatable/SDLDataTable";
-import SDLSearch from "../../../../components/datatable/SDLSearch";
-import SDLCalendar from "../../../../components/calendar/SDLCalendar";
+import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
+import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable";
+import SDLSearch from "../../../../shared/components/datatable/SDLSearch";
+import SDLCalendar from "../../../../shared/components/calendar/SDLCalendar";
 
 import { getErrorLogs } from "../../services/logService";
-import { notifyError }  from "../../../../services/alertService";
+import { notifyError }  from "../../../../shared/services/alertService";
 import "../../assets/css/viewLog.css";
 import Badge from "../../components/Badge/badge";
 
-import { getPortalFromPath } from "../../../../config/portalConfig";
+import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 
 const ViewLog = () => {
   /* ==========================================

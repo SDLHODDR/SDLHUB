@@ -1,5 +1,5 @@
-import EditButton from '../buttons/EditButton'
-import DeleteButton from '../buttons/DeleteButton'
+import EditButton from '../../../../shared/components/buttons/EditButton'
+import DeleteButton from '../../../../shared/components/buttons/DeleteButton'
 
 const JDDataTable = ({
   data = [],

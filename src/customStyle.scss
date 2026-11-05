@@ -1,9 +1,9 @@
 @use 'primereact/resources/primereact.css';
 @use 'primereact/resources/themes/lara-light-indigo/theme.css';
-@use './assets/scss/main.scss';
+@use './shared/assets/scss/main.scss';
 
-@use './assets/scss/utils/mixins';
-@use './assets/scss/utils/variables';
+@use './shared/assets/scss/utils/mixins';
+@use './shared/assets/scss/utils/variables';
 
 // Keep numeric entry consistent throughout the application.
 input[type='number'] {

@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import BreadcrumbNav from '../../../eportal/components/breadcrumb-nav/BreadcrumbNav'
-import SDLDataTable from '../../../../components/datatable/SDLDataTable'
-import SDLSearch from '../../../../components/datatable/SDLSearch'
-import SDLReactSelect from '../../../../components/SDLReactSelect'
-import SaveButton from '../../components/buttons/SaveButton'
-import CancelButton from '../../components/buttons/CancelButton'
+import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
+import SDLDataTable from '../../../../shared/components/datatable/SDLDataTable'
+import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
+import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
+import SaveButton from '../../../../shared/components/buttons/SaveButton'
+import CancelButton from '../../../../shared/components/buttons/CancelButton'
 import {
   confirmAction,
   notifyError,
   notifySuccess
-} from '../../../../services/alertService'
+} from '../../../../shared/services/alertService'
 import {
   getSeparationRequests,
   getSeparationRequest,
@@ -19,8 +19,8 @@ import {
   RESIGNATION_TYPES,
   RESIGNATION_MODES,
   SEPARATION_STATUSES
-} from '../maintainance/exitOptions'
-import '../../../eportal/assets/css/companyPolicies.css'
+} from './exitOptions'
+import '../../../../shared/assets/css/companyPolicies.css'
 import '../../assets/css/tenureChange.css'
 
 const EMPTY_FORM = {

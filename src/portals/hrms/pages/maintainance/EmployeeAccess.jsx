@@ -1,26 +1,26 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import SDLDataTable from '../../../../components/datatable/SDLDataTable'
-import SDLSearch from '../../../../components/datatable/SDLSearch'
-import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
+import SDLDataTable from '../../../../shared/components/datatable/SDLDataTable'
+import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
+import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
 import {
   notifySuccess,
   notifyError,
   notifyWarning,
   confirmAction
-} from '../../../../services/alertService'
+} from '../../../../shared/services/alertService'
 import {
   getEmployeeAccessEmployees,
   getEmployeeAccess,
   saveEmployeeAccess,
   disableEmployeeAccess
 } from '../../services/employeeAccessService'
-import { getPortalFromPath } from '../../../../config/portalConfig'
-// import "../../assets/css/employeeAccess.css";
-import SDLReactSelect from '../../../../components/SDLReactSelect'
-import SDLReactMultiSelect from '../../../../components/SDLReactMultiSelect'
-import SaveButton from '../../components/buttons/SaveButton'
-import CancelButton from '../../components/buttons/CancelButton'
+import { getPortalFromPath } from '../../../../shared/config/portalConfig'
+// import "../../../../../_archive/src/portals/hrms/assets/css/employeeAccess.css";
+import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
+import SDLReactMultiSelect from '../../../../shared/components/form/SDLReactMultiSelect'
+import SaveButton from '../../../../shared/components/buttons/SaveButton'
+import CancelButton from '../../../../shared/components/buttons/CancelButton'
 
 const EmployeeAccess = () => {
   /* ==========================================================

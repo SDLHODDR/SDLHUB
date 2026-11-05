@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getExitTaskDetails } from '../services/exitService'
-import { notifySuccess } from '../../../services/alertService'
+import { notifySuccess } from '../../../shared/services/alertService'
 
 /*
  * Loads an Exit task's details and runs its actions. `run` sends the request,

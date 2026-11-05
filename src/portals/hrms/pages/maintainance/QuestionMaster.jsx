@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
-import { getQuestionMasterDataResponse } from '../../../../store/hrms/hrmsQuestionMasterSlice'
-import SDLDataTable from '../../../../components/datatable/SDLDataTable'
-import SDLSearch from '../../../../components/datatable/SDLSearch'
-import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
-import { getPortalFromPath } from '../../../../config/portalConfig'
+import { getQuestionMasterDataResponse } from '../../store/hrmsQuestionMasterSlice'
+import SDLDataTable from '../../../../shared/components/datatable/SDLDataTable'
+import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
+import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
+import { getPortalFromPath } from '../../../../shared/config/portalConfig'
 import {
   getQuestionGroups,
   getAllQuestionSubGroups
@@ -13,17 +13,17 @@ import {
 import {
   normalizeRecords,
   getDisplayValue
-} from '../../../../utils/formatUtils'
+} from '../../../../shared/utils/commonUtils'
 import { questionMasterColumns } from '../../portalutils/questionMasterColumns'
 import {
   QUESTION_MAX_LENGTH,
   useQuestionMasterHandler
 } from '../../portalutils/useQuestionMasterHandler'
-// import "../../../eportal/assets/css/sdlFormUiEnhancements.css"
-import SDLReactSelect from '../../../../components/SDLReactSelect'
-import SaveButton from '../../components/buttons/SaveButton'
-import CancelButton from '../../components/buttons/CancelButton'
-import ViewToggleButton from '../../components/buttons/ViewToggleButton'
+// import "../../../../../_archive/src/portals/eportal/assets/css/sdlFormUiEnhancements.css"
+import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
+import SaveButton from '../../../../shared/components/buttons/SaveButton'
+import CancelButton from '../../../../shared/components/buttons/CancelButton'
+import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
 
 const ANSWER_TYPES = ['Text', 'Radio', 'Checkbox']
 

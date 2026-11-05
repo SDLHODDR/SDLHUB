@@ -8,9 +8,9 @@ import {
     //editGPDataAUTH,
 } from "../services/outdoorDutyService";
 
-import { notifyError, notifySuccess } from "../../../services/alertService";
-import SDLtextEditor  from "../../../components/editor/SDLtextEditor";
-import { stripHtmlToText } from "../utils/formatUtils";
+import { notifyError, notifySuccess } from "../../../shared/services/alertService";
+import SDLtextEditor  from "../../../shared/components/editor/SDLtextEditor";
+import { stripHtmlToText } from "../../../shared/utils/formatUtils";
 
 const OutdoorDutyModal = ({
     formSettings,

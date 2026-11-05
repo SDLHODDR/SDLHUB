@@ -1,5 +1,5 @@
 import { Column } from "primereact/column";
-import { formatDate } from "../../../utils/formatUtils";
+import { formatDate } from "../../../shared/utils/commonUtils";
 //import { Dropdown } from "primereact/dropdown";
 
 export const getReportingColumns = () => [

@@ -1,9 +1,9 @@
 // import { useState, useEffect, useRef } from "react";
 import { useState } from "react";
 import { authTBRData, rejectTBRData } from "../services/ticketbookingService";
-import { notifyError, notifySuccess } from "../../../services/alertService";
-import SDLFormField from "../../../components/SDLFormField"
-import SDLAuthorizationActionButtons from "../../../components/SDLAuthorizationActionButtons";
+import { notifyError, notifySuccess } from "../../../shared/services/alertService";
+import SDLFormField from "../../../shared/components/form/SDLFormField"
+import SDLAuthorizationActionButtons from "../../../shared/components/buttons/SDLAuthorizationActionButtons";
 
 const TicketBookingAuthorizationModal = ({
   ticketbooking,

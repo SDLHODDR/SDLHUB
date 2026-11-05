@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import moment from "moment";
 
-import SDLCalendar from "../../../components/calendar/SDLCalendar";
+import SDLCalendar from "../../../shared/components/calendar/SDLCalendar";
 
 import {
   getLRDataDetails,
@@ -16,7 +16,7 @@ import {
 import {
   notifyError,
   notifySuccess,
-} from "../../../services/alertService";
+} from "../../../shared/services/alertService";
 
 const LeavesModal = ({
   formSettings,

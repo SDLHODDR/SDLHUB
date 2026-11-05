@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { getAttendanceLog } from "../../../services/dashboardService";
-import Badge from "../../Badge";
+import Badge from "../../../../../shared/components/Badge";
 
 const formatDate = (date) =>
   date.toLocaleDateString("en-GB", {

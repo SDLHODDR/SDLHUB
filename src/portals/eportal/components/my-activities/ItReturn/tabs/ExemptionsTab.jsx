@@ -10,11 +10,11 @@ import {
   notifySuccess,
   notifyError,
   confirmAction
-} from '../../../../../../services/alertService'
+} from '../../../../../../shared/services/alertService'
 
-import SDLDataTable from '../../../../../../components/datatable/SDLDataTable'
-import SDLSearch from '../../../../../../components/datatable/SDLSearch'
-import SDLCalendar from '../../../../../../components/calendar/SDLCalendar'
+import SDLDataTable from '../../../../../../shared/components/datatable/SDLDataTable'
+import SDLSearch from '../../../../../../shared/components/datatable/SDLSearch'
+import SDLCalendar from '../../../../../../shared/components/calendar/SDLCalendar'
 import EportalPageLoader from '../../../loader/EportalPageLoader'
 
 import { ITR_MESSAGES } from '../../../../constants/itrMessages'

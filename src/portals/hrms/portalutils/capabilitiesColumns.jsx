@@ -1,6 +1,6 @@
-// import SDLActionButtons from "../../../components/SDLActionButtons";
-// import { getCapabilitiesActions } from "./capabilitiesActions";
-import EditButton from '../components/buttons/EditButton';
+// import SDLActionButtons from "../../../shared/components/buttons/SDLActionButtons";
+// import { getCapabilitiesActions } from "../../../../_archive/src/portals/hrms/portalutils/capabilitiesActions";
+import EditButton from '../../../shared/components/buttons/EditButton';
 
 export const capabilitiesColumns = ({ handleEdit }) => [
   {

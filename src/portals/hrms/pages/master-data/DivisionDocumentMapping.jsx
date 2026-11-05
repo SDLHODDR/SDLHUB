@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
 import Select from 'react-select'
-import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
+import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
 import {
   getDivisionDocumentMappingInitialData,
   getDivisionDocumentMappingDesignations,
   getDivisionDocumentMappingData,
   saveDivisionDocumentMapping
 } from '../../services/divisionDocumentMappingService'
-import { notifyError, notifySuccess } from '../../../../services/alertService'
-import { getPortalFromPath } from '../../../../config/portalConfig'
+import { notifyError, notifySuccess } from '../../../../shared/services/alertService'
+import { getPortalFromPath } from '../../../../shared/config/portalConfig'
 import '../../assets/css/divisionDocumentMapping.css'
-import SaveButton from '../../components/buttons/SaveButton'
-import CancelButton from '../../components/buttons/CancelButton'
+import SaveButton from '../../../../shared/components/buttons/SaveButton'
+import CancelButton from '../../../../shared/components/buttons/CancelButton'
 
 const DivisionDocumentMapping = () => {
   /* ==========================================================

@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { saveQuestion, deleteQuestion } from "../services/questionService";
-import { notifySuccess, notifyError, confirmAction } from "../../../services/alertService";
+import { notifySuccess, notifyError, confirmAction } from "../../../shared/services/alertService";
 import { buildOptionsFromRow } from "./questionOptionsUtils";
 
 const ANSWER_TYPES_WITH_OPTIONS = ["Radio", "Checkbox"];

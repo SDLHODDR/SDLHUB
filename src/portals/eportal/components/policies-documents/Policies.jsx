@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { getActivePolicies } from "../../services/policyService";
-import BreadcrumbNav from "../breadcrumb-nav/BreadcrumbNav";
-import { getPortalFromPath } from "../../../../config/portalConfig";
+import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
+import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/wideContentPages.css";
 import EportalPageLoader from "../loader/EportalPageLoader";
 

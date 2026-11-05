@@ -7,13 +7,13 @@ import {
   getEmployeeMasters
 } from '../../services/employeeDataService'
 import JDDataTable from '../../components/data-table/JDDataTable'
-import BreadcrumbNav from '../../components/breadcrumb-nav/BreadcrumbNav'
-import { getPortalFromPath } from '../../../../config/portalConfig'
-import SDLReactSelect from '../../../../components/SDLReactSelect'
+import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
+import { getPortalFromPath } from '../../../../shared/config/portalConfig'
+import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
-import SDLInput from '../../../../components/SDLInput'
-import SDLCalendar from '../../../../components/calendar/SDLCalendar'
-import { parseDateValue } from '../../../../utils/formatUtils'
+import SDLInput from '../../../../shared/components/form/SDLInput'
+import SDLCalendar from '../../../../shared/components/calendar/SDLCalendar'
+import { parseDateValue } from '../../../../shared/utils/commonUtils'
 
 const toDateInputValue = date => {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) return ''
