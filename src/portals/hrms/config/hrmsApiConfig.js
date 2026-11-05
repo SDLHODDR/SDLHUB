@@ -56,15 +56,15 @@ export const HRMS_API = {
   AUTHORIZATION: {
     TASKDATA: "/getAuthorization.php", // GP Info Data
     TASKTABLEDATA: "/getTable.php",
-    JOB_DESCRIPTION_AUTHORIZATION: "/authorization/authorizeJobDescription.php",
+    JOB_DESCRIPTION_AUTHORIZATION: "/authorization/masters/authorizeJobDescription.php",
 
-    GET_FAMILY_DETAILS: "/authorization/authorizeFamilyMember.php",
-    PROCESS_FAMILY_DECISION: "/authorization/authorizeFamilyMember.php",
+    GET_FAMILY_DETAILS: "/authorization/masters/authorizeFamilyMember.php",
+    PROCESS_FAMILY_DECISION: "/authorization/masters/authorizeFamilyMember.php",
 
-    AUTHORIZE_BANK_DETAILS: "/authorization/authorizeBankDetails.php",
+    AUTHORIZE_BANK_DETAILS: "/authorization/masters/authorizeBankDetails.php",
 
-    AUTHORIZE_PERSONAL_INFO: "/authorization/authorizePersonalInfo.php",
-    AUTHORIZE_ORGANOGRAM: "/authorization/authorizeOrganogram.php",
+    AUTHORIZE_PERSONAL_INFO: "/authorization/masters/authorizePersonalInfo.php",
+    AUTHORIZE_ORGANOGRAM: "/authorization/masters/authorizeOrganogram.php",
   },
 
   NOTIFICATIONS: {
@@ -127,18 +127,18 @@ export const HRMS_API = {
   },
 
   REPORTS: {
-    GET_TENURE_CHANGE_LIST: "/reports/getTenureChangeList.php",
-    GET_TENURE_CHANGE_LIST_BY_ID: "/reports/getTenureChangeEmp.php",
-    FETCH_EMP_CTC_HEADS: "/reports/fetchEmpCTCHeads.php",
-    SEND_TENURE_CHANGE: "/reports/tenureChange.php",
-    SAVE_TENURE_CHANGE_ASSESSMENT: "/reports/tenureChange.php",
-    GET_TENURE_CHANGE_DETAILS: "/reports/getTenureChangeDetails.php",
-    GENERATE_TENURE_LETTER_REFERENCE: "/reports/generateTenureLetterReference.php",
+    GET_TENURE_CHANGE_LIST: "/authorization/tenure/getTenureChangeList.php",
+    GET_TENURE_CHANGE_LIST_BY_ID: "/authorization/tenure/getTenureChangeEmp.php",
+    FETCH_EMP_CTC_HEADS: "/authorization/tenure/fetchEmpCTCHeads.php",
+    SEND_TENURE_CHANGE: "/authorization/tenure/tenureChange.php",
+    SAVE_TENURE_CHANGE_ASSESSMENT: "/authorization/tenure/tenureChange.php",
+    GET_TENURE_CHANGE_DETAILS: "/authorization/tenure/getTenureChangeDetails.php",
+    GENERATE_TENURE_LETTER_REFERENCE: "/authorization/tenure/generateTenureLetterReference.php",
 
-    GET_TENURE_LETTER_DETAILS: "/reports/getTenureLetterDetails.php",
-    CLOSE_TENURE_PRINT_TASK: "/reports/tenureChangeSave.php",
-    GET_TENURE_CTC_DETAILS: "/reports/tenureCtcChange.php",
-    SAVE_TENURE_CTC_CHANGE: "/reports/tenureCtcChange.php",
+    GET_TENURE_LETTER_DETAILS: "/authorization/tenure/getTenureLetterDetails.php",
+    CLOSE_TENURE_PRINT_TASK: "/authorization/tenure/tenureChangeSave.php",
+    GET_TENURE_CTC_DETAILS: "/authorization/tenure/tenureCtcChange.php",
+    SAVE_TENURE_CTC_CHANGE: "/authorization/tenure/tenureCtcChange.php",
   },
 
    LOGS:{
@@ -146,14 +146,14 @@ export const HRMS_API = {
   },
 
   EXIT: {
-    GET_SEPARATION_REQUESTS: "/exit/getSeparationRequests.php",
-    SAVE_SEPARATION_REQUEST: "/exit/saveSeparationRequest.php",
-    GET_TASK_DETAILS: "/exit/getExitTaskDetails.php",
-    SAVE_SEPARATION: "/exit/saveExitSeparation.php",
-    SAVE_INTERVIEW: "/exit/saveExitInterview.php",
-    SAVE_ACTIVITY: "/exit/saveExitActivity.php",
-    DEACTIVATE_EMPLOYEE: "/exit/deactivateExitEmployee.php",
-    GENERATE_LETTER_REFERENCE: "/exit/generateExitLetterReference.php",
-    CLOSE_LETTER_TASK: "/exit/closeExitLetterTask.php",
+    GET_SEPARATION_REQUESTS: "/separation/getSeparationRequests.php",
+    SAVE_SEPARATION_REQUEST: "/separation/saveSeparationRequest.php",
+    GET_TASK_DETAILS: "/authorization/exit/getExitTaskDetails.php",
+    SAVE_SEPARATION: "/authorization/exit/saveExitSeparation.php",
+    SAVE_INTERVIEW: "/authorization/exit/saveExitInterview.php",
+    SAVE_ACTIVITY: "/authorization/exit/saveExitActivity.php",
+    DEACTIVATE_EMPLOYEE: "/authorization/exit/deactivateExitEmployee.php",
+    GENERATE_LETTER_REFERENCE: "/authorization/exit/generateExitLetterReference.php",
+    CLOSE_LETTER_TASK: "/authorization/exit/closeExitLetterTask.php",
   },
 };

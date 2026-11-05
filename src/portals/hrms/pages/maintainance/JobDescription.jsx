@@ -1685,7 +1685,7 @@ const JobDescription = () => {
     return Array.from(assignmentsById.values())
   }
 
-  const validateForm = () => {
+  const collectValidationErrors = () => {
     const newErrors = {}
 
     if (!String(formData.SH_DESC || '').trim()) {
@@ -1743,9 +1743,9 @@ const JobDescription = () => {
     // Description
     const description = String(formData.DESCR || '')
 
-    if (description && !/^[A-Za-z0-9.'\-,()\s]{1,100}$/.test(description)) {
+    if (description && !/^[A-Za-z0-9.'\-,()\s]{1,250}$/.test(description)) {
       newErrors.DESCR =
-        "Description can contain only letters, numbers, spaces and . ' - , ( ) with maximum 100 characters"
+        "Description can contain only letters, numbers, spaces and . ' - , ( ) with maximum 250 characters"
     }
 
     const qualificationId = formData.EDUCATION?.QUA_ID
@@ -1763,11 +1763,11 @@ const JobDescription = () => {
         "Comments can contain only letters, numbers, spaces and . ' - , ( ) with maximum 50 characters"
     }
 
-      console.log('Validation errors generated:', newErrors)
-
     setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    return newErrors
   }
+
+  const validateForm = () => Object.keys(collectValidationErrors()).length === 0
 
   // const handleSave = async event => {
   //   event.preventDefault && event.preventDefault()
@@ -2495,7 +2495,20 @@ if (!isValid) {
       return
     }
 
-    if (!validateForm()) return
+    // Basic Details / Education are validated here even when another tab is
+    // open, so show the user which tab needs fixing instead of failing silently.
+    const validationErrors = collectValidationErrors()
+    const errorFields = Object.keys(validationErrors)
+    if (errorFields.length > 0) {
+      const errorTab = errorFields.every(field => field === 'EDUCATION_COMMENTS')
+        ? 'education'
+        : 'basic'
+      setActiveTab(errorTab)
+      notifyError(
+        `Please update the ${errorTab === 'education' ? 'Education' : 'Basic Details'} tab before sending for authorization: ${validationErrors[errorFields[0]]}`
+      )
+      return
+    }
 
     if (
       selectedQuestionIdsToMap.length > 0 &&

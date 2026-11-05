@@ -126,7 +126,7 @@ const JobDescriptionAuthorizationModal = ({ show, record, onClose, onSuccess }) 
       decision === 'A' ? 'Accept Job Description?' : 'Reject Job Description?',
       `Are you sure you want to ${decision === 'A' ? 'accept' : 'reject'} this Job Description?`
     )
-    if (!confirmed?.isConfirmed) return
+    if (!confirmed) return
 
     try {
       setSubmitting(true)
@@ -208,7 +208,7 @@ const JobDescriptionAuthorizationModal = ({ show, record, onClose, onSuccess }) 
           </> : <div className='text-center text-muted py-5'>Job Description details could not be loaded.</div>}
         </div>
         <div className='modal-footer'>
-          <button type='button' className='btn btn-success' onClick={() => handleDecision('A')} disabled={loading || !job || submitting}>{submitting ? 'Processing...' : 'Accept'}</button>
+          <button type='button' className='btn btn-success me-2' onClick={() => handleDecision('A')} disabled={loading || !job || submitting}>{submitting ? 'Processing...' : 'Accept'}</button>
           <button type='button' className='btn btn-danger' onClick={() => handleDecision('R')} disabled={loading || !job || submitting}>{submitting ? 'Processing...' : 'Reject'}</button>
         </div>
       </div>
