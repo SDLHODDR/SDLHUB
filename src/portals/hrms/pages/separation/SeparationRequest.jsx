@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
 import SDLDataTable from '../../../../shared/components/datatable/SDLDataTable'
 import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
 import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import SaveButton from '../../../../shared/components/buttons/SaveButton'
 import CancelButton from '../../../../shared/components/buttons/CancelButton'
+import EditButton from '../../../../shared/components/buttons/EditButton'
+import SDLCalendar from '../../../../shared/components/calendar/SDLCalendar'
+import { parseDateValue, toDateInputValue } from '../../../../shared/utils/commonUtils'
 import {
   confirmAction,
   notifyError,
@@ -186,40 +190,57 @@ const SeparationRequest = () => {
     {
       header: 'No',
       body: (_row, options) => options.rowIndex + 1,
-      style: { width: '60px' }
+      style: { width: '50px' }
     },
     {
       field: 'empName',
       header: 'Employee Name',
       sortable: true,
       body: row => `${row.empName} - ${row.empCode}`,
-      style: { minWidth: '220px' }
+      style: { width: '200px' }
     },
     {
       field: 'dojIso',
       header: 'DOJ',
       sortable: true,
-      body: row => row.doj,
-      style: { width: '120px', whiteSpace: 'nowrap' }
+      body: row => <span className='text-nowrap'>{row.doj}</span>,
+      style: { width: '110px' }
     },
     {
       field: 'divisionDepartmentDesignation',
       header: 'Division - Department - Designation',
-      style: { minWidth: '280px' }
+      // No fixed width: takes the remaining space; long values are cut with "..."
+      // and the full text shows on hover.
+      body: row => (
+        <OverlayTrigger
+          placement='top'
+          delay={{ show: 150, hide: 100 }}
+          container={document.body}
+          overlay={
+            <Tooltip id={`separation-dept-${row.id}`} className='custom-tooltip-nocss'>
+              {row.divisionDepartmentDesignation}
+            </Tooltip>
+          }
+        >
+          <span className='d-block text-truncate' style={{ cursor: 'default' }}>
+            {row.divisionDepartmentDesignation}
+          </span>
+        </OverlayTrigger>
+      )
     },
     {
       field: 'resignationDateIso',
       header: 'Resignation Date',
       sortable: true,
-      body: row => row.resignationDate,
-      style: { width: '130px', whiteSpace: 'nowrap' }
+      body: row => <span className='text-nowrap'>{row.resignationDate}</span>,
+      style: { width: '125px' }
     },
     {
       field: 'expectedRelievingDateIso',
-      header: 'Expected Relieving Date',
+      header: 'Exp. Relieving Date',
       sortable: true,
-      body: row => row.expectedRelievingDate,
-      style: { width: '150px', whiteSpace: 'nowrap' }
+      body: row => <span className='text-nowrap'>{row.expectedRelievingDate}</span>,
+      style: { width: '115px' }
     },
     {
       field: 'status',
@@ -236,19 +257,17 @@ const SeparationRequest = () => {
       style: { width: '150px' }
     },
     {
-      header: '',
+      header: 'Actions',
       body: row => (
-        <button
-          type='button'
-          className='btn btn-sm btn-link p-0'
-          onClick={() => openRequest(row.id)}
-          title={row.status === 'N' ? 'Edit' : 'View'}
-          aria-label={row.status === 'N' ? 'Edit request' : 'View request'}
-        >
-          <i className={row.status === 'N' ? 'ti ti-pencil' : 'ti ti-eye'} />
-        </button>
+        <div className='d-flex justify-content-center'>
+          <EditButton
+            onClick={() => openRequest(row.id)}
+            ariaLabel={row.status === 'N' ? 'Edit' : 'View'}
+            iconClassName={row.status === 'N' ? 'ti ti-edit' : 'ti ti-eye'}
+          />
+        </div>
       ),
-      style: { width: '60px', textAlign: 'center' }
+      style: { width: '80px', textAlign: 'center' }
     }
   ]
 
@@ -359,12 +378,12 @@ const SeparationRequest = () => {
                       <label className='form-label'>
                         Resignation Date <RequiredMark />
                       </label>
-                      <input
-                        type='date'
-                        className={`form-control tenure-change-select${errors.resignationDate ? ' is-invalid' : ''}`}
-                        value={form.resignationDate}
+                      <SDLCalendar
+                        value={parseDateValue(form.resignationDate)}
+                        allowAllDates
                         disabled={!isEditable}
-                        onChange={event => update('resignationDate', event.target.value)}
+                        inputClassName={errors.resignationDate ? 'is-invalid' : ''}
+                        onChange={date => update('resignationDate', toDateInputValue(date))}
                       />
                       {fieldError('resignationDate')}
                     </div>
@@ -372,13 +391,13 @@ const SeparationRequest = () => {
                       <label className='form-label'>
                         Expected Relieving Date <RequiredMark />
                       </label>
-                      <input
-                        type='date'
-                        className={`form-control tenure-change-select${errors.expectedRelievingDate ? ' is-invalid' : ''}`}
-                        value={form.expectedRelievingDate}
-                        min={form.resignationDate || undefined}
+                      <SDLCalendar
+                        value={parseDateValue(form.expectedRelievingDate)}
+                        minDate={parseDateValue(form.resignationDate) || undefined}
+                        allowAllDates
                         disabled={!isEditable}
-                        onChange={event => update('expectedRelievingDate', event.target.value)}
+                        inputClassName={errors.expectedRelievingDate ? 'is-invalid' : ''}
+                        onChange={date => update('expectedRelievingDate', toDateInputValue(date))}
                       />
                       {fieldError('expectedRelievingDate')}
                     </div>
@@ -444,10 +463,11 @@ const SeparationRequest = () => {
                 columns={columns}
                 loading={listLoading}
                 emptyMessage='No Separation Requests Found'
-                className='company-policies-grid'
+                className='company-policies-grid fit-width-grid'
                 removableSort
-                sortField='resignationDateIso'
+                sortField='enteredOnSort'
                 sortOrder={-1}
+                tableStyle={{ width: '100%' }}
               />
             </div>
           </div>

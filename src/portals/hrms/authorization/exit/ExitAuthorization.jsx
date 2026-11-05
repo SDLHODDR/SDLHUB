@@ -92,7 +92,8 @@ const ExitAuthorization = () => {
                   columns={columns}
                   loading={loading}
                   emptyMessage='No Pending Exit Requests Found'
-                  className='company-policies-grid'
+                  className='company-policies-grid fit-width-grid'
+                  tableStyle={{ width: '100%' }}
                   removableSort
                   sortField='CREATED_SORT'
                   sortOrder={-1}

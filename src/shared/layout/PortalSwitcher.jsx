@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   PORTALS,
   getPortalFromPath,
@@ -11,77 +11,62 @@ import {
 
 import { getHRMSConfigs } from "../../portals/hrms/services/orgonogramService";
 
+// Store the user's HRMS company / department / division scope (read by the
+// Organogram page). Runs whenever a tab enters HRMS, so a portal opened in a
+// new tab gets it too, not only one switched to by a click.
+const loadHRMSPortalConfigs = async () => {
+  try {
+    const res = await getHRMSConfigs();
+    if (res?.status) {
+      const { COMP_ID_STR, DEPT_ID_STR, DIVISION_ID_STR } = res.data;
+      localStorage.setItem("user-hrms-config", JSON.stringify({
+        COMP_ID: COMP_ID_STR,
+        DEPT_ID: DEPT_ID_STR,
+        DIVISION_ID: DIVISION_ID_STR,
+      }));
+    }
+  } catch (error) {
+    console.error("Load HRMS configs error:", error);
+    notifyError(error?.message || "Unable to load HRMS Configs.");
+  }
+};
+
+const isPlainLeftClick = (event) =>
+  event.button === 0 &&
+  !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey;
+
 const PortalSwitcher = () => {
 
-  const navigate = useNavigate();
   const location = useLocation();
-
   const activePortal = getPortalFromPath(location.pathname);
-  const [loadingHRMSCnf, setLoadingHRMSCnf] = useState(false);
 
-  const handleSwitch = (portalKey) => {
-
-    const portal = PORTALS[portalKey];
-
-    if (!portal) {
-      return;
-    }
-
-    if (portal.key === activePortal.key) {
-      return;
-    }
-
-    if(portal.key == "hrms"){
-      console.log("portalKey", portal.key);
-      console.log("activePortalKey", activePortal.key);
-
-      const loadHRMSPortalConfigs = async () => {
-        try {
-          setLoadingHRMSCnf(true);
-
-          const res = await getHRMSConfigs();
-          if (res?.status) {
-            const { COMP_ID_STR, DEPT_ID_STR, DIVISION_ID_STR } = res.data;
-
-            const stringifyObj = JSON.stringify({
-              COMP_ID: COMP_ID_STR,
-              DEPT_ID: DEPT_ID_STR,
-              DIVISION_ID: DIVISION_ID_STR,
-            });
-
-            console.log("=======RES==========", stringifyObj);
-
-            // Store auth data
-            localStorage.setItem("user-hrms-config", stringifyObj);
-          }
-        } catch (error) {
-          console.error("Load HRMS configs error:", error);
-          notifyError(error?.message || "Unable to load HRMS Configs.");
-        } finally {
-          setLoadingHRMSCnf(false);
-        }
-      };
-
+  useEffect(() => {
+    if (activePortal.key === "hrms") {
       loadHRMSPortalConfigs();
     }
-    
-    navigate(portal.path);
-  };
+  }, [activePortal.key]);
 
   return (
     <div className="portal-switcher">
 
       {Object.values(PORTALS).map((portal) => (
 
-        <button
+        // A real link, so Ctrl/Cmd-click, middle-click and right-click
+        // "Open in new tab" work.
+        <Link
           key={portal.key}
-          type="button"
+          to={portal.path}
           className={`portal-item ${
             activePortal.key === portal.key
               ? "active"
               : ""
           }`}
-          onClick={() => handleSwitch(portal.key)}
+          onClick={(event) => {
+            // A plain click on the portal already open does nothing (as before).
+            if (portal.key === activePortal.key && isPlainLeftClick(event)) {
+              event.preventDefault();
+            }
+          }}
         >
 
           <i
@@ -98,7 +83,7 @@ const PortalSwitcher = () => {
 
           <span>{portal.label}</span>
 
-        </button>
+        </Link>
 
       ))}
 

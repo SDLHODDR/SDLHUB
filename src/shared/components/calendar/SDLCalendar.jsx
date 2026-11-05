@@ -13,7 +13,7 @@ const SDLCalendar = ({
   /* =========================================================
      CONTROLLED USAGE
   ========================================================= */
-  value = null,
+  value,
   onChange,
 
   /* =========================================================
@@ -55,8 +55,11 @@ const SDLCalendar = ({
   /* =========================================================
      CONTROLLED / UNCONTROLLED
   ========================================================= */
-  const isControlled = value !== null;
-  const selectedDate = isControlled ? value : internalDate;
+  // A picker driven by its parent (value/onChange) must show exactly the parent's
+  // value, including an empty one after a form reset. Only the inline calendars,
+  // which pass neither, keep their own selected date.
+  const isControlled = value !== undefined || typeof onChange === "function";
+  const selectedDate = isControlled ? value ?? null : internalDate;
 
   /* =========================================================
      LOAD CALENDAR DATA

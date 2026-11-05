@@ -5,35 +5,35 @@ export const getExitAuthorizationColumns = (formatDashDate, tid = 0, exitTaskIds
       header: "Date",
       sortable: true,
       body: (rowData) => formatDashDate(rowData.CREATED_ON),
-      style: { width: "130px", whiteSpace: "nowrap" },
+      style: { width: "115px", whiteSpace: "nowrap" },
     },
     {
       field: "CREATED_BY_NAME",
       header: "Created By",
       sortable: true,
       body: (rowData) => rowData.CREATED_BY_NAME || "—",
-      style: { width: "200px", whiteSpace: "nowrap" },
+      style: { width: "150px" },
     },
     {
       field: "CNAME",
       header: "Company",
       sortable: true,
       body: (rowData) => rowData.CNAME || "—",
-      style: { width: "100px", whiteSpace: "nowrap" },
+      style: { width: "105px", whiteSpace: "nowrap" },
     },
     {
       field: "DIVSN",
       header: "Division",
       sortable: true,
       body: (rowData) => rowData.DIVSN || "—",
-      style: { width: "120px", whiteSpace: "nowrap" },
+      style: { width: "100px" },
     },
     {
       field: "DNAME",
       header: "Department",
       sortable: true,
       body: (rowData) => rowData.DNAME || "—",
-      style: { width: "200px", whiteSpace: "nowrap" },
+      style: { width: "130px" },
     },
     ...((exitTaskIds || []).includes(String(tid))
       ? [
@@ -43,7 +43,7 @@ export const getExitAuthorizationColumns = (formatDashDate, tid = 0, exitTaskIds
               [rowData.EXIT_DEPT, rowData.EXIT_DESIG, rowData.EXIT_LOC]
                 .filter(Boolean)
                 .join(" - ") || "—",
-            style: { minWidth: "260px" },
+            style: { width: "260px" },
           },
         ]
       : []),
@@ -78,7 +78,7 @@ export const getExitAuthorizationColumns = (formatDashDate, tid = 0, exitTaskIds
           {rowData.TRAN_DESC || "—"}
         </div>
       ),
-      style: { minWidth: "320px" },
+      // No fixed width: takes the remaining space and wraps.
     },
   ];
 };

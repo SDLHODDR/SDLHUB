@@ -38,7 +38,7 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
     if (!form.authorizeComments.trim()) next.authorizeComments = 'Comments are required.'
     if (action === 'authorize') {
       if (!form.handoverTo) next.handoverTo = 'Handover employee is required.'
-      if (!form.actualRelieveDate) next.actualRelieveDate = 'Actual relieve date is required.'
+      if (!form.actualRelieveDate) next.actualRelieveDate = 'Approved relieve date is required.'
     }
     if (action === 'deactivate') {
       if (!form.resignType) next.resignType = 'Resignation type is required.'
@@ -258,7 +258,7 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
         </div>
         <div className='col-lg-3 col-md-6'>
           <label className='form-label'>
-            Actual Relieve Date <RequiredMark />
+            Approved Relieve Date <RequiredMark />
           </label>
           {isDeactivate ? (
             <input

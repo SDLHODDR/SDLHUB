@@ -47,3 +47,9 @@
 .bg-light123 {
   color: black;
 }
+/* Portal items are links (so they can open in a new tab). */
+a.portal-item,
+a.portal-item:hover,
+a.portal-item:focus {
+  text-decoration: none;
+}

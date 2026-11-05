@@ -246,3 +246,29 @@
         min-width: 650px;
     }
 }
+
+/* ==========================================
+   FIT-WIDTH VARIANT
+   Add "fit-width-grid" next to "company-policies-grid" to keep the table
+   inside the card (no horizontal scrollbar). Column widths come from each
+   column's style; a column without a width takes the remaining space.
+========================================== */
+
+.company-policies-grid.fit-width-grid .p-datatable-table {
+    table-layout: fixed;
+    width: 100%;
+    min-width: 0;
+}
+
+.company-policies-grid.fit-width-grid .p-datatable-thead > tr > th {
+    white-space: normal;
+}
+
+.company-policies-grid.fit-width-grid .p-datatable-tbody td:nth-child(2) {
+    min-width: 0;
+}
+
+.company-policies-grid.fit-width-grid .p-datatable-tbody > tr > td {
+    overflow: hidden;
+    overflow-wrap: anywhere;
+}
