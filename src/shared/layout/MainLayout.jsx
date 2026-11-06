@@ -7,7 +7,6 @@ import Footer from "./Footer";
 import EportalMenu from "../../portals/eportal/components/horizontal-menu/HorizontalMenu";
 import HrmsMenu from "../../portals/hrms/components/horizontal-menu/HorizontalMenu";
 
-import { cancelAllRequests } from "../services/requestManager";
 import { getPortalFromPath } from "../config/portalConfig";
 
 const MainLayout = () => {
@@ -17,16 +16,6 @@ const MainLayout = () => {
 
   const isPolicyPage =
     location.pathname === "/policy-acceptance";
-
-  /*
-  |--------------------------------------------------------------------------
-  | CANCEL PENDING REQUESTS ON ROUTE CHANGE
-  |--------------------------------------------------------------------------
-  */
-
-  useEffect(() => {
-    cancelAllRequests();
-  }, [location.pathname]);
 
   /*
   |--------------------------------------------------------------------------

@@ -3,6 +3,7 @@ export const PORTALAPI = {
     LOGIN: "/auth.php",
     LOGOUT: "/logout.php",
     SESSION_CHECK: "/session_check.php",
+    SESSION_KEEPALIVE: "/session_keepalive.php",
     FORGOT_PASSWORD: "/forgot_password.php",
     RESET_PASSWORD: "/reset_password.php",
     VERIFY_OTP: "/verify_otp.php",

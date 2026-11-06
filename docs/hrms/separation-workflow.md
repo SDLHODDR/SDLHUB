@@ -78,7 +78,7 @@ Task 19 has one extra rule (`HRMS_DEPARTMENT_TASK_IDS` in `config/hrmsAccess.php
 | `HR_EMP_SEPARATION.RETENTION_FLAG` | `Y` | Employee retained; flow ends after the Exit Interview |
 | | `N` | Not retained; Exit Activity and Deactivate tasks are created |
 | `HR_EMP_DEPT_ACTIVITY.STATUS` | `Y` | Yes, activity done |
-| | `N` | No, still pending (blocks Submit) |
+| | `N` | No (does not block Submit) |
 | | `X` | Not Applicable |
 | `HR_USER_TASKS.STATUS` | `O` | Open |
 | | `C` | Closed |
@@ -181,7 +181,7 @@ Each clearing department gets its own task. The modal lists that department's ex
 **Buttons:**
 
 - **Save:** stores the values and keeps the task open.
-- **Submit:** enabled only after a save. Refused while any activity is `N`.
+- **Submit:** enabled only after a save. Allowed whatever the answers are (`Y`, `N` or `X`).
 
 **Writes:**
 
@@ -190,7 +190,7 @@ Each clearing department gets its own task. The modal lists that department's ex
 | `HR_EMP_DEPT_ACTIVITY` | DELETE then INSERT one row per activity | Save and Submit | `REF_ID` = separation ID, `EMP_CODE`, `DEPT_ACT_ID`, `DEPT_ID`, `DISP_SEQ`, `ACT_TYPE = 'E'`, `ACT_DESC`, `STATUS`, `REMARKS`, `ASON_DATE`, `CHG_BY`, `CHG_ON` |
 | `HR_USER_TASKS` | UPDATE task 19 | Submit | `STATUS = 'C'` |
 
-The Deactivate Employee modal shows each department's clearance as **Open** (task 19 still `O`) or **Closed**, with who closed it (`HR_USER_TASKS.AUTH_BY`).
+The Deactivate Employee modal shows each department's clearance as **Open** (task 19 still `O`) or **Closed**, with who closed it (`HR_USER_TASKS.AUTH_BY`). **Closed** means the department submitted. If it submitted any activity as `N`, the status reads **Closed (n No)** in red, with those activities listed under it.
 
 ## 6. Step 4: Deactivate Employee (task 23)
 

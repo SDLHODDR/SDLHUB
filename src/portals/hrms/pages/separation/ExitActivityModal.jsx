@@ -50,9 +50,6 @@ const ActivityForm = ({ details, task, shellProps }) => {
     return Object.keys(next).length === 0
   }
 
-  // No activity may be left as 'No' to submit (legacy exit_act.php).
-  const hasPending = activities.some(activity => rows[activity.id]?.status === 'N')
-
   const payload = action => ({
     user_task_id: record.ID,
     action,
@@ -102,14 +99,8 @@ const ActivityForm = ({ details, task, shellProps }) => {
               type='button'
               className='btn btn-success me-2'
               onClick={handleSubmit}
-              disabled={busy || !saved || hasPending}
-              title={
-                hasPending
-                  ? 'All activities must be Yes or Not Applicable to submit.'
-                  : !saved
-                    ? 'Save the activities before submitting.'
-                    : undefined
-              }
+              disabled={busy || !saved}
+              title={!saved ? 'Save the activities before submitting.' : undefined}
             >
               {busyAction === 'submit' ? 'Processing...' : 'Submit'}
             </button>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import AuthContext from "./AuthContext";
+import SessionTimeoutGuard from "./SessionTimeoutGuard";
 import {
   checkSession,
   normalizeUser,
@@ -63,11 +64,19 @@ const AuthProvider = ({ children }) => {
   };
   
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="d-flex align-items-center justify-content-center vh-100">
+        <div className="text-center">
+          <div className="spinner-border text-primary mb-3" role="status" />
+          <div className="fw-semibold">Loading...</div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <AuthContext.Provider value={{ user, setUser, logout, loading }}>
+      {user && <SessionTimeoutGuard />}
       {children}
     </AuthContext.Provider>
   );

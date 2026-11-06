@@ -1,5 +1,4 @@
-import { useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
 //import JoiningAuthorizationModal from "../../../../../_archive/src/portals/hrms/modal/JoiningAuthorizationModal";
 import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable";
@@ -12,15 +11,35 @@ import { getJoiningAuthorizationColumns } from "./JoiningAuthorizationColumns";
 // Map TASK_ID -> page title / API endpoint / column config
 const JOINING_TASK_CONFIG = {
   13: { title: "Employee Document Upload", endpoint: "/joining/doc-upload" },
+  34: { title: "Tenure Details" },
+  35: { title: "Basic Details" },
+  36: { title: "Bank Details" },
+  37: { title: "CTC Details", endpoint: "/joining/ctc-details" },
+  38: { title: "Qualification Details" },
+  39: { title: "Experience Details" },
+  41: { title: "Family Details" },
+  42: { title: "Application Access" },
+  43: { title: "KRA Details" },
   44: { title: "Print Appointment Letter", endpoint: "/joining/appointment-letter" },
   45: { title: "Employee Code Generation - Request", endpoint: "/joining/code-generation" },
-  37: { title: "CTC Details", endpoint: "/joining/ctc-details" },
   4:  { title: "Joining Activity", endpoint: "/joining/activity" },
 };
 
+// These open the employee on the Employee Information page: 45 to authorize,
+// the others on their own tab with Save and Submit.
+const TASKS_OPENING_EMPLOYEE_PAGE = ["34", "35", "36", "37", "38", "39", "41", "42", "43", "45"];
+
 const JoiningAuthorization = () => {
     const { tid } = useParams();
+    const navigate = useNavigate();
     const config = JOINING_TASK_CONFIG[tid];
+
+    const handleRowClick = (record) => {
+        if (!TASKS_OPENING_EMPLOYEE_PAGE.includes(String(tid)) || !record?.TRAN_CODE) return;
+        navigate(
+            `/hrms/masterdata/employee?emp_code=${encodeURIComponent(record.TRAN_CODE)}&user_task_id=${encodeURIComponent(record.ID)}`
+        );
+    };
 
     const {
         loading,
@@ -28,7 +47,6 @@ const JoiningAuthorization = () => {
         setSearchQuery,
         filteredData,
         //showModal,
-        openModal,
         //closeModal,
         //handleModalSuccess,
     } = useJoiningAuthorizationHandler(tid, config);
@@ -85,7 +103,7 @@ const JoiningAuthorization = () => {
                         emptyMessage="No Tasks found"
                         className="company-policies-grid"
                         removableSort
-                        onRowClick={(e) => openModal(e.data)}
+                        onRowClick={(e) => handleRowClick(e.data)}
                     />
                 </div>
                 </div>

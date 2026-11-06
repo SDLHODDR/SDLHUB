@@ -303,18 +303,27 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
               </tr>
             </thead>
             <tbody>
-              {clearances.map((item, index) => (
-                <tr key={`${item.department}-${index}`}>
-                  <td>{index + 1}</td>
-                  <td>{item.department || '-'}</td>
-                  <td>
-                    <span className={`badge ${item.status === 'Open' ? 'bg-warning text-dark' : 'bg-success'}`}>
-                      {item.status}
-                    </span>
-                  </td>
-                  <td>{item.doneBy || '-'}</td>
-                </tr>
-              ))}
+              {clearances.map((item, index) => {
+                const noActivities = item.noActivities || []
+                return (
+                  <tr key={`${item.department}-${index}`}>
+                    <td>{index + 1}</td>
+                    <td>{item.department || '-'}</td>
+                    <td>
+                      <span className={`badge ${item.status === 'Open' ? 'bg-warning text-dark' : noActivities.length > 0 ? 'bg-danger' : 'bg-success'}`}>
+                        {item.status}
+                        {noActivities.length > 0 && ` (${noActivities.length} No)`}
+                      </span>
+                      {noActivities.length > 0 && (
+                        <small className='d-block mt-1'>
+                          {noActivities.join(', ')}
+                        </small>
+                      )}
+                    </td>
+                    <td>{item.doneBy || '-'}</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>

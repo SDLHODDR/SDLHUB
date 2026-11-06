@@ -120,6 +120,20 @@ export const HRMS_API = {
     DELETE_ALLOWANCE: "/masterdata/orgonogram/deleteOrgAllowance.php",
   },
 
+  JOINING: {
+    GET_NEW_EMPLOYEE: "/joining/getNewEmployee.php",
+    GET_OFFICE_OPTIONS: "/joining/getNewEmployeeOfficeOptions.php",
+    SAVE_NEW_EMPLOYEE: "/joining/saveNewEmployee.php",
+    SAVE_OFFICE: "/joining/saveNewEmployeeOffice.php",
+    SEND_FOR_AUTH: "/joining/sendNewEmployeeForAuth.php",
+    AUTHORIZE: "/authorization/joining/authorizeNewEmployee.php",
+    GET_DETAILS: "/joining/getJoiningDetails.php",
+    GET_CTC_BREAKUP: "/joining/getJoiningCtcBreakup.php",
+    SAVE_DETAIL: "/joining/saveJoiningDetail.php",
+    DELETE_DETAIL: "/joining/deleteJoiningDetail.php",
+    SUBMIT_TASK: "/joining/submitJoiningTask.php",
+  },
+
   EMPLOYEE: {
     GET_EMPLOYEES: "/maintainance/employeedata/getEmployees.php",
     GET_EMPLOYEE_BY_ID: "/maintainance/employeedata/getEmployeeById.php",

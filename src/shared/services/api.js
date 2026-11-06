@@ -1,5 +1,10 @@
 import axios from "axios";
-import { createController, removeController } from "./requestManager";
+import {
+  cancelAllRequests,
+  createController,
+  hasCancelledAllRequests,
+  removeController,
+} from "./requestManager";
 
 /* ============================
    BASE CONFIG
@@ -76,6 +81,7 @@ export const telegramPSRAPI = axios.create({
 const isAuthCall = (url = "") => {
   return (
     url.includes("session_check") ||
+    url.includes("session_keepalive") ||
     url.includes("login") ||
     url.includes("logout")
   );
@@ -84,6 +90,70 @@ const isAuthCall = (url = "") => {
 const isGetRequest = (method = "") => {
   return method.toLowerCase() === "get";
 };
+
+/* ============================
+   SESSION EXPIRY
+============================ */
+
+const PUBLIC_PATHS = ["/login", "/forgot-password"];
+
+// A wrong password also returns 401, and logout redirects by itself.
+const isLoginOrLogoutCall = (url = "") =>
+  url.includes("auth.php") || url.includes("logout.php");
+
+let redirectingToLogin = false;
+
+// Returns false on a public page, where there is no session to lose.
+export const redirectToLogin = () => {
+  if (PUBLIC_PATHS.includes(window.location.pathname)) {
+    return false;
+  }
+
+  if (!redirectingToLogin) {
+    redirectingToLogin = true;
+    cancelAllRequests();
+    localStorage.clear();
+    window.location.replace("/login?session=expired");
+  }
+
+  return true;
+};
+
+// The page is being replaced: never settle, so the caller shows no error
+// message or alert in the moment before the login screen loads.
+const pendingUntilRedirect = () => new Promise(() => {});
+
+const isSessionExpiredError = (error) =>
+  error?.response?.status === 401 &&
+  !isLoginOrLogoutCall(error?.config?.url) &&
+  redirectToLogin();
+
+let sessionCheckInFlight = null;
+
+// Not every endpoint answers 401 without a session: some return 200 with
+// "Not logged in", others fail with a different error. So when any request
+// fails, ask the backend before showing that failure to the user. If the backend
+// can't be reached, the session is unknown and the original error stands.
+const redirectIfSessionEnded = async (url = "") => {
+  if (isAuthCall(url) || isLoginOrLogoutCall(url)) {
+    return false;
+  }
+
+  if (!sessionCheckInFlight) {
+    sessionCheckInFlight = coreAPI
+      .get("/session_check.php")
+      .then((response) => response?.data?.logged_in === false)
+      .catch(() => false)
+      .finally(() => {
+        sessionCheckInFlight = null;
+      });
+  }
+
+  return (await sessionCheckInFlight) && redirectToLogin();
+};
+
+const isFailedResponse = (data) =>
+  data?.status === false || data?.success === false;
 
 /* ============================
    INTERCEPTOR
@@ -146,13 +216,20 @@ const attachInterceptor = (instance) => {
 
   instance.interceptors.response.use(
 
-    (response) => {
+    async (response) => {
 
       // Cleanup controller
       if (response?.config?._controller) {
         removeController(
           response.config._controller
         );
+      }
+
+      if (
+        isFailedResponse(response?.data) &&
+        (await redirectIfSessionEnded(response?.config?.url))
+      ) {
+        return pendingUntilRedirect();
       }
 
       return response;
@@ -177,7 +254,17 @@ const attachInterceptor = (instance) => {
         error?.name === "CanceledError" ||
         error?.code === "ERR_CANCELED"
       ) {
+        // Logout or session expiry: the page is going away, so don't let the
+        // caller show a "Request was cancelled" message first.
+        if (hasCancelledAllRequests()) {
+          return pendingUntilRedirect();
+        }
+
         return Promise.reject(error);
+      }
+
+      if (isSessionExpiredError(error)) {
+        return pendingUntilRedirect();
       }
 
       const requestConfig = error?.config;
@@ -197,6 +284,12 @@ const attachInterceptor = (instance) => {
           const sessionResponse = await coreAPI.get("/session_check.php");
           const currentToken = sessionResponse?.data?.csrf_token;
 
+          // CSRF validation runs first on a POST, so an expired session reaches
+          // here as "Invalid CSRF token" rather than as a 401.
+          if (sessionResponse?.data?.logged_in === false && redirectToLogin()) {
+            return pendingUntilRedirect();
+          }
+
           if (currentToken) {
             localStorage.setItem("csrf_token", currentToken);
             requestConfig.headers = requestConfig.headers || {};
@@ -206,6 +299,10 @@ const attachInterceptor = (instance) => {
         } catch {
           // Keep the original CSRF error if the session cannot be refreshed.
         }
+      }
+
+      if (await redirectIfSessionEnded(requestConfig?.url)) {
+        return pendingUntilRedirect();
       }
 
       return Promise.reject(error);
@@ -223,3 +320,15 @@ attachInterceptor(eportalAPI);
 attachInterceptor(hrmsAPI);
 attachInterceptor(eppAPI);
 attachInterceptor(telegramPSRAPI);
+
+// The letter previews call plain axios, not one of the instances above.
+axios.interceptors.response.use(undefined, async (error) => {
+  if (
+    isSessionExpiredError(error) ||
+    (await redirectIfSessionEnded(error?.config?.url))
+  ) {
+    return pendingUntilRedirect();
+  }
+
+  return Promise.reject(error);
+});

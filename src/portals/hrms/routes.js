@@ -26,6 +26,7 @@ import MastersAuthorization from "./authorization/masters/MastersAuthorization";
 import TenureChangeAuthorization from "./authorization/tenure/TenureChangeAuthorization";
 import ViewLogs from "./pages/reports/ViewLog";
 import SeparationRequest from "./pages/separation/SeparationRequest";
+import NewEmployee from "./pages/joining/NewEmployee";
 //import TenureChange from "../portals/hrms/pages/reports/TenureChange";
 // // import DepartmentTable from "../portals/hrms/components/DepartmentTable";
 // // import Department from "../portals/hrms/components/Department";
@@ -44,6 +45,8 @@ export const hrmsRoutes = [
   { path: "hrms/maintainance/department", element: Department },
   { path: "hrms/maintainance/department-designation", element: DepartmentDesignationMap },
   { path: "hrms/masterdata/jobdescription", element: JobDescription },
+  // New Employee (Manual): HR_MENU_SUB PROG_URL "masterdata/employee"
+  { path: "hrms/masterdata/employee", element: NewEmployee },
   { path: "hrms/maintainance/capabilities", element: Capabilities },
   { path: "hrms/maintainance/department-activity", element: DepartmentActivity },
   { path: "hrms/maintainance/policylist", element: PolicyList },

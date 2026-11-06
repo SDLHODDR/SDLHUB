@@ -26,6 +26,10 @@ export const logoutAPI = () =>
 
 let sessionPromise = null;
 
+// A backend that accepts the request but never answers would otherwise leave the
+// app on its loader. Past this, it continues as logged out and shows the login page.
+const SESSION_CHECK_TIMEOUT_MS = 15000;
+
 export const checkSession = () => {
   if (sessionPromise) {
     return sessionPromise;
@@ -34,6 +38,7 @@ export const checkSession = () => {
   sessionPromise = request({
     url: PORTALAPI.AUTH.SESSION_CHECK,
     method: "GET",
+    timeout: SESSION_CHECK_TIMEOUT_MS,
   })
     .catch((err) => {
       // Ignore cancelled requests
@@ -54,6 +59,15 @@ export const checkSession = () => {
 
   return sessionPromise;
 };
+
+/* ============================
+   SESSION KEEPALIVE
+============================ */
+export const keepSessionAlive = () =>
+  request({
+    url: PORTALAPI.AUTH.SESSION_KEEPALIVE,
+    method: "GET",
+  });
 
 /* ============================
    FORGOT PASSWORD

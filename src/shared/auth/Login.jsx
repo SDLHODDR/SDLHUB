@@ -4,13 +4,18 @@ import { login, normalizeUser } from "../services/authService";
 import AuthContext from "./AuthContext";
 import { LOGOS, IMAGES } from "../assets/assets";
 import { getPendingPolicies } from "../services/policyEndorsement";
+import { API_MESSAGES } from "../services/apiMessages";
 
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loginCode, setLoginCode] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(() =>
+    new URLSearchParams(window.location.search).get("session") === "expired"
+      ? API_MESSAGES.UNAUTHORIZED
+      : "",
+  );
   const [loading, setLoading] = useState(false);
   const { setUser } = useContext(AuthContext);
 
