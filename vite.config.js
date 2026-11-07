@@ -6,9 +6,18 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost/projects/sdlhub-backend",
+        target: "http://localhost/sdlhub-backend",
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, "/api"),
       },
+
+      // Proxy for viewing documents
+      "/view_document.php": {
+        target: "http://localhost/sdlhub-backend/api/common/view_document.php",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/view_document\.php/, ""),
+      },
+      
     },
   },
 });
