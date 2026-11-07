@@ -112,8 +112,11 @@ const EmployeeAccess = () => {
           ? data.assignedProfiles
           : []
 
+        // Only active access is hidden, so a disabled profile can be enabled again.
         const assignedProfileIds = new Set(
-          assignedProfiles.map(profile => String(profile.profileId))
+          assignedProfiles
+            .filter(profile => profile.active)
+            .map(profile => String(profile.profileId))
         )
 
         const availableProfileOptions = Array.isArray(data.availableProfiles)
@@ -404,7 +407,8 @@ const EmployeeAccess = () => {
         }
       }
     ],
-    [disablingId]
+    // handleDisable reloads the selected employee, so it must see the current one.
+    [disablingId, selectedEmployee]
   )
 
   /* ==========================================================

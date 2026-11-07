@@ -183,6 +183,8 @@ const TenureChangeAssessmentModal = ({
         if (!active) return;
         setEmployee(normalizedEmployee);
         setAssessmentMeta(meta);
+        // Already saved in full: Submit is available without saving again.
+        setSaveSucceeded(meta.can_submit === true);
         setQuestions(normalizedQuestions);
         setRatingOptions(firstOptions);
         setTypeOptions(empTypes);
@@ -386,13 +388,12 @@ const TenureChangeAssessmentModal = ({
     )
       return;
     setSubmitting(true);
-    setActionMessage("");
 
     try {
       const response = await submitTenureChangeAssessment(postData);
       if (response?.status === true || response?.success === true) {
                 dispatch(getHRMSAuthroizationTaskCount());
-        setActionMessage(response?.message || "Assessment submitted.");
+        notifySuccess(response?.message || "Assessment submitted.");
         onSuccess?.();
         onClose();
       } else {
