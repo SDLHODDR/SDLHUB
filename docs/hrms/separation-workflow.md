@@ -97,7 +97,7 @@ Task 19 has one extra rule (`HRMS_DEPARTMENT_TASK_IDS` in `config/hrmsAccess.php
 
 **Who raises it:** an HR user, from **Separation → Separation Request** (`/hrms/separation`).
 
-**Employee list.** The dropdown shows only active employees (`HR_EMPLOYEE_INFO.STATUS = 'A'`) whose current office record falls in the user's profile scope. Anyone who already has a separation that is not Rejected (status `N`, `T`, `A` or `C`) is hidden. A Rejected request does not block a new one.
+**Employee list.** The dropdown shows only active employees (`HR_EMPLOYEE_INFO.STATUS = 'A'`) whose current office record falls in the user's profile scope. Anyone who already has a separation that is not Rejected (status `N`, `T`, `A` or `C`) is hidden. A Rejected request does not block a new one. An exit completed before the employee's current office began does not block one either, as that means they have been rehired since.
 
 **Validations:**
 

@@ -50,7 +50,7 @@ export const HRMS_API = {
   },
 
   DASHBOARD: {
-    GET: "/dashboard.php",
+    GET: "/dashboard/getDashboard.php",
   },
 
   AUTHORIZATION: {
@@ -132,6 +132,10 @@ export const HRMS_API = {
     SAVE_DETAIL: "/joining/saveJoiningDetail.php",
     DELETE_DETAIL: "/joining/deleteJoiningDetail.php",
     SUBMIT_TASK: "/joining/submitJoiningTask.php",
+    GET_NEW_JOINEES: "/joining/getNewJoinees.php",
+    SAVE_NEW_JOINEE: "/joining/saveNewJoinee.php",
+    GET_REHIRE_EMPLOYEE: "/joining/getRehireEmployee.php",
+    SAVE_REHIRE_EMPLOYEE: "/joining/saveRehireEmployee.php",
   },
 
   EMPLOYEE: {

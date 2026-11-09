@@ -32,6 +32,8 @@ import CandidateList from "./pages/recruitment/CandidateList";
 import CandidateApplicationForm from "./pages/recruitment/CandidateApplicationForm";
 import RecruitmentRequest from "./pages/recruitment/RecruitmentRequest";
 import PendingRecruitment from "./pages/recruitment/PendingRecruitment";
+import NewJoinee from "./pages/joining/NewJoinee";
+import RehireEmployee from "./pages/joining/RehireEmployee";
 //import TenureChange from "../portals/hrms/pages/reports/TenureChange";
 // // import DepartmentTable from "../portals/hrms/components/DepartmentTable";
 // // import Department from "../portals/hrms/components/Department";
@@ -52,6 +54,9 @@ export const hrmsRoutes = [
   { path: "hrms/masterdata/jobdescription", element: JobDescription },
   // New Employee (Manual): HR_MENU_SUB PROG_URL "masterdata/employee"
   { path: "hrms/masterdata/employee", element: NewEmployee },
+  // HR_MENU_SUB PROG_URL "joining/new_joinee" and "joining/rehire_employee"
+  { path: "hrms/joining/new-joinee", element: NewJoinee },
+  { path: "hrms/joining/rehire-employee", element: RehireEmployee },
   { path: "hrms/maintainance/capabilities", element: Capabilities },
   { path: "hrms/maintainance/department-activity", element: DepartmentActivity },
   { path: "hrms/maintainance/policylist", element: PolicyList },

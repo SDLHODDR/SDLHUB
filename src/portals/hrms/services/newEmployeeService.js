@@ -34,3 +34,20 @@ export const getJoiningCtcBreakup = params =>
 export const saveJoiningDetail = post(HRMS_API.JOINING.SAVE_DETAIL)
 export const deleteJoiningDetail = post(HRMS_API.JOINING.DELETE_DETAIL)
 export const submitJoiningTask = post(HRMS_API.JOINING.SUBMIT_TASK)
+
+export const getNewJoinees = () =>
+  hrmsRequest({ url: HRMS_API.JOINING.GET_NEW_JOINEES, method: 'GET' })
+
+export const saveNewJoinee = post(HRMS_API.JOINING.SAVE_NEW_JOINEE)
+
+export const getRehireOptions = () =>
+  hrmsRequest({ url: HRMS_API.JOINING.GET_REHIRE_EMPLOYEE, method: 'GET' })
+
+export const getRehireEmployee = empCode =>
+  hrmsRequest({
+    url: HRMS_API.JOINING.GET_REHIRE_EMPLOYEE,
+    method: 'GET',
+    params: { emp_code: empCode }
+  })
+
+export const saveRehireEmployee = post(HRMS_API.JOINING.SAVE_REHIRE_EMPLOYEE)
