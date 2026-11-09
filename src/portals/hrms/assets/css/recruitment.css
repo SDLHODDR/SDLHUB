@@ -1,0 +1,140 @@
+/* Employment Application Form (pages/recruitment/CandidateApplicationForm.jsx) */
+.recruitment-form-photo {
+  width: 100px;
+  height: 120px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid #dee2e6;
+}
+
+.recruitment-form-section {
+  margin-bottom: 1.25rem;
+}
+
+.recruitment-form-heading {
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid #dee2e6;
+  text-transform: uppercase;
+}
+
+.recruitment-form-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.recruitment-form-value {
+  min-height: 24px;
+  border-bottom: 1px dashed #adb5bd;
+  overflow-wrap: anywhere;
+}
+
+@media print {
+  /* Print the form alone, without the portal menu and header. */
+  body * {
+    visibility: hidden;
+  }
+
+  .recruitment-form,
+  .recruitment-form * {
+    visibility: visible;
+  }
+
+  .recruitment-form {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .recruitment-form-no-print {
+    display: none !important;
+  }
+}
+
+/* ==========================================
+   SHARED BY THE RECRUITMENT SCREENS
+========================================== */
+.recruitment-search {
+  width: 330px;
+  max-width: 100%;
+}
+
+/* The theme hides .search-set below 575px; search must stay available here. */
+.recruitment-search .search-set {
+  display: flex;
+}
+
+.recruitment-candidate-contact {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.recruitment-grid .p-paginator {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+/* The shared backdrop forces every dialog to 1200px; these set the real widths. */
+.tenure-modal-backdrop > .modal-dialog.recruitment-modal-md {
+  flex-basis: min(94vw, 720px) !important;
+  width: min(94vw, 720px) !important;
+  max-width: 720px !important;
+}
+
+.tenure-modal-backdrop > .modal-dialog.recruitment-modal-lg {
+  flex-basis: min(94vw, 960px) !important;
+  width: min(94vw, 960px) !important;
+  max-width: 960px !important;
+}
+
+.tenure-modal-backdrop > .modal-dialog.recruitment-modal-xl {
+  flex-basis: min(94vw, 1200px) !important;
+  width: min(94vw, 1200px) !important;
+  max-width: 1200px !important;
+}
+
+/* ==========================================
+   TABLET AND PHONE
+========================================== */
+@media (max-width: 991.98px) {
+  /* fit-width-grid squeezes every column into the card, which is unreadable
+     below this width. Keep readable columns; the grid scrolls sideways. */
+  .company-policies-grid.fit-width-grid.recruitment-grid .p-datatable-table {
+    min-width: 820px;
+  }
+
+  .recruitment-detail-table {
+    min-width: 640px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .recruitment-search {
+    width: 100%;
+  }
+
+  .tenure-modal-backdrop > .modal-dialog.recruitment-modal-md,
+  .tenure-modal-backdrop > .modal-dialog.recruitment-modal-lg,
+  .tenure-modal-backdrop > .modal-dialog.recruitment-modal-xl {
+    flex-basis: calc(100vw - 16px) !important;
+    width: calc(100vw - 16px) !important;
+    margin: 8px auto !important;
+    max-height: calc(100vh - 16px) !important;
+  }
+
+  .tenure-modal-backdrop > .modal-dialog[class*='recruitment-modal-'] > .modal-content {
+    max-height: calc(100vh - 16px);
+  }
+
+  .recruitment-form-title h3 {
+    font-size: 1.15rem;
+  }
+
+  .recruitment-grid .p-paginator-current {
+    width: 100%;
+    text-align: center;
+  }
+}

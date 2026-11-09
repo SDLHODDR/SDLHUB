@@ -55,7 +55,7 @@ export const getExitAuthorizationColumns = (formatDashDate, tid = 0, exitTaskIds
           },
         ]
       : []),
-    ...(tid == '2' || tid == '6'
+    ...(tid == '2' || tid == '5' || tid == '6'
       ? [
           {
             header: "Location",

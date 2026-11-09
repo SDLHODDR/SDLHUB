@@ -170,4 +170,23 @@ export const HRMS_API = {
     GENERATE_LETTER_REFERENCE: "/authorization/exit/generateExitLetterReference.php",
     CLOSE_LETTER_TASK: "/authorization/exit/closeExitLetterTask.php",
   },
+
+  RECRUITMENT: {
+    GET_CANDIDATES: "/recruitment/getCandidates.php",
+    EXPORT_CANDIDATES: "/recruitment/exportCandidates.php",
+    GET_CANDIDATE_DETAILS: "/recruitment/getCandidateDetails.php",
+    GET_CANDIDATE_FORM: "/recruitment/getCandidateForm.php",
+    GET_SCREEN_REMARK: "/recruitment/getScreenRemark.php",
+    SAVE_SCREEN_REMARK: "/recruitment/saveScreenRemark.php",
+    GET_FOLLOW_UPS: "/recruitment/getFollowUps.php",
+    SAVE_FOLLOW_UP: "/recruitment/saveFollowUp.php",
+    BLOCK_CANDIDATE: "/recruitment/blockCandidate.php",
+    GET_REQUESTS: "/recruitment/getRecruitmentRequests.php",
+    GET_ORGANOGRAM_LOCATIONS: "/recruitment/getOrganogramLocations.php",
+    SAVE_REQUEST: "/recruitment/saveRecruitmentRequest.php",
+    CANCEL_REQUEST: "/recruitment/cancelRecruitmentRequest.php",
+    GET_PENDING: "/recruitment/getPendingRecruitments.php",
+    GET_TASK: "/recruitment/getRecruitmentTask.php",
+    PROCESS_TASK: "/recruitment/processRecruitmentTask.php",
+  },
 };
