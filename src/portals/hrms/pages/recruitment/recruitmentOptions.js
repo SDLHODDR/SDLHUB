@@ -50,9 +50,15 @@ export const REQUEST_STATUSES = {
 export const BLOCK_AFTER_FOLLOW_UPS = 5
 export const REMARK_MAX_LENGTH = 100
 
-/** Resumes and photos stay in the legacy careers folder. */
+/**
+ * Resumes and photos: files uploaded through the SDL Hub careers portal ("sdlhub/...")
+ * are served by the backend to recruitment users; older ones stay in the legacy careers folder.
+ */
 export const careersFileUrl = path => {
   if (!path) return ''
+  if (String(path).startsWith('sdlhub/')) {
+    return `${import.meta.env.VITE_API_URL || ''}/hrms/recruitment/viewCandidateDocument.php?path=${encodeURIComponent(path)}`
+  }
   const base = (import.meta.env.VITE_HRMS_DOC_BASE_URL || '').trim().replace(/\/$/, '')
   const file = String(path).replace(/^\//, '').split('/').map(encodeURIComponent).join('/')
   return `${base}/careers/${file}`

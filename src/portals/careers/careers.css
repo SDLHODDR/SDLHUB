@@ -1,0 +1,223 @@
+/* Careers (candidate portal): SDL theme, navy #092C4C and orange #FE9F43 on white. */
+
+:root {
+  --careers-navy: #092c4c;
+  --careers-orange: #fe9f43;
+  --careers-orange-dark: #e8862a;
+}
+
+.careers-page,
+.careers-shell {
+  min-height: 100vh;
+  background: #fff;
+}
+
+.careers-header {
+  background: var(--careers-navy);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.careers-brand {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.3px;
+}
+
+.careers-nav-link {
+  color: rgba(255, 255, 255, 0.82);
+  text-decoration: none;
+  padding: 0.5rem 0.85rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.careers-nav-link:hover,
+.careers-nav-link:focus-visible {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.careers-nav-link.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.careers-main {
+  min-height: calc(100vh - 60px);
+}
+
+.careers-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e6eaf0;
+  box-shadow: 0 4px 18px rgba(9, 44, 76, 0.08);
+}
+
+.careers-card-header {
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.careers-card-body {
+  padding: 1.5rem;
+}
+
+.careers-auth {
+  max-width: 460px;
+  width: 100%;
+}
+
+.careers-job-card {
+  border: 1px solid var(--careers-orange);
+  border-radius: 10px;
+  padding: 1.25rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.careers-job-card:hover,
+.careers-job-card:focus-visible {
+  box-shadow: 0 6px 18px rgba(254, 159, 67, 0.28);
+  transform: translateY(-2px);
+  color: inherit;
+}
+
+.careers-job-title {
+  color: var(--careers-orange-dark);
+  font-weight: 700;
+  font-size: 1.2rem;
+  line-height: 1.3;
+}
+
+.careers-job-meta {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #6c757d;
+}
+
+.careers-dot {
+  display: inline-block;
+  width: 14px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--careers-orange);
+}
+
+.careers-description ol,
+.careers-description ul {
+  padding-left: 1.25rem;
+}
+
+.careers-description li + li {
+  margin-top: 0.4rem;
+}
+
+.careers-sections .list-group-item {
+  border: 0;
+  border-radius: 8px !important;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-align: left;
+  font-weight: 500;
+}
+
+.careers-sections .list-group-item.active {
+  background: #fff4e9;
+  color: var(--careers-navy);
+}
+
+.careers-section-status {
+  margin-left: auto;
+  font-size: 1.1rem;
+}
+
+.careers-progress {
+  height: 8px;
+}
+
+.careers-otp-input {
+  letter-spacing: 0.4em;
+  font-size: 1.25rem;
+  text-align: center;
+}
+
+.careers-header .careers-nav-link.btn-link {
+  color: rgba(255, 255, 255, 0.82);
+  text-decoration: none;
+  border: 0;
+}
+
+.careers-header .careers-nav-link.btn-link:hover,
+.careers-header .careers-nav-link.btn-link:focus-visible {
+  color: #fff;
+}
+
+.careers-hero,
+.careers-hero h1 {
+  color: var(--careers-navy);
+}
+
+/* Orange buttons (theme primary). Bootstrap's .btn loads after this file, so set its variables. */
+.btn.careers-btn {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--careers-orange);
+  --bs-btn-border-color: var(--careers-orange);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--careers-orange-dark);
+  --bs-btn-hover-border-color: var(--careers-orange-dark);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--careers-orange-dark);
+  --bs-btn-active-border-color: var(--careers-orange-dark);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: var(--careers-orange);
+  --bs-btn-disabled-border-color: var(--careers-orange);
+  font-weight: 600;
+}
+
+/* Same height as the theme's inputs (40px). */
+.btn.careers-search-btn {
+  height: 40px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.careers-muted-on-white {
+  color: var(--careers-navy);
+}
+
+.careers-progress-bar {
+  background: var(--careers-orange);
+}
+
+.careers-done {
+  color: var(--careers-orange-dark);
+}
+
+.careers-badge-done {
+  background: var(--careers-orange);
+  color: #fff;
+}
+
+/* Dropdowns: same border as the theme's text inputs (customStyle.scss .form-control). */
+.careers-shell .form-select,
+.careers-page .form-select {
+  border: 1px solid #6c757d;
+}
+
+.careers-shell .form-select:focus,
+.careers-page .form-select:focus {
+  border-color: #ff9800;
+}
+
+.careers-shell .form-select.is-invalid,
+.careers-page .form-select.is-invalid {
+  border-color: var(--bs-form-invalid-border-color, #dc3545);
+}
