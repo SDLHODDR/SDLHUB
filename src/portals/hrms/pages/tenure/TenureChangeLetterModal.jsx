@@ -161,7 +161,8 @@ const TenureChangeLetterModal = ({
       script = 'probation_letter.php'
     }
 
-    const baseUrl = import.meta.env.VITE_BASE_URL || ''
+    // Same API base as the rest of the app (proxied in development).
+    const baseUrl = import.meta.env.VITE_API_URL || ''
     return `${baseUrl}/hrms/reports/pdfReport/${script}?EMP_CODE=${encodeURIComponent(
       code
     )}`

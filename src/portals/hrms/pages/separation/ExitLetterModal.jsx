@@ -21,8 +21,9 @@ const LETTER_SCRIPTS = {
   4: 'experience_letter.php'
 }
 
+// Same API base as the rest of the app (proxied in development).
 const letterUrl = (docId, separationId, template) =>
-  `${import.meta.env.VITE_BASE_URL || ''}/hrms/reports/pdfReport/${LETTER_SCRIPTS[docId]}?REF_ID=${encodeURIComponent(separationId)}${docId === 3 ? `&flag=${template}` : ''}`
+  `${import.meta.env.VITE_API_URL || ''}/hrms/reports/pdfReport/${LETTER_SCRIPTS[docId]}?REF_ID=${encodeURIComponent(separationId)}${docId === 3 ? `&flag=${template}` : ''}`
 
 const ExitLetterModal = ({ config, record, onClose, onSuccess }) => {
   const task = useExitTask({ record, onClose, onSuccess })

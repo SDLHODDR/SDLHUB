@@ -122,6 +122,15 @@ const TenureChange = () => {
     // Prevent duplicate submissions for the same employee.
     if (sendingEmployeeCode !== null) return
 
+    // Checked before the confirmation so the user is not asked to confirm a send
+    // that cannot go ahead.
+    if (Number(employee?.questions_set) !== 1) {
+      notifyWarning(
+        'No tenure assessment questions are configured for this employee.'
+      )
+      return
+    }
+
     let confirmation
 
     try {
@@ -147,13 +156,6 @@ const TenureChange = () => {
     //   notifyWarning('Manager code is not available for this employee.')
     //   return
     // }
-
-    if (Number(employee?.questions_set) !== 1) {
-      notifyWarning(
-        'No tenure assessment questions are configured for this employee.'
-      )
-      return
-    }
 
     setSendingEmployeeCode(employeeCode)
 

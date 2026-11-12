@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 
 import { getHrmsMenu } from "../../services/hrmsMenuService";
 import { notifyError } from "../../../../shared/services/alertService";
+import { legacyMenuRoute } from "../../config/legacyMenuRoutes";
 
 const STORAGE_KEY = "HRMS_MENU_CACHE";
 
@@ -13,6 +14,10 @@ const STORAGE_KEY = "HRMS_MENU_CACHE";
 */
 const cleanRoutePath = (route) => {
   if (!route || typeof route !== "string") return "/hrms";
+
+  // Old HRMS page names (the menu table is shared with it).
+  const legacyRoute = legacyMenuRoute(route);
+  if (legacyRoute) return legacyRoute;
 
   const clean = route
     .trim()
