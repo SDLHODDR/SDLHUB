@@ -3,7 +3,8 @@ import '../../assets/css/tenureChange.css'
 import '../../assets/css/recruitment.css'
 
 /* Modal frame of the recruitment pages, using the same backdrop as the task modals.
-   size: 'md' for short forms, 'lg' for details, 'xl' for the candidate view. */
+   size: 'md' for short forms, 'lg' for details, 'xl' for the candidate view.
+   subtitle: optional small line under the title. */
 const RecruitmentModal = ({
   titleId,
   title,
@@ -12,6 +13,7 @@ const RecruitmentModal = ({
   loadError = '',
   onClose,
   footer,
+  subtitle,
   children
 }) => {
   useEffect(() => {
@@ -33,9 +35,12 @@ const RecruitmentModal = ({
       <div className={`modal-dialog modal-dialog-centered modal-dialog-scrollable recruitment-modal-${size}`}>
         <div className='modal-content shadow-lg border-0'>
           <div className='modal-header'>
-            <h5 className='modal-title mb-0' id={titleId}>
-              {title}
-            </h5>
+            <div>
+              <h5 className='modal-title mb-0' id={titleId}>
+                {title}
+              </h5>
+              {subtitle && <small className='text-muted'>{subtitle}</small>}
+            </div>
             <button type='button' className='close' onClick={onClose} aria-label='Close'>
               <span aria-hidden='true'>&times;</span>
             </button>

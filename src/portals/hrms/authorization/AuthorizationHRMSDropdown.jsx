@@ -15,8 +15,9 @@ const GroupHeader = ({ group, open, onToggle }) => {
   return (
     <button
       type="button"
-      className="d-flex align-items-center justify-content-between btn btn-link p-0 text-start text-decoration-none w-100"
-      style={{ fontWeight: 500, padding: "6px 0" }}
+      // Right padding matches the items' p-2 so the group total lines up with their counts.
+      className="d-flex align-items-center justify-content-between btn btn-link ps-0 pe-2 py-1 text-start text-decoration-none w-100"
+      style={{ fontWeight: 500 }}
       onClick={onToggle}
     >
       <span className="d-flex align-items-center">
@@ -25,10 +26,12 @@ const GroupHeader = ({ group, open, onToggle }) => {
       </span>
       
       {total > 0 && (
+        // Group total filled with the group title's own colour (inherited, then used as the background);
+        // the number itself is white. The tasks' counts stay red.
         <Badge
-          text={total}
-          className="shadow-none badge-danger badge-xs ms-2"
-          style={COUNT_BADGE_STYLE}
+          text={<span style={{ color: "#fff" }}>{total}</span>}
+          className="shadow-none badge-xs ms-2"
+          style={{ ...COUNT_BADGE_STYLE, color: "inherit", background: "currentColor" }}
         />
       )}
     </button>

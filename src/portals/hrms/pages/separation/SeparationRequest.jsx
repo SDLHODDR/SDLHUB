@@ -27,6 +27,8 @@ import {
 import '../../../../shared/assets/css/companyPolicies.css'
 import '../../assets/css/tenureChange.css'
 
+
+const COMMENTS_MAX_LENGTH = 2000
 const EMPTY_FORM = {
   id: '',
   empCode: '',
@@ -412,11 +414,16 @@ const SeparationRequest = () => {
                     className={`form-control flex-grow-1${errors.employeeComments ? ' is-invalid' : ''}`}
                     style={{ minHeight: '206px' }}
                     value={form.employeeComments}
-                    maxLength={2000}
+                    maxLength={COMMENTS_MAX_LENGTH}
                     disabled={!isEditable}
                     onChange={event => update('employeeComments', event.target.value)}
                   />
-                  {fieldError('employeeComments')}
+                  <div className='d-flex justify-content-between align-items-start mt-1'>
+                    <span>{fieldError('employeeComments')}</span>
+                    <small className='text-muted flex-shrink-0 ms-2'>
+                      {form.employeeComments.length} / {COMMENTS_MAX_LENGTH}
+                    </small>
+                  </div>
                 </div>
               </div>
 

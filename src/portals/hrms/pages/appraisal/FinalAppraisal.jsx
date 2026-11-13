@@ -395,11 +395,12 @@ const FinalAppraisal = () => {
                   <p className='text-muted small mt-2 mb-0'>
                     Increments take effect from the 1st of the month chosen. Saving replaces the appraiser&apos;s figures with the final ones.
                   </p>
-                  <div className='d-flex justify-content-center gap-2 mt-3'>
+                  {/* Right-aligned, Submit in green as on the JD page's Update & Send for Auth. */}
+                  <div className='d-flex justify-content-end gap-2 mt-3'>
                     <SaveButton onClick={() => send('save')} isSubmitting={busy} disabled={editableCount === 0}>
                       Save
                     </SaveButton>
-                    <button type='button' className='btn btn-warning' onClick={() => send('submit')} disabled={busy || editableCount === 0}>
+                    <button type='button' className='btn btn-success' onClick={() => send('submit')} disabled={busy || editableCount === 0}>
                       Submit
                     </button>
                     <CancelButton onClick={() => load(appraisalId)} disabled={busy} />

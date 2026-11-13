@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import CancelButton from '../../../../shared/components/buttons/CancelButton'
 import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
+import SDLCalendar from '../../../../shared/components/calendar/SDLCalendar'
+import { parseDateValue, toDateInputValue } from '../../../../shared/utils/commonUtils'
 import { confirmAction } from '../../../../shared/services/alertService'
 import useExitTask from '../../hooks/useExitTask'
 import {
@@ -267,11 +269,12 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
               disabled
             />
           ) : (
-            <input
-              type='date'
-              className={`form-control tenure-change-select${errors.actualRelieveDate ? ' is-invalid' : ''}`}
-              value={form.actualRelieveDate}
-              onChange={event => update('actualRelieveDate', event.target.value)}
+            // Same date picker and dd-Mon-yyyy format as the other dates; the value stays YYYY-MM-DD.
+            <SDLCalendar
+              value={parseDateValue(form.actualRelieveDate)}
+              onChange={date => update('actualRelieveDate', date ? toDateInputValue(date) : '')}
+              allowAllDates
+              inputClassName={errors.actualRelieveDate ? 'is-invalid' : ''}
             />
           )}
           {fieldError('actualRelieveDate')}

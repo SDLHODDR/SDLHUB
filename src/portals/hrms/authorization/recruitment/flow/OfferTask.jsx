@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import SaveButton from '../../../../../shared/components/buttons/SaveButton'
+import CancelButton from '../../../../../shared/components/buttons/CancelButton'
 import SDLCalendar from '../../../../../shared/components/calendar/SDLCalendar'
 import SDLReactSelect from '../../../../../shared/components/form/SDLReactSelect'
 import { parseDateValue, toDateInputValue } from '../../../../../shared/utils/commonUtils'
@@ -18,6 +19,35 @@ const ACCEPTANCE = [
 ]
 
 const sum = values => values.reduce((total, value) => total + (Number(value) || 0), 0)
+
+/* Print Offer Letter details in the Print Tenure Change Letter layout: bold "Label :" and value, three columns. */
+const LetterDetails = ({ details }) => {
+  const { request, candidate, interview } = details
+  const fields = [
+    ['Candidate', candidate ? `${candidate.id} - ${candidate.name}` : '-'],
+    ['Email', candidate?.email],
+    ['Mobile', candidate?.mobile],
+    ['Department', request.department],
+    ['Designation', request.designation],
+    ['Division', request.division],
+    ['Location', request.location],
+    ['Interview Date', interview ? `${interview.dateText} ${interview.time}`.trim() : ''],
+    ['Interview Mode', interview?.modeText],
+    ['CTC Offered', interview?.ctcOffer !== '' && interview?.ctcOffer != null ? `${interview.ctcOffer} LPA` : ''],
+    ['Tentative Joining Date', interview?.joiningDateText],
+    ['Special Comments', request.remarks]
+  ]
+  return (
+    <div className='row g-2 tenure-legacy-grid pb-3 mb-3 border-bottom'>
+      {fields.map(([label, value]) => (
+        <div className='col-md-4' key={label}>
+          <strong className='grid-label'>{label} : </strong>
+          <span className='grid-val'>{value || '-'}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 /* Monthly amount per CTC head; annual is 12 x monthly (legacy offer_generate.php). */
 const CtcTable = ({ heads, amounts, setAmounts, busy, showSuggested }) => (
@@ -177,40 +207,34 @@ const OfferTask = ({ taskId, title, record, onClose, onSuccess }) => {
       )
     } else if (taskId === TASK_PRINT) {
       const url = offerLetterUrl(record.ID)
-      footer = (
-        <>
-          <a className='btn btn-outline-primary' href={url} target='_blank' rel='noreferrer' onClick={() => setLetterOpened(true)}>
-            <i className='fas fa-print me-1' /> Print Offer Letter
-          </a>
-          <SaveButton
-            isSubmitting={busy}
-            onClick={() =>
-              run('close', {}, {
-                confirm: [
-                  'Close this task?',
-                  letterOpened
-                    ? 'An Update Offer Acceptance task will be generated for the recruiter.'
-                    : 'The offer letter has not been printed from this screen. An Update Offer Acceptance task will be generated for the recruiter.'
-                ],
-                close: true
-              })
-            }
-          >
-            Close Task
-          </SaveButton>
-        </>
-      )
+      const closeTask = () =>
+        run('close', {}, {
+          confirm: [
+            'Close this task?',
+            letterOpened
+              ? 'An Update Offer Acceptance task will be generated for the recruiter.'
+              : 'The offer letter has not loaded on this screen yet. An Update Offer Acceptance task will be generated for the recruiter.'
+          ],
+          close: true
+        })
+      // Same layout as the Print Tenure Change Letter modal: reference and Close Task above the letter.
+      footer = <CancelButton onClick={onClose} disabled={busy} />
       body = (
-        <>
-          {details.offer?.reference ? (
-            <p className='mb-2'>
-              Letter reference: <strong>{details.offer.reference}</strong>
-            </p>
-          ) : (
-            <p className='text-muted small mb-2'>A letter reference number is taken when the letter is first printed.</p>
-          )}
-          <iframe title='Offer letter' src={url} className='w-100 border rounded' style={{ height: '60vh' }} onLoad={() => setLetterOpened(true)} />
-        </>
+        <div>
+          <div className='d-flex justify-content-between align-items-center mb-2'>
+            {details.offer?.reference ? (
+              <span className='badge bg-success-subtle text-success border px-2 py-1'>Reference Code: {details.offer.reference}</span>
+            ) : (
+              <span className='text-muted small'>A letter reference number is taken when the letter is first loaded.</span>
+            )}
+            <button className='btn btn-outline-info btn-sm px-3' type='button' onClick={closeTask} disabled={busy}>
+              <i className='fas fa-print me-1' /> Print Offer Letter
+            </button>
+          </div>
+          <div style={{ height: '60vh', minHeight: '420px', background: '#525659' }} className='border rounded overflow-hidden'>
+            <iframe title='Offer letter' src={url} className='w-100 h-100 border-0' onLoad={() => setLetterOpened(true)} />
+          </div>
+        </div>
       )
     } else {
       const saved = details.offer?.accepted
@@ -273,7 +297,18 @@ const OfferTask = ({ taskId, title, record, onClose, onSuccess }) => {
   return (
     <RecruitmentModal
       titleId='recruitment-flow-title'
-      title={details ? `${title} - ${details.candidate?.name || ''}` : title}
+      title={details && taskId !== TASK_PRINT ? `${title} - ${details.candidate?.name || ''}` : title}
+      subtitle={
+        details && taskId === TASK_PRINT ? (
+          <>
+            Candidate ID: <strong>{details.candidate?.id || '-'}</strong>
+            <span className='mx-2'>|</span>
+            Task ID: <strong>{record.ID}</strong>
+            <span className='mx-2'>|</span>
+            Workflow Task: <strong>{taskId}</strong>
+          </>
+        ) : null
+      }
       size={taskId === TASK_PRINT || taskId === TASK_GENERATE || taskId === TASK_ANNEXURE ? 'xl' : 'lg'}
       loading={!details && !loadError}
       loadError={loadError}
@@ -283,7 +318,7 @@ const OfferTask = ({ taskId, title, record, onClose, onSuccess }) => {
       {details && (
         <>
           <ActionError message={actionError} />
-          <FlowSummary details={details} />
+          {taskId === TASK_PRINT ? <LetterDetails details={details} /> : <FlowSummary details={details} />}
           {body}
         </>
       )}

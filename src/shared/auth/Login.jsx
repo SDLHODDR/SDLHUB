@@ -136,7 +136,7 @@ const Login = () => {
                   <div className="input-group">
                     <input
                       type="text"
-                      className="form-control border-end-0"
+                      className="form-control"
                       placeholder="Enter employee code"
                       value={loginCode}
                       onChange={(e) => setLoginCode(e.target.value)}
@@ -168,17 +168,10 @@ const Login = () => {
                   </div>
                 </div>
 
-                {/* Remember + Forgot */}
+                {/* Forgot password */}
                 <div className="form-login authentication-check">
                   <div className="row">
-                    <div className="col-6">
-                      <label className="checkboxs ps-4 mb-0 pb-0 line-height-1">
-                        <input type="checkbox" />
-                        <span className="checkmarks"></span>
-                        Remember me
-                      </label>
-                    </div>
-                    <div className="col-6 text-end">
+                    <div className="col-12 text-end">
                       <Link className="forgot-link" to={"/forgot-password"}>
                         Forgot Password?
                       </Link>

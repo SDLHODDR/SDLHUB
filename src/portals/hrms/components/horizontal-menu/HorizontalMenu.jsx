@@ -4,8 +4,22 @@ import { Link, useLocation } from "react-router-dom";
 import { getHrmsMenu } from "../../services/hrmsMenuService";
 import { notifyError } from "../../../../shared/services/alertService";
 import { legacyMenuRoute } from "../../config/legacyMenuRoutes";
+import { arrangeMenus } from "../../config/menuLayout";
 
 const STORAGE_KEY = "HRMS_MENU_CACHE";
+
+/*
+ * HR_MENU.ICON is shared with the old HRMS, which uses Font Awesome 4. A few of its icon names
+ * were dropped in the Font Awesome version SDL Hub loads, so they are swapped for the current name.
+ */
+const LEGACY_ICON_NAMES = { "fa-flash": "fa-bolt" };
+
+const menuIconClass = (icon) =>
+  String(icon)
+    .trim()
+    .split(/\s+/)
+    .map((name) => LEGACY_ICON_NAMES[name] || name)
+    .join(" ");
 
 /*
 |--------------------------------------------------------------------------
@@ -55,7 +69,7 @@ const HorizontalMenu = () => {
   |--------------------------------------------------------------------------
   */
   const processedMenus = useMemo(() => {
-    return menus.map((menu) => ({
+    return arrangeMenus(menus).map((menu) => ({
       ...menu,
       children: (menu.children || []).map((child) => ({
         ...child,
@@ -160,7 +174,7 @@ const HorizontalMenu = () => {
               }
             }}
           >
-            <i className={menu.icon || "ti ti-layout-grid fs-16 me-2"} />
+            <i className={menu.icon ? menuIconClass(menu.icon) : "ti ti-layout-grid fs-16 me-2"} />
             <span>{menu.label}</span>
             {hasChildren && (
               <span
