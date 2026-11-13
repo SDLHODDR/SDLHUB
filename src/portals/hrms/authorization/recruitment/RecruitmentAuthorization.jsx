@@ -6,24 +6,39 @@ import { formatDashDate } from '../../../../shared/utils/formatUtils'
 import { useExitAuthorizationHandler } from '../exit/useExitAuthorizationHandler'
 import { getExitAuthorizationColumns } from '../exit/ExitAuthorizationColumns'
 import RecruitmentTaskModal from './RecruitmentTaskModal'
+import CandidatesTask from './flow/CandidatesTask'
+import InterviewTask from './flow/InterviewTask'
+import FeedbackTask from './flow/FeedbackTask'
+import OfferTask from './flow/OfferTask'
 import '../../../../shared/assets/css/companyPolicies.css'
 import '../../assets/css/recruitment.css'
 
-// HR_TASK_MASTER ids that have a screen here. Later tasks of the workflow are listed only.
+// HR_TASK_MASTER ids of the recruitment workflow and their screens.
 const RECRUITMENT_TASKS = {
   2: 'Recruitment Request',
   5: 'Assign Recruiter'
 }
-const LISTED_ONLY_TASKS = {
-  6: 'Send Suitable Candidates',
-  7: 'Shortlist Candidates'
+// Tasks after Assign Recruiter (backend recruitmentFlowCommon.php).
+const FLOW_TASKS = {
+  6: ['Send Suitable Candidates', CandidatesTask],
+  7: ['Shortlist Candidates', CandidatesTask],
+  8: ['Schedule Interview', InterviewTask],
+  16: ['Interview Confirmation', InterviewTask],
+  11: ['Assign Interviewer And Recommender', InterviewTask],
+  9: ['Interview Session', FeedbackTask],
+  17: ['Interview Session as Recommender', FeedbackTask],
+  10: ['Generate Offer', OfferTask],
+  21: ['Annexure Approval', OfferTask],
+  22: ['Print Offer Letter', OfferTask],
+  12: ['Update Offer Acceptance', OfferTask]
 }
 
 /* Recruitment tasks (legacy authorization.php -> recruitment_req.php with a task). */
 const RecruitmentAuthorization = () => {
   const { tid } = useParams()
-  const hasScreen = Boolean(RECRUITMENT_TASKS[tid])
-  const title = RECRUITMENT_TASKS[tid] || LISTED_ONLY_TASKS[tid] || 'Recruitment Task'
+  const [flowTitle, FlowTaskModal] = FLOW_TASKS[tid] || []
+  const hasScreen = Boolean(RECRUITMENT_TASKS[tid] || FlowTaskModal)
+  const title = RECRUITMENT_TASKS[tid] || flowTitle || 'Recruitment Task'
 
   const {
     loading,
@@ -83,19 +98,23 @@ const RecruitmentAuthorization = () => {
         </div>
       </div>
 
-      {hasScreen && showModal && selectedRecord && (
-        <RecruitmentTaskModal
-          taskId={Number(tid)}
-          title={title}
-          record={selectedRecord}
-          onClose={closeModal}
-          onSuccess={() => {
-            closeModal()
-            refreshList()
-            window.dispatchEvent(new Event('hrms-auth-tasks-changed'))
-          }}
-        />
-      )}
+      {hasScreen && showModal && selectedRecord && (() => {
+        const TaskModal = FlowTaskModal || RecruitmentTaskModal
+        return (
+          <TaskModal
+            key={selectedRecord.ID}
+            taskId={Number(tid)}
+            title={title}
+            record={selectedRecord}
+            onClose={closeModal}
+            onSuccess={() => {
+              closeModal()
+              refreshList()
+              window.dispatchEvent(new Event('hrms-auth-tasks-changed'))
+            }}
+          />
+        )
+      })()}
     </>
   )
 }

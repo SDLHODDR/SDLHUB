@@ -163,6 +163,20 @@ export const HRMS_API = {
     GET_ERROR_LOGS: "/reports/getErrorLogs.php",
   },
 
+  // Reports menu: filter options as JSON, the report itself as a PDF opened in a new tab.
+  MENU_REPORTS: {
+    GET_OPTIONS: "/reports/getReportOptions.php",
+    FOLLOW_UP: "/reports/followUpReport.php",
+    JD_MASTER: "/reports/jdMasterReport.php",
+    ORGANOGRAM_MASTER: "/reports/orgMasterReport.php",
+    TENURE_CHANGE: "/reports/tenureChangeReport.php",
+    ORGANOGRAM_HIERARCHY: "/reports/orgHierarchyReport.php",
+    ORGANOGRAM_HIERARCHY_TREE: "/reports/getOrgHierarchyTree.php",
+    CANDIDATE_TRACKER: "/reports/candidateTrackerReport.php",
+    OPEN_POSITIONS: "/reports/openPositionsReport.php",
+    REQUISITION_TRACKER: "/reports/requisitionTrackerReport.php",
+  },
+
   EXIT: {
     GET_SEPARATION_REQUESTS: "/separation/getSeparationRequests.php",
     SAVE_SEPARATION_REQUEST: "/separation/saveSeparationRequest.php",
@@ -192,5 +206,18 @@ export const HRMS_API = {
     GET_PENDING: "/recruitment/getPendingRecruitments.php",
     GET_TASK: "/recruitment/getRecruitmentTask.php",
     PROCESS_TASK: "/recruitment/processRecruitmentTask.php",
+    GET_FLOW_TASK: "/recruitment/getRecruitmentFlowTask.php",
+    PROCESS_FLOW_TASK: "/recruitment/processRecruitmentFlowTask.php",
+    OFFER_LETTER: "/recruitment/offerLetter.php",
+  },
+
+  APPRAISAL: {
+    GET_SETUPS: "/appraisal/getAppraisalSetups.php",
+    GET_SETUP: "/appraisal/getAppraisalSetup.php",
+    GET_SETUP_CHOICES: "/appraisal/getAppraisalSetupChoices.php",
+    PROCESS_SETUP: "/appraisal/processAppraisalSetup.php",
+    GET_STATUS: "/appraisal/getAppraisalStatus.php",
+    GET_FINAL: "/appraisal/getFinalAppraisal.php",
+    PROCESS_FINAL: "/appraisal/processFinalAppraisal.php",
   },
 };

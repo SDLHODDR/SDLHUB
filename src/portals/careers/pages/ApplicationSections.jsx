@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react'
+import SDLCalendar from '../../../shared/components/calendar/SDLCalendar'
+import { parseDateValue, toDateInputValue } from '../../../shared/utils/commonUtils'
 import { confirmAction, notifyError, notifySuccess } from '../../../shared/services/alertService'
 import { addProfileEntry, deleteProfileEntry, documentUrl, saveProfileSection, uploadDocument } from '../services/careersApi'
 
@@ -36,7 +38,20 @@ const Field = ({ field, value, onChange, options, disabled, error, idPrefix }) =
       </div>
     )
   }
-  if (field.type === 'textarea') {
+  if (field.type === 'date') {
+    // Same date picker as the HRMS pages; values stay YYYY-MM-DD.
+    control = (
+      <SDLCalendar
+        value={parseDateValue(value)}
+        onChange={date => onChange(field.key, date ? toDateInputValue(date) : '')}
+        maxDate={field.max ? parseDateValue(field.max) : undefined}
+        allowAllDates
+        showHolidays={false}
+        disabled={disabled || field.readOnly}
+        inputClassName={error ? 'is-invalid' : ''}
+      />
+    )
+  } else if (field.type === 'textarea') {
     control = <textarea rows={field.rows || 3} {...common} />
   } else if (field.type === 'select') {
     control = (
@@ -50,7 +65,7 @@ const Field = ({ field, value, onChange, options, disabled, error, idPrefix }) =
       </select>
     )
   } else {
-    control = <input type={field.type || 'text'} {...common} max={field.type === 'date' ? field.max : undefined} />
+    control = <input type={field.type || 'text'} {...common} />
   }
   return (
     <div className={`col-md-${field.col || 6}`}>

@@ -38,8 +38,22 @@ export const LEGACY_MENU_ROUTES = {
   // Separation
   "separation_edit.php": "/hrms/separation",
 
+  // Appraisal
+  "appraisal_setup.php": "/hrms/appraisal/appraisal-setup",
+  "appraisal_status.php": "/hrms/appraisal/appraisal-status",
+  "final_appraisal.php": "/hrms/appraisal/final-appraisal",
+
   // Reports
-  "rept_admin.php?reptnm=tenure": "/hrms/maintainance/tenure-change",
+  // The tenure change process page is opened from the dashboard widget, as in the old HRMS.
+  "rept_admin.php?reptnm=tenure": "/hrms/reports/tenure-change",
+  "rept_admin.php?reptnm=followup": "/hrms/reports/follow-up",
+  "rept_admin.php?reptnm=jdmaster": "/hrms/reports/jd-master",
+  "rept_admin.php?reptnm=orgmaster": "/hrms/reports/organogram-master",
+  "rept_admin.php?reptnm=orglochierarchy": "/hrms/reports/organogram-hierarchy",
+  "rept_admin.php?reptnm=orglochierarchyvisual": "/hrms/reports/organogram-hierarchy-visual",
+  "rept_admin.php?reptnm=can_track": "/hrms/reports/candidate-tracker",
+  "rept_admin.php?reptnm=openpositions": "/hrms/reports/open-positions",
+  "rept_admin.php?reptnm=req_track": "/hrms/reports/requisition-tracker",
 };
 
 /** SDL Hub route of an old page name, or null when the page has not been moved. */

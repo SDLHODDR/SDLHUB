@@ -33,6 +33,8 @@ const SDLCalendar = ({
   minDate,
   maxDate,
   allowAllDates = false,
+  // false: skip the holiday calendar (an employee API), e.g. on the public careers portal.
+  showHolidays = true,
   dateFormat = "dd-M-yy",
   locale,
   appendTo = () => document.body,
@@ -65,6 +67,7 @@ const SDLCalendar = ({
      LOAD CALENDAR DATA
   ========================================================= */
   useEffect(() => {
+    if (!showHolidays) return undefined;
     let mounted = true;
 
     const loadCalendar = async () => {
@@ -117,7 +120,7 @@ const SDLCalendar = ({
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [showHolidays]);
 
   /* =========================================================
      TOOLTIP

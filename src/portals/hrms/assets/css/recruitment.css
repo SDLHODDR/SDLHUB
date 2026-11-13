@@ -138,3 +138,10 @@
     text-align: center;
   }
 }
+
+/* Recruitment flow task tables (questions, capabilities, CTC): long text wraps. */
+.recruitment-flow-table th,
+.recruitment-flow-table td {
+  white-space: normal;
+  vertical-align: middle;
+}

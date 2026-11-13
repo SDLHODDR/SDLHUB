@@ -237,14 +237,15 @@ const NewJoinee = () => {
     <>
       <div className='page-header' style={{ marginBottom: '8px' }}>
         <div className='page-title'>
-          <BreadcrumbNav
-            items={[
-              { text: 'Home', link: '/hrms/dashboard' },
-              { text: 'Joining', link: '#' },
-              { text: 'New Joinee' }
-            ]}
-          />
+          <h4>New Joinee</h4>
         </div>
+        <BreadcrumbNav
+          items={[
+            { text: 'Home', link: '/hrms/dashboard' },
+            { text: 'Joining', link: '#' },
+            { text: 'New Joinee' }
+          ]}
+        />
       </div>
 
       <div className='row'>

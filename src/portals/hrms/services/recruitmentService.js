@@ -30,6 +30,13 @@ export const getRecruitmentTask = ({ taskId, userTaskId }) =>
   get(API.GET_TASK, { task_id: taskId, user_task_id: userTaskId })
 export const processRecruitmentTask = data => post(API.PROCESS_TASK, data)
 
+// Tasks 6-22 (Send Suitable Candidates to Update Offer Acceptance).
+export const getRecruitmentFlowTask = ({ taskId, userTaskId }) =>
+  get(API.GET_FLOW_TASK, { task_id: taskId, user_task_id: userTaskId })
+export const processRecruitmentFlowTask = data => post(API.PROCESS_FLOW_TASK, data)
+export const offerLetterUrl = userTaskId =>
+  `${import.meta.env.VITE_API_URL || ''}/hrms${API.OFFER_LETTER}?user_task_id=${encodeURIComponent(userTaskId)}`
+
 export const exportCandidates = async ({ format, ...params }) => {
   const response = await hrmsRequest({
     url: API.EXPORT_CANDIDATES,

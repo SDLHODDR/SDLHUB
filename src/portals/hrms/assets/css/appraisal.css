@@ -1,0 +1,49 @@
+/* Appraisal pages (pages/appraisal). */
+.appraisal-table th {
+  background: #323e4f;
+  color: #ffffff;
+  white-space: normal;
+  vertical-align: middle;
+}
+
+.appraisal-table td {
+  white-space: normal;
+}
+
+.appraisal-table .appraisal-group-row td {
+  background: #f4f6f9;
+}
+
+/* Final Appraisal: wide table that scrolls sideways. */
+.final-appraisal-scroll {
+  overflow-x: auto;
+}
+
+.final-appraisal-table th,
+.final-appraisal-table td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.final-appraisal-table .final-appraisal-dept td {
+  background: #d4f1f4;
+  font-weight: 700;
+}
+
+.final-appraisal-table .final-appraisal-locked td {
+  background: #f4f6f9;
+}
+
+/* Appraisal Status: the table's loading spinner in the theme orange ($primary). */
+.appraisal-status-grid .p-datatable-loading-icon {
+  color: #fe9f43;
+}
+
+/* Appraisal Status: every status badge the same, slightly larger size (the shared
+   Badge enlarges only green ones with !important, so this does too). */
+.badge.appraisal-status-badge {
+  padding: 5px 12px !important;
+  font-size: 12px !important;
+  line-height: 1.2;
+  white-space: nowrap;
+}

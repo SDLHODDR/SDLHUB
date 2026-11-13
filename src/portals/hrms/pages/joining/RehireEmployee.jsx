@@ -253,14 +253,15 @@ const RehireEmployee = () => {
     <>
       <div className='page-header' style={{ marginBottom: '8px' }}>
         <div className='page-title'>
-          <BreadcrumbNav
-            items={[
-              { text: 'Home', link: '/hrms/dashboard' },
-              { text: 'Joining', link: '#' },
-              { text: 'Rehire Employee' }
-            ]}
-          />
+          <h4>Rehire Employee</h4>
         </div>
+        <BreadcrumbNav
+          items={[
+            { text: 'Home', link: '/hrms/dashboard' },
+            { text: 'Joining', link: '#' },
+            { text: 'Rehire Employee' }
+          ]}
+        />
       </div>
 
       <div className='row'>

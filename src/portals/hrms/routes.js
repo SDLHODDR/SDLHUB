@@ -26,6 +26,19 @@ import MastersAuthorization from "./authorization/masters/MastersAuthorization";
 import TenureChangeAuthorization from "./authorization/tenure/TenureChangeAuthorization";
 import RecruitmentAuthorization from "./authorization/recruitment/RecruitmentAuthorization";
 import ViewLogs from "./pages/reports/ViewLog";
+import FollowUpReport from "./pages/reports/FollowUpReport";
+import JdMasterReport from "./pages/reports/JdMasterReport";
+import OrganogramMasterReport from "./pages/reports/OrganogramMasterReport";
+import TenureChangeReport from "./pages/reports/TenureChangeReport";
+import OrganogramHierarchyReport from "./pages/reports/OrganogramHierarchyReport";
+import OrganogramHierarchyVisualReport from "./pages/reports/OrganogramHierarchyVisualReport";
+import OrganogramHierarchyChart from "./pages/reports/OrganogramHierarchyChart";
+import CandidateTrackerReport from "./pages/reports/CandidateTrackerReport";
+import OpenPositionsReport from "./pages/reports/OpenPositionsReport";
+import RequisitionTrackerReport from "./pages/reports/RequisitionTrackerReport";
+import AppraisalSetup from "./pages/appraisal/AppraisalSetup";
+import AppraisalStatus from "./pages/appraisal/AppraisalStatus";
+import FinalAppraisal from "./pages/appraisal/FinalAppraisal";
 import SeparationRequest from "./pages/separation/SeparationRequest";
 import NewEmployee from "./pages/joining/NewEmployee";
 import CandidateList from "./pages/recruitment/CandidateList";
@@ -87,7 +100,19 @@ export const hrmsRoutes = [
 	//{path: "hrms/taskauthorization/A/:tid", element: AppraisalAuthorization,},
 	// {path: "hrms/taskauthorization/349", element: EmployeeTransferAuthorization,},
   { path: "hrms/reports/view-logs", element: ViewLogs },
-  // { path: "hrms/reports/tenure-change", element: TenureChange },
+  { path: "hrms/reports/follow-up", element: FollowUpReport },
+  { path: "hrms/reports/jd-master", element: JdMasterReport },
+  { path: "hrms/reports/organogram-master", element: OrganogramMasterReport },
+  { path: "hrms/reports/tenure-change", element: TenureChangeReport },
+  { path: "hrms/reports/organogram-hierarchy", element: OrganogramHierarchyReport },
+  { path: "hrms/reports/organogram-hierarchy-visual", element: OrganogramHierarchyVisualReport },
+  { path: "hrms/reports/organogram-hierarchy-visual/chart", element: OrganogramHierarchyChart },
+  { path: "hrms/reports/candidate-tracker", element: CandidateTrackerReport },
+  { path: "hrms/reports/open-positions", element: OpenPositionsReport },
+  { path: "hrms/reports/requisition-tracker", element: RequisitionTrackerReport },
+  { path: "hrms/appraisal/appraisal-setup", element: AppraisalSetup },
+  { path: "hrms/appraisal/appraisal-status", element: AppraisalStatus },
+  { path: "hrms/appraisal/final-appraisal", element: FinalAppraisal },
   {path: "hrms/taskauthorization/M/:tid", element: MastersAuthorization,},
 
   // { path: "hrms/maintainance/department", element: Department }
