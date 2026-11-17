@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useDispatch } from "react-redux";
 import {
   getFinEntities,
@@ -67,6 +67,10 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
   const [departmentOptions, setDepartmentOptions] = useState([])
   const [designationOptions, setDesignationOptions] = useState([])
   const [jdLabelOptions, setJdLabelOptions] = useState([])
+  // JD ID -> its Band/Level (HR_ORG_LEVEL), so Org Level follows the JD
+  // like legacy org_sv.php getOLVL. The ref serves handleFieldChange.
+  const [jdLevelById, setJdLevelById] = useState({})
+  const jdLevelByIdRef = useRef({})
   const [divisionOptions, setDivisionOptions] = useState([])
   const [empLevelOptions, setEmpLevelOptions] = useState([])
   const [orgLevelOptions, setOrgLevelOptions] = useState([])
@@ -202,9 +206,19 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
         setLoadingJdLabels(true)
         const res = await getJDLabels({
           DEPARTMENT_ID: formData.DEPARTMENT_ID,
-          DESIGNATION_ID: formData.DESIGNATION_ID
+          DESIGNATION_ID: formData.DESIGNATION_ID,
+          // Lets the backend keep this organogram's current JD listed even
+          // when it is not authorized; other JDs must be STATUS 'A'.
+          ORGANOGRAM_ID: organogramId || ''
         })
         setJdLabelOptions(mapToOptions(res?.data, 'LABEL', 'ID'))
+        const levels = Object.fromEntries(
+          (Array.isArray(res?.data) ? res.data : [])
+            .filter(item => item?.LVL_ID !== null && item?.LVL_ID !== undefined && item?.LVL_ID !== '')
+            .map(item => [String(item.ID), String(item.LVL_ID)])
+        )
+        jdLevelByIdRef.current = levels
+        setJdLevelById(levels)
       } catch (error) {
         console.error('Load JD labels error:', error)
         notifyError(error?.message || 'Unable to load JD labels.')
@@ -214,7 +228,7 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
     }
 
     loadJdLabels()
-  }, [formData.DEPARTMENT_ID, formData.DESIGNATION_ID])
+  }, [formData.DEPARTMENT_ID, formData.DESIGNATION_ID, organogramId])
 
   /* ==========================================================
       FIELD CHANGE (resets dependent fields — manual edits only)
@@ -243,6 +257,10 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
       }
       if (field === 'DESIGNATION_ID') {
         next.JD_LABEL_ID = ''
+      }
+      if (field === 'JD_LABEL_ID') {
+        const jdLevel = jdLevelByIdRef.current[String(value)]
+        if (jdLevel) next.ORG_LEVEL_ID = jdLevel
       }
       return next
     })
@@ -364,6 +382,22 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
     return status === "N" || status === "R" || status === "REJECTED";
   }, [formData?.STATUS]);
 
+  // Org Level choices: the selected JD's level, else the levels of the JDs
+  // listed for this department/designation. All levels when none are known.
+  const allowedOrgLevelOptions = useMemo(() => {
+    const listedIds = new Set(jdLabelOptions.map(option => String(option.value)))
+    const selectedLevel = listedIds.has(String(formData.JD_LABEL_ID))
+      ? jdLevelById[String(formData.JD_LABEL_ID)]
+      : undefined
+    const allowed = selectedLevel
+      ? [selectedLevel]
+      : Object.entries(jdLevelById)
+          .filter(([jdId]) => listedIds.has(jdId))
+          .map(([, level]) => level)
+    if (allowed.length === 0) return orgLevelOptions
+    return orgLevelOptions.filter(option => allowed.includes(String(option.value)))
+  }, [orgLevelOptions, jdLabelOptions, jdLevelById, formData.JD_LABEL_ID])
+
   return {
     formData,
     errors,
@@ -379,7 +413,7 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
     jdLabelOptions,
     divisionOptions,
     empLevelOptions,
-    orgLevelOptions,
+    orgLevelOptions: allowedOrgLevelOptions,
     loadingMasters,
     loadingDesignations,
     loadingJdLabels,

@@ -50,5 +50,6 @@ export const joiningDetailTabs = taskSection => [
   { key: 'family', label: 'Family Details' },
   { key: 'access', label: 'Application Access' },
   { key: 'kra', label: 'KRA' },
-  ...(taskSection === 'ctc' ? [{ key: 'ctc', label: 'CTC' }] : [])
+  ...(taskSection === 'ctc' ? [{ key: 'ctc', label: 'CTC' }] : []),
+  ...(taskSection === 'documents' ? [{ key: 'documents', label: 'Documents' }] : [])
 ]

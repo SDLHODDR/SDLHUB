@@ -3,7 +3,7 @@ import SaveButton from '../../../../../shared/components/buttons/SaveButton'
 import SDLDataTable from '../../../../../shared/components/datatable/SDLDataTable'
 import SDLSearch from '../../../../../shared/components/datatable/SDLSearch'
 import RecruitmentModal from '../../../pages/recruitment/RecruitmentModal'
-import { ActionError, CandidateName, CvLink, FlowSummary, SecondaryButton, StatusBadge } from './flowShared'
+import { ActionError, CandidateName, CvLink, FlowSummary, StatusBadge } from './flowShared'
 import { useFlowTask } from './useFlowTask'
 
 const TASK_SEND_SUITABLE = 6
@@ -23,7 +23,15 @@ const matches = (candidate, query) => {
 /* Send Suitable Candidates (6): applicants and verified candidates; shortlisted / rejected ones are locked. */
 const SendSuitableBody = ({ details, selected, setSelected, busy }) => {
   const [query, setQuery] = useState('')
-  const rows = useMemo(() => details.candidates.filter(c => matches(c, query)), [details.candidates, query])
+  // The selection is part of each row: the table only redraws a cell when its row data changes,
+  // so a checkbox reading `selected` from outside would keep showing the old state.
+  const rows = useMemo(
+    () =>
+      details.candidates
+        .filter(c => matches(c, query))
+        .map(c => ({ ...c, isSelected: c.applicationStatus === 'A' || selected.has(c.id) })),
+    [details.candidates, query, selected]
+  )
 
   const toggle = id =>
     setSelected(current => {
@@ -45,7 +53,7 @@ const SendSuitableBody = ({ details, selected, setSelected, busy }) => {
             type='checkbox'
             className='form-check-input'
             aria-label={`Select ${row.name}`}
-            checked={row.applicationStatus === 'A' || selected.has(row.id)}
+            checked={row.isSelected}
             disabled={locked || busy}
             onChange={() => toggle(row.id)}
           />
@@ -205,14 +213,20 @@ const CandidatesTask = ({ taskId, title, record, onClose, onSuccess }) => {
             Send Selected Candidates
           </SaveButton>
         ) : (
-          <>
-            <SecondaryButton onClick={() => shortlist('save')} disabled={busy}>
+          <div className='d-flex gap-2'>
+            <SaveButton onClick={() => shortlist('save')} disabled={busy}>
               Save
-            </SecondaryButton>
-            <SaveButton onClick={() => shortlist('authorize')} isSubmitting={busy}>
-              Authorize
             </SaveButton>
-          </>
+            {/* Green, like the Send for Auth buttons. */}
+            <button
+              type='button'
+              className='btn btn-success'
+              onClick={() => shortlist('authorize')}
+              disabled={busy}
+            >
+              {busy ? 'Processing...' : 'Authorize'}
+            </button>
+          </div>
         )
       }
     >

@@ -3,6 +3,7 @@ import CancelButton from '../../../../shared/components/buttons/CancelButton'
 import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import SDLCalendar from '../../../../shared/components/calendar/SDLCalendar'
 import { parseDateValue, toDateInputValue } from '../../../../shared/utils/commonUtils'
+import Swal from 'sweetalert2'
 import { confirmAction } from '../../../../shared/services/alertService'
 import useExitTask from '../../hooks/useExitTask'
 import {
@@ -13,6 +14,32 @@ import ExitModalShell from './ExitModalShell'
 import { RESIGNATION_TYPES, RESIGNATION_MODES } from './exitOptions'
 
 const RequiredMark = () => <span className='text-danger'>*</span>
+
+const escapeHtml = value =>
+  String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[char])
+
+const todayIso = () => toDateInputValue(new Date())
+
+// Same look as confirmAction, but with HTML so the release date stands out.
+const confirmHtml = async (title, html, confirmButtonText = 'Yes') => {
+  const result = await Swal.fire({
+    icon: 'warning',
+    title,
+    html,
+    showCancelButton: true,
+    confirmButtonText,
+    cancelButtonText: 'Cancel',
+    customClass: {
+      popup: 'dreampos-popup',
+      confirmButton: 'dreampos-btn-primary',
+      cancelButton: 'btn btn-secondary'
+    },
+    buttonsStyling: false
+  })
+  return Boolean(result.isConfirmed)
+}
 
 const labelFor = (options, value) =>
   options.find(option => option.value === value)?.label || value || '-'
@@ -77,11 +104,29 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
   const handleDeactivate = async () => {
     if (!validate('deactivate')) return
     const openCount = clearances.filter(item => item.status === 'Open').length
-    const confirmed = await confirmAction(
+    const releaseDate = separation.relievingDate || '-'
+    const releaseIso = separation.relievingDateIso || ''
+    const confirmed = await confirmHtml(
       'Deactivate employee?',
-      `This will deactivate the employee from all systems and generate the relieving letter task.${openCount ? ` ${openCount} department exit activit${openCount === 1 ? 'y is' : 'ies are'} still open.` : ''}`
+      `<p class="mb-2">This will deactivate the employee from all systems and generate the relieving letter task.</p>
+       <p class="mb-2">Approved Release Date: <strong class="text-danger" style="font-size:16px;font-weight:700">${escapeHtml(releaseDate)}</strong></p>${
+        openCount
+          ? `<p class="mb-0">${openCount} department exit activit${openCount === 1 ? 'y is' : 'ies are'} still open.</p>`
+          : ''
+      }`
     )
     if (!confirmed) return
+
+    // Deactivating before the approved release date needs a second confirmation.
+    if (releaseIso && releaseIso > todayIso()) {
+      const reconfirmed = await confirmHtml(
+        'Release date not reached',
+        `<p class="mb-2">The approved release date <strong class="text-danger" style="font-size:16px;font-weight:700">${escapeHtml(releaseDate)}</strong> is after today.</p>
+         <p class="mb-0">Are you sure you want to deactivate this employee before the release date?</p>`,
+        'Yes, deactivate now'
+      )
+      if (!reconfirmed) return
+    }
     run(
       'deactivate',
       () =>

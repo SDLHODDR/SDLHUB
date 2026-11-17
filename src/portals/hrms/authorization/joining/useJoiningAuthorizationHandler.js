@@ -21,13 +21,16 @@ export const useJoiningAuthorizationHandler = (tid = 0) => {
   useEffect(() => {
     let mounted = true;
     try {
-      const flattened = (authJOINdata || []).map((item) => {
-        return {
-          ...item,
-          exit_arr_data: authExitArrdata || "",
-          join_arr_data: authJOINArrdata || "",
-        };
-      });
+      // Newest tasks first (task IDs only increase).
+      const flattened = [...(authJOINdata || [])]
+        .sort((a, b) => (Number(b.ID) || 0) - (Number(a.ID) || 0))
+        .map((item) => {
+          return {
+            ...item,
+            exit_arr_data: authExitArrdata || "",
+            join_arr_data: authJOINArrdata || "",
+          };
+        });
       if (mounted) setListData(flattened);
     } catch (error) {
       console.error(error);
@@ -55,10 +58,13 @@ export const useJoiningAuthorizationHandler = (tid = 0) => {
   console.log("==================authJOINdata=================", authJOINdata);
   console.log("==================listData=================", listData);
 
+  const refresh = useCallback(() => setRefreshKey((key) => key + 1), []);
+
   return {
     loading,
     searchQuery,
     setSearchQuery,
     filteredData,
+    refresh,
   };
 };

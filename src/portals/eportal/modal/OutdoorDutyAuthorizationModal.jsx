@@ -4,8 +4,7 @@ import { getGpAttdData, authGPData, rejectGPData, closeTaskData } from "../servi
 import { notifyError, notifySuccess } from "../../../shared/services/alertService";
 import SDLAuthorizationActionButtons from "../../../shared/components/buttons/SDLAuthorizationActionButtons";
 import AttendanceLogForOD from "./AttendanceLogForOD";
-
-const FILE_BASE_URL = import.meta.env.VITE_FILE_BASE_URL || "";
+import { DOC_FOLDERS, downloadUrl } from "../../../shared/config/documentPaths";
 
 const OutdoorDutyAuthorizationModal = ({
   outddorduty,
@@ -32,13 +31,11 @@ const OutdoorDutyAuthorizationModal = ({
   const [gpAttdData, setGPAttdData] = useState({});
 
   const getByteLength = (str) => new TextEncoder().encode(str || "").length;
-  const FILE_BASE_URL = import.meta.env.VITE_DOWNLOAD_URL || "";
 
   const buildFileUrl = (path) => {
   if (!path) return "";
   if (/^https?:\/\//i.test(path)) return path; // already a full URL, don't double-prefix
-  // FILE_BASE_URL already ends with "/", so just strip any leading "/" from path to avoid "//"
-  return `${FILE_BASE_URL}${String(path).replace(/^\/+/, "")}`;
+  return downloadUrl(path);
 };
 
   const [formData, setFormData] = useState(() => ({
@@ -171,7 +168,7 @@ const OutdoorDutyAuthorizationModal = ({
   : "";
 
   const attachmentUrl = attachmentFileName
-    ? `${import.meta.env.VITE_DOWNLOAD_URL}input/gatepass/${attachmentFileName}`
+    ? downloadUrl(`${DOC_FOLDERS.GATEPASS}/${attachmentFileName}`)
     : "";
 
   const hasGpAttdInfo =

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
 //import JoiningAuthorizationModal from "../../../../../_archive/src/portals/hrms/modal/JoiningAuthorizationModal";
@@ -7,6 +8,10 @@ import "../../../../shared/assets/css/companyPolicies.css";
 import { formatDashDate } from "../../../../shared/utils/formatUtils";
 import { useJoiningAuthorizationHandler } from "./useJoiningAuthorizationHandler";
 import { getJoiningAuthorizationColumns } from "./JoiningAuthorizationColumns";
+import AppointmentLetterModal from "./AppointmentLetterModal";
+
+// Print Appointment Letter opens its own modal.
+const APPOINTMENT_LETTER_TASK = "44";
 
 // Map TASK_ID -> page title / API endpoint / column config
 const JOINING_TASK_CONFIG = {
@@ -27,14 +32,19 @@ const JOINING_TASK_CONFIG = {
 
 // These open the employee on the Employee Information page: 45 to authorize,
 // the others on their own tab with Save and Submit.
-const TASKS_OPENING_EMPLOYEE_PAGE = ["34", "35", "36", "37", "38", "39", "41", "42", "43", "45"];
+const TASKS_OPENING_EMPLOYEE_PAGE = ["13", "34", "35", "36", "37", "38", "39", "41", "42", "43", "45"];
 
 const JoiningAuthorization = () => {
     const { tid } = useParams();
     const navigate = useNavigate();
     const config = JOINING_TASK_CONFIG[tid];
+    const [letterRecord, setLetterRecord] = useState(null);
 
     const handleRowClick = (record) => {
+        if (String(tid) === APPOINTMENT_LETTER_TASK && record?.ID) {
+            setLetterRecord(record);
+            return;
+        }
         if (!TASKS_OPENING_EMPLOYEE_PAGE.includes(String(tid)) || !record?.TRAN_CODE) return;
         navigate(
             `/hrms/masterdata/employee?emp_code=${encodeURIComponent(record.TRAN_CODE)}&user_task_id=${encodeURIComponent(record.ID)}`
@@ -46,6 +56,7 @@ const JoiningAuthorization = () => {
         searchQuery,
         setSearchQuery,
         filteredData,
+        refresh,
         //showModal,
         //closeModal,
         //handleModalSuccess,
@@ -116,6 +127,13 @@ const JoiningAuthorization = () => {
                     onSuccess={handleModalSuccess}
                 />
             )} */}
+            {letterRecord && (
+                <AppointmentLetterModal
+                    record={letterRecord}
+                    onClose={() => setLetterRecord(null)}
+                    onDone={refresh}
+                />
+            )}
         </>
     );
 };

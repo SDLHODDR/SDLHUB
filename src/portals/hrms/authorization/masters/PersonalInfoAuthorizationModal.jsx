@@ -12,6 +12,7 @@ import {
 
 // Correct import from HRMS slice for top header badge count
 import { getHRMSAuthroizationTaskCount } from "../../store/hrmsAuthorizationCountSlice";
+import { documentViewerUrl } from "../../../../shared/config/documentPaths";
 
 /* =========================================================
    HELPER: Generate HTTP URL that passes file path to PHP
@@ -23,15 +24,8 @@ const getDocumentUrl = (docPath) => {
     return docPath;
   }
 
-  // Strip leading slash if any
-  const cleanPath = docPath.startsWith("/") ? docPath.slice(1) : docPath;
-
-  // Uses your PHP endpoint to safely fetch from /mnt/documents
-  const viewerUrl =
-    import.meta.env.VITE_DOCUMENT_VIEWER_URL ||
-    `${import.meta.env.VITE_BASE_URL}/common/view_document.php`;
-
-  return `${viewerUrl}?file=${encodeURIComponent(cleanPath)}`;
+  // Backend view_document.php streams the file from DOCUMENT_ROOT.
+  return documentViewerUrl(docPath);
 };
 
 const PersonalInfoAuthorizationModal = ({

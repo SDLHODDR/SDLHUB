@@ -26,6 +26,9 @@ import {
   getDivisionList,
   getInductionList,
   getOrganogramList,
+  getJdDeptActivityCounts,
+  uploadJobDescriptionDoc,
+  getJobDescriptionDocUrl,
   sendJobDescriptionForAuth
 } from '../../services/jobDescriptionService'
 import { notifySuccess, notifyError } from '../../../../shared/services/alertService'
@@ -173,6 +176,7 @@ const INITIAL_FORM_DATA = {
     DISP_SEQ: ''
   },
   INDUCTION_LIST: [],
+  MISSING_TABS: [],
   UPLOAD_DOC: null
 }
 
@@ -199,6 +203,8 @@ const JobDescription = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [jobData, setJobData] = useState([])
   const [departments, setDepartments] = useState([])
+  const [deptActivityCounts, setDeptActivityCounts] = useState({})
+  const [docInputKey, setDocInputKey] = useState(0)
   const [designations, setDesignations] = useState([])
   const [levels, setLevels] = useState([])
   const [selectedJobId, setSelectedJobId] = useState('')
@@ -283,7 +289,8 @@ const JobDescription = () => {
         questionGroupResponse,
         divisionResponse,
         inductionResponse,
-        organogramResponse
+        organogramResponse,
+        deptActivityResponse
       ] = await Promise.all([
         getJobDescriptions(),
         getDepartmentMasterData(),
@@ -302,7 +309,11 @@ const JobDescription = () => {
         getQuestionGroupList(),
         getDivisionList(),
         getInductionList(),
-        getOrganogramList()
+        getOrganogramList(),
+        getJdDeptActivityCounts().catch(error => {
+          console.error('Load department activity counts error:', error)
+          return null
+        })
       ])
 
       setJobData(normalizeRecords(jobsResponse))
@@ -323,6 +334,17 @@ const JobDescription = () => {
       setDivisionList(normalizeRecords(divisionResponse))
       setInductionList(normalizeRecords(inductionResponse))
       setOrganogramList(normalizeRecords(organogramResponse))
+      setDeptActivityCounts(
+        Object.fromEntries(
+          (deptActivityResponse?.data?.counts || []).map(row => [
+            String(row.DEPT_ID),
+            {
+              joining: Number(row.JOINING_COUNT) || 0,
+              exit: Number(row.EXIT_COUNT) || 0
+            }
+          ])
+        )
+      )
     } catch (error) {
       console.error('Error loading job descriptions page data:', error)
       notifyError(error?.message || 'Unable to load job description data.')
@@ -970,6 +992,7 @@ const JobDescription = () => {
       })
 
       setEditingCtcId(null)
+      setDocInputKey(key => key + 1)
 
       // Fetch complete job description details from DB
       const response = await getJobDescriptionById(job.ID)
@@ -1032,6 +1055,8 @@ const JobDescription = () => {
         MAX_SAL: selectedJob.MAX_SAL || '',
 
         REPT_JDID: selectedJob.REPT_JDID || '',
+        JD_DOC_PATH: selectedJob.JD_DOC_PATH || '',
+        UPLOAD_DOC: null,
 
         RESPONSIBILITIES_LIST: Array.isArray(job.RESPONSIBILITIES_LIST)
           ? job.RESPONSIBILITIES_LIST
@@ -1102,6 +1127,7 @@ const JobDescription = () => {
           DISP_SEQ: question.DISP_SEQ
         })),
         QUESTION_TEMPLATE_LIST: savedQuestionAssignments,
+        MISSING_TABS: Array.isArray(selectedJob.MISSING_TABS) ? selectedJob.MISSING_TABS : [],
 
         // RESPONSIBILITIES_LIST: Array.isArray(selectedJob.RESPONSIBILITIES_LIST)
         //   ? selectedJob.RESPONSIBILITIES_LIST
@@ -1242,6 +1268,7 @@ const JobDescription = () => {
           DISP_SEQ: question.DISP_SEQ
         })),
         QUESTION_TEMPLATE_LIST: savedQuestionAssignments,
+        MISSING_TABS: Array.isArray(job.MISSING_TABS) ? job.MISSING_TABS : [],
 
         KRA: Array.isArray(job.KRA_LIST)
           ? job.KRA_LIST.map(item => item.KRA_ID)
@@ -2093,6 +2120,8 @@ const refreshSavedJobDetails = async jobId => {
     setFormData(prev => ({
       ...prev,
       STATUS: job.STATUS ?? job.status ?? prev.STATUS ?? 'N',
+      MISSING_TABS: Array.isArray(job.MISSING_TABS) ? job.MISSING_TABS : [],
+      JD_DOC_PATH: job.JD_DOC_PATH ?? prev.JD_DOC_PATH ?? '',
       KRA: kraList.map(item => item.KRA_ID ?? item.kra_id).filter(Boolean),
       KRA_LIST: kraList,
       EDUCATION_LIST: educationList,
@@ -2306,11 +2335,26 @@ if (!isValid) {
           )
           break
 
-        case 'deptref':
+        case 'deptref': {
+          const withoutActivities = (formData.DEPT_REFERENCES || []).filter(
+            item => {
+              const counts = deptActivityCounts[String(item.deptId)]
+              return !counts || counts.joining + counts.exit === 0
+            }
+          )
+          if (withoutActivities.length > 0) {
+            notifyError(
+              `These departments have no Joining/Exit activities defined and cannot be referenced: ${withoutActivities
+                .map(item => item.deptName || item.deptId)
+                .join(', ')}.`
+            )
+            return false
+          }
           payload.dept_references = JSON.stringify(
             formData.DEPT_REFERENCES || []
           )
           break
+        }
 
         case 'division':
           payload.division_mapping = JSON.stringify(
@@ -2414,6 +2458,32 @@ if (!isValid) {
     if (response?.status) {
       const savedJobId = response?.data?.id || formData.id || selectedJobId
 
+      // The document is uploaded separately once the JD has an ID.
+      if (
+        (activeTab === 'basic' || !isExistingJD) &&
+        savedJobId &&
+        formData.UPLOAD_DOC instanceof File
+      ) {
+        try {
+          const uploadResponse = await uploadJobDescriptionDoc(
+            savedJobId,
+            formData.UPLOAD_DOC
+          )
+          if (uploadResponse?.status) {
+            setFormData(prev => ({
+              ...prev,
+              UPLOAD_DOC: null,
+              JD_DOC_PATH: uploadResponse?.data?.JD_DOC_PATH || prev.JD_DOC_PATH
+            }))
+            setDocInputKey(key => key + 1)
+          } else {
+            notifyError(uploadResponse?.message || 'Unable to upload the document.')
+          }
+        } catch (uploadError) {
+          notifyError(uploadError?.message || 'Unable to upload the document.')
+        }
+      }
+
       await loadData()
 
       if (savedJobId) {
@@ -2493,6 +2563,31 @@ if (!isValid) {
     if (formData.STATUS === 'T') {
       notifyError('This Job Description is already pending authorization.')
       return
+    }
+
+    // Every tab must hold data before authorization (department references
+    // drive the joining/exit activity tasks). Re-check against saved data so
+    // a tab saved without a refresh is not reported as missing.
+    try {
+      const fresh = await getJobDescriptionById(formData.id)
+      const freshJob = fresh?.data?.jobDescription || fresh?.jobDescription
+      const missingTabs = Array.isArray(freshJob?.MISSING_TABS)
+        ? freshJob.MISSING_TABS
+        : []
+      setFormData(prev => ({ ...prev, MISSING_TABS: missingTabs }))
+      // Basic Details is saved as part of this action, so it is validated below.
+      const blocking = missingTabs.filter(tab => tab.key !== 'basic')
+      if (blocking.length > 0) {
+        setActiveTab(blocking[0].key)
+        notifyError(
+          `Please fill these tabs before sending for authorization: ${blocking
+            .map(tab => tab.label)
+            .join(', ')}.`
+        )
+        return
+      }
+    } catch (error) {
+      console.error('JD completeness check error:', error)
     }
 
     // Basic Details / Education are validated here even when another tab is
@@ -2588,6 +2683,12 @@ if (!isValid) {
       }
     } catch (error) {
       console.error('Send job description for authorization error:', error)
+
+      const missingTabs = error?.data?.data?.missing_tabs
+      if (Array.isArray(missingTabs) && missingTabs.length > 0) {
+        setFormData(prev => ({ ...prev, MISSING_TABS: missingTabs }))
+        setActiveTab(missingTabs[0].key)
+      }
 
       notifyError(
         error?.message || 'Unable to send job description for authorization.'
@@ -2979,6 +3080,18 @@ if (!isValid) {
     ['induction', 'Induction']
   ]
 
+  const deptRefOptions = [...departmentOptions].sort((a, b) => {
+    const total = dept => {
+      const counts = deptActivityCounts[String(dept.value)]
+      return counts ? counts.joining + counts.exit : 0
+    }
+    return (total(b) > 0) - (total(a) > 0)
+  })
+
+  const missingTabKeys = new Set(
+    showAllTabs ? (formData.MISSING_TABS || []).map(tab => tab.key) : []
+  )
+
   const visibleTabs = showAllTabs
     ? tabs
     : tabs.filter(([key]) => key === 'basic')
@@ -3117,6 +3230,17 @@ if (!isValid) {
                 </div>
               ) : showForm && (
                 <form onSubmit={handleSave}>
+                  {missingTabKeys.size > 0 && (
+                    <div className='alert alert-danger py-2 mb-3'>
+                      <i className='fa-solid fa-triangle-exclamation me-2' />
+                      Fill these tabs before sending for authorization:{' '}
+                      <strong>
+                        {(formData.MISSING_TABS || [])
+                          .map(tab => tab.label)
+                          .join(', ')}
+                      </strong>
+                    </div>
+                  )}
                   {/* ============================
                     TABS
                     ============================ */}
@@ -3124,7 +3248,17 @@ if (!isValid) {
                   <SDLTabsComponent
                     tabs={visibleTabs.map(([key, label]) => ({
                       key,
-                      label
+                      label: missingTabKeys.has(key) ? (
+                        <span
+                          className='text-danger'
+                          title='No data saved in this tab'
+                        >
+                          {label}
+                          <i className='fa-solid fa-circle-exclamation ms-1' />
+                        </span>
+                      ) : (
+                        label
+                      )
                     }))}
                     selectedTab={activeTab}
                     onTabChange={setActiveTab}
@@ -3381,8 +3515,10 @@ if (!isValid) {
                               </label>
 
                               <input
+                                key={docInputKey}
                                 type='file'
                                 className='form-control'
+                                accept='.pdf,.doc,.docx,.jpg,.jpeg,.png'
                                 onChange={e =>
                                   handleFieldChange(
                                     'UPLOAD_DOC',
@@ -3390,6 +3526,20 @@ if (!isValid) {
                                   )
                                 }
                               />
+                              <div className='d-flex justify-content-between small mt-1'>
+                                <span className='text-muted'>
+                                  PDF, DOC/DOCX, JPG or PNG, up to 2 MB
+                                </span>
+                                {formData.id && formData.JD_DOC_PATH && (
+                                  <a
+                                    href={getJobDescriptionDocUrl(formData.id)}
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                  >
+                                    View current document
+                                  </a>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -4144,14 +4294,24 @@ if (!isValid) {
                         <label style={jdStyles.label}>
                           Department Reference
                         </label>
+                        <p className='text-muted small mb-3'>
+                          Only departments with Joining (J) or Exit (E)
+                          activities defined can be selected. Their activity
+                          tasks are created for this JD's joinings and exits.
+                        </p>
 
                         <div className='row'>
-                          {departmentOptions.map(dept => {
+                          {deptRefOptions.map(dept => {
                             const isChecked = (
                               formData.DEPT_REFERENCES || []
                             ).some(
                               item => String(item.deptId) === String(dept.value)
                             )
+                            const counts = deptActivityCounts[
+                              String(dept.value)
+                            ] || { joining: 0, exit: 0 }
+                            const hasActivities =
+                              counts.joining + counts.exit > 0
 
                             return (
                               <div className='col-md-3 mb-2' key={dept.value}>
@@ -4161,6 +4321,7 @@ if (!isValid) {
                                     className='form-check-input'
                                     id={`dept-${dept.value}`}
                                     checked={isChecked}
+                                    disabled={!hasActivities && !isChecked}
                                     onChange={e => {
                                       if (e.target.checked) {
                                         setFormData(prev => ({
@@ -4189,10 +4350,26 @@ if (!isValid) {
                                   />
 
                                   <label
-                                    className='form-check-label'
+                                    className={`form-check-label ${
+                                      hasActivities
+                                        ? ''
+                                        : isChecked
+                                          ? 'text-danger'
+                                          : 'text-muted'
+                                    }`}
                                     htmlFor={`dept-${dept.value}`}
+                                    title={
+                                      hasActivities
+                                        ? `${counts.joining} joining and ${counts.exit} exit activities`
+                                        : isChecked
+                                          ? 'No activities defined. Untick this department.'
+                                          : 'No activities defined for this department'
+                                    }
                                   >
-                                    {dept.label}
+                                    {dept.label}{' '}
+                                    <span className='small text-nowrap'>
+                                      (J: {counts.joining} | E: {counts.exit})
+                                    </span>
                                   </label>
                                 </div>
                               </div>

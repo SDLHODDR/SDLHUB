@@ -19,6 +19,32 @@ export const getJobDescriptionById = (id) =>
     params: { id },
   });
 
+// Joining/Exit activity counts per department (Department Reference tab).
+export const getJdDeptActivityCounts = () =>
+  hrmsRequest({
+    url: HRMS_API.MAINTAINANCE.JD_DEPT_ACTIVITY_COUNTS,
+    method: "GET",
+  });
+
+// Upload the JD document (Basic Details) and build its login-protected view URL.
+export const uploadJobDescriptionDoc = (id, file) => {
+  const formData = new FormData();
+  formData.append("id", id);
+  formData.append("doc", file);
+  return hrmsRequest({
+    url: HRMS_API.MAINTAINANCE.JD_DOC_UPLOAD,
+    method: "POST",
+    data: formData,
+    // Override the instance's JSON content type (see policyService.savePolicy).
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const getJobDescriptionDocUrl = (id) =>
+  `${import.meta.env.VITE_API_URL || ""}/hrms${HRMS_API.MAINTAINANCE.JD_DOC_VIEW}?id=${encodeURIComponent(id)}`;
+
 export const saveJobDescription = (payload = {}) =>
   hrmsRequest({
     url: HRMS_API.MAINTAINANCE.JOB_DESCRIPTION_SAVE,

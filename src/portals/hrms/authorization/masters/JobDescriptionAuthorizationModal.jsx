@@ -117,7 +117,18 @@ const JobDescriptionAuthorizationModal = ({ show, record, onClose, onSuccess }) 
     induction: Array.isArray(job?.INDUCTION_LIST) ? job.INDUCTION_LIST : []
   }), [job])
 
+  const missingTabs = useMemo(
+    () => (Array.isArray(job?.MISSING_TABS) ? job.MISSING_TABS : []),
+    [job]
+  )
+  const missingTabKeys = new Set(missingTabs.map(tab => tab.key))
+
   const handleDecision = async decision => {
+    if (decision === 'A' && missingTabs.length > 0) {
+      notifyError(`This Job Description cannot be accepted. These tabs have no data: ${missingTabs.map(tab => tab.label).join(', ')}.`)
+      setActiveTab(missingTabs[0].key)
+      return
+    }
     if (decision === 'R' && !remark.trim()) {
       notifyError('Please enter a remark before rejecting this Job Description.')
       return
@@ -198,7 +209,16 @@ const JobDescriptionAuthorizationModal = ({ show, record, onClose, onSuccess }) 
         </div>
         <div className='modal-body overflow-auto'>
           {loading ? <div className='text-center py-5'><span className='spinner-border' role='status' /><div className='mt-2'>Loading Job Description...</div></div> : job ? <>
-            <SDLTabsComponent tabs={tabs.map(([key, label]) => ({ key, label }))} selectedTab={activeTab} onTabChange={setActiveTab}>
+            {missingTabs.length > 0 && <div className='alert alert-danger py-2 mb-3'>
+              <i className='fa-solid fa-triangle-exclamation me-2' />
+              Incomplete Job Description. These tabs have no data: <strong>{missingTabs.map(tab => tab.label).join(', ')}</strong>. Reject it so the requester can complete it.
+            </div>}
+            <SDLTabsComponent tabs={tabs.map(([key, label]) => ({
+              key,
+              label: missingTabKeys.has(key)
+                ? <span className='text-danger' title='No data in this tab'>{label}<i className='fa-solid fa-circle-exclamation ms-1' /></span>
+                : label
+            }))} selectedTab={activeTab} onTabChange={setActiveTab}>
               {renderContent()}
             </SDLTabsComponent>
             <div className='mt-4'>
@@ -208,7 +228,7 @@ const JobDescriptionAuthorizationModal = ({ show, record, onClose, onSuccess }) 
           </> : <div className='text-center text-muted py-5'>Job Description details could not be loaded.</div>}
         </div>
         <div className='modal-footer'>
-          <button type='button' className='btn btn-success me-2' onClick={() => handleDecision('A')} disabled={loading || !job || submitting}>{submitting ? 'Processing...' : 'Accept'}</button>
+          <button type='button' className='btn btn-success me-2' onClick={() => handleDecision('A')} disabled={loading || !job || submitting || missingTabs.length > 0} title={missingTabs.length > 0 ? 'Incomplete Job Description' : undefined}>{submitting ? 'Processing...' : 'Accept'}</button>
           <button type='button' className='btn btn-danger' onClick={() => handleDecision('R')} disabled={loading || !job || submitting}>{submitting ? 'Processing...' : 'Reject'}</button>
         </div>
       </div>

@@ -12,6 +12,7 @@ import {
 
 // Correct import from HRMS slice for header count badge
 import { getHRMSAuthroizationTaskCount } from "../../store/hrmsAuthorizationCountSlice";
+import { DOC_FOLDERS, documentViewerUrl } from "../../../../shared/config/documentPaths";
 
 const FamilyAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
@@ -314,7 +315,7 @@ const FamilyAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
                       </div>
                     </div>
                     <a
-                      href={`/uploads/member_document/${details.DOC_PATH1}`}
+                      href={documentViewerUrl(`${DOC_FOLDERS.MEMBER_DOCS}/${details.DOC_PATH1}`)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-sm btn-outline-primary"

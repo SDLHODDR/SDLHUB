@@ -222,6 +222,15 @@ const NewEmployee = () => {
   const hasOffice = Boolean(record?.office)
   const busy = Boolean(busyAction)
   const status = record?.employee?.STATUS || ''
+  // Saved name, shown beside the code on every tab.
+  const employeeName = [
+    record?.employee?.FNAME,
+    record?.employee?.MNAME,
+    record?.employee?.LNAME
+  ]
+    .map(part => String(part || '').trim())
+    .filter(Boolean)
+    .join(' ')
   const statusInfo = STATUS_LABELS[status]
 
   const loadDrafts = useCallback(async () => {
@@ -410,6 +419,16 @@ const NewEmployee = () => {
 
   const handlePersonalChange = (name, rawValue) => {
     const value = typeof rawValue === 'string' ? cleanFieldValue(name, rawValue) : rawValue
+    // Office Effective From follows the joining date unless it was set to
+    // a different date.
+    if (name === 'DATE_OF_JOINING') {
+      const previousDoj = form.DATE_OF_JOINING
+      setOffice(current =>
+        !current.EFFECTIVE_FROM || current.EFFECTIVE_FROM === previousDoj
+          ? { ...current, EFFECTIVE_FROM: value || '' }
+          : current
+      )
+    }
     setForm(current => ({
       ...current,
       [name]: value,
@@ -1035,6 +1054,7 @@ const NewEmployee = () => {
                 <div className='d-flex align-items-center gap-2 mb-3'>
                   <strong style={{ fontSize: '14px' }}>
                     Employee Code: {empCode}
+                    {employeeName && ` | Employee Name: ${employeeName}`}
                   </strong>
                   {statusInfo && (
                     <span className={`badge ${statusInfo.className}`}>

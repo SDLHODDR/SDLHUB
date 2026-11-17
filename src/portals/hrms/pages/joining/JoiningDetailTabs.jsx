@@ -15,9 +15,12 @@ import {
 import { parseDateValue } from '../../../../shared/utils/commonUtils'
 import {
   deleteJoiningDetail,
+  deleteJoiningDocument,
+  employeeDocumentUrl,
   getJoiningCtcBreakup,
   saveJoiningDetail,
-  submitJoiningTask
+  submitJoiningTask,
+  uploadJoiningDocument
 } from '../../services/newEmployeeService'
 import { formStyles as styles, toDateValue, toOptions } from './joiningFormUtils'
 
@@ -76,7 +79,9 @@ const LIST_SECTIONS = {
       { header: 'Period', field: 'ETYPE_PERIOD' },
       { header: 'Effective From', date: 'EFF_FROM' },
       { header: 'Effective To', date: 'EFF_TO' }
-    ]
+    ],
+    // New rows start on the joining date.
+    joiningDateField: 'EFF_FROM'
   },
   bank: {
     title: 'Bank Details',
@@ -176,7 +181,8 @@ const LIST_SECTIONS = {
       { header: '%', field: 'RESP_PERC' },
       { header: 'Effective From', date: 'EFFEC_FROM' },
       { header: 'Effective To', date: 'EFFEC_TO' }
-    ]
+    ],
+    joiningDateField: 'EFFEC_FROM'
   }
 }
 
@@ -202,6 +208,15 @@ const basicFields = masters => [
 
 const emptyValues = fields =>
   Object.fromEntries(fields.map(field => [field.name, '']))
+
+// Empty form for a section; Effective From defaults to the joining date.
+const initialValues = (config, fields, details) => {
+  const values = emptyValues(fields)
+  if (config.joiningDateField && details.doj) {
+    values[config.joiningDateField] = details.doj
+  }
+  return values
+}
 
 const pickValues = (fields, row) =>
   Object.fromEntries(
@@ -347,7 +362,11 @@ const ListSection = ({ section, details, masters, isTask, userTaskId, onReload, 
   const [editId, setEditId] = useState('')
   const [errors, setErrors] = useState({})
   const [values, setValues] = useState(() =>
-    emptyValues(config.fields({ details, masters, values: {}, rows, editId: '' }))
+    initialValues(
+      config,
+      config.fields({ details, masters, values: {}, rows, editId: '' }),
+      details
+    )
   )
   const fields = config.fields({ details, masters, values, rows, editId })
   const { busyAction, setBusyAction, save, submit } = useTaskActions({
@@ -355,16 +374,31 @@ const ListSection = ({ section, details, masters, isTask, userTaskId, onReload, 
     onReload,
     onSubmitted
   })
-  const dirty = Boolean(editId) || Object.values(values).some(Boolean)
+  const dirty =
+    Boolean(editId) ||
+    Object.entries(values).some(
+      ([name, value]) =>
+        Boolean(value) &&
+        !(name === config.joiningDateField && value === details.doj)
+    )
 
   const resetForm = () => {
     setEditId('')
     setErrors({})
-    setValues(emptyValues(fields))
+    setValues(initialValues(config, fields, details))
   }
 
   const handleSave = async () => {
     const missing = findMissing(fields, values)
+    const dateField = config.joiningDateField
+    if (
+      dateField &&
+      details.doj &&
+      values[dateField] &&
+      values[dateField] < details.doj
+    ) {
+      missing[dateField] = 'Effective From cannot be before the date of joining.'
+    }
     setErrors(missing)
     if (Object.keys(missing).length) return
     if (await save(values, editId)) resetForm()
@@ -658,8 +692,8 @@ const CtcSection = ({ details, userTaskId, onReload, onSubmitted, onCancel }) =>
   }, [])
 
   const getBreakup = async (nextVariables = variables) => {
-    if (!(Number(ctc) > 0)) {
-      notifyError('Please enter a valid CTC.')
+    if (!(Number(ctc) >= 10000)) {
+      notifyError('Please enter the annual CTC in rupees (at least 10,000).')
       return
     }
     try {
@@ -671,8 +705,8 @@ const CtcSection = ({ details, userTaskId, onReload, onSubmitted, onCancel }) =>
   }
 
   const handleSave = async () => {
-    if (!(Number(ctc) > 0)) {
-      notifyError('Please enter a valid CTC.')
+    if (!(Number(ctc) >= 10000)) {
+      notifyError('Please enter the annual CTC in rupees (at least 10,000).')
       return
     }
     if (await save({ ctc, monthly, variables })) setDirty(false)
@@ -694,23 +728,35 @@ const CtcSection = ({ details, userTaskId, onReload, onSubmitted, onCancel }) =>
   return (
     <div>
       <div style={styles.sectionTitle}>CTC Details</div>
-      <div className='row align-items-end'>
+      <div className='row align-items-start'>
         <div className='col-lg-3 col-md-6'>
           <div style={styles.field}>
             <label style={styles.label}>
-              Enter CTC (In Lakhs)<span style={styles.required}>*</span>
+              Enter Annual CTC (In ₹)<span style={styles.required}>*</span>
             </label>
             <SDLInput
               value={ctc}
+              placeholder='e.g. 350000'
               onChange={event => {
                 setDirty(true)
-                setCtc(event.target.value.replace(/[^0-9.]/g, '').slice(0, 10))
+                // Whole rupees only, up to 9 digits (backend joiningCtcRupees).
+                setCtc(event.target.value.replace(/\D/g, '').slice(0, 9))
               }}
             />
+            {Number(ctc) > 0 && (
+              <small className='text-muted d-block mt-1'>
+                ₹{Number(ctc).toLocaleString('en-IN')} (
+                {(Number(ctc) / 100000).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Lakhs p.a.)
+              </small>
+            )}
           </div>
         </div>
         <div className='col-lg-3 col-md-6'>
           <div style={styles.field}>
+            {/* Blank label so the button lines up with the CTC input, not its hint. */}
+            <label style={{ ...styles.label, visibility: 'hidden' }} aria-hidden='true'>
+              &nbsp;
+            </label>
             <button
               type='button'
               className='btn btn-primary'
@@ -814,11 +860,168 @@ const CtcSection = ({ details, userTaskId, onReload, onSubmitted, onCancel }) =>
   )
 }
 
+/* Employee Document Upload task (13, legacy emp_doc_upload.php). */
+const DOCUMENT_ACCEPT = '.png,.jpg,.jpeg,.doc,.docx,.pdf'
+
+const DocumentsSection = ({ details, userTaskId, onReload, onSubmitted, onCancel }) => {
+  const { types = [], list = [] } = details.documents || {}
+  const [docTypeId, setDocTypeId] = useState('')
+  const [file, setFile] = useState(null)
+  const [inputKey, setInputKey] = useState(0)
+  const [errors, setErrors] = useState({})
+  const { busyAction, setBusyAction, submit } = useTaskActions({
+    userTaskId,
+    onReload,
+    onSubmitted
+  })
+
+  const handleUpload = async () => {
+    const next = {}
+    if (!docTypeId) next.docTypeId = 'Document type is required.'
+    if (!file) next.file = 'Please choose a document.'
+    setErrors(next)
+    if (Object.keys(next).length) return
+    setBusyAction('save')
+    try {
+      const response = await uploadJoiningDocument({ userTaskId, docTypeId, file })
+      if (!response?.status) throw new Error(response?.message)
+      notifySuccess(response.message || 'Document uploaded.')
+      setDocTypeId('')
+      setFile(null)
+      setInputKey(key => key + 1)
+      await onReload()
+    } catch (error) {
+      notifyError(error?.message || 'Unable to upload the document.')
+    } finally {
+      setBusyAction('')
+    }
+  }
+
+  const handleDelete = async doc => {
+    const confirmed = await confirmAction(
+      'Remove document?',
+      `${doc.DOCTYP_DESC || 'This document'} will be removed.`
+    )
+    if (!confirmed) return
+    setBusyAction('delete')
+    try {
+      const response = await deleteJoiningDocument({ userTaskId, id: doc.ID })
+      if (!response?.status) throw new Error(response?.message)
+      notifySuccess(response.message || 'Document removed.')
+      await onReload()
+    } catch (error) {
+      notifyError(error?.message || 'Unable to remove the document.')
+    } finally {
+      setBusyAction('')
+    }
+  }
+
+  return (
+    <div>
+      <div style={styles.sectionTitle}>Employee Document Upload</div>
+      <div className='row'>
+        <div className='col-lg-4 col-md-6'>
+          <div style={styles.field}>
+            <label style={styles.label}>
+              Document Type<span style={styles.required}>*</span>
+            </label>
+            <SDLReactSelect
+              value={docTypeId}
+              options={toOptions(types)}
+              onChange={value => {
+                setDocTypeId(value || '')
+                setErrors(current => ({ ...current, docTypeId: '' }))
+              }}
+              placeholder='Please Select'
+              isClearable
+              isSearchable
+              isDisabled={Boolean(busyAction)}
+              width='100%'
+            />
+            {errors.docTypeId && <small className='text-danger'>{errors.docTypeId}</small>}
+          </div>
+        </div>
+        <div className='col-lg-4 col-md-6'>
+          <div style={styles.field}>
+            <label style={styles.label}>
+              Select Document (PNG/JPG/JPEG/DOC/PDF)<span style={styles.required}>*</span>
+            </label>
+            <input
+              key={inputKey}
+              type='file'
+              className='form-control'
+              accept={DOCUMENT_ACCEPT}
+              disabled={Boolean(busyAction)}
+              onChange={event => {
+                setFile(event.target.files?.[0] || null)
+                setErrors(current => ({ ...current, file: '' }))
+              }}
+            />
+            <small className={errors.file ? 'text-danger' : 'text-muted'}>
+              {errors.file || 'Maximum 5 MB'}
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <TaskActions
+        onSave={handleUpload}
+        onSubmit={submit}
+        onCancel={onCancel}
+        busyAction={busyAction}
+        canSubmit={list.length > 0}
+        submitHint='Upload at least one document first'
+      />
+
+      <div className='table-responsive'>
+        <table className='table table-bordered align-middle mb-0'>
+          <thead>
+            <tr>
+              <th>Document Type</th>
+              <th>Document</th>
+              <th>Uploaded On</th>
+              <th className='text-center' style={{ width: '90px' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {list.length === 0 ? (
+              <tr>
+                <td colSpan={4} className='text-center text-muted'>No documents uploaded</td>
+              </tr>
+            ) : (
+              list.map(doc => (
+                <tr key={doc.ID}>
+                  <td>{doc.DOCTYP_DESC || '-'}</td>
+                  <td>
+                    <a href={employeeDocumentUrl(doc.DOC_PATH)} target='_blank' rel='noopener noreferrer'>
+                      {String(doc.DOC_PATH || '').split('/').pop() || 'View'}
+                    </a>
+                  </td>
+                  <td>{doc.UPLOADED_ON || '-'}</td>
+                  <td className='text-center'>
+                    {doc.CAN_DELETE && (
+                      <DeleteButton
+                        onClick={() => handleDelete(doc)}
+                        disabled={Boolean(busyAction)}
+                      />
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
 const JoiningDetailTab = ({ section, taskSection, details, ...rest }) => {
   const props = { details, isTask: section === taskSection, ...rest }
   if (section === 'basic') return <BasicSection {...props} />
   if (section === 'access') return <AccessSection {...props} />
   if (section === 'ctc') return <CtcSection {...props} />
+  if (section === 'documents') return <DocumentsSection {...props} />
   return <ListSection section={section} {...props} />
 }
 

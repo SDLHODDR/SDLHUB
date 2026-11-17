@@ -1,3 +1,5 @@
+import { DOC_FOLDERS, isInDocFolder, legacyDocUrl } from '../../../../shared/config/documentPaths'
+
 // HR_CAN_APPLICATION_DETAILS.STATUS (legacy $status arrays). Follow-up is offered
 // from the Pending Recruitment list while an interview is being arranged.
 export const APPLICATION_STATUSES = {
@@ -58,12 +60,11 @@ export const REMARK_MAX_LENGTH = 100
  */
 export const careersFileUrl = path => {
   if (!path) return ''
-  if (String(path).startsWith('sdlhub/')) {
+  if (isInDocFolder(path, DOC_FOLDERS.CAREERS_UPLOADS)) {
     return `${import.meta.env.VITE_API_URL || ''}/hrms/recruitment/viewCandidateDocument.php?path=${encodeURIComponent(path)}`
   }
-  const base = (import.meta.env.VITE_HRMS_DOC_BASE_URL || '').trim().replace(/\/$/, '')
   const file = String(path).replace(/^\//, '').split('/').map(encodeURIComponent).join('/')
-  return `${base}/careers/${file}`
+  return legacyDocUrl(`${DOC_FOLDERS.CAREERS}/${file}`)
 }
 
 export const applicationFormUrl = id =>

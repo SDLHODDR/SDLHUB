@@ -123,21 +123,6 @@ export const getHrDivision = async (payload = {}) =>
     data: payload,
   });
 
-// Geo location dropdown options
-export const getOrganogramGeoLocations = () => 
-  hrmsRequest({
-    url: HRMS_API.MASTERDATA.GET_ORGANOGRAM_GEOLOCATIONS,
-    method: "GET",
-  });
-
-
-// Employee dropdown options (used for both Employee and Report To)
-export const getOrganogramEmployees = () => 
-  hrmsRequest({
-    url: HRMS_API.MASTERDATA.GET_ORGANOGRAM_EMPLOYEES,
-    method: "GET",
-  });
-
 // Save/update a single location row (inline edit)
 export const saveOrganogramLocation = async (payload = {}) => {
   return hrmsRequest({

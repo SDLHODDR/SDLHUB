@@ -7,11 +7,17 @@ const ExitEmployeeSummary = ({ employee = {}, relievingDate, extra = [] }) => {
   const items = [
     {
       label: 'Employee',
-      value: `${employee.code || '-'} - ${employee.name || '-'}${relievingDate ? ` (${relievingDate})` : ''}`
+      value: `${employee.code || '-'} - ${employee.name || '-'}`
     },
     { label: 'Designation', value: employee.designation },
     { label: 'Location', value: employee.location },
     { label: 'Department', value: employee.department },
+    ...(relievingDate
+      ? [{
+          label: 'Approved Release Date',
+          value: <span className='text-danger fw-semibold'>{relievingDate}</span>
+        }]
+      : []),
     ...extra
   ]
 

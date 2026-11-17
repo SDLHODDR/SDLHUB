@@ -9,6 +9,7 @@ import {
   getPendingPolicies,
   acceptPolicy,
 } from "../services/policyEndorsement";
+import { LEGACY_DOC_BASE_URL } from "../config/documentPaths";
 
 const PolicyAcceptance = () => {
   const navigate = useNavigate();
@@ -29,8 +30,7 @@ const PolicyAcceptance = () => {
 
   const [selectedDate] = useState(new Date());
 
-  const HRMS_DOC_BASE_URL =
-    import.meta.env.VITE_HRMS_DOC_BASE_URL;
+  const HRMS_DOC_BASE_URL = `${LEGACY_DOC_BASE_URL}/`;
 
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < 768,

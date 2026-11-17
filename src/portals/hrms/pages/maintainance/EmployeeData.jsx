@@ -14,6 +14,7 @@ import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
 import SDLInput from '../../../../shared/components/form/SDLInput'
 import SDLCalendar from '../../../../shared/components/calendar/SDLCalendar'
 import { parseDateValue } from '../../../../shared/utils/commonUtils'
+import { employeeDocumentUrl } from '../../services/newEmployeeService'
 
 const toDateInputValue = date => {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) return ''
@@ -895,13 +896,8 @@ const EmployeeData = () => {
     return `${day}-${months[Number(month) - 1]}-${year}`
   }
 
-  const getDocumentUrl = docPath => {
-    if (!docPath) return '#'
-
-    const baseUrl = import.meta.env.VITE_HRMS_DOC_BASE_URL || ''
-
-    return `${baseUrl.replace(/\/$/, '')}/${docPath.replace(/^\//, '')}`
-  }
+  // SDL Hub uploads ("sdlhub/...") come from the backend, older ones from the legacy server.
+  const getDocumentUrl = docPath => employeeDocumentUrl(docPath)
 
   const getDocumentName = docPath => {
     if (!docPath) return '-'
