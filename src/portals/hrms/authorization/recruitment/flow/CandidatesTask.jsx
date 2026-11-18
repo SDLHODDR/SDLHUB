@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import SaveButton from '../../../../../shared/components/buttons/SaveButton'
 import SDLDataTable from '../../../../../shared/components/datatable/SDLDataTable'
 import SDLSearch from '../../../../../shared/components/datatable/SDLSearch'
+import SDLReactSelect from '../../../../../shared/components/form/SDLReactSelect'
 import RecruitmentModal from '../../../pages/recruitment/RecruitmentModal'
 import { ActionError, CandidateName, CvLink, FlowSummary, StatusBadge } from './flowShared'
 import { useFlowTask } from './useFlowTask'
@@ -131,20 +132,14 @@ const ShortlistBody = ({ details, decisions, setDecisions, busy }) => (
             </td>
             <td>
               {row.editable ? (
-                <select
-                  className='form-select form-select-sm'
-                  aria-label={`Decision for ${row.name}`}
+                <SDLReactSelect
                   value={decisions[row.id] ?? (row.status === 'N' ? '' : row.status)}
-                  disabled={busy}
-                  onChange={event => setDecisions(current => ({ ...current, [row.id]: event.target.value }))}
-                >
-                  <option value=''>Please Select</option>
-                  {DECISIONS.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                  options={DECISIONS}
+                  onChange={value => setDecisions(current => ({ ...current, [row.id]: value || '' }))}
+                  placeholder='Please Select'
+                  isDisabled={busy}
+                  width='100%'
+                />
               ) : (
                 <StatusBadge status={row.status} />
               )}

@@ -39,7 +39,7 @@ export const CandidateName = ({ id, name }) => {
 }
 
 /** Request, candidate and interview shown at the top of every flow task. */
-export const FlowSummary = ({ details, showInterview = true }) => {
+export const FlowSummary = ({ details, showInterview = true, children }) => {
   const { request, candidate, interview } = details
   return (
     <div className='row g-3 mb-3 pb-3 border-bottom'>
@@ -82,6 +82,8 @@ export const FlowSummary = ({ details, showInterview = true }) => {
           {interview.ctcOffer !== '' && <Detail label='CTC Offered (LPA)' value={interview.ctcOffer} />}
         </>
       )}
+      {/* Task-specific details after the interview (e.g. the panel's results). */}
+      {children}
     </div>
   )
 }

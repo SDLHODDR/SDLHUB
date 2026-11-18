@@ -299,19 +299,19 @@ const RecruitmentRequest = () => {
                     </div>
                     <div className='col-sm-6 col-lg-3'>
                       <label className='form-label' htmlFor='recruitment-position-count'>Position Count</label>
-                      <input id='recruitment-position-count' className='form-control' readOnly value={position.positionCount} />
+                      <input id='recruitment-position-count' className='form-control' disabled readOnly value={position.positionCount} />
                     </div>
                     <div className='col-sm-6 col-lg-3'>
                       <label className='form-label' htmlFor='recruitment-occupied'>Positions Occupied</label>
-                      <input id='recruitment-occupied' className='form-control' readOnly value={position.positionsOccupied} />
+                      <input id='recruitment-occupied' className='form-control' disabled readOnly value={position.positionsOccupied} />
                     </div>
                     <div className='col-sm-6 col-lg-3'>
                       <label className='form-label' htmlFor='recruitment-in-progress'>Position In-progress</label>
-                      <input id='recruitment-in-progress' className='form-control' readOnly value={position.positionsInProgress} />
+                      <input id='recruitment-in-progress' className='form-control' disabled readOnly value={position.positionsInProgress} />
                     </div>
                     <div className='col-sm-6 col-lg-3'>
                       <label className='form-label' htmlFor='recruitment-required'>Required Positions</label>
-                      <input id='recruitment-required' className='form-control' readOnly value='1' />
+                      <input id='recruitment-required' className='form-control' disabled readOnly value='1' />
                     </div>
                     <div className='col-md-4'>
                       <label className='form-label'>Fill By Date<RequiredMark /></label>

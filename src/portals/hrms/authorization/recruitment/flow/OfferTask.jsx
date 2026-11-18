@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import SaveButton from '../../../../../shared/components/buttons/SaveButton'
 import CancelButton from '../../../../../shared/components/buttons/CancelButton'
 import SDLCalendar from '../../../../../shared/components/calendar/SDLCalendar'
 import SDLReactSelect from '../../../../../shared/components/form/SDLReactSelect'
@@ -143,7 +142,7 @@ const OfferTask = ({ taskId, title, record, onClose, onSuccess }) => {
     if (taskId === TASK_GENERATE || taskId === TASK_ANNEXURE) {
       const isGenerate = taskId === TASK_GENERATE
       footer = (
-        <>
+        <div className='d-flex flex-wrap gap-2'>
           {!isGenerate && (
             <>
               <SecondaryButton onClick={() => setShowPreview(value => !value)} disabled={busy}>
@@ -164,8 +163,11 @@ const OfferTask = ({ taskId, title, record, onClose, onSuccess }) => {
           <SecondaryButton onClick={() => validAmounts() && run('save', { amounts: amountsPayload() })} disabled={busy}>
             Save CTC
           </SecondaryButton>
-          <SaveButton
-            isSubmitting={busy}
+          {/* Green, like the other Submit / Authorize buttons. */}
+          <button
+            type='button'
+            className='btn btn-success'
+            disabled={busy}
             onClick={() =>
               validAmounts() &&
               run(isGenerate ? 'submit' : 'authorize', { amounts: amountsPayload() }, {
@@ -176,9 +178,9 @@ const OfferTask = ({ taskId, title, record, onClose, onSuccess }) => {
               })
             }
           >
-            {isGenerate ? 'Submit' : 'Authorize'}
-          </SaveButton>
-        </>
+            {busy ? 'Processing...' : isGenerate ? 'Submit' : 'Authorize'}
+          </button>
+        </div>
       )
       body = (
         <>
@@ -239,7 +241,7 @@ const OfferTask = ({ taskId, title, record, onClose, onSuccess }) => {
     } else {
       const saved = details.offer?.accepted
       footer = (
-        <>
+        <div className='d-flex gap-2'>
           <SecondaryButton
             disabled={busy}
             onClick={() => {
@@ -252,16 +254,17 @@ const OfferTask = ({ taskId, title, record, onClose, onSuccess }) => {
               })
             }}
           >
-            Save Acceptance
+            Save
           </SecondaryButton>
-          <SaveButton
-            isSubmitting={busy}
-            disabled={!saved}
+          <button
+            type='button'
+            className='btn btn-success'
+            disabled={busy || !saved}
             onClick={() => run('submit', {}, { confirm: ['Close this task?', 'The offer acceptance can no longer be changed.'], close: true })}
           >
-            Submit
-          </SaveButton>
-        </>
+            {busy ? 'Processing...' : 'Submit'}
+          </button>
+        </div>
       )
       body = (
         <div className='row g-3'>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import Select from 'react-select'
 import SaveButton from '../../../../../shared/components/buttons/SaveButton'
 import SDLCalendar from '../../../../../shared/components/calendar/SDLCalendar'
+import SDLReactMultiSelect from '../../../../../shared/components/form/SDLReactMultiSelect'
 import SDLReactSelect from '../../../../../shared/components/form/SDLReactSelect'
 import { parseDateValue, toDateInputValue } from '../../../../../shared/utils/commonUtils'
 import RecruitmentModal from '../../../pages/recruitment/RecruitmentModal'
@@ -11,21 +11,14 @@ import { useFlowTask } from './useFlowTask'
 const TASK_SCHEDULE = 8
 const TASK_CONFIRMATION = 16
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
+const pad2 = n => String(n).padStart(2, '0')
+const HOUR_OPTIONS = Array.from({ length: 24 }, (_, i) => ({ value: pad2(i), label: pad2(i) }))
+const MINUTE_OPTIONS = Array.from({ length: 60 }, (_, i) => ({ value: pad2(i), label: pad2(i) }))
+// "HH:MM" once both parts are chosen; a half-filled time fails TIME_PATTERN on submit.
+const joinTime = (hour, minute) => (hour || minute ? `${hour || ''}:${minute || ''}` : '')
 const OUTCOMES = [
-  { value: 'C', label: 'Candidate confirmed the interview' },
-  { value: 'R', label: 'Candidate asked to reschedule' }
+  { value: 'C', label: 'Candidate confirmed the interview' }
 ]
-
-const multiSelectStyles = {
-  control: (base, state) => ({
-    ...base,
-    minHeight: '38px',
-    fontSize: '13px',
-    borderColor: state.isFocused ? '#ff9800' : '#6c757d',
-    boxShadow: state.isFocused ? '0 0 0 0.2rem rgba(255, 152, 0, 0.15)' : 'none'
-  }),
-  menuPortal: base => ({ ...base, zIndex: 3000 })
-}
 
 const InterviewHistory = ({ history }) => (
   <div className='table-responsive mt-3'>
@@ -79,17 +72,30 @@ const ScheduleForm = ({ details, form, setForm, errors, busy }) => (
         {errors.date && <small className='text-danger'>{errors.date}</small>}
       </div>
       <div className='col-md-3'>
-        <label className='form-label' htmlFor='intrv-time'>
+        <label className='form-label'>
           Interview Time (24 hrs) <span className='text-danger'>*</span>
         </label>
-        <input
-          id='intrv-time'
-          type='time'
-          className={`form-control${errors.time ? ' is-invalid' : ''}`}
-          value={form.time}
-          disabled={busy}
-          onChange={event => setForm(current => ({ ...current, time: event.target.value }))}
-        />
+        {/* Hour and minute dropdowns (themed) instead of the browser's own time picker. */}
+        <div className='d-flex gap-2'>
+          <SDLReactSelect
+            value={form.time.split(':')[0] || ''}
+            options={HOUR_OPTIONS}
+            onChange={hour => setForm(current => ({ ...current, time: joinTime(hour, current.time.split(':')[1]) }))}
+            placeholder='HH'
+            isDisabled={busy}
+            hasError={Boolean(errors.time)}
+            width='calc(50% - 4px)'
+          />
+          <SDLReactSelect
+            value={form.time.split(':')[1] || ''}
+            options={MINUTE_OPTIONS}
+            onChange={minute => setForm(current => ({ ...current, time: joinTime(current.time.split(':')[0], minute) }))}
+            placeholder='MM'
+            isDisabled={busy}
+            hasError={Boolean(errors.time)}
+            width='calc(50% - 4px)'
+          />
+        </div>
         {errors.time && <small className='text-danger'>{errors.time}</small>}
       </div>
       <div className='col-md-3'>
@@ -190,14 +196,14 @@ const InterviewTask = ({ taskId, title, record, onClose, onSuccess }) => {
   if (details) {
     if (taskId === TASK_SCHEDULE) {
       footer = (
-        <>
+        <div className='d-flex gap-2'>
           <SecondaryButton onClick={saveSchedule} disabled={busy}>
             Save
           </SecondaryButton>
-          <SaveButton onClick={submitSchedule} isSubmitting={busy}>
-            Submit
-          </SaveButton>
-        </>
+          <button type='button' className='btn btn-success' onClick={submitSchedule} disabled={busy}>
+            {busy ? 'Processing...' : 'Submit'}
+          </button>
+        </div>
       )
     } else if (taskId === TASK_CONFIRMATION) {
       footer = (
@@ -222,8 +228,6 @@ const InterviewTask = ({ taskId, title, record, onClose, onSuccess }) => {
       )
     }
   }
-
-  const selectedInterviewers = (details?.employees || []).filter(option => panel.interviewers.includes(option.value))
 
   return (
     <RecruitmentModal
@@ -255,17 +259,14 @@ const InterviewTask = ({ taskId, title, record, onClose, onSuccess }) => {
                     <label className='form-label'>
                       Interviewers <span className='text-danger'>*</span>
                     </label>
-                    <Select
-                      isMulti
-                      inputId='intrv-interviewers'
+                    <SDLReactMultiSelect
+                      value={panel.interviewers}
                       options={details.employees}
-                      value={selectedInterviewers}
                       placeholder='Please Select'
                       isDisabled={busy}
-                      styles={multiSelectStyles}
-                      menuPortalTarget={document.body}
-                      onChange={options => {
-                        setPanel(current => ({ ...current, interviewers: (options || []).map(option => option.value) }))
+                      hasError={Boolean(errors.interviewers)}
+                      onChange={values => {
+                        setPanel(current => ({ ...current, interviewers: values }))
                         setActionError('')
                       }}
                     />
