@@ -10,6 +10,7 @@ import {
 import '../../assets/css/tenureChange.css'
 import SaveButton from '../../../../shared/components/buttons/SaveButton'
 import CancelButton from '../../../../shared/components/buttons/CancelButton'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const TenureChangeLetterModal = ({
   config,
@@ -554,10 +555,7 @@ const TenureChangeLetterModal = ({
                       >
                         {embeddedLoading ? (
                           <div className='d-flex justify-content-center align-items-center h-100 text-white'>
-                            <div
-                              className='spinner-border me-2'
-                              role='status'
-                            />
+                            <SDLPageLoader />
                             <span>Loading Document...</span>
                           </div>
                         ) : embeddedPdfUrl ? (
@@ -640,7 +638,7 @@ const TenureChangeLetterModal = ({
               >
                 {pdfLoading ? (
                   <div className='d-flex justify-content-center align-items-center h-100 text-white'>
-                    <div className='spinner-border me-2' role='status'></div>
+                    <SDLPageLoader />
                     <span className='fw-semibold'>
                       Rendering Letter Preview...
                     </span>

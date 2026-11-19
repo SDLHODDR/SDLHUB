@@ -1,6 +1,7 @@
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import "./sdlDataTable.css";
+import SDLPageLoader from "../SDLPageLoader";
 
 const SDLDataTable = ({
     data = [],
@@ -17,9 +18,12 @@ const SDLDataTable = ({
     ...rest
 }) => {
      return (
+        <>
+        {/* The common orange loader, centred on the page (not the grid's own grey spinner). */}
+        {loading && <SDLPageLoader />}
         <DataTable
             value={Array.isArray(data) ? data : []}
-            loading={loading}
+            loading={false}
             paginator={paginator}
             rows={rows}
             rowsPerPageOptions={rowsPerPageOptions}
@@ -29,7 +33,7 @@ const SDLDataTable = ({
             scrollable
             paginatorDropdownAppendTo="self"
             tableStyle={tableStyle}
-            emptyMessage={emptyMessage}
+            emptyMessage={loading ? " " : emptyMessage}
             className={`p-datatable-sm ${onRowClick ? "sdl-clickable-rows" : ""} ${className}`}
             onRowClick={onRowClick}
             rowHover={rowHover}
@@ -48,6 +52,7 @@ const SDLDataTable = ({
                 );
             })}
         </DataTable>
+        </>
     );
     // return (
     //     <DataTable

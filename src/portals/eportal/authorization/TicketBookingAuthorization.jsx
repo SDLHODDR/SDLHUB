@@ -6,6 +6,7 @@ import TicketBookingAuthorizationModal from "../modal/TicketBookingAuthorization
 import { formatDashDate } from "../../../shared/utils/formatUtils";
 import { useTicketBookingAuthorizationHandler } from "./useTicketBookingAuthorizationHandler";
 import { getTicketBookingAuthorizationColumns } from "./TicketBookingAuthorizationColumns";
+import SDLPageLoader from "../../../shared/components/SDLPageLoader";
 
 const TicketBookingAuthorization = () => {
   const {
@@ -22,7 +23,7 @@ const TicketBookingAuthorization = () => {
 
   const columns = getTicketBookingAuthorizationColumns(openModal, formatDashDate);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <SDLPageLoader />;
 
   return (
     <>

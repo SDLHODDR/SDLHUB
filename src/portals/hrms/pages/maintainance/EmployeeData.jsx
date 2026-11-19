@@ -182,6 +182,8 @@ const EmployeeData = () => {
   const [employeeData, setEmployeeData] = useState(INITIAL_EMPLOYEE_DATA)
   const [fieldErrors, setFieldErrors] = useState({})
   const [employees, setEmployees] = useState([])
+  // True until the employee list has loaded (the select shows its loading dots).
+  const [employeesLoading, setEmployeesLoading] = useState(true)
   const [masters, setMasters] = useState({
     titles: [],
     states: [],
@@ -214,7 +216,8 @@ const EmployeeData = () => {
     return employees
       .map(item => ({
         value: String(item.ID || ''),
-        label: item.EMP_NAME || ''
+        // Status in brackets: A = active, R = resigned (also N / T for new joiners).
+        label: item.EMP_NAME ? `${item.EMP_NAME}${item.STATUS ? ` (${item.STATUS})` : ''}` : ''
       }))
       .filter(item => item.value && item.label)
   }, [employees])
@@ -1164,6 +1167,8 @@ const EmployeeData = () => {
     } catch (error) {
       console.error('Error loading employees:', error)
       setEmployees([])
+    } finally {
+      setEmployeesLoading(false)
     }
   }
 
@@ -2717,7 +2722,7 @@ const renderSelect = (name, label, options, config = {}) => {
                   placeholder='Select Employee'
                   isSearchable
                   isClearable
-                  isLoading={loading}
+                  isLoading={loading || employeesLoading}
                   width='330px'
                 />
               </div>

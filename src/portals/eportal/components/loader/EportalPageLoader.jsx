@@ -1,9 +1,6 @@
-const EportalPageLoader = () => (
-  <div className="eportal-page-loading" role="status" aria-live="polite">
-    <div className="spinner-border text-warning">
-      <span className="visually-hidden">Loading</span>
-    </div>
-  </div>
-);
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
-export default EportalPageLoader;
+/* Eportal pages use the common orange page loader. */
+const EportalPageLoader = () => <SDLPageLoader />
+
+export default EportalPageLoader

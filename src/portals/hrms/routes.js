@@ -39,6 +39,7 @@ import RequisitionTrackerReport from "./pages/reports/RequisitionTrackerReport";
 import AppraisalSetup from "./pages/appraisal/AppraisalSetup";
 import AppraisalStatus from "./pages/appraisal/AppraisalStatus";
 import FinalAppraisal from "./pages/appraisal/FinalAppraisal";
+import AppraisalAuthorization from "./authorization/appraisal/AppraisalAuthorization";
 import SeparationRequest from "./pages/separation/SeparationRequest";
 import NewEmployee from "./pages/joining/NewEmployee";
 import CandidateList from "./pages/recruitment/CandidateList";
@@ -97,7 +98,7 @@ export const hrmsRoutes = [
 	{path: "hrms/taskauthorization/R/:tid", element: RecruitmentAuthorization,},
 	// {path: "hrms/taskauthorization/357", element: OthersAuthorization,},
   {path: "hrms/taskauthorization/T/:tid", element: TenureChangeAuthorization,},
-	//{path: "hrms/taskauthorization/A/:tid", element: AppraisalAuthorization,},
+	{path: "hrms/taskauthorization/A/:tid", element: AppraisalAuthorization,},
 	// {path: "hrms/taskauthorization/349", element: EmployeeTransferAuthorization,},
   { path: "hrms/reports/view-logs", element: ViewLogs },
   { path: "hrms/reports/follow-up", element: FollowUpReport },

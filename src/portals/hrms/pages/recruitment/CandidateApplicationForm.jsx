@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { getCandidateForm } from '../../services/recruitmentService'
 import { careersFileUrl } from './recruitmentOptions'
 import '../../assets/css/recruitment.css'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const Field = ({ label, value, className = 'col-6 col-md-3' }) => (
   <div className={className}>
@@ -67,9 +68,7 @@ const CandidateApplicationForm = () => {
   if (!form) {
     return (
       <div className='text-center py-5'>
-        <div className='spinner-border text-primary' role='status'>
-          <span className='visually-hidden'>Loading...</span>
-        </div>
+        <SDLPageLoader />
       </div>
     )
   }

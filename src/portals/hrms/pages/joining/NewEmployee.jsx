@@ -18,7 +18,10 @@ import '../../../../shared/assets/css/companyPolicies.css'
 import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
 import { getEmployeeMasters } from '../../services/employeeDataService'
 import {
+  activateCandidateEmployee,
   authorizeNewEmployee,
+  convertCandidateToEmployee,
+  getCandidateJoinee,
   getJoiningDetails,
   getNewEmployee,
   getNewEmployeeDrafts,
@@ -177,6 +180,8 @@ const NewEmployee = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const empCode = searchParams.get('emp_code') || ''
   const userTaskId = searchParams.get('user_task_id') || ''
+  // Employee Code Generation (task 3): a recruited candidate not yet converted.
+  const candidateTaskId = searchParams.get('candidate_task') || ''
 
   const [activeTab, setActiveTab] = useState('personal')
   const [form, setForm] = useState(EMPTY_PERSONAL)
@@ -192,6 +197,7 @@ const NewEmployee = () => {
   const [busyAction, setBusyAction] = useState('')
   const [officeDirty, setOfficeDirty] = useState(false)
   const [details, setDetails] = useState(null)
+  const [candidate, setCandidate] = useState(null)
 
   // The URL decides which employee is open; going back to no employee (Cancel,
   // Send for Authorization, or the menu link) always starts a blank form.
@@ -212,6 +218,9 @@ const NewEmployee = () => {
   }
 
   const isExisting = Boolean(empCode)
+  const isCandidateNew = !isExisting && Boolean(candidateTaskId)
+  const activateTask = record?.activateTask || null
+  const fromCandidate = Boolean(record?.fromCandidate)
   const loading = isExisting && loadedCode !== empCode
   const canEdit = !isExisting || Boolean(record?.canEdit)
   const authorizeTaskId = record?.authorizeTaskId || ''
@@ -347,6 +356,51 @@ const NewEmployee = () => {
     if (empCode) loadRecord(empCode, userTaskId)
   }, [empCode, userTaskId, loadRecord])
 
+  // Task 3: pre-fill the Personal tab from the candidate, or open the employee
+  // already created for them.
+  useEffect(() => {
+    if (empCode || !candidateTaskId) return undefined
+    let active = true
+    getCandidateJoinee(candidateTaskId)
+      .then(response => {
+        if (!active) return
+        if (!response?.status) throw new Error(response?.message)
+        const data = response.data
+        if (data.empCode) {
+          setSearchParams({ emp_code: data.empCode, user_task_id: data.taskId })
+          return
+        }
+        const p = data.personal
+        setCandidate({ taskId: data.taskId, name: data.candidateName, office: data.office })
+        setForm({
+          ...EMPTY_PERSONAL,
+          TITLE: p.title,
+          FIRST_NAME: p.fname,
+          MIDDLE_NAME: p.mname,
+          LAST_NAME: p.lname,
+          DATE_OF_BIRTH: p.dob,
+          CURRENT_ADDRESS: p.address,
+          CURRENT_CITY: p.city,
+          CURRENT_STATE: p.state,
+          CURRENT_COUNTRY: p.country,
+          CURRENT_PINCODE: p.pincode,
+          MOBILE_NUMBER: p.cell,
+          PERSONAL_EMAIL: p.per_email,
+          COMPANY: p.comp_id,
+          DATE_OF_JOINING: p.doj,
+          GENDER: p.gender
+        })
+        setErrors({})
+        setActiveTab('personal')
+      })
+      .catch(error => {
+        if (active) notifyError(error?.message || 'Unable to load the candidate.')
+      })
+    return () => {
+      active = false
+    }
+  }, [empCode, candidateTaskId, setSearchParams])
+
   // Office dropdowns depend on each other (legacy populate_desi / populate_org / populate_org_loc).
   const officeOptionsKey = [
     office.DIVISION,
@@ -478,6 +532,10 @@ const NewEmployee = () => {
   }
 
   const resetForm = () => {
+    if (candidateTaskId || activateTask) {
+      navigate('/hrms/taskauthorization/J/3')
+      return
+    }
     if (empCode) {
       setSearchParams({})
       return
@@ -519,8 +577,82 @@ const NewEmployee = () => {
     return Object.keys(next).length === 0
   }
 
+  const personalPayload = () => ({
+    title: form.TITLE,
+    fname: form.FIRST_NAME,
+    mname: form.MIDDLE_NAME,
+    lname: form.LAST_NAME,
+    dob: form.DATE_OF_BIRTH,
+    address: form.CURRENT_ADDRESS,
+    city: form.CURRENT_CITY,
+    state: form.CURRENT_STATE,
+    country: form.CURRENT_COUNTRY,
+    pincode: form.CURRENT_PINCODE,
+    permnt_address: form.PERMANENT_ADDRESS,
+    permnt_city: form.PERMANENT_CITY,
+    permnt_state: form.PERMANENT_STATE,
+    permnt_country: form.PERMANENT_COUNTRY,
+    permnt_pincode: form.PERMANENT_PINCODE,
+    phone: form.TELEPHONE,
+    cell: form.MOBILE_NUMBER,
+    tel_no_emerg: form.EMERGENCY_CONTACT,
+    per_email: form.PERSONAL_EMAIL,
+    com_email: form.COMPANY_EMAIL,
+    comp_id: form.COMPANY,
+    doj: form.DATE_OF_JOINING,
+    gender: form.GENDER,
+    blood_grp: form.BLOOD_GROUP
+  })
+
+  const handleConvertCandidate = async () => {
+    const confirmed = await confirmAction(
+      'Generate employee code?',
+      'This creates the employee from the candidate: office from the recruitment request, tenure from the offer, and qualification, experience and family details from the application. The joining detail tasks are generated.'
+    )
+    if (!confirmed) return
+    setBusyAction('personal')
+    try {
+      const response = await convertCandidateToEmployee({
+        user_task_id: candidate.taskId,
+        ...personalPayload()
+      })
+      if (!response?.status) throw new Error(response?.message)
+      notifySuccess(response.message)
+      window.dispatchEvent(new Event('hrms-auth-tasks-changed'))
+      setSearchParams({ emp_code: response.data.emp_code, user_task_id: response.data.user_task_id })
+    } catch (error) {
+      notifyError(error?.message || 'Unable to generate the employee code.')
+    } finally {
+      setBusyAction('')
+    }
+  }
+
+  const handleActivate = async () => {
+    const confirmed = await confirmAction(
+      'Activate employee?',
+      `Employee ${empCode} becomes active, the candidate is marked Employed and the Joining Activity, Induction and Verification tasks are generated.`
+    )
+    if (!confirmed) return
+    setBusyAction('activate')
+    try {
+      const response = await activateCandidateEmployee({ user_task_id: activateTask.id })
+      if (!response?.status) throw new Error(response?.message)
+      notifySuccess(response.message)
+      window.dispatchEvent(new Event('hrms-auth-tasks-changed'))
+      navigate('/hrms/taskauthorization/J/3')
+    } catch (error) {
+      notifyError(error?.message || 'Unable to activate the employee.')
+    } finally {
+      setBusyAction('')
+    }
+  }
+
   const handleSavePersonal = async () => {
     if (!validatePersonal()) return
+    if (isCandidateNew) {
+      if (candidate) await handleConvertCandidate()
+      return
+    }
     if (!isExisting) {
       const confirmed = await confirmAction(
         'Generate employee code?',
@@ -532,30 +664,7 @@ const NewEmployee = () => {
     try {
       const response = await saveNewEmployee({
         emp_code: empCode,
-        title: form.TITLE,
-        fname: form.FIRST_NAME,
-        mname: form.MIDDLE_NAME,
-        lname: form.LAST_NAME,
-        dob: form.DATE_OF_BIRTH,
-        address: form.CURRENT_ADDRESS,
-        city: form.CURRENT_CITY,
-        state: form.CURRENT_STATE,
-        country: form.CURRENT_COUNTRY,
-        pincode: form.CURRENT_PINCODE,
-        permnt_address: form.PERMANENT_ADDRESS,
-        permnt_city: form.PERMANENT_CITY,
-        permnt_state: form.PERMANENT_STATE,
-        permnt_country: form.PERMANENT_COUNTRY,
-        permnt_pincode: form.PERMANENT_PINCODE,
-        phone: form.TELEPHONE,
-        cell: form.MOBILE_NUMBER,
-        tel_no_emerg: form.EMERGENCY_CONTACT,
-        per_email: form.PERSONAL_EMAIL,
-        com_email: form.COMPANY_EMAIL,
-        comp_id: form.COMPANY,
-        doj: form.DATE_OF_JOINING,
-        gender: form.GENDER,
-        blood_grp: form.BLOOD_GROUP
+        ...personalPayload()
       })
       if (!response?.status) throw new Error(response?.message)
       notifySuccess(response.message)
@@ -876,7 +985,8 @@ const NewEmployee = () => {
         <div className='col-lg-4 col-md-6'>
           {personalSelect('COMPANY', 'Company', companyOptions, {
             required: true,
-            disabled: isExisting
+            // A candidate joins the company of the recruitment request's organogram.
+            disabled: isExisting || isCandidateNew
           })}
         </div>
         <div className='col-lg-2 col-md-6'>
@@ -916,6 +1026,16 @@ const NewEmployee = () => {
   const renderOfficeTab = () => {
     // Explain an empty list only once it has loaded for the current selection.
     const optionsCurrent = canEdit && officeOptions.loadedFor === officeOptionsKey
+    if (isCandidateNew) {
+      const o = candidate?.office
+      return (
+        <div className='alert alert-info mb-0' role='alert'>
+          The office details come from the recruitment request and are saved when the
+          employee code is generated
+          {o && `: ${o.company} - ${o.division} - ${o.department} - ${o.designation}, ${o.location}`}.
+        </div>
+      )
+    }
     if (!isExisting) {
       return (
         <div className='alert alert-info mb-0' role='alert'>
@@ -988,6 +1108,7 @@ const NewEmployee = () => {
             >
               Save
             </SaveButton>
+            {!fromCandidate && (
             <button
               type='button'
               className='btn btn-success me-2'
@@ -1001,6 +1122,7 @@ const NewEmployee = () => {
             >
               {busyAction === 'send' ? 'Processing...' : 'Send for Authorization'}
             </button>
+            )}
             <CancelButton onClick={resetForm} disabled={busy} />
           </div>
         )}
@@ -1041,7 +1163,13 @@ const NewEmployee = () => {
         <BreadcrumbNav
           items={[
             { text: 'Home', link: '/hrms/dashboard' },
-            { text: detailTask ? 'Joining Task' : 'New Employee (Manual)' }
+            {
+              text: detailTask
+                ? 'Joining Task'
+                : candidateTaskId || activateTask
+                  ? 'Employee Code Generation'
+                  : 'New Employee (Manual)'
+            }
           ]}
         />
       </div>
@@ -1050,6 +1178,12 @@ const NewEmployee = () => {
         <div className='col-12 px-0'>
           <div className='card'>
             <div className='card-body'>
+              {isCandidateNew && candidate && (
+                <div className='alert alert-info py-2 mb-3'>
+                  <strong>Candidate: {candidate.name}</strong>. Check the details taken
+                  from the application, then save to generate the employee code.
+                </div>
+              )}
               {isExisting && (
                 <div className='d-flex align-items-center gap-2 mb-3'>
                   <strong style={{ fontSize: '14px' }}>
@@ -1072,6 +1206,39 @@ const NewEmployee = () => {
                 loading={loading}
               />
 
+              {activateTask && (
+                <div className='mt-3'>
+                  {activateTask.missing.length > 0 ? (
+                    <div
+                      className='alert py-2 mb-2'
+                      style={{ background: '#fff4e5', border: '1px solid #f5c37a', color: '#8a4b00' }}
+                    >
+                      <i className='fas fa-triangle-exclamation me-2' />
+                      Complete these before activating: <strong>{activateTask.missing.join(', ')}</strong>.
+                      They are filled in through the employee's joining tasks.
+                    </div>
+                  ) : (
+                    <div className='alert alert-success py-2 mb-2'>
+                      All required details are saved. The employee can be activated.
+                    </div>
+                  )}
+                  <div className='d-flex justify-content-end gap-2'>
+                    <button
+                      type='button'
+                      className='btn btn-success'
+                      onClick={handleActivate}
+                      disabled={busy || loading || activateTask.missing.length > 0}
+                    >
+                      {busyAction === 'activate' ? 'Processing...' : 'Activate Employee'}
+                    </button>
+                    <CancelButton
+                      onClick={() => navigate('/hrms/taskauthorization/J/3')}
+                      disabled={busy}
+                    />
+                  </div>
+                </div>
+              )}
+
               {authorizeTaskId && (
                 <div className='d-flex justify-content-end mt-3'>
                   <button
@@ -1091,7 +1258,7 @@ const NewEmployee = () => {
             </div>
           </div>
 
-          {!userTaskId && (
+          {!userTaskId && !candidateTaskId && (
             <div className='card'>
               <div className='card-body'>
                 <div style={styles.sectionTitle}>

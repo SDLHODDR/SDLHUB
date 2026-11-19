@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 import '../../assets/css/tenureChange.css'
 import '../../assets/css/recruitment.css'
 
@@ -47,11 +48,11 @@ const RecruitmentModal = ({
           </div>
           <div className='modal-body'>
             {loading && (
-              <div className='text-center py-5'>
-                <div className='spinner-border text-primary' role='status'>
-                  <span className='visually-hidden'>Loading...</span>
-                </div>
-              </div>
+              <>
+                {/* Keeps the modal its height while the common loader shows centred on the page. */}
+                <div className='py-5' />
+                <SDLPageLoader />
+              </>
             )}
             {!loading && loadError && <div className='alert alert-danger mb-0'>{loadError}</div>}
             {!loading && !loadError && children}

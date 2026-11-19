@@ -5,7 +5,8 @@ import SDLReactSelect from '../../../../../shared/components/form/SDLReactSelect
 import { parseDateValue, toDateInputValue } from '../../../../../shared/utils/commonUtils'
 import SDLTabsComponent from '../../../components/tabs/SDLTabsComponent'
 import RecruitmentModal from '../../../pages/recruitment/RecruitmentModal'
-import { ActionError, Detail, FlowSummary, SecondaryButton } from './flowShared'
+import SaveButton from '../../../../../shared/components/buttons/SaveButton'
+import { ActionError, Detail, FlowSummary } from './flowShared'
 import { useFlowTask } from './useFlowTask'
 
 const TASK_INTERVIEWER = 9
@@ -543,9 +544,9 @@ const FeedbackTask = ({ taskId, title, record, onClose, onSuccess }) => {
       footer={
         form && (
           <div className='d-flex gap-2'>
-            <SecondaryButton onClick={save} disabled={busy || blocked}>
+            <SaveButton onClick={save} disabled={busy || blocked}>
               Save
-            </SecondaryButton>
+            </SaveButton>
             <button type='button' className='btn btn-success' onClick={submit} disabled={busy || blocked}>
               {busy ? 'Processing...' : 'Submit'}
             </button>

@@ -9,6 +9,7 @@ import {
 import { notifyError, notifySuccess } from "../../../shared/services/alertService";
 //import Select from "react-select";
 import SDLReactSelect from "../../../shared/components/form/SDLReactSelect";
+import SDLPageLoader from "../../../shared/components/SDLPageLoader"
 
 const TicketBookingModal = ({
   formSettings,
@@ -465,7 +466,7 @@ const TicketBookingModal = ({
     <>
     {loading && (
         <div className="p-4 text-center">
-          <div className="spinner-border text-warning"></div>
+          <SDLPageLoader />
         </div>
       )}
       {/* Add Outdoor Duty */}

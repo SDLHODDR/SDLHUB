@@ -7,6 +7,7 @@ import {
   logoutAPI,
 } from "../services/authService";
 import { cancelAllRequests } from "../services/requestManager";
+import SDLPageLoader from "../components/SDLPageLoader"
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -67,7 +68,7 @@ const AuthProvider = ({ children }) => {
     return (
       <div className="d-flex align-items-center justify-content-center vh-100">
         <div className="text-center">
-          <div className="spinner-border text-primary mb-3" role="status" />
+          <SDLPageLoader />
           <div className="fw-semibold">Loading...</div>
         </div>
       </div>

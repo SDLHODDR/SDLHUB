@@ -21,6 +21,7 @@ import '../../assets/departmentDesignation.css'
 // import "../../../../../_archive/src/portals/eportal/assets/css/sdlFormUiEnhancements.css"
 import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
 import SDLInput from '../../../../shared/components/form/SDLInput'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const KRAActivity = () => {
   const dispatch = useDispatch()
@@ -337,7 +338,7 @@ const KRAActivity = () => {
     return (
       <div className='d-flex align-items-center justify-content-center vh-100'>
         <div className='text-center'>
-          <div className='spinner-border text-primary mb-3' role='status' />
+          <SDLPageLoader />
           <div className='fw-semibold'>Loading kractivity...</div>
         </div>
       </div>

@@ -7,6 +7,7 @@ const GROUP_KEY_MAP = {
   Exit: "exit",
   Organogram: "organogram",
   Masters: "masters",
+  Appraisal: "appraisal",
 };
 
 const GROUP_KEY_MAP1 = {
@@ -28,6 +29,7 @@ const GROUP_ORDER = [
   { apiKey: "Exit", label: "Exit" },
   { apiKey: "Organogram", label: "Organogram" },
   { apiKey: "Masters", label: "Masters" },
+  { apiKey: "Appraisal", label: "Appraisal" },
 ];
 
 // Tasks without a display sequence go last.

@@ -203,7 +203,7 @@ const AppraisalEmployeesTab = ({ detail, busy, run }) => {
                     </tbody>
                   </table>
                 </div>
-                <div className='d-flex justify-content-center gap-2 mt-3'>
+                <div className='d-flex justify-content-end gap-2 mt-3'>
                   <SaveButton onClick={add} isSubmitting={busy} disabled={available.length === 0} />
                 </div>
               </>

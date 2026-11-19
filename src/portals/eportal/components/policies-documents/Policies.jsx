@@ -6,6 +6,7 @@ import "../../assets/css/wideContentPages.css";
 import EportalPageLoader from "../loader/EportalPageLoader";
 
 import { POLICY_MESSAGES } from "../../constants/policies-documentsConstants";
+import SDLPageLoader from "../../../../shared/components/SDLPageLoader"
 
 const Policies = () => {
   const hasFetched = useRef(false);
@@ -140,10 +141,7 @@ const Policies = () => {
                       className="position-absolute top-50 start-50 translate-middle"
                       style={{ zIndex: 10 }}
                     >
-                      <div
-                        className="spinner-border text-warning"
-                        role="status"
-                      />
+                      <SDLPageLoader />
                     </div>
                   )}
 

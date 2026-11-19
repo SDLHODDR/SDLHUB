@@ -3,6 +3,7 @@ import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
 import { getJobDescriptionById, getKRAList } from '../../services/jobDescriptionService'
 import { processJobDescriptionAuthorization } from '../../services/authorization/authorizationService'
 import { confirmAction, notifyError, notifySuccess } from '../../../../shared/services/alertService'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const tabs = [
   ['basic', 'Basic Details'],
@@ -208,7 +209,7 @@ const JobDescriptionAuthorizationModal = ({ show, record, onClose, onSuccess }) 
           <button type='button' className='btn-close' onClick={onClose} disabled={submitting} aria-label='Close' />
         </div>
         <div className='modal-body overflow-auto'>
-          {loading ? <div className='text-center py-5'><span className='spinner-border' role='status' /><div className='mt-2'>Loading Job Description...</div></div> : job ? <>
+          {loading ? <div className='text-center py-5'><SDLPageLoader /><div className='mt-2'>Loading Job Description...</div></div> : job ? <>
             {missingTabs.length > 0 && <div className='alert alert-danger py-2 mb-3'>
               <i className='fa-solid fa-triangle-exclamation me-2' />
               Incomplete Job Description. These tabs have no data: <strong>{missingTabs.map(tab => tab.label).join(', ')}</strong>. Reject it so the requester can complete it.

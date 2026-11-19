@@ -22,6 +22,7 @@ import { getPortalFromPath } from '../../../../shared/config/portalConfig'
 import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
 import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const ProfileMaintenance = () => {
   /* ==========================================================
@@ -1183,10 +1184,7 @@ const ProfileMaintenance = () => {
               <div className='profile-tab-content'>
                 {loadingAccess ? (
                   <div className='text-center py-5'>
-                    <div
-                      className='spinner-border text-warning'
-                      role='status'
-                    />
+                    <SDLPageLoader />
 
                     <div className='mt-2 text-muted'>
                       Loading profile access...

@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
 import { getOrganogramHierarchyTree } from '../../services/reportService'
 import '../../assets/css/orgHierarchyChart.css'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 /** Ids of the nodes above `depth` levels (open by default: the old chart showed two levels). */
 const idsAbove = (node, depth, level = 0, ids = new Set()) => {
@@ -115,9 +116,7 @@ const OrganogramHierarchyChart = () => {
           {error && <div className='alert alert-danger mb-0'>{error}</div>}
           {!error && !result && (
             <div className='text-center py-5'>
-              <div className='spinner-border text-primary' role='status'>
-                <span className='visually-hidden'>Loading...</span>
-              </div>
+              <SDLPageLoader />
             </div>
           )}
           {!error && result && (

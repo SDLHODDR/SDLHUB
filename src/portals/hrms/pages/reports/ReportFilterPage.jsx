@@ -1,6 +1,7 @@
 import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
 import CancelButton from '../../../../shared/components/buttons/CancelButton'
 import SaveButton from '../../../../shared/components/buttons/SaveButton'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 /* Frame of a report filter page (legacy rept_admin.php): filters, then Get Data / Cancel. */
 const ReportFilterPage = ({ title, loading, loadError, onGetData, onCancel, children }) => (
@@ -17,16 +18,14 @@ const ReportFilterPage = ({ title, loading, loadError, onGetData, onCancel, chil
           <div className='card-body'>
             {loading && (
               <div className='text-center py-4'>
-                <div className='spinner-border text-primary' role='status'>
-                  <span className='visually-hidden'>Loading...</span>
-                </div>
+                <SDLPageLoader />
               </div>
             )}
             {!loading && loadError && <div className='alert alert-danger mb-0'>{loadError}</div>}
             {!loading && !loadError && (
               <>
                 <div className='row g-3'>{children}</div>
-                <div className='d-flex justify-content-center gap-2 mt-4'>
+                <div className='d-flex justify-content-end gap-2 mt-4'>
                   <SaveButton onClick={onGetData}>Get Data</SaveButton>
                   <CancelButton onClick={onCancel} />
                 </div>

@@ -5,6 +5,7 @@ import SDLReactSelect from '../../../../../shared/components/form/SDLReactSelect
 import { parseDateValue, toDateInputValue } from '../../../../../shared/utils/commonUtils'
 import { offerLetterUrl } from '../../../services/recruitmentService'
 import RecruitmentModal from '../../../pages/recruitment/RecruitmentModal'
+import SaveButton from '../../../../../shared/components/buttons/SaveButton'
 import { ActionError, FlowSummary, SecondaryButton } from './flowShared'
 import { formatAmount, useFlowTask } from './useFlowTask'
 
@@ -160,9 +161,9 @@ const OfferTask = ({ taskId, title, record, onClose, onSuccess }) => {
               </SecondaryButton>
             </>
           )}
-          <SecondaryButton onClick={() => validAmounts() && run('save', { amounts: amountsPayload() })} disabled={busy}>
+          <SaveButton onClick={() => validAmounts() && run('save', { amounts: amountsPayload() })} disabled={busy}>
             Save CTC
-          </SecondaryButton>
+          </SaveButton>
           {/* Green, like the other Submit / Authorize buttons. */}
           <button
             type='button'
@@ -242,7 +243,7 @@ const OfferTask = ({ taskId, title, record, onClose, onSuccess }) => {
       const saved = details.offer?.accepted
       footer = (
         <div className='d-flex gap-2'>
-          <SecondaryButton
+          <SaveButton
             disabled={busy}
             onClick={() => {
               if (!acceptance.accepted || !acceptance.date) {
@@ -255,7 +256,7 @@ const OfferTask = ({ taskId, title, record, onClose, onSuccess }) => {
             }}
           >
             Save
-          </SecondaryButton>
+          </SaveButton>
           <button
             type='button'
             className='btn btn-success'

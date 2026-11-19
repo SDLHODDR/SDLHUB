@@ -142,6 +142,13 @@ export const HRMS_API = {
     SAVE_NEW_JOINEE: "/joining/saveNewJoinee.php",
     GET_REHIRE_EMPLOYEE: "/joining/getRehireEmployee.php",
     SAVE_REHIRE_EMPLOYEE: "/joining/saveRehireEmployee.php",
+    // Employee Code Generation (3) for a recruited candidate.
+    GET_CANDIDATE_JOINEE: "/joining/getCandidateJoinee.php",
+    CONVERT_CANDIDATE: "/joining/convertCandidateToEmployee.php",
+    ACTIVATE_CANDIDATE: "/joining/activateCandidateEmployee.php",
+    // Joining Activity (4), Employee Induction (15), Employee Verification (14).
+    GET_CHECKLIST: "/joining/getJoiningChecklist.php",
+    SAVE_CHECKLIST: "/joining/saveJoiningChecklist.php",
   },
 
   EMPLOYEE: {
@@ -225,5 +232,15 @@ export const HRMS_API = {
     GET_STATUS: "/appraisal/getAppraisalStatus.php",
     GET_FINAL: "/appraisal/getFinalAppraisal.php",
     PROCESS_FINAL: "/appraisal/processFinalAppraisal.php",
+    // Employee Appraisal task (46).
+    GET_EMPLOYEE_APPRAISAL: "/appraisal/getEmployeeAppraisal.php",
+    SAVE_EMPLOYEE_APPRAISAL: "/appraisal/saveEmployeeAppraisal.php",
+    // Follow-up tasks: CTC Change / Approval (47/48), Promotion / Auth (49/50), letters (51/52).
+    GET_APPRAISAL_CTC: "/appraisal/getAppraisalCtc.php",
+    SAVE_APPRAISAL_CTC: "/appraisal/saveAppraisalCtc.php",
+    GET_APPRAISAL_PROMOTION: "/appraisal/getAppraisalPromotion.php",
+    SAVE_APPRAISAL_PROMOTION: "/appraisal/saveAppraisalPromotion.php",
+    GET_APPRAISAL_LETTER: "/appraisal/getAppraisalLetter.php",
+    PROCESS_APPRAISAL_LETTER: "/appraisal/processAppraisalLetter.php",
   },
 };

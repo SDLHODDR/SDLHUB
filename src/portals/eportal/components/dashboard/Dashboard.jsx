@@ -9,6 +9,7 @@ import DashboardAlerts from "./widgets/DashboardAlerts";
 import WorkLeaveTabs from "./widgets/WorkLeaveTabs";
 import MeetingsWidget from "./widgets/MeetingsWidget";
 import "../../assets/css/wideContentPages.css";
+import SDLPageLoader from "../../../../shared/components/SDLPageLoader"
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
@@ -57,10 +58,7 @@ const Dashboard = () => {
     return (
       <div className="d-flex align-items-center justify-content-center vh-100">
         <div className="text-center">
-          <div
-            className="spinner-border text-primary mb-3"
-            role="status"
-          />
+          <SDLPageLoader />
           <div className="fw-semibold">
             Loading dashboard...
           </div>

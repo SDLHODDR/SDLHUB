@@ -1,0 +1,26 @@
+/* One breadcrumb look across HRMS and E-Portal. */
+.sdl-breadcrumb .breadcrumb {
+  margin-bottom: 0;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.sdl-breadcrumb .breadcrumb-item,
+.sdl-breadcrumb .breadcrumb-item span {
+  color: #9595b5;
+}
+
+.sdl-breadcrumb .breadcrumb-item a {
+  color: #9595b5;
+  text-decoration: none;
+}
+
+.sdl-breadcrumb .breadcrumb-item a:hover {
+  color: #FE9F43;
+}
+
+.sdl-breadcrumb .breadcrumb-item.active,
+.sdl-breadcrumb .breadcrumb-item.active span {
+  color: #FE9F43;
+}

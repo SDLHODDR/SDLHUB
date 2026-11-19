@@ -774,14 +774,16 @@ const CtcSection = ({ details, userTaskId, onReload, onSubmitted, onCancel }) =>
           <div className='col-lg-6 col-md-8'>
             <div style={styles.field}>
               <label style={styles.label}>
-                {head.DESCR} (1: 12% of 15000, 0: 12% of Basic)
+                {head.DESCR}
               </label>
               <SDLReactSelect
                 value={String(variables[head.AD_CODE] ?? '0')}
+                // Stored as 1 / 0 (legacy XPFBS); shown by what they mean.
                 options={[
-                  { value: '0', label: '0' },
-                  { value: '1', label: '1' }
+                  { value: '1', label: '12% of 15000' },
+                  { value: '0', label: '12% of Basic' }
                 ]}
+                isClearable={false}
                 onChange={value => {
                   const next = { ...variables, [head.AD_CODE]: value || '0' }
                   setVariables(next)

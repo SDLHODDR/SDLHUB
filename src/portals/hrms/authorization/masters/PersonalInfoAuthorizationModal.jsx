@@ -13,6 +13,7 @@ import {
 // Correct import from HRMS slice for top header badge count
 import { getHRMSAuthroizationTaskCount } from "../../store/hrmsAuthorizationCountSlice";
 import { documentViewerUrl } from "../../../../shared/config/documentPaths";
+import SDLPageLoader from "../../../../shared/components/SDLPageLoader"
 
 /* =========================================================
    HELPER: Generate HTTP URL that passes file path to PHP
@@ -197,10 +198,7 @@ const PersonalInfoAuthorizationModal = ({
           <div className="modal-body">
             {loading ? (
               <div className="text-center py-5">
-                <div
-                  className="spinner-border text-primary"
-                  role="status"
-                ></div>
+                <SDLPageLoader />
                 <div className="mt-2 text-muted">
                   Loading request details...
                 </div>

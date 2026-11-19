@@ -20,6 +20,7 @@ import {
 import { toOptions } from './joiningFormUtils'
 import '../../../../shared/assets/css/companyPolicies.css'
 import '../../assets/css/tenureChange.css'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const EMPTY_FORM = {
   etypeId: '',
@@ -285,7 +286,7 @@ const RehireEmployee = () => {
 
               {employeeLoading && (
                 <div className='text-center py-4'>
-                  <span className='spinner-border' role='status' aria-label='Loading' />
+                  <SDLPageLoader />
                 </div>
               )}
 

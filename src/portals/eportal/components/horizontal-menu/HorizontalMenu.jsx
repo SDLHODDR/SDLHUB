@@ -3,17 +3,18 @@ import { Link, useLocation } from "react-router-dom";
 import { getMenu } from "../../services/menuService";
 import { LOGOS } from "../../../../shared/assets/assets";
 import { notifyError } from "../../../../shared/services/alertService";
+import { setPortalMenuTrail } from "../../../../shared/components/breadcrumbMenuStore";
+
+const formatRoute = (route) => {
+	if (!route) return "/";
+	return "/" + route.replace(".php", "").replaceAll("_", "-");
+};
 
 const HorizontalMenu = () => {
 	const location = useLocation();
 
 	const [menus, setMenus] = useState([]);
 	const [openMenu, setOpenMenu] = useState(null);
-
-	const formatRoute = (route) => {
-		if (!route) return "/";
-		return "/" + route.replace(".php", "").replaceAll("_", "-");
-	};
 
 	useEffect(() => {
 		const loadMenus = async () => {
@@ -31,6 +32,20 @@ const HorizontalMenu = () => {
 		};
 		loadMenus();
 	}, []);
+
+	// Lets BreadcrumbNav show Home / Main menu / Sub menu for the open page.
+	useEffect(() => {
+		setPortalMenuTrail(
+			"eportal",
+			menus.flatMap((menu) =>
+				(menu.children || []).map((child) => ({
+					path: formatRoute(child.route),
+					main: menu.label,
+					sub: child.label,
+				}))
+			)
+		);
+	}, [menus]);
 
 	const isChildActive = (route) => {
 		const formattedRoute = formatRoute(route);

@@ -6,6 +6,7 @@ import OutdoorDutyAuthorizationModal from "../modal/OutdoorDutyAuthorizationModa
 import { formatDashDate } from "../../../shared/utils/formatUtils";
 import { useOutdoorDutyAuthorizationHandler } from "./useOutdoorDutyAuthorizationHandler";
 import { getOutdoorDutyAuthorizationColumns, handleRowClick } from "./OutdoorDutyAuthorizationColumns";
+import SDLPageLoader from "../../../shared/components/SDLPageLoader";
 
 const OutdoorDutyAuthorization = () => {
   const {
@@ -23,7 +24,7 @@ const OutdoorDutyAuthorization = () => {
 
   const columns = getOutdoorDutyAuthorizationColumns(openModal, formatDashDate);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <SDLPageLoader />;
 
   return (
     <>

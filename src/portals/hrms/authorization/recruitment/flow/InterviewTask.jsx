@@ -5,7 +5,7 @@ import SDLReactMultiSelect from '../../../../../shared/components/form/SDLReactM
 import SDLReactSelect from '../../../../../shared/components/form/SDLReactSelect'
 import { parseDateValue, toDateInputValue } from '../../../../../shared/utils/commonUtils'
 import RecruitmentModal from '../../../pages/recruitment/RecruitmentModal'
-import { ActionError, Detail, FlowSummary, SecondaryButton } from './flowShared'
+import { ActionError, Detail, FlowSummary } from './flowShared'
 import { useFlowTask } from './useFlowTask'
 
 const TASK_SCHEDULE = 8
@@ -197,9 +197,9 @@ const InterviewTask = ({ taskId, title, record, onClose, onSuccess }) => {
     if (taskId === TASK_SCHEDULE) {
       footer = (
         <div className='d-flex gap-2'>
-          <SecondaryButton onClick={saveSchedule} disabled={busy}>
+          <SaveButton onClick={saveSchedule} disabled={busy}>
             Save
-          </SecondaryButton>
+          </SaveButton>
           <button type='button' className='btn btn-success' onClick={submitSchedule} disabled={busy}>
             {busy ? 'Processing...' : 'Submit'}
           </button>

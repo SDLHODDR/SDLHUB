@@ -5,6 +5,7 @@ import { getHrmsMenu } from "../../services/hrmsMenuService";
 import { notifyError } from "../../../../shared/services/alertService";
 import { legacyMenuRoute } from "../../config/legacyMenuRoutes";
 import { arrangeMenus } from "../../config/menuLayout";
+import { setPortalMenuTrail } from "../../../../shared/components/breadcrumbMenuStore";
 
 const STORAGE_KEY = "HRMS_MENU_CACHE";
 
@@ -77,6 +78,16 @@ const HorizontalMenu = () => {
       })),
     }));
   }, [menus]);
+
+  // Lets BreadcrumbNav show Home / Main menu / Sub menu for the open page.
+  useEffect(() => {
+    setPortalMenuTrail(
+      "hrms",
+      processedMenus.flatMap((menu) =>
+        menu.children.map((child) => ({ path: child.targetRoute, main: menu.label, sub: child.label }))
+      )
+    );
+  }, [processedMenus]);
 
   /*
   |--------------------------------------------------------------------------

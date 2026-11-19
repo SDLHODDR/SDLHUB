@@ -12,6 +12,7 @@ import {
 
 // Correct import from HRMS slice
 import { getHRMSAuthroizationTaskCount } from "../../store/hrmsAuthorizationCountSlice";
+import SDLPageLoader from "../../../../shared/components/SDLPageLoader"
 
 const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
@@ -150,10 +151,7 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
           <div className="modal-body">
             {loading ? (
               <div className="text-center py-5">
-                <div
-                  className="spinner-border text-primary"
-                  role="status"
-                ></div>
+                <SDLPageLoader />
                 <div className="mt-2 text-muted">
                   Loading bank request details...
                 </div>

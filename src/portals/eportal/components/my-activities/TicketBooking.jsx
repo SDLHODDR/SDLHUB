@@ -13,6 +13,7 @@ import { notifyWarning } from "../../../../shared/services/alertService";
 import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../../../shared/assets/css/companyPolicies.css";
 import "../../assets/css/ticketBooking.css";
+import SDLPageLoader from "../../../../shared/components/SDLPageLoader"
 
 const TicketBooking = () => {
   const dispatch = useDispatch();
@@ -185,9 +186,7 @@ const TicketBooking = () => {
       <div className="card ticket-booking-layout-card position-relative">
         {loading && (
           <div className="ticket-booking-loading-overlay">
-            <div className="spinner-border text-warning" role="status">
-              <span className="visually-hidden">Loading</span>
-            </div>
+            <SDLPageLoader />
           </div>
         )}
         <div className="card-body">

@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { getAttendanceLog } from "../services/dashboardService";
+import SDLPageLoader from "../../../shared/components/SDLPageLoader";
 
 const formatAPIDate = (date) =>
   date
@@ -56,7 +57,7 @@ const AttendanceLogForOD = ({ empCode = null, gpassDate = null }) => {
     <div className="card shadow-sm border-0 h-100">
       <div className="card-body p-2">
         {loading ? (
-          <div className="text-center py-4 text-muted">Loading...</div>
+          <SDLPageLoader />
         ) : pairs.length === 0 ? (
           <div className="text-center text-muted py-4">
             No Activity Available

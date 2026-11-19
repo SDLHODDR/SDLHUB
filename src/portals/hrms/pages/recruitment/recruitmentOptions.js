@@ -15,6 +15,8 @@ export const APPLICATION_STATUSES = {
   H: { label: 'On Hold', className: 'bg-warning' },
   O: { label: 'Offer Sent', className: 'bg-dark' },
   J: { label: 'Offer Accepted', className: 'bg-primary' },
+  // Set by New Joinee submit: Employee Code Generation (task 3) is pending; becomes E once the code is generated.
+  T: { label: 'Joining In Process', className: 'bg-info' },
   E: { label: 'Employed', className: 'bg-success' },
   C: { label: 'Offer Denied', className: 'bg-secondary' },
   G: { label: 'Offer Denied', className: 'bg-secondary' },
@@ -34,6 +36,7 @@ export const TIMELINE_LABELS = {
   R: 'Rejected',
   O: 'Offer Sent',
   J: 'Candidate Accepted The Offer Sent',
+  T: 'Joining In Process',
   E: 'Employed',
   S: 'Interviewer Assigned',
   C: 'Candidate Rejected The Offer Sent',

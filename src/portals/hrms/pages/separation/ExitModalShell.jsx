@@ -1,4 +1,5 @@
 import '../../assets/css/tenureChange.css'
+import SDLPageLoader from "../../../../shared/components/SDLPageLoader"
 
 /*
  * Common frame for the Exit task modals, matching the Tenure modals:
@@ -55,7 +56,7 @@ const ExitModalShell = ({
         <div className='modal-body'>
           {loading ? (
             <div className='text-center py-5'>
-              <span className='spinner-border' role='status' aria-label='Loading' />
+              <SDLPageLoader />
               <div className='mt-2'>Loading task details...</div>
             </div>
           ) : loadError ? (

@@ -9,12 +9,21 @@ import { formatDashDate } from "../../../../shared/utils/formatUtils";
 import { useJoiningAuthorizationHandler } from "./useJoiningAuthorizationHandler";
 import { getJoiningAuthorizationColumns } from "./JoiningAuthorizationColumns";
 import AppointmentLetterModal from "./AppointmentLetterModal";
+import JoiningChecklistModal from "./JoiningChecklistModal";
+import SDLPageLoader from "../../../../shared/components/SDLPageLoader";
 
 // Print Appointment Letter opens its own modal.
 const APPOINTMENT_LETTER_TASK = "44";
+// Employee Code Generation for a recruited candidate: TRAN_CODE is the application.
+const CODE_GENERATION_TASK = "3";
+// Joining Activity, Employee Induction, Employee Verification open a checklist modal.
+const CHECKLIST_TASKS = ["4", "14", "15"];
 
 // Map TASK_ID -> page title / API endpoint / column config
 const JOINING_TASK_CONFIG = {
+  3: { title: "Employee Code Generation" },
+  14: { title: "Employee Verification" },
+  15: { title: "Employee Induction" },
   13: { title: "Employee Document Upload", endpoint: "/joining/doc-upload" },
   34: { title: "Tenure Details" },
   35: { title: "Basic Details" },
@@ -39,10 +48,19 @@ const JoiningAuthorization = () => {
     const navigate = useNavigate();
     const config = JOINING_TASK_CONFIG[tid];
     const [letterRecord, setLetterRecord] = useState(null);
+    const [checklistRecord, setChecklistRecord] = useState(null);
 
     const handleRowClick = (record) => {
         if (String(tid) === APPOINTMENT_LETTER_TASK && record?.ID) {
             setLetterRecord(record);
+            return;
+        }
+        if (CHECKLIST_TASKS.includes(String(tid)) && record?.ID) {
+            setChecklistRecord(record);
+            return;
+        }
+        if (String(tid) === CODE_GENERATION_TASK && record?.ID) {
+            navigate(`/hrms/masterdata/employee?candidate_task=${encodeURIComponent(record.ID)}`);
             return;
         }
         if (!TASKS_OPENING_EMPLOYEE_PAGE.includes(String(tid)) || !record?.TRAN_CODE) return;
@@ -70,7 +88,7 @@ const JoiningAuthorization = () => {
     );
    
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <SDLPageLoader />;
 
     // useEffect(() => {
     //     if (!config) return;
@@ -127,6 +145,13 @@ const JoiningAuthorization = () => {
                     onSuccess={handleModalSuccess}
                 />
             )} */}
+            {checklistRecord && (
+                <JoiningChecklistModal
+                    record={checklistRecord}
+                    onClose={() => setChecklistRecord(null)}
+                    onDone={refresh}
+                />
+            )}
             {letterRecord && (
                 <AppointmentLetterModal
                     record={letterRecord}

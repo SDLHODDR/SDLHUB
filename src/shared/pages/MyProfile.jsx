@@ -1,3 +1,4 @@
+import BreadcrumbNav from "../components/BreadcrumbNav";
 import { useState, useMemo, useEffect, useRef } from 'react'
 
 import SDLDataTable from '../components/datatable/SDLDataTable'
@@ -1738,16 +1739,7 @@ const handleVerifyPersonalOtp = async () => {
           </div>
         </div>
 
-        <nav aria-label='breadcrumb'>
-          <ol className='breadcrumb'>
-            <li className='breadcrumb-item'>
-              <a href='#'>Home</a>
-            </li>
-            <li className='breadcrumb-item active' aria-current='page'>
-              Profile
-            </li>
-          </ol>
-        </nav>
+        <BreadcrumbNav items={[{ text: 'Home' }, { text: 'Profile' }]} />
       </div>
 
       <div className='row'>

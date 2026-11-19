@@ -9,6 +9,7 @@ import { confirmAction, notifyError, notifySuccess } from '../../../../shared/se
 import { getAppraiserResponse, getFinalAppraisal, processFinalAppraisal } from '../../services/appraisalService'
 import RecruitmentModal from '../recruitment/RecruitmentModal'
 import '../../assets/css/appraisal.css'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const INCREMENT_PATTERN = /^\d{1,7}(\.\d{1,2})?$/
 const REMARK_MAX = 4000
@@ -235,7 +236,7 @@ const FinalAppraisal = () => {
                   <SDLReactSelect value={appraisalId} options={options} placeholder='Please Select Appraisal' onChange={load} />
                 </div>
               </div>
-              {loading && <div className='text-muted'>Loading...</div>}
+              {loading && <SDLPageLoader />}
               {data && !loading && (
                 <>
                   <div className='final-appraisal-scroll'>

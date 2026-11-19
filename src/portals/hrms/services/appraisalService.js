@@ -24,3 +24,27 @@ export const getFinalAppraisal = id => get(API.GET_FINAL, id ? { id } : {})
 export const getAppraiserResponse = (id, empCode) => get(API.GET_FINAL, { id, response: empCode })
 /** save | submit the final recommendation of the selected employees. */
 export const processFinalAppraisal = data => hrmsRequest({ url: API.PROCESS_FINAL, method: 'POST', data })
+
+/** Employee Appraisal task (46): the employee, history, earlier appraisers and this appraiser's form. */
+export const getEmployeeAppraisal = userTaskId => get(API.GET_EMPLOYEE_APPRAISAL, { user_task_id: userTaskId })
+/** save | submit this appraiser's appraisal (submit hands it to the next appraiser). */
+export const saveEmployeeAppraisal = data =>
+  hrmsRequest({ url: API.SAVE_EMPLOYEE_APPRAISAL, method: 'POST', data })
+
+const post = url => data => hrmsRequest({ url, method: 'POST', data })
+
+/** CTC Change (47) / CTC Approval (48); pfBasis recalculates the structure. */
+export const getAppraisalCtc = (userTaskId, pfBasis) =>
+  get(API.GET_APPRAISAL_CTC, pfBasis === undefined ? { user_task_id: userTaskId } : { user_task_id: userTaskId, pf_basis: pfBasis })
+export const saveAppraisalCtc = post(API.SAVE_APPRAISAL_CTC)
+
+/** Employee Promotion (49) / Promotion Auth (50); orgId returns that organogram's free locations. */
+export const getAppraisalPromotion = (userTaskId, orgId) =>
+  get(API.GET_APPRAISAL_PROMOTION, orgId ? { user_task_id: userTaskId, org_id: orgId } : { user_task_id: userTaskId })
+export const saveAppraisalPromotion = post(API.SAVE_APPRAISAL_PROMOTION)
+
+/** Print Promotion Letter (51) / Print Increment Letter (52). */
+export const getAppraisalLetter = userTaskId => get(API.GET_APPRAISAL_LETTER, { user_task_id: userTaskId })
+export const processAppraisalLetter = post(API.PROCESS_APPRAISAL_LETTER)
+export const appraisalLetterUrl = (script, empCode, userTaskId) =>
+  `${import.meta.env.VITE_API_URL || ''}/hrms/reports/pdfReport/${script}?EMP_CODE=${encodeURIComponent(empCode)}&user_task_id=${encodeURIComponent(userTaskId)}`

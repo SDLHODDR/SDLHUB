@@ -208,15 +208,18 @@ const AppraisalQuestionsTab = ({ detail, busy, run }) => {
                             />
                           </td>
                           <td>
-                            {question.question}
-                            {question.added && <span className='badge bg-secondary ms-2'>Added</span>}
+                            {/* The tag sits at the end of the row so the tags line up in one column. */}
+                            <div className='d-flex align-items-center justify-content-between gap-2'>
+                              <span>{question.question}</span>
+                              {question.added && <span className='badge bg-secondary flex-shrink-0'>Added</span>}
+                            </div>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-                <div className='d-flex justify-content-center gap-2 mt-3'>
+                <div className='d-flex justify-content-end gap-2 mt-3'>
                   <SaveButton onClick={add} isSubmitting={busy} disabled={selected.size === 0} />
                 </div>
               </>

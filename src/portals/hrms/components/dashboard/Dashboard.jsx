@@ -4,6 +4,7 @@ import Chart from 'react-apexcharts'
 import { getHrmsDashboard } from '../../services/dashboardService'
 import { getNewJoinees } from '../../services/newEmployeeService'
 import { getTenureChangeList } from '../../services/tenureChangeService'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 /*
  * HRMS dashboard (legacy hradmin/dashboard.php). Which widgets a user sees is set
@@ -246,7 +247,7 @@ const Dashboard = () => {
 
       {!dashboard && !error && (
         <div className='text-center py-5'>
-          <span className='spinner-border text-primary' role='status' aria-label='Loading dashboard' />
+          <SDLPageLoader />
         </div>
       )}
 

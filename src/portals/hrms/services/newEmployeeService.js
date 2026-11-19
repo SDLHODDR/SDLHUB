@@ -36,6 +36,27 @@ export const saveJoiningDetail = post(HRMS_API.JOINING.SAVE_DETAIL)
 export const deleteJoiningDetail = post(HRMS_API.JOINING.DELETE_DETAIL)
 export const submitJoiningTask = post(HRMS_API.JOINING.SUBMIT_TASK)
 
+// Employee Code Generation task (3): a recruited candidate becomes an employee.
+export const getCandidateJoinee = userTaskId =>
+  hrmsRequest({
+    url: HRMS_API.JOINING.GET_CANDIDATE_JOINEE,
+    method: 'GET',
+    params: { user_task_id: userTaskId }
+  })
+
+export const convertCandidateToEmployee = post(HRMS_API.JOINING.CONVERT_CANDIDATE)
+export const activateCandidateEmployee = post(HRMS_API.JOINING.ACTIVATE_CANDIDATE)
+
+// Joining Activity (4), Employee Induction (15), Employee Verification (14).
+export const getJoiningChecklist = userTaskId =>
+  hrmsRequest({
+    url: HRMS_API.JOINING.GET_CHECKLIST,
+    method: 'GET',
+    params: { user_task_id: userTaskId }
+  })
+
+export const saveJoiningChecklist = post(HRMS_API.JOINING.SAVE_CHECKLIST)
+
 // Print Appointment Letter task (44).
 export const getAppointmentLetter = userTaskId =>
   hrmsRequest({

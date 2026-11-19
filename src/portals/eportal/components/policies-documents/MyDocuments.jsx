@@ -7,6 +7,7 @@ import "../../assets/css/wideContentPages.css";
 import EportalPageLoader from "../loader/EportalPageLoader";
 
 import {MY_DOCUMENTS_MESSAGES} from "../../constants/policies-documentsConstants";
+import SDLPageLoader from "../../../../shared/components/SDLPageLoader"
 
 const MyDocuments = () => {
   const [payslips, setPayslips] = useState([]);
@@ -212,7 +213,7 @@ const MyDocuments = () => {
 
                         {pdfLoading && (
                           <div className="position-absolute top-50 start-50 translate-middle">
-                            <div className="spinner-border text-warning" role="status"></div>
+                            <SDLPageLoader />
                           </div>
                         )}
 
@@ -298,7 +299,7 @@ const MyDocuments = () => {
 
                         {docLoading && (
                           <div className="position-absolute top-50 start-50 translate-middle">
-                            <div className="spinner-border text-warning" role="status"></div>
+                            <SDLPageLoader />
                           </div>
                         )}
 

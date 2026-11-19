@@ -6,6 +6,7 @@ import LeavesAuthorizationModal from "../modal/LeavesAuthorizationModal";
 import { formatDashDate } from "../../../shared/utils/formatUtils";
 import { useLeavesAuthorizationHandler } from "./useLeavesAuthorizationHandler";
 import { getLeavesAuthorizationColumns } from "./LeavesAuthorizationColumns";
+import SDLPageLoader from "../../../shared/components/SDLPageLoader";
 
 const LeavesAuthorization = () => {
   const {
@@ -22,7 +23,7 @@ const LeavesAuthorization = () => {
 
   const columns = getLeavesAuthorizationColumns(openModal, formatDashDate);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <SDLPageLoader />;
 
   return (
     <>

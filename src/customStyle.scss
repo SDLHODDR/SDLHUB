@@ -11,6 +11,14 @@ input[type='number'] {
   -moz-appearance: textfield;
 }
 
+// Text inputs used for numbers (amounts, marks, counts) are right-aligned too.
+// OTP boxes keep their centered digits.
+input[inputmode='numeric']:not(.otp-input),
+input[inputmode='decimal']:not(.otp-input),
+.p-inputnumber-input {
+  text-align: right;
+}
+
 input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
   margin: 0;

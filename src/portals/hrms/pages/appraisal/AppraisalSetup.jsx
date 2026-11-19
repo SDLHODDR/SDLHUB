@@ -13,6 +13,7 @@ import '../../../../shared/assets/css/companyPolicies.css'
 import '../../assets/css/tenureChange.css'
 import '../../assets/css/recruitment.css'
 import '../../assets/css/appraisal.css'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const STATUS_BADGES = { N: 'bg-primary', P: 'bg-success', C: 'bg-secondary' }
 
@@ -78,7 +79,8 @@ const AppraisalSetup = () => {
     try {
       const response = await processAppraisalSetup({ id: detail?.appraisal.id, ...payload })
       if (!response?.status) throw new Error(response?.message)
-      notifySuccess(response.message)
+      // Reordering questions shows the new order itself; no alert.
+      if (payload.action !== 'move_question') notifySuccess(response.message)
       const savedId = response.data?.id || detail?.appraisal.id
       if (savedId && payload.action !== 'close') await loadDetail(savedId)
       loadList()
@@ -200,7 +202,7 @@ const AppraisalSetup = () => {
                       onCancel={startNew}
                     />
                   ) : (
-                    !loadError && <div className='text-muted'>Loading...</div>
+                    !loadError && <SDLPageLoader />
                   ))}
                 {activeTab === 'questions' && detail && <AppraisalQuestionsTab key={detail.appraisal.id} detail={detail} busy={busy} run={run} />}
                 {activeTab === 'employees' && detail && <AppraisalEmployeesTab key={detail.appraisal.id} detail={detail} busy={busy} run={run} />}
