@@ -347,7 +347,7 @@ const EmployeeAppraisalModal = ({ record, onClose, onDone }) => {
                     <th style={{ width: '6%' }}>Level</th>
                     <th style={{ width: '18%' }}>Appraiser</th>
                     <th style={{ width: '12%' }}>Promotion</th>
-                    <th style={{ width: '14%' }}>Proposed CTC</th>
+                    <th style={{ width: '14%' }}>Increment P.M.</th>
                     <th style={{ width: '12%' }}>Next Due</th>
                     <th>Final Review</th>
                   </tr>
@@ -521,13 +521,13 @@ const EmployeeAppraisalModal = ({ record, onClose, onDone }) => {
             </div>
             <div className='col-md-3'>
               <label className='form-label' htmlFor='appr-prop-ctc'>
-                Proposed Annual CTC (In ₹) <span className='text-danger'>*</span>
+                Proposed Monthly Increment (In ₹) <span className='text-danger'>*</span>
               </label>
               <input
                 id='appr-prop-ctc'
                 className={`form-control text-end${flag(!String(decision.propCtc).trim())}`}
                 inputMode='numeric'
-                placeholder='e.g. 600000'
+                placeholder='e.g. 5000'
                 value={decision.propCtc}
                 disabled={Boolean(busy)}
                 onChange={event =>
@@ -536,8 +536,7 @@ const EmployeeAppraisalModal = ({ record, onClose, onDone }) => {
               />
               {ctcValue > 0 && (
                 <small className='text-muted d-block mt-1'>
-                  ₹{ctcValue.toLocaleString('en-IN')} (
-                  {(ctcValue / 100000).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Lakhs p.a.)
+                  ₹{ctcValue.toLocaleString('en-IN')} per month (₹{(ctcValue * 12).toLocaleString('en-IN')} p.a.)
                 </small>
               )}
             </div>

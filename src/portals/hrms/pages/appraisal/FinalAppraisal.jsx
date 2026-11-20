@@ -85,8 +85,14 @@ const AppraiserResponseModal = ({ appraisalId, employee, onClose }) => {
               </div>
             </div>
           </div>
-          <div className='table-responsive'>
-            <table className='table table-bordered table-sm align-middle mb-0 appraisal-table'>
+          <div>
+            <table className='table table-bordered table-sm align-middle mb-0 appraisal-table appraisal-response-table'>
+              <colgroup>
+                <col style={{ width: '14%' }} />
+                <col style={{ width: '42%' }} />
+                <col style={{ width: '22%' }} />
+                <col style={{ width: '22%' }} />
+              </colgroup>
               <thead>
                 <tr>
                   <th>SubGroup</th>

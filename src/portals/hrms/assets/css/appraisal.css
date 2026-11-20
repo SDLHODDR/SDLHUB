@@ -47,3 +47,16 @@
   line-height: 1.2;
   white-space: nowrap;
 }
+
+/* Appraiser's response: fits the modal, long questions wrap instead of scrolling. */
+.appraisal-response-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.table.appraisal-response-table th,
+.table.appraisal-response-table td {
+  white-space: normal !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}

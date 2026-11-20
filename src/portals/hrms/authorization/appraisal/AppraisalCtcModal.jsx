@@ -143,7 +143,7 @@ const AppraisalCtcModal = ({ record, onClose, onDone }) => {
               </div>
             )}
             <div className='col'>
-              <button type='button' className='btn btn-outline-primary btn-sm' onClick={useStructure} disabled={Boolean(busy)}>
+              <button type='button' className='btn btn-outline-primary' style={{ minHeight: 38 }} onClick={useStructure} disabled={Boolean(busy)}>
                 Fill from structure
               </button>
             </div>
