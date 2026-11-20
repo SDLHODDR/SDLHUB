@@ -3255,7 +3255,7 @@ const handleVerifyPersonalOtp = async () => {
 
         {/* ================= FOOTER ================= */}
 
-        <div className='modal-footer justify-content-center'>
+        <div className='modal-footer justify-content-end'>
 
           <button
             type='button'

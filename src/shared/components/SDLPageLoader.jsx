@@ -6,7 +6,9 @@ import '../assets/css/sdlPageLoader.css'
  */
 const SDLPageLoader = ({ label = 'Loading' }) => (
   <div className='sdl-page-loader' role='status' aria-live='polite'>
-    <div className='whirly-loader'>{label}</div>
+    <div className='sdl-page-loader-size'>
+      <div className='whirly-loader'>{label}</div>
+    </div>
   </div>
 )
 

@@ -11,6 +11,10 @@
   justify-content: center;
   background: rgba(255, 255, 255, 0.6);
 }
+/* The whirly is drawn in fixed px; scale it down to suit the page. */
+.sdl-page-loader-size {
+  transform: scale(0.7);
+}
 .sdl-page-loader .whirly-loader:not(:required) {
   animation: sdl-whirly-loader 1.25s linear infinite;
   background: transparent;

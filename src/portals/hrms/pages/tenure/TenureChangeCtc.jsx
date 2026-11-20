@@ -153,7 +153,7 @@ const TenureChangeCtc = () => {
             </table>
           </div>
 
-          <div className="d-flex justify-content-center gap-2 mt-2">
+          <div className="d-flex justify-content-end gap-2 mt-2">
             <button type="button" className="btn btn-primary" onClick={handleSaveCtc}>Save CTC</button>
             <button type="button" className="btn btn-secondary" onClick={() => navigate(-1)}>Cancel</button>
           </div>

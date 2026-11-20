@@ -1,3 +1,4 @@
+import "../assets/css/sdlPageLoader.css";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -25,7 +26,9 @@ const RouteLoader = () => {
 
   return (
     <div id="global-loader">
-      <div className="whirly-loader"></div>
+      <div className="sdl-page-loader-size">
+        <div className="whirly-loader"></div>
+      </div>
     </div>
   );
 };

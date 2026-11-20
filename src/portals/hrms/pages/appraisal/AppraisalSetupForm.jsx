@@ -179,7 +179,7 @@ const AppraisalSetupForm = ({ options, appraisal, busy, onSave, onCancel }) => {
           <input id='appr-close' type='text' className='form-control' value={appraisal?.closeDate || ''} disabled />
         </div>
       </div>
-      <div className='d-flex justify-content-center gap-2 mt-4'>
+      <div className='d-flex justify-content-end gap-2 mt-4'>
         {editable && (
           <SaveButton onClick={save} isSubmitting={busy}>
             {appraisal ? 'Update' : 'Save'}
