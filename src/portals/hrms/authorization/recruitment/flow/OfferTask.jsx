@@ -226,7 +226,7 @@ const OfferTask = ({ taskId, title, record, onClose, onSuccess }) => {
         <div>
           <div className='d-flex justify-content-between align-items-center mb-2'>
             {details.offer?.reference ? (
-              <span className='badge bg-success-subtle text-success border px-2 py-1'>Reference Code: {details.offer.reference}</span>
+              <span className='badge sdl-reference-badge'>Reference Code: {details.offer.reference}</span>
             ) : (
               <span className='text-muted small'>A letter reference number is taken when the letter is first loaded.</span>
             )}

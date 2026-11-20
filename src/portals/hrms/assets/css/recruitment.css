@@ -176,3 +176,12 @@
 .recruitment-flow-table td.recruitment-missing-cell {
   box-shadow: inset 0 0 0 1px #dc3545;
 }
+
+/* Sub-section rows under a group heading (e.g. Attributes in the appraisal form). */
+.recruitment-flow-table th.appraisal-subgroup-heading {
+  background: #fff3e6 !important;
+  color: #1b2850 !important;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 8px 14px;
+}

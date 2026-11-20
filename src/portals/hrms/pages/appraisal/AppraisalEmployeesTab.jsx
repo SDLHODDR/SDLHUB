@@ -1,41 +1,10 @@
 import { useState } from 'react'
+import { Paginator } from 'primereact/paginator'
 import SaveButton from '../../../../shared/components/buttons/SaveButton'
 import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import { getAppraisalOrganogramEmployees } from '../../services/appraisalService'
 
-const EMPLOYEE_PAGE_SIZE = 10
-
-/* Previous / page / Next pager (same look as Job Description's question tables). */
-const Pager = ({ page, totalPages, total, pageSize, label, onChange }) => {
-  if (totalPages <= 1) return null
-  const start = (page - 1) * pageSize
-  return (
-    <div className='d-flex justify-content-between align-items-center flex-wrap gap-2 mt-2'>
-      <div className='text-muted small'>
-        Showing {start + 1} - {Math.min(start + pageSize, total)} of {total} {label}
-      </div>
-      <nav aria-label={`${label} pages`}>
-        <ul className='pagination pagination-sm mb-0'>
-          <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
-            <button type='button' className='page-link' disabled={page === 1} onClick={() => onChange(page - 1)}>
-              Previous
-            </button>
-          </li>
-          <li className='page-item disabled'>
-            <span className='page-link'>
-              {page} / {totalPages}
-            </span>
-          </li>
-          <li className={`page-item ${page === totalPages ? 'disabled' : ''}`}>
-            <button type='button' className='page-link' disabled={page === totalPages} onClick={() => onChange(page + 1)}>
-              Next
-            </button>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  )
-}
+const EMPLOYEE_PAGE_SIZES = [10, 25, 50, 100]
 
 /* Employees of the appraisal by organogram, with their appraisers. While New an employee can be removed. */
 const EmployeeList = ({ organograms, editable, busy, onRemove }) => (
@@ -111,14 +80,15 @@ const AppraisalEmployeesTab = ({ detail, busy, run }) => {
   const [selected, setSelected] = useState(() => new Set())
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [page, setPage] = useState(1)
+  const [first, setFirst] = useState(0)
+  const [rows, setRows] = useState(EMPLOYEE_PAGE_SIZES[0])
 
   const loadOrganogram = value => {
     setOrgId(value || '')
     setResult(null)
     setSelected(new Set())
     setError('')
-    setPage(1)
+    setFirst(0)
     if (!value) return
     setLoading(true)
     getAppraisalOrganogramEmployees(appraisal.id, value)
@@ -133,9 +103,8 @@ const AppraisalEmployeesTab = ({ detail, busy, run }) => {
   }
 
   const employees = result?.employees || []
-  const totalPages = Math.max(1, Math.ceil(employees.length / EMPLOYEE_PAGE_SIZE))
-  const currentPage = Math.min(page, totalPages)
-  const pageEmployees = employees.slice((currentPage - 1) * EMPLOYEE_PAGE_SIZE, currentPage * EMPLOYEE_PAGE_SIZE)
+  const pageStart = first < employees.length ? first : 0
+  const pageEmployees = employees.slice(pageStart, pageStart + rows)
 
   const available = employees.filter(employee => !employee.added)
   const allSelected = available.length > 0 && available.every(employee => selected.has(employee.code))
@@ -244,15 +213,24 @@ const AppraisalEmployeesTab = ({ detail, busy, run }) => {
                     </tbody>
                   </table>
                 </div>
-                <Pager
-                  page={currentPage}
-                  totalPages={totalPages}
-                  total={employees.length}
-                  pageSize={EMPLOYEE_PAGE_SIZE}
-                  label='employees'
-                  onChange={setPage}
-                />
-                {selected.size > 0 && <div className='text-muted small mt-1'>{selected.size} selected across all pages</div>}
+                {employees.length > EMPLOYEE_PAGE_SIZES[0] && (
+                  <Paginator
+                    first={pageStart}
+                    rows={rows}
+                    totalRecords={employees.length}
+                    rowsPerPageOptions={EMPLOYEE_PAGE_SIZES}
+                    onPageChange={event => {
+                      setFirst(event.first)
+                      setRows(event.rows)
+                    }}
+                    template='CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown'
+                    currentPageReportTemplate='Showing {first} to {last} of {totalRecords} entries'
+                    dropdownAppendTo='self'
+                    pageLinkSize={3}
+                    className='appraisal-paginator'
+                  />
+                )}
+                {selected.size > 0 && <div className='text-muted small mt-1 text-center'>{selected.size} selected across all pages</div>}
                 <div className='d-flex justify-content-end gap-2 mt-3'>
                   <SaveButton onClick={add} isSubmitting={busy} disabled={available.length === 0} />
                 </div>
@@ -260,8 +238,24 @@ const AppraisalEmployeesTab = ({ detail, busy, run }) => {
             )}
           </div>
           <div className='col-lg-8'>
-            <label className='form-label'>List Of Organogram Employees</label>
-            {list}
+            {result?.hasLevels ? (
+              <>
+                {/* Mirrors the left column (label row, select row, gap) so the heading sits level
+                    with the Organogram select and both tables start on the same line. */}
+                <div className='form-label d-none d-lg-block invisible' aria-hidden='true'>
+                  &nbsp;
+                </div>
+                <div className='appraisal-employee-list-heading'>
+                  <label className='form-label mb-0'>List Of Organogram Employees</label>
+                </div>
+                <div className='mt-3'>{list}</div>
+              </>
+            ) : (
+              <>
+                <label className='form-label'>List Of Organogram Employees</label>
+                {list}
+              </>
+            )}
           </div>
         </div>
       )}

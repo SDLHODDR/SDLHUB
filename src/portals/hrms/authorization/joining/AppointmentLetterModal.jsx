@@ -176,7 +176,7 @@ const AppointmentLetterModal = ({ record, onClose, onDone }) => {
             </div>
             <div className='col d-flex justify-content-end align-items-center gap-2'>
               {reference ? (
-                <span className='badge bg-success-subtle text-success border px-2 py-1'>
+                <span className='badge sdl-reference-badge'>
                   Reference Code: {reference.docRef} ({reference.docDate})
                 </span>
               ) : (

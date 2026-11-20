@@ -195,8 +195,9 @@ const AppraisalCtcModal = ({ record, onClose, onDone }) => {
             </table>
           </div>
           {data.appraisal.newCtc > 0 && total > 0 && Math.abs(total * 12 - data.appraisal.newCtc) > 100 && (
-            <div className='text-muted small mt-2'>
-              The entered breakup totals ₹{appraisalInr(total * 12)} a year against the appraised CTC of ₹{appraisalInr(data.appraisal.newCtc)}.
+            <div className='alert alert-danger mt-3 mb-2' role='alert'>
+              The entered breakup totals ₹{appraisalInr(total * 12)} a year against the appraised CTC of ₹
+              {appraisalInr(data.appraisal.newCtc)}.
             </div>
           )}
         </>

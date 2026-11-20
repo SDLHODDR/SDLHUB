@@ -60,3 +60,75 @@
   word-break: break-word;
   overflow-wrap: anywhere;
 }
+
+/* Compact paginator for the narrow employee list: the count on its own line,
+   then every control (<< < pages > >> rows) on one line. */
+.appraisal-paginator.p-paginator {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.15rem;
+  padding: 0.4rem 0;
+  margin-top: 0.75rem;
+}
+
+.appraisal-paginator .p-paginator-current {
+  flex-basis: 100%;
+  margin: 0 0 0.25rem;
+  padding: 0;
+  height: auto;
+  justify-content: center;
+  text-align: center;
+  /* Same as the "selected across all pages" note below it (text-muted small). */
+  font-size: 0.75rem;
+  color: var(--bs-secondary-color, #6c757d);
+}
+
+.appraisal-paginator .p-paginator-first,
+.appraisal-paginator .p-paginator-prev,
+.appraisal-paginator .p-paginator-next,
+.appraisal-paginator .p-paginator-last,
+.appraisal-paginator .p-paginator-pages .p-paginator-page {
+  min-width: 1.4rem;
+  height: 1.4rem;
+  margin: 0;
+  padding: 0;
+  font-size: 0.7rem;
+}
+
+.appraisal-paginator .p-paginator-pages {
+  display: inline-flex;
+  flex-wrap: nowrap;
+}
+
+.appraisal-paginator .p-dropdown {
+  height: 1.4rem;
+  margin-left: 0.4rem;
+  align-items: center;
+}
+
+.appraisal-paginator .p-dropdown .p-dropdown-label {
+  padding: 0 0.4rem;
+  font-size: 0.7rem;
+  line-height: 1.4rem;
+}
+
+.appraisal-paginator .p-paginator-icon,
+.appraisal-paginator .p-paginator-first svg,
+.appraisal-paginator .p-paginator-prev svg,
+.appraisal-paginator .p-paginator-next svg,
+.appraisal-paginator .p-paginator-last svg,
+.appraisal-paginator .p-dropdown-trigger svg {
+  width: 0.6rem;
+  height: 0.6rem;
+}
+
+.appraisal-paginator .p-dropdown-trigger {
+  width: 1.4rem;
+}
+
+/* Organogram Employee tab: the list heading sits level with the Organogram select. */
+.appraisal-employee-list-heading {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+}

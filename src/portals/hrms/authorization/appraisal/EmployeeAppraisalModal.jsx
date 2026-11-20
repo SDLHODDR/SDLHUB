@@ -446,7 +446,7 @@ const EmployeeAppraisalModal = ({ record, onClose, onDone }) => {
                   ...group.subgroups.map(sub => [
                     sub.name && (
                       <tr key={`s-${group.name}-${sub.name}`}>
-                        <th colSpan={3} className='text-primary'>
+                        <th colSpan={3} className='appraisal-subgroup-heading'>
                           {titleCase(sub.name)}
                         </th>
                       </tr>

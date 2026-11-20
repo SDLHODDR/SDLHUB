@@ -2638,3 +2638,14 @@ textarea {
   position: relative;
   z-index: 1;
 }
+
+// Generated letter reference code (Offer, Appointment, Tenure, Exit, Appraisal letters).
+.badge.sdl-reference-badge {
+  background-color: #d4f3e2;
+  color: #0f5132;
+  border: 1px solid #9fdcbb;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}

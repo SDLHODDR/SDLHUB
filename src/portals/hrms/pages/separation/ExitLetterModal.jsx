@@ -169,7 +169,7 @@ const ExitLetterModal = ({ config, record, onClose, onSuccess }) => {
             {letters.map(letter => (
               <span
                 key={letter.docId}
-                className={`badge border px-2 py-1 ${letter.reference ? 'bg-success-subtle text-success' : 'bg-light text-muted'}`}
+                className={`badge ${letter.reference ? 'sdl-reference-badge' : 'border px-2 py-1 bg-light text-muted'}`}
               >
                 {letter.name}: {letter.reference || 'Reference not generated'}
               </span>

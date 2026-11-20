@@ -533,7 +533,7 @@ const TenureChangeLetterModal = ({
                   ) : (
                     <div className='mt-3 pt-3 border-top'>
                       <div className='d-flex justify-content-between align-items-center mb-2'>
-                        <span className='badge bg-success-subtle text-success border px-2 py-1'>
+                        <span className='badge sdl-reference-badge'>
                           Reference Code: {details.doc_ref}
                         </span>
                         <button
