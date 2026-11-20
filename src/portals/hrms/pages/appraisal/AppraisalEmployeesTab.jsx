@@ -3,6 +3,40 @@ import SaveButton from '../../../../shared/components/buttons/SaveButton'
 import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import { getAppraisalOrganogramEmployees } from '../../services/appraisalService'
 
+const EMPLOYEE_PAGE_SIZE = 10
+
+/* Previous / page / Next pager (same look as Job Description's question tables). */
+const Pager = ({ page, totalPages, total, pageSize, label, onChange }) => {
+  if (totalPages <= 1) return null
+  const start = (page - 1) * pageSize
+  return (
+    <div className='d-flex justify-content-between align-items-center flex-wrap gap-2 mt-2'>
+      <div className='text-muted small'>
+        Showing {start + 1} - {Math.min(start + pageSize, total)} of {total} {label}
+      </div>
+      <nav aria-label={`${label} pages`}>
+        <ul className='pagination pagination-sm mb-0'>
+          <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
+            <button type='button' className='page-link' disabled={page === 1} onClick={() => onChange(page - 1)}>
+              Previous
+            </button>
+          </li>
+          <li className='page-item disabled'>
+            <span className='page-link'>
+              {page} / {totalPages}
+            </span>
+          </li>
+          <li className={`page-item ${page === totalPages ? 'disabled' : ''}`}>
+            <button type='button' className='page-link' disabled={page === totalPages} onClick={() => onChange(page + 1)}>
+              Next
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  )
+}
+
 /* Employees of the appraisal by organogram, with their appraisers. While New an employee can be removed. */
 const EmployeeList = ({ organograms, editable, busy, onRemove }) => (
   <div className='table-responsive'>
@@ -77,12 +111,14 @@ const AppraisalEmployeesTab = ({ detail, busy, run }) => {
   const [selected, setSelected] = useState(() => new Set())
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [page, setPage] = useState(1)
 
   const loadOrganogram = value => {
     setOrgId(value || '')
     setResult(null)
     setSelected(new Set())
     setError('')
+    setPage(1)
     if (!value) return
     setLoading(true)
     getAppraisalOrganogramEmployees(appraisal.id, value)
@@ -96,7 +132,12 @@ const AppraisalEmployeesTab = ({ detail, busy, run }) => {
       .finally(() => setLoading(false))
   }
 
-  const available = (result?.employees || []).filter(employee => !employee.added)
+  const employees = result?.employees || []
+  const totalPages = Math.max(1, Math.ceil(employees.length / EMPLOYEE_PAGE_SIZE))
+  const currentPage = Math.min(page, totalPages)
+  const pageEmployees = employees.slice((currentPage - 1) * EMPLOYEE_PAGE_SIZE, currentPage * EMPLOYEE_PAGE_SIZE)
+
+  const available = employees.filter(employee => !employee.added)
   const allSelected = available.length > 0 && available.every(employee => selected.has(employee.code))
   const toggle = code =>
     setSelected(current => {
@@ -181,7 +222,7 @@ const AppraisalEmployeesTab = ({ detail, busy, run }) => {
                           </td>
                         </tr>
                       )}
-                      {result.employees.map(employee => (
+                      {pageEmployees.map(employee => (
                         <tr key={`${employee.locationId}-${employee.code}`}>
                           <td className='text-center'>
                             <input
@@ -203,6 +244,15 @@ const AppraisalEmployeesTab = ({ detail, busy, run }) => {
                     </tbody>
                   </table>
                 </div>
+                <Pager
+                  page={currentPage}
+                  totalPages={totalPages}
+                  total={employees.length}
+                  pageSize={EMPLOYEE_PAGE_SIZE}
+                  label='employees'
+                  onChange={setPage}
+                />
+                {selected.size > 0 && <div className='text-muted small mt-1'>{selected.size} selected across all pages</div>}
                 <div className='d-flex justify-content-end gap-2 mt-3'>
                   <SaveButton onClick={add} isSubmitting={busy} disabled={available.length === 0} />
                 </div>
