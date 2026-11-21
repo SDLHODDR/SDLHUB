@@ -1,0 +1,75 @@
+/* IT Return tabs: same cards, text and notices as the HRMS pages. */
+
+.it-return-page .itr-section-card {
+  border: 1px solid #e6eaed;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+/* Section title bar in the same colours as the table headers. */
+.it-return-page .card .itr-section-header {
+  background: #f7f9fc;
+  color: #1b2850;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-bottom: 1px solid #e6eaed;
+}
+
+.it-return-page .itr-section-body {
+  background: #fff;
+  padding: 16px;
+}
+
+.it-return-page .itr-item-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #212b36;
+}
+
+.it-return-page .itr-item-limit {
+  font-size: 13px;
+  font-weight: 400;
+  color: #646b72;
+}
+
+.it-return-page .itr-attachment-link {
+  color: #ff9800;
+  font-size: 18px;
+}
+
+.it-return-page .itr-notice {
+  font-size: 14px;
+}
+
+.it-return-page .itr-notice i {
+  font-size: 14px;
+}
+
+/* Same amber notice as HRMS (appraisal letter); the theme's yellow text is hard to read. */
+.it-return-page .itr-notice.alert-warning {
+  background: #fff4e5;
+  border: 1px solid #f5c37a;
+  color: #8a4b00;
+}
+
+/* Collapsible section headers (click to fold / unfold). */
+.it-return-page .card .itr-section-header.itr-collapsible {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+.it-return-page .card .itr-section-header.itr-collapsible.collapsed {
+  border-bottom: 0;
+}
+.it-return-page .itr-collapse-icon {
+  font-size: 16px;
+  color: #646b72;
+  transition: transform 0.2s ease;
+}
+.it-return-page .itr-section-header.collapsed .itr-collapse-icon {
+  transform: rotate(-90deg);
+}

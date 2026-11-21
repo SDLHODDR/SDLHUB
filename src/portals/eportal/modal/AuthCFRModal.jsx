@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
+import SDLSelect from "../../../shared/components/form/SDLSelect";
 import {
   authCBRData,
   getConferenceRoomAvailability,
@@ -981,7 +982,7 @@ const AuthCFRModal = ({
                 </label>
 
 
-                <select
+                <SDLSelect
                   id="conference-auth-room"
                   className={`form-select ${
                     roomError
@@ -1018,7 +1019,7 @@ const AuthCFRModal = ({
                     )
                   )}
 
-                </select>
+                </SDLSelect>
 
 
                 {roomError && (

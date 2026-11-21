@@ -155,16 +155,18 @@ const columns = [
 
             <div className="p-3 border-bottom">
               <div className="row align-items-center">
-                <div className="col-md-5">
-                <SDLSearch
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search bookings..."
-                />
-              </div>
-                <div className="col-md-7 text-end">
+                <div className="col-md-auto">
+                  <SDLSearch
+                    value={search}
+                    onChange={setSearch}
+                    placeholder="Search bookings..."
+                    className="mb-0"
+                  />
+                </div>
+                <div className="col-md text-end mt-2 mt-md-0">
                   <button
-                    className="btn btn-outline-primary"
+                    type="button"
+                    className="btn btn-primary"
                     onClick={handleExport}
                   >
                     <i className="ti ti-file-export me-2"></i>
@@ -182,6 +184,7 @@ const columns = [
               columns={columns}
               loading={loading}
               rows={10}
+              paginator
               rowsPerPageOptions={[10, 25, 50, 100]}
               removableSort
               dataKey="ID"

@@ -11,6 +11,7 @@ import SDLTabsComponent from "../../../../hrms/components/tabs/SDLTabsComponent"
 
 import { getItReturnConfig } from "../../../services/itReturnService";
 import "../../../assets/css/wideContentPages.css";
+import "../../../assets/css/itReturn.css";
 
 const ItReturn = () => {
   const [activeTab, setActiveTab] = useState("tab1");
@@ -132,7 +133,7 @@ const ItReturn = () => {
       </div>
 
       {/* CARD */}
-      <div className="card eportal-wide-card">
+      <div className="card eportal-wide-card it-return-page">
         <div className="card-body">
 
           <SDLTabsComponent

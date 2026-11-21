@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
+import SDLSelect from "../../../../shared/components/form/SDLSelect";
 import {
   getConferenceRoomMaintenance,
   saveConferenceRoom,
@@ -587,7 +588,7 @@ const ConferenceRoomMaintenance = () => {
 
         <button
           type="button"
-          className="btn btn-sm btn-outline-primary"
+          className="btn btn-sm btn-outline-primary sdl-icon-btn"
           title="Update Room"
           onClick={() => openUpdateModal(rowData)}
         >
@@ -600,8 +601,8 @@ const ConferenceRoomMaintenance = () => {
           type="button"
           className={
             isActive
-              ? "btn btn-sm btn-outline-danger"
-              : "btn btn-sm btn-outline-success"
+              ? "btn btn-sm btn-outline-danger sdl-icon-btn"
+              : "btn btn-sm btn-outline-success sdl-icon-btn"
           }
           title={isActive ? "Make Room Inactive" : "Make Room Active"}
           onClick={() => openStatusModal(rowData)}
@@ -859,7 +860,7 @@ const ConferenceRoomMaintenance = () => {
                         <span className="text-danger"> *</span>
                       </label>
 
-                      <select
+                      <SDLSelect
                         className={`form-control ${
                           formErrors.roomLocation ? "is-invalid" : ""
                         }`}
@@ -876,7 +877,7 @@ const ConferenceRoomMaintenance = () => {
                             {location}
                           </option>
                         ))}
-                      </select>
+                      </SDLSelect>
 
                       {formErrors.roomLocation && (
                         <div className="invalid-feedback d-block">

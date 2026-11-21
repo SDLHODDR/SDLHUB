@@ -1,0 +1,10 @@
+/* Same height as the filter inputs/dropdowns it sits beside (40px); width follows the label. */
+.btn.sdl-reset-btn {
+  height: 40px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}

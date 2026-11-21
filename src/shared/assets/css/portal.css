@@ -53,3 +53,44 @@ a.portal-item:hover,
 a.portal-item:focus {
   text-decoration: none;
 }
+
+/* ============================================================
+   TABLE ACTION ICON BUTTONS
+   One size for every icon-only action button in a table row
+   (view, edit, delete, send, ...), in every portal.
+   ============================================================ */
+.btn.sdl-icon-btn {
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  line-height: 1;
+}
+
+.btn.sdl-icon-btn i,
+.btn.sdl-icon-btn .spinner-border {
+  font-size: 14px;
+  width: auto;
+  height: auto;
+  margin: 0;
+}
+
+.btn.sdl-icon-btn .spinner-border {
+  width: 14px;
+  height: 14px;
+}
+
+/* SDLSelect: show the Bootstrap error text that follows an invalid dropdown. */
+.sdl-select.sdl-select-invalid ~ .invalid-feedback {
+  display: block;
+}
+
+/* Form labels inside popups: semibold, same in every portal (HRMS + ePortal). */
+.modal .form-label {
+  font-weight: 600;
+  color: #212b36;
+}

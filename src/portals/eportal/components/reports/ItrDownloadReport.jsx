@@ -1,4 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
+import SDLSelect from "../../../../shared/components/form/SDLSelect";
+import ResetButton from "../../../../shared/components/buttons/ResetButton";
 import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable";
 import SDLSearch from "../../../../shared/components/datatable/SDLSearch";``
 import SDLCalendar from "../../../../shared/components/calendar/SDLCalendar";
@@ -434,7 +436,7 @@ const ItrDownloadReport = () => {
             <div className="col-12 col-sm-6 col-md-4 col-lg-2">
               <label className="form-label">Financial Year</label>
 
-              <select
+              <SDLSelect
                 className="form-select"
                 name="financial_year"
                 value={filters.financial_year}
@@ -445,14 +447,14 @@ const ItrDownloadReport = () => {
                 <option value="25-26">2025-26</option>
                 <option value="24-25">2024-25</option>
                 <option value="23-24">2023-24</option>
-              </select>
+              </SDLSelect>
             </div>
 
             {/* Download Type */}
             <div className="col-12 col-sm-6 col-md-4 col-lg-2">
               <label className="form-label">Download Type</label>
 
-              <select
+              <SDLSelect
                 className="form-select"
                 name="download_type"
                 value={filters.download_type}
@@ -463,7 +465,7 @@ const ItrDownloadReport = () => {
                 <option value="">All</option>
                 <option value="single">Single Employee</option>
                 <option value="all">All Employees</option>
-              </select>
+              </SDLSelect>
             </div>
 
             {/* Employee Code */}
@@ -532,20 +534,16 @@ const ItrDownloadReport = () => {
 
               <div className="d-flex gap-2 filter-btn-group">
                 <button
-                  className="btn btn-primary flex-fill"
+                  className="btn btn-primary"
                   onClick={handleSearch}
                   style={{ height: "40px" }}
                 >
                   Search
                 </button>
 
-                <button
-                  className="btn btn-secondary flex-fill"
+                <ResetButton
                   onClick={handleReset}
-                  style={{ height: "40px" }}
-                >
-                  Reset
-                </button>
+                />
               </div>
             </div>
           </div>

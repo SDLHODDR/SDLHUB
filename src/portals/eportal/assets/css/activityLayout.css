@@ -1,0 +1,80 @@
+/* My Activities calendar + list pages (Leave, Outdoor Duty, Ticket Booking, Conference Room). */
+
+.activity-page-card {
+  position: relative;
+}
+
+.activity-calendar-column,
+.activity-list-column {
+  min-width: 0;
+}
+
+.activity-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.activity-section-title {
+  margin-bottom: 2px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #212b36;
+}
+
+.activity-section-subtitle {
+  font-size: 13px;
+  color: #646b72;
+}
+
+.activity-section-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Search (330px, same as HRMS) + status (220px) + Reset, all 40px high. */
+.activity-filter-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.activity-filter-bar .activity-filter-search {
+  width: 330px;
+  max-width: 100%;
+}
+
+.activity-filter-bar .activity-filter-status {
+  width: 220px;
+  max-width: 100%;
+}
+
+/* Shared select (SDLReactSelect) at the same 40px height as the search box and Reset. */
+.activity-filter-bar .activity-filter-status [class*="-control"] {
+  min-height: 40px;
+}
+
+@media (max-width: 1199.98px) {
+  .activity-calendar-column {
+    border-right: 0 !important;
+    border-bottom: 1px solid #e6eaed;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .activity-filter-bar .activity-filter-search,
+  .activity-filter-bar .activity-filter-status,
+  .activity-filter-bar .activity-filter-status > div {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+}

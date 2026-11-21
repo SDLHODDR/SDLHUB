@@ -32,7 +32,7 @@ const SDLActionButtons = ({ actions = [], row, showEmptyDash = false }) => {
           // <button
           //   key={action.key}
           //   type="button"
-          //   className={`btn btn-sm ${action.className || "btn-outline-primary"} d-flex align-items-center justify-content-center`}
+          //   className={`btn btn-sm ${action.className || "btn-outline-primary"} sdl-icon-btn`}
           //   onClick={() => !isDisabled && action.onClick(row)}
           //   disabled={isDisabled}
           //   aria-label={action.label}
@@ -67,16 +67,11 @@ const SDLActionButtons = ({ actions = [], row, showEmptyDash = false }) => {
                 type='button'
                 className={`btn btn-sm ${
                   action.className || 'btn-outline-primary'
-                } d-flex align-items-center justify-content-center`}
+                } sdl-icon-btn`}
                 onClick={() => !isDisabled && action.onClick(row)}
                 disabled={isDisabled}
                 aria-label={action.label}
                 title={action.label}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  padding: 0
-                }}
               >
                 {isLoading ? (
                   <span

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 
+import SDLSelect from '../../../../../../shared/components/form/SDLSelect'
 import {
   saveExemptions,
   getExemptionData,
@@ -259,7 +260,7 @@ const formatDateForDisplay = value => {
     <div className='d-flex gap-2'>
       <button
         type='button'
-        className='btn btn-icon btn-sm btn-primary'
+        className='btn btn-sm btn-outline-primary sdl-icon-btn'
         onClick={() => handleEdit(rowData)}
         disabled={saving}
         title='Edit'
@@ -269,7 +270,7 @@ const formatDateForDisplay = value => {
 
       <button
         type='button'
-        className='btn btn-icon btn-sm btn-primary'
+        className='btn btn-sm btn-outline-primary sdl-icon-btn'
         onClick={() => handleDelete(rowData)}
         disabled={saving}
         title='Delete'
@@ -292,8 +293,7 @@ const formatDateForDisplay = value => {
       header: '#',
       body: serialBodyTemplate,
       style: {
-        width: '6%',
-        textAlign: 'center'
+        width: '6%'
       }
     },
 
@@ -322,8 +322,7 @@ const formatDateForDisplay = value => {
       header: 'Monthly Rent',
       sortable: true,
       style: {
-        width: '11%',
-        textAlign: 'center'
+        width: '11%'
       }
     },
 
@@ -332,8 +331,7 @@ const formatDateForDisplay = value => {
       header: 'Annual Rent',
       sortable: true,
       style: {
-        width: '11%',
-        textAlign: 'center'
+        width: '11%'
       }
     },
 
@@ -1212,7 +1210,8 @@ const formatDateForDisplay = value => {
       ===================================================== */}
 
       {!isEditable && (
-        <div className='alert alert-danger mb-3'>
+        <div className='alert alert-warning py-2 mb-3 itr-notice'>
+          <i className="fas fa-lock me-2" />
           IT Return editing is allowed only on
           configured dates.
         </div>
@@ -1223,7 +1222,8 @@ const formatDateForDisplay = value => {
             FORM
         =================================================== */}
 
-        <div className='alert alert-danger'>
+        <div className='alert alert-info py-2 itr-notice'>
+          <i className="fas fa-info-circle me-2" />
           If annual rent paid exceeds Rs 1,00,000,
           landlord PAN is mandatory. If PAN is not
           provided, the rent will not be considered
@@ -1412,7 +1412,7 @@ const formatDateForDisplay = value => {
               City
             </label>
 
-            <select
+            <SDLSelect
               name='city'
               value={
                 formData.city
@@ -1427,7 +1427,7 @@ const formatDateForDisplay = value => {
               <option value='Metro'>
                 Metro
               </option>
-            </select>
+            </SDLSelect>
           </div>
 
           {/* =================================================
@@ -1697,8 +1697,8 @@ const formatDateForDisplay = value => {
             DATA TABLE
         =================================================== */}
 
-        <div className='card mt-4'>
-          <div className='card-header fw-bold'>
+        <div className='card mt-4 itr-section-card'>
+          <div className='card-header itr-section-header'>
             Saved Exemption Records
           </div>
 
@@ -1723,6 +1723,7 @@ const formatDateForDisplay = value => {
               loading={false}
               emptyMessage={loading ? ' ' : 'No exemption records found'}
               removableSort
+              paginator
               className='exemption-grid eportal-fit-table'
             />
           </div>

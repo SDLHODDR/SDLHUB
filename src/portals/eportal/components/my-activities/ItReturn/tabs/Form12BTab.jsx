@@ -494,7 +494,8 @@ export const Form12BTab = ({ editable }) => {
             ========================================= */}
 
             {!editable && (
-                <div className="alert alert-danger mb-3">
+                <div className="alert alert-warning py-2 mb-3 itr-notice">
+                    <i className="fas fa-lock me-2" />
                     {ITR_MESSAGES.ITR_EDIT}
                 </div>
             )}
@@ -505,16 +506,17 @@ export const Form12BTab = ({ editable }) => {
                     HEADING
                 ========================================= */}
 
-                <h5 className="text-danger text-center mb-4">
+                <div className="alert alert-info py-2 mb-3 itr-notice">
+                    <i className="fas fa-info-circle me-2" />
                     {ITR_MESSAGES.FORM12B_HEADING}
-                </h5>
+                </div>
 
                 {/* =========================================
                     ELIGIBILITY
                 ========================================= */}
 
                 {!eligible && (
-                    <div className="alert alert-danger text-center">
+                    <div className="alert alert-danger py-2 itr-notice">
                         {ITR_MESSAGES.FORM12B_NOT_ELIGIBLE}
                     </div>
                 )}
@@ -667,7 +669,7 @@ export const Form12BTab = ({ editable }) => {
                     <div className="col-md-4 mb-3">
 
                         <label className="form-label">
-                            4A) FROM
+                            4A) From
                             <span className="text-danger"> *</span>
                         </label>
 
@@ -705,7 +707,7 @@ export const Form12BTab = ({ editable }) => {
                     <div className="col-md-4 mb-3">
 
                         <label className="form-label">
-                            4B) TO
+                            4B) To
                             <span className="text-danger"> *</span>
                         </label>
 

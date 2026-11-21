@@ -85,9 +85,9 @@ const PreviewPrintTab = ({ refreshPreview }) => {
   }
 
   return (
-    <div className="card w-100">
-      {/* PDF BUTTON */}
-      <div className="card-header d-flex justify-content-end">
+    <div className="w-100">
+      {/* PDF BUTTON: plain row (no card border), standard button size. */}
+      <div className="d-flex justify-content-end mb-2">
         <button className="btn btn-primary" onClick={handlePrint}>
           <i className="ti ti-printer me-1"></i>
           Print / Save PDF
@@ -95,7 +95,7 @@ const PreviewPrintTab = ({ refreshPreview }) => {
       </div>
 
       {/* PRINT AREA */}
-      <div className="card-body">
+      <div>
         <div ref={tableRef} className="print-container">
           <table className="print-table">
             <tbody>

@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import SDLSelect from "../../../shared/components/form/SDLSelect";
+import SDLTimeSelect from "../../../shared/components/form/SDLTimeSelect";
 import {
   getTBRDataDetails,
   saveTBRData,
@@ -193,9 +195,12 @@ const TicketBookingModal = ({
         // Unwrap "pass" here so the rest of the component can treat
         // tbData as the object that actually holds "var".
         //console.log("=============== RESPONSE ===================",response);
-        setTBData(response.data.pass || {});
+        setTBData(response?.data?.pass || {});
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        // Without this the loader stayed on top of the form forever.
+        setLoading(false);
       }
   }, [modalState.id]);
 
@@ -513,7 +518,7 @@ const TicketBookingModal = ({
                 <div className="row">
                   <div className="col-md-6 mb-3">
                     <label className="form-label"> Travelling Person: </label>
-                    <select
+                    <SDLSelect
                       className={`select2 form-control ${errors.TRVL_EMP ? "is-invalid" : ""}`}
                       name="TRVL_EMP"
                       id="TRVL_EMP"
@@ -529,7 +534,7 @@ const TicketBookingModal = ({
                           {val}{" "}
                         </option>
                       ))}
-                    </select>
+                    </SDLSelect>
                     {errors.TRVL_EMP && (
                       <div className="invalid-feedback">{errors.TRVL_EMP}</div>
                     )}
@@ -576,7 +581,7 @@ const TicketBookingModal = ({
                 <div className="row">
                   <div className="col-md-4 mb-3">
                     <label className="form-label"> Travel Mode: </label>
-                    <select
+                    <SDLSelect
                       className={`select2 form-control ${errors.TRVL_MODE ? "is-invalid" : ""}`}
                       name="TRVL_MODE"
                       id="TRVL_MODE"
@@ -591,7 +596,7 @@ const TicketBookingModal = ({
                           {val}
                         </option>
                       ))}
-                    </select>
+                    </SDLSelect>
                     {errors.TRVL_MODE && (
                       <div className="invalid-feedback">
                         {" "}
@@ -602,7 +607,7 @@ const TicketBookingModal = ({
                   <div className="col-md-4 mb-3">
                     <label className="form-label">Travel Class:</label>
 
-                    <select
+                    <SDLSelect
                       className={`select2 form-control ${errors.TRVL_CLASS ? "is-invalid" : ""}`}
                       name="TRVL_CLASS"
                       id="TRVL_CLASS"
@@ -617,7 +622,7 @@ const TicketBookingModal = ({
                           </option>
                         ),
                       )}
-                    </select>
+                    </SDLSelect>
                     {errors.TRVL_CLASS && (
                       <div className="invalid-feedback">
                         {errors.TRVL_CLASS}
@@ -701,20 +706,18 @@ const TicketBookingModal = ({
                   <div className="col-md-6 mb-3">
                     <label className="form-label">
                       {" "}
-                      Suitable Departure Onwards:{" "}
+                      Suitable Departure Onwards (24 hrs):{" "}
                     </label>
-                    <input
-                      type="time"
-                      className={`form-control ${errors.TTNT_DEPR_TIME ? "is-invalid" : ""}`}
+                    <SDLTimeSelect
                       id="TTNT_DEPR_TIME"
                       name="TTNT_DEPR_TIME"
                       value={formData.TTNT_DEPR_TIME || ""}
                       onChange={handleChange}
-                      step="60" // only HH:MM
+                      hasError={Boolean(errors.TTNT_DEPR_TIME)}
                     />
 
                     {errors.TTNT_DEPR_TIME && (
-                      <div className="invalid-feedback">
+                      <div className="invalid-feedback d-block">
                         {errors.TTNT_DEPR_TIME}
                       </div>
                     )}
@@ -723,20 +726,18 @@ const TicketBookingModal = ({
                   <div className="col-md-6 mb-3">
                     <label className="form-label">
                       {" "}
-                      Suitable Arrival Onwards:{" "}
+                      Suitable Arrival Onwards (24 hrs):{" "}
                     </label>
-                    <input
-                      type="time"
-                      className={`form-control ${errors.TTNT_ARVL_TIME ? "is-invalid" : ""}`}
+                    <SDLTimeSelect
                       id="TTNT_ARVL_TIME"
                       name="TTNT_ARVL_TIME"
                       value={formData.TTNT_ARVL_TIME || ""}
                       onChange={handleChange}
-                      step="60"
+                      hasError={Boolean(errors.TTNT_ARVL_TIME)}
                     />
 
                     {errors.TTNT_ARVL_TIME && (
-                      <div className="invalid-feedback">
+                      <div className="invalid-feedback d-block">
                         {errors.TTNT_ARVL_TIME}
                       </div>
                     )}

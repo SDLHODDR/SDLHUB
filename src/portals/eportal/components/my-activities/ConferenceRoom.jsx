@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
+import { ActivityPageLayout, ActivitySectionHead, ActivityFilterBar } from "./common/ActivityLayout";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import EportalPageLoader from "../loader/EportalPageLoader";
@@ -744,7 +745,7 @@ const ConferenceRoom = () => {
   const actionBody = (row) => (
     <button
       type="button"
-      className="btn btn-sm btn-outline-primary"
+      className="btn btn-sm btn-outline-primary sdl-icon-btn"
       onClick={() => openModal(row)}
       title="View"
     >
@@ -798,90 +799,42 @@ const ConferenceRoom = () => {
           MAIN CARD
       ===================================================== */}
 
-      <div className="card eportal-wide-card">
-        <div className="card-body">
-          <div className="row">
+      <ActivityPageLayout
+        calendarTitle="Select Booking Date"
+        calendarSubtitle="Select a date to create a conference booking"
+        calendar={
+          <SDLCalendar
+            mode="inline"
+            openModal={openAddBookingModal}
+            minDate={new Date()}
+          />
+        }
+      >
+              <ActivitySectionHead
+                title="Conference Room Bookings"
+                subtitle="View and manage conference room bookings"
+                actions={
+                  <>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => setShowScheduler((prev) => !prev)}
+                    >
+                      <i className="fas fa-calendar-alt me-1"></i>
+                      Timeline View
+                    </button>
 
-            {/* =================================================
-                LEFT CALENDAR
-            ================================================= */}
-
-            <div className="col-xl-3 border-end conference-calendar-column">
-              <div className="mb-3">
-                <h6 className="mb-1">
-                  Select Booking Date
-                </h6>
-
-                <small className="text-muted">
-                  Select a date to create a
-                  conference booking
-                </small>
-              </div>
-
-              <SDLCalendar
-                mode="inline"
-                openModal={
-                  openAddBookingModal
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setShowAllBookings(true)}
+                    >
+                      <i className="fas fa-table me-1"></i>
+                      View All
+                    </button>
+                  </>
                 }
-                minDate={new Date()}
               />
-            </div>
-
-            {/* =================================================
-                RIGHT CONTENT
-            ================================================= */}
-
-            <div className="col-xl-9 d-flex flex-column">
-
-              {/* =================================================
-                  TITLE + ACTION BUTTONS
-              ================================================= */}
-
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <div>
-                  <h6 className="mb-1">
-                    Conference Room Bookings
-                  </h6>
-
-                  <small className="text-muted">
-                    View and manage conference
-                    room bookings
-                  </small>
-                </div>
-
-                <div className="d-flex gap-2">
-
-                  {/* TIMELINE */}
-
-                  <button
-                    type="button"
-                    className="btn btn-info d-flex align-items-center gap-2"
-                    onClick={() =>
-                      setShowScheduler(
-                        (prev) => !prev
-                      )
-                    }
-                  >
-                    <i className="fas fa-calendar-alt"></i>
-                    Timeline View
-                  </button>
-
-                  {/* VIEW ALL */}
-
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
-                    onClick={() =>
-                      setShowAllBookings(
-                        true
-                      )
-                    }
-                  >
-                    <i className="fas fa-table"></i>
-                    View All
-                  </button>
-                </div>
-              </div>
 
               {/* =================================================
                   TIMELINE
@@ -899,114 +852,16 @@ const ConferenceRoom = () => {
                   SEARCH + STATUS FILTER
               ================================================= */}
 
-              <div className="row mb-3 align-items-center g-2">
-
-                {/* SEARCH */}
-
-                <div className="col-lg-5 col-md-6 col-12">
-                  <div className="search-set">
-                    <div className="search-input position-relative">
-
-                      <span className="btn-searchset">
-                        <i className="ti ti-search"></i>
-                      </span>
-
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Search Room / Date / Employee..."
-                        value={
-                          searchQuery
-                        }
-                        onChange={(e) =>
-                          setSearchQuery(
-                            e.target.value
-                          )
-                        }
-                      />
-
-                    </div>
-                  </div>
-                </div>
-
-                {/* STATUS */}
-
-                <div className="col-lg-3 col-md-4 col-12">
-                  <select
-                    className="form-control"
-                    value={
-                      statusFilter
-                    }
-                    onChange={(e) =>
-                      setStatusFilter(
-                        e.target.value
-                      )
-                    }
-                  >
-                    {statusOptions.map(
-                      (option) => (
-                        <option
-                          key={
-                            option.value
-                          }
-                          value={
-                            option.value
-                          }
-                        >
-                          {
-                            option.label
-                          }
-                        </option>
-                      )
-                    )}
-                  </select>
-                </div>
-
-                {/* RESET */}
-
-                <div className="col-lg-2 col-md-2 col-12">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    style={{ height: "40px" }}
-                    disabled={
-                      !searchQuery &&
-                      statusFilter ===
-                        "ALL"
-                    }
-                    onClick={
-                      clearFilters
-                    }
-                  >
-                    <i className="ti ti-refresh me-1"></i>
-                    Reset
-                  </button>
-                </div>
-
-                {/* RESULT COUNT */}
-
-                <div className="col-lg-2 col-md-12 col-12 text-lg-end">
-                  {/*
-
-                  <small className="text-muted">
-                    Showing{" "}
-                    <strong>
-                      {
-                        filteredData.length
-                      }
-                    </strong>{" "}
-                    of{" "}
-                    <strong>
-                      {
-                        totalRecords
-                      }
-                    </strong>
-                  </small>
-
-                  */}
-                </div>
-
-              </div>
+              <ActivityFilterBar
+                searchValue={searchQuery}
+                onSearchChange={setSearchQuery}
+                searchPlaceholder="Search Room / Date / Employee..."
+                statusValue={statusFilter}
+                onStatusChange={setStatusFilter}
+                statusOptions={statusOptions}
+                onReset={clearFilters}
+                resetDisabled={!searchQuery && statusFilter === "ALL"}
+              />
 
               {/* =================================================
                   TABLE
@@ -1066,6 +921,8 @@ const ConferenceRoom = () => {
                   responsiveLayout="scroll"
                   scrollable
                   paginatorDropdownAppendTo="self"
+                  paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                   emptyMessage="No bookings found"
                   className="p-datatable-sm"
                   dataKey="ID"
@@ -1161,11 +1018,7 @@ const ConferenceRoom = () => {
 
                 </DataTable>
               )}
-
-            </div>
-          </div>
-        </div>
-      </div>
+      </ActivityPageLayout>
 
       {/* =====================================================
           ADD / VIEW BOOKING MODAL

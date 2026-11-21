@@ -218,6 +218,7 @@ const SDLReactSelect = ({
         // styles={mergedStyles}
         menuPortalTarget={document.body}
         menuPosition="fixed"
+        classNamePrefix="sdl-rs"
       /></div>
     );
   }
@@ -243,6 +244,7 @@ const SDLReactSelect = ({
       styles={{ ...getStyles(hasError), ...menuStyles }}
       menuPortalTarget={document.body}
       menuPosition="fixed"
+        classNamePrefix="sdl-rs"
     /></div>
   );
 };

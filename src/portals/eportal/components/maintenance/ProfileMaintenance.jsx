@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from "react";
+import ResetButton from "../../../../shared/components/buttons/ResetButton";
 import { useLocation } from "react-router-dom";
 import { Dropdown } from "primereact/dropdown";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,6 +10,7 @@ import {
 import "../../assets/css/profileMaintenance.css";
 
 import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable";
+import SDLSearch from "../../../../shared/components/datatable/SDLSearch";
 import "../../assets/css/wideContentPages.css";
 import EportalPageLoader from "../loader/EportalPageLoader";
 
@@ -34,6 +36,14 @@ import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
 import { PROFILE_MAINTENANCE_MESSAGES } from "../../constants/profileMaintenanceConstants";
 
 import { getPortalFromPath } from "../../../../shared/config/portalConfig";
+import SDLTabsComponent from "../../../hrms/components/tabs/SDLTabsComponent";
+
+const PROFILE_TABS = [
+  { key: "menu", label: "Menu Access" },
+  { key: "task", label: "Task Access" },
+  { key: "dash", label: "Dashboard Access" },
+  { key: "profileUsers", label: "Profile Users" },
+];
 import { Alignment } from "ckeditor5";
 
 const ProfileMaintenance = () => {
@@ -41,6 +51,7 @@ const ProfileMaintenance = () => {
 
   const [profiles, setProfiles] = useState([]);
   const [profileId, setProfileId] = useState(null);
+  const [activeTab, setActiveTab] = useState("menu");
 
   /*-----------Add Profile----------*/
   const [showAddProfile, setShowAddProfile] = useState(false);
@@ -275,16 +286,8 @@ const ProfileMaintenance = () => {
     await loadProfileAccess(value);
     await loadProfileUsers(value);
 
-    // force Menu Access tab as active after profile change
-    setTimeout(() => {
-      const menuTab = document.querySelector(
-        'a[data-bs-toggle="tab"][href="#menu"]',
-      );
-
-      if (menuTab) {
-        menuTab.click();
-      }
-    }, 100);
+    // Menu Access is the active tab after a profile change.
+    setActiveTab("menu");
   };
 
   /* ---------------- MENU CHECKBOX ---------------- */
@@ -664,22 +667,15 @@ const ProfileMaintenance = () => {
                 />
               </div>
 
-              <button
-                type="button"
-                className="btn btn-outline-secondary"
-                style={{ height: "40px" }}
-                disabled={!profileId}
+              <ResetButton
                 onClick={resetProfileData}
-              >
-                <i className="ti ti-refresh me-1"></i>
-                Reset
-              </button>
+                disabled={!profileId}
+              />
             </div>
 
             {/* Right Side */}
             <div className="col-auto ms-auto">
               <button className="btn btn-primary" onClick={openAddProfile}>
-                <i className="ti ti-plus me-1"></i>
                 Add Profile
               </button>
             </div>
@@ -699,62 +695,34 @@ const ProfileMaintenance = () => {
             <>
               {/* TABS */}
 
-              <ul className="nav nav-tabs nav-tabs-bottom mb-3 profile-tabs">
-                <li className="nav-item">
-                  <a
-                    className="nav-link active"
-                    data-bs-toggle="tab"
-                    href="#menu"
-                  >
-                    Menu Access
-                  </a>
-                </li>
-
-                <li className="nav-item">
-                  <a className="nav-link" data-bs-toggle="tab" href="#task">
-                    Task Access
-                  </a>
-                </li>
-
-                <li className="nav-item">
-                  <a className="nav-link" data-bs-toggle="tab" href="#dash">
-                    Dashboard Access
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a
-                    className="nav-link"
-                    data-bs-toggle="tab"
-                    href="#profileUsers"
-                  >
-                    Profile Users
-                  </a>
-                </li>
-              </ul>
+              <SDLTabsComponent
+                tabs={PROFILE_TABS}
+                selectedTab={activeTab}
+                onTabChange={setActiveTab}
+              >
 
               {loading ? null : (
                 <div className="tab-content">
                   {/* MENU ACCESS */}
 
-                  <div className="tab-pane active" id="menu">
+                  <div className={`tab-pane ${activeTab === "menu" ? "active" : ""}`} id="menu">
                     {menus.length > 0 && (
                       <>
                         {/* SEARCH */}
                         <div className="row mb-3">
-                          <div className="col-12 col-md-4 mb-2 mb-md-0">
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Search menu..."
+                          <div className="col-12 col-md-auto mb-2 mb-md-0">
+                            <SDLSearch
                               value={menuSearch}
-                              onChange={(e) => handleMenuSearch(e.target.value)}
+                              onChange={handleMenuSearch}
+                              placeholder="Search menu..."
+                              className="mb-0 profile-search"
                             />
                           </div>
 
-                          <div className="col-md-8">
+                          <div className="col-12 col-md">
                             <div className="action-btn-group">
                               <button
-                                className="btn btn-outline-darkBlue btn-sm me-2"
+                                className="btn btn-outline-secondary"
                                 onClick={expandAllMenus}
                                 disabled={allExpanded}
                               >
@@ -762,21 +730,21 @@ const ProfileMaintenance = () => {
                               </button>
 
                               <button
-                                className="btn btn-outline-warning btn-sm me-2"
+                                className="btn btn-outline-warning"
                                 onClick={collapseAllMenus}
                               >
                                 Collapse All
                               </button>
 
                               <button
-                                className="btn btn-outline-success btn-sm me-2"
+                                className="btn btn-outline-success"
                                 onClick={selectAllMenus}
                               >
                                 Select All
                               </button>
 
                               <button
-                                className="btn btn-outline-danger btn-sm"
+                                className="btn btn-outline-danger"
                                 onClick={clearAllMenus}
                               >
                                 Clear All
@@ -914,31 +882,30 @@ const ProfileMaintenance = () => {
 
                   {/* TASK ACCESS */}
 
-                  <div className="tab-pane" id="task">
+                  <div className={`tab-pane ${activeTab === "task" ? "active" : ""}`} id="task">
                     {tasks.length > 0 && (
                       <>
                         <div className="row mb-3">
-                          <div className="col-12 col-md-4 mb-2 mb-md-0">
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Search task..."
+                          <div className="col-12 col-md-auto mb-2 mb-md-0">
+                            <SDLSearch
                               value={taskSearch}
-                              onChange={(e) => setTaskSearch(e.target.value)}
+                              onChange={setTaskSearch}
+                              placeholder="Search task..."
+                              className="mb-0 profile-search"
                             />
                           </div>
 
-                          <div className="col-md-8">
+                          <div className="col-12 col-md">
                             <div className="action-btn-group">
                               <button
-                                className="btn btn-outline-success btn-sm me-2"
+                                className="btn btn-outline-success"
                                 onClick={selectAllTasks}
                               >
                                 Select All
                               </button>
 
                               <button
-                                className="btn btn-outline-danger btn-sm"
+                                className="btn btn-outline-danger"
                                 onClick={clearAllTasks}
                               >
                                 Clear All
@@ -987,31 +954,30 @@ const ProfileMaintenance = () => {
 
                   {/* DASH ACCESS */}
 
-                  <div className="tab-pane" id="dash">
+                  <div className={`tab-pane ${activeTab === "dash" ? "active" : ""}`} id="dash">
                     {dashboards.length > 0 && (
                       <>
                         <div className="row mb-3">
-                          <div className="col-12 col-md-4 mb-2 mb-md-0">
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Search dashboard..."
+                          <div className="col-12 col-md-auto mb-2 mb-md-0">
+                            <SDLSearch
                               value={dashSearch}
-                              onChange={(e) => setDashSearch(e.target.value)}
+                              onChange={setDashSearch}
+                              placeholder="Search dashboard..."
+                              className="mb-0 profile-search"
                             />
                           </div>
 
-                          <div className="col-md-8">
+                          <div className="col-12 col-md">
                             <div className="action-btn-group">
                               <button
-                                className="btn btn-outline-success btn-sm"
+                                className="btn btn-outline-success"
                                 onClick={selectAllDash}
                               >
                                 Select All
                               </button>
 
                               <button
-                                className="btn btn-outline-danger btn-sm"
+                                className="btn btn-outline-danger"
                                 onClick={clearAllDash}
                               >
                                 Clear All
@@ -1058,26 +1024,17 @@ const ProfileMaintenance = () => {
                     )}
                   </div>
 
-                  <div className="tab-pane" id="profileUsers">
+                  <div className={`tab-pane ${activeTab === "profileUsers" ? "active" : ""}`} id="profileUsers">
                     {/* SEARCH BOX */}
                     <div className="row mb-3">
-                      <div className="col-12 col-md-4 mb-2 mb-md-0">
-                        <div className="search-set">
-                          <div className="search-input position-relative">
-                            <span className="btn-searchset">
-                              <i className="ti ti-search fs-14"></i>
-                            </span>
-
-                            <input
-                              type="text"
-                              className="form-control form-control-sm search-control"
-                              placeholder="Search users..."
+                      <div className="col-12 col-md-auto mb-2 mb-md-0">
+                            <SDLSearch
                               value={userSearch}
-                              onChange={(e) => setUserSearch(e.target.value)}
+                              onChange={setUserSearch}
+                              placeholder="Search users..."
+                              className="mb-0 profile-search"
                             />
                           </div>
-                        </div>
-                      </div>
                     </div>
 
                     {/* TABLE */}
@@ -1105,8 +1062,6 @@ const ProfileMaintenance = () => {
                               ? [10, 25, 50, 100]
                               : []
                           }
-                          paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                          currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
                           tableStyle={{ minWidth: "900px" }}
                           scrollHeight="flex"
                         />
@@ -1115,6 +1070,7 @@ const ProfileMaintenance = () => {
                   </div>
                 </div>
               )}
+              </SDLTabsComponent>
             </>
           )}
         </div>

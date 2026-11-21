@@ -16,6 +16,11 @@ import EportalPageLoader from "../../../loader/EportalPageLoader";
 const DeductionsTab = ({ onDataSaved, editable }) => {
   const [deductions, setDeductions] = useState([]);
   const [loading, setLoading] = useState(false);
+  // Sections fold on their header; until clicked, only the first one is open.
+  const [openSections, setOpenSections] = useState({});
+  const isSectionOpen = (section, index) => openSections[section] ?? index === 0;
+  const toggleSection = (section, index) =>
+    setOpenSections((prev) => ({ ...prev, [section]: !(prev[section] ?? index === 0) }));
 
   const fileInputRefs = React.useRef({});
 
@@ -257,40 +262,30 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
   return (
     <>
       {!editable && (
-        <div className="alert alert-danger mb-3">{ITR_MESSAGES.ITR_EDIT}</div>
+        <div className="alert alert-warning py-2 mb-3 itr-notice"><i className="fas fa-lock me-2" />{ITR_MESSAGES.ITR_EDIT}</div>
       )}
 
       <div>
         {Object.keys(groupedData).map((section, sectionIndex) => (
           <div
-            className="card mb-4 border-0 shadow-sm"
+            className="card mb-4 itr-section-card"
             key={sectionIndex}
-            style={{
-              borderRadius: "10px",
-              overflow: "hidden",
-            }}
           >
             {/* Section Header */}
             <div
-              className="card-header"
-              style={{
-                background: "#dfe8f4",
-                color: "#4b5c74",
-                fontWeight: "600",
-                fontSize: "15px",
-                borderBottom: "1px solid #d7dee8",
-                padding: "14px 20px",
-              }}
+              className={`card-header itr-section-header itr-collapsible ${isSectionOpen(section, sectionIndex) ? "" : "collapsed"}`}
+              role="button"
+              tabIndex={0}
+              aria-expanded={isSectionOpen(section, sectionIndex)}
+              onClick={() => toggleSection(section, sectionIndex)}
+              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), toggleSection(section, sectionIndex))}
             >
-              {section}
+              <span>{section}</span>
+              <i className="ti ti-chevron-down itr-collapse-icon" />
             </div>
 
             <div
-              className="card-body"
-              style={{
-                background: "#f8fafc",
-                padding: "20px",
-              }}
+              className={`card-body itr-section-body ${isSectionOpen(section, sectionIndex) ? "" : "d-none"}`}
             >
               {groupedData[section].map((item) => (
                 <div
@@ -299,23 +294,11 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
                 >
                   {/* Description */}
                   <div className="col-md-6">
-                    <label
-                      className="mb-0"
-                      style={{
-                        fontWeight: 500,
-                        color: "#4b5c74",
-                      }}
-                    >
+                    <label className="mb-0 itr-item-label">
                       {item.ITAX_DESC}
 
                       {item.LIMIT ? (
-                        <small
-                          className="ms-2"
-                          style={{
-                            color: "#8b96a8",
-                            fontWeight: 500,
-                          }}
-                        >
+                        <small className="ms-2 itr-item-limit">
                           ₹ {Number(item.LIMIT).toLocaleString()}
                         </small>
                       ) : null}
@@ -336,11 +319,6 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
                         onChange={(e) =>
                           handleAmountChange(item.ITAX_ID, e.target.value)
                         }
-                        style={{
-                          border: "1px solid gray",
-                          borderRadius: "6px",
-                          height: "42px",
-                        }}
                       />
 
                       <input
@@ -354,11 +332,6 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
                             e.target.files?.[0] || null,
                           )
                         }
-                        style={{
-                          border: "1px solid gray",
-                          borderRadius: "6px",
-                          height: "42px",
-                        }}
                       />
                     </div>
                   </div>
@@ -371,10 +344,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
                         target="_blank"
                         rel="noopener noreferrer"
                         title="View Attachment"
-                        style={{
-                          color: "#FFCA18",
-                          fontSize: "18px",
-                        }}
+                          className="itr-attachment-link"
                       >
                         <i className="bx bx-show"></i>
                       </a>
@@ -390,31 +360,15 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
         {isEditable && (
           <div className="text-center mt-4">
             <button
-              className="btn me-2"
+              className="btn btn-primary me-2"
               onClick={handleSave}
-              style={{
-                background: "#FE9F43",
-                color: "#fff",
-                fontWeight: "600",
-                padding: "10px 30px",
-                borderRadius: "6px",
-                border: "none",
-              }}
             >
               Save
             </button>
 
             <button
-              className="btn"
+              className="btn btn-secondary"
               onClick={fetchDeductions}
-              style={{
-                background: "#092c4c",
-                color: "#fff",
-                fontWeight: "600",
-                padding: "10px 30px",
-                borderRadius: "6px",
-                border: "none",
-              }}
             >
               Cancel
             </button>

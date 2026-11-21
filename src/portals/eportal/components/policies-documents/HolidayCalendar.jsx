@@ -10,6 +10,11 @@ import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/wideContentPages.css";
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+const titleCase = (text = "") =>
+  String(text).toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+
 const HolidayCalendar = () => {
   const [year, setYear] = useState(new Date().getFullYear());
   const [holidays, setHolidays] = useState([]);
@@ -95,9 +100,8 @@ const HolidayCalendar = () => {
 
     const day = String(date.getDate()).padStart(2, "0");
 
-    const month = date.toLocaleString("en-IN", {
-      month: "short",
-    });
+    // Fixed names: some locales give "Sept", other pages use dd-Mon-yyyy.
+    const month = MONTHS[date.getMonth()];
 
     const year = date.getFullYear();
 
@@ -125,6 +129,7 @@ const HolidayCalendar = () => {
     {
       field: "day",
       header: "Day",
+      body: (row) => titleCase(row.day),
       sortable: true,
       style: {
         width: "140px",
@@ -175,7 +180,7 @@ const HolidayCalendar = () => {
               <i className="fas fa-arrow-left"></i> {year - 1}
             </button>
 
-            <h4 className="mb-0 fw-bold">{year}</h4>
+            <h4 className="mb-0 holiday-year-title">{year}</h4>
 
             <button
               className="btn btn-sm dream-btn"
@@ -211,7 +216,7 @@ const HolidayCalendar = () => {
           <div className="card">
             <div className="card-body">
               <div className="row mb-3">
-                <div className="col-lg-4 col-md-6 col-12">
+                <div className="col-12 col-md-auto">
                   <SDLSearch
                     value={searchQuery}
                     onChange={setSearchQuery}
@@ -245,9 +250,9 @@ const HolidayCalendar = () => {
         <div className="col-xl-4">
           <div className="card">
             <div className="card-body">
-              <h6 className="fw-bold text-warning">
+              <h6 className="holiday-note-title">
                 <i className="fas fa-info-circle me-2"></i>
-                NOTE:
+                Note
               </h6>
 
               {rulesLoading ? null : holidayRules.length === 0 ? (

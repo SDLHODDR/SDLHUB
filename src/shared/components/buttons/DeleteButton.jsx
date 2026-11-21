@@ -10,17 +10,12 @@ const DeleteButton = ({
   return (
     <button
       type="button"
-      className={`btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center ${className}`.trim()}
+      className={`btn btn-sm btn-outline-danger sdl-icon-btn ${className}`.trim()}
       aria-label={ariaLabel}
       onClick={onClick}
       title={ariaLabel}
       disabled={disabled || loading}
       {...props}
-      style={{
-    width: "32px",
-    height: "32px",
-    padding: 0,
-  }}
     >
       {loading ? (
         <span

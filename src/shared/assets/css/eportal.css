@@ -179,3 +179,15 @@
         font-weight: 600;
     }
 }
+
+/* One search box size for every ePortal page and popup (same 330px as the HRMS Department page). */
+.eportal-layout .search-set.fixWidth {
+    width: 330px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+
+/* Shared dropdown (SDLReactSelect / SDLSelect): same 40px height as the text inputs in ePortal. */
+.eportal-layout .sdl-rs__control {
+    min-height: 40px;
+}

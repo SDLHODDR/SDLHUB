@@ -145,7 +145,8 @@ const PolicyEndorsementReport = () => {
   const actionBody = (rowData) => (
     <button
       // className="btn btn-sm btn-primary"
-      className="btn btn-sm btn-outline-primary"
+      className="btn btn-sm btn-outline-primary sdl-icon-btn"
+      title="View"
       onClick={() => handleViewDetails(rowData.policy_id)}
     >
       <i className="ti ti-eye"></i>

@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from 'react'
+import SDLSelect from '../../../shared/components/form/SDLSelect'
 import { useDispatch } from 'react-redux'
 
 import {
@@ -938,7 +939,7 @@ const ConferenceBookingModal = ({
                 <div className='col-md-4'>
                   <label className='form-label'>From Time</label>
 
-                  <select
+                  <SDLSelect
                     className={`form-select ${
                       errors.fromTime ? 'is-invalid' : ''
                     }`}
@@ -955,7 +956,7 @@ const ConferenceBookingModal = ({
                         {time}
                       </option>
                     ))}
-                  </select>
+                  </SDLSelect>
 
                   {errors.fromTime && (
                     <div className='invalid-feedback'>{errors.fromTime}</div>
@@ -970,7 +971,7 @@ const ConferenceBookingModal = ({
                   <div className='d-flex gap-2'>
                     {/* HOURS */}
 
-                    <select
+                    <SDLSelect
                       className='form-select'
                       name='hours'
                       value={formData.hours}
@@ -988,11 +989,11 @@ const ConferenceBookingModal = ({
                           {hr} Hr
                         </option>
                       ))}
-                    </select>
+                    </SDLSelect>
 
                     {/* MINUTES */}
 
-                    <select
+                    <SDLSelect
                       className='form-select'
                       name='minutes'
                       value={formData.minutes}
@@ -1003,7 +1004,7 @@ const ConferenceBookingModal = ({
                       <option value='00'>00 Min</option>
 
                       <option value='30'>30 Min</option>
-                    </select>
+                    </SDLSelect>
                   </div>
 
                   {errors.duration && (
@@ -1024,7 +1025,7 @@ const ConferenceBookingModal = ({
                 <div className='col-md-6'>
                   <label className='form-label'>Booking By</label>
 
-                  <select
+                  <SDLSelect
                     className={`form-select ${
                       errors.bookingBy ? 'is-invalid' : ''
                     }`}
@@ -1048,7 +1049,7 @@ const ConferenceBookingModal = ({
                         {user.label}
                       </option>
                     ))}
-                  </select>
+                  </SDLSelect>
 
                   {errors.bookingBy && (
                     <div className='invalid-feedback d-block'>
@@ -1124,7 +1125,7 @@ const ConferenceBookingModal = ({
                 <div className='col-md-6'>
                   <label className='form-label'>Division</label>
 
-                  <select
+                  <SDLSelect
                     className={`form-select ${
                       errors.division ? 'is-invalid' : ''
                     }`}
@@ -1148,7 +1149,7 @@ const ConferenceBookingModal = ({
                         {division.label}
                       </option>
                     ))}
-                  </select>
+                  </SDLSelect>
 
                   {errors.division && (
                     <div className='invalid-feedback d-block'>

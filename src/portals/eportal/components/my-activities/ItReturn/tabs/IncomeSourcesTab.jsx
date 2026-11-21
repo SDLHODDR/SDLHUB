@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import SDLSelect from "../../../../../../shared/components/form/SDLSelect";
 import {
   getIncomeData,
   saveRegime,
@@ -17,6 +18,10 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
   const [grossSalary, setGrossSalary] = useState([]);
   const [otherIncome, setOtherIncome] = useState([]);
   const [regime, setRegime] = useState("N");
+  // Each section folds on its header so the page stays short.
+  const [openSections, setOpenSections] = useState({ regime: true, gross: false, other: true });
+  const toggleSection = (key) =>
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
   const isEditable = Boolean(editable);
 
@@ -200,7 +205,7 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
   return (
     <>
       {!editable && (
-        <div className="alert alert-danger mb-3">{ITR_MESSAGES.ITR_EDIT}</div>
+        <div className="alert alert-warning py-2 mb-3 itr-notice"><i className="fas fa-lock me-2" />{ITR_MESSAGES.ITR_EDIT}</div>
       )}
       <div>
         {/* =========================================
@@ -208,61 +213,38 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
       ========================================= */}
 
         <div
-          className="card mb-4 border-0 shadow-sm"
-          style={{
-            borderRadius: "10px",
-            overflow: "hidden",
-          }}
+          className="card mb-4 itr-section-card"
         >
           <div
-            className="card-header"
-            style={{
-              background: "#dfe8f4",
-              color: "#4b5c74",
-              fontWeight: "600",
-              fontSize: "15px",
-              borderBottom: "1px solid #d7dee8",
-              padding: "14px 20px",
-            }}
+            className={`card-header itr-section-header itr-collapsible ${openSections.regime ? "" : "collapsed"}`}
+            role="button"
+            tabIndex={0}
+            aria-expanded={openSections.regime}
+            onClick={() => toggleSection("regime")}
+            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), toggleSection("regime"))}
           >
-            Regime
+            <span>Regime</span>
+            <i className="ti ti-chevron-down itr-collapse-icon" />
           </div>
 
           <div
-            className="card-body d-flex gap-3 align-items-center"
-            style={{
-              background: "#f8fafc",
-              padding: "20px",
-            }}
+            className={`card-body itr-section-body gap-3 align-items-center ${openSections.regime ? "d-flex" : "d-none"}`}
           >
             <div style={{ width: "300px" }}>
-              <select
+              <SDLSelect
                 className="form-control"
                 value={regime}
                 onChange={(e) => setRegime(e.target.value)}
-                style={{
-                  border: "1px solid gray",
-                  borderRadius: "6px",
-                  height: "42px",
-                }}
               >
                 <option value="">Please Select</option>
                 <option value="O">Old</option>
                 <option value="N">New</option>
-              </select>
+              </SDLSelect>
             </div>
             {isEditable && (
               <button
-                className="btn"
+                className="btn btn-primary"
                 onClick={handleSaveRegime}
-                style={{
-                  background: "#FE9F43",
-                  color: "#fff",
-                  fontWeight: "600",
-                  padding: "10px 25px",
-                  borderRadius: "6px",
-                  border: "none",
-                }}
               >
                 Save
               </button>
@@ -275,38 +257,28 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
       ========================================= */}
 
         <div
-          className="card mb-4 border-0 shadow-sm"
-          style={{
-            borderRadius: "10px",
-            overflow: "hidden",
-          }}
+          className="card mb-4 itr-section-card"
         >
           <div
-            className="card-header"
-            style={{
-              background: "#dfe8f4",
-              color: "#4b5c74",
-              fontWeight: "600",
-              fontSize: "15px",
-              borderBottom: "1px solid #d7dee8",
-              padding: "14px 20px",
-            }}
+            className={`card-header itr-section-header itr-collapsible ${openSections.gross ? "" : "collapsed"}`}
+            role="button"
+            tabIndex={0}
+            aria-expanded={openSections.gross}
+            onClick={() => toggleSection("gross")}
+            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), toggleSection("gross"))}
           >
-            Gross Salary
+            <span>Gross Salary</span>
+            <i className="ti ti-chevron-down itr-collapse-icon" />
           </div>
 
           <div
-            className="card-body"
-            style={{
-              background: "#f8fafc",
-              padding: "20px",
-            }}
+            className={`card-body itr-section-body ${openSections.gross ? "" : "d-none"}`}
           >
             {grossSalary.length > 0 ? (
               grossSalary.map((item, index) => (
                 <div className="row mb-3 align-items-center" key={index}>
                   <div className="col-md-6">
-                    <strong>{item.SH_DESCR}</strong>
+                    <span className="itr-item-label">{item.SH_DESCR}</span>
                   </div>
 
                   <div className="col-md-3">
@@ -317,10 +289,6 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
                         className="form-control"
                         value={Number(item.AMOUNT || 0).toLocaleString()}
                         readOnly
-                        style={{
-                          border: "1px solid #d7dee8",
-                          height: "42px",
-                        }}
                       />
                     </div>
                   </div>
@@ -337,46 +305,35 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
       ========================================= */}
 
         <div
-          className="card border-0 shadow-sm"
-          style={{
-            borderRadius: "10px",
-            overflow: "hidden",
-          }}
+          className="card itr-section-card"
         >
           <div
-            className="card-header"
-            style={{
-              background: "#dfe8f4",
-              color: "#4b5c74",
-              fontWeight: "600",
-              fontSize: "15px",
-              borderBottom: "1px solid #d7dee8",
-              padding: "14px 20px",
-            }}
+            className={`card-header itr-section-header itr-collapsible ${openSections.other ? "" : "collapsed"}`}
+            role="button"
+            tabIndex={0}
+            aria-expanded={openSections.other}
+            onClick={() => toggleSection("other")}
+            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), toggleSection("other"))}
           >
-            Other Income (Section 24)
+            <span>Other Income (Section 24)</span>
+            <i className="ti ti-chevron-down itr-collapse-icon" />
           </div>
 
           <div
-            className="card-body"
-            style={{
-              background: "#f8fafc",
-              padding: "20px",
-            }}
+            className={`card-body itr-section-body ${openSections.other ? "" : "d-none"}`}
           >
             {otherIncome.length > 0 ? (
               <>
                 {otherIncome.map((item, index) => (
                   <div className="row mb-3 align-items-center" key={index}>
                     <div className="col-md-5">
-                      <strong>{item.ITAX_DESC}</strong>
+                      <span className="itr-item-label">{item.ITAX_DESC}</span>
                     </div>
 
                     <div className="col-md-5">
                       <div className="d-flex gap-2">
                         <div className="input-group">
-                          <span className="input-group-text" style={{
-                              border: "1px solid gray"}}>₹</span>
+                          <span className="input-group-text">₹</span>
                           <input
                             type="number"
                             className="form-control"
@@ -385,10 +342,6 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
                             onChange={(e) =>
                               handleOtherIncomeChange(index, e.target.value)
                             }
-                            style={{
-                              border: "1px solid gray",
-                              height: "42px",
-                            }}
                           />
                         </div>
 
@@ -406,11 +359,6 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
                               item.ITAX_ID,
                             )
                           }
-                          style={{
-                            border: "1px solid gray",
-                            borderRadius: "6px",
-                            height: "42px",
-                          }}
                         />
                       </div>
                     </div>
@@ -422,10 +370,7 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
                           target="_blank"
                           rel="noopener noreferrer"
                           title="View Attachment"
-                          style={{
-                            color: "#FFCA18",
-                            fontSize: "18px",
-                          }}
+                          className="itr-attachment-link"
                         >
                           <i className="bx bx-show"></i>
                         </a>
@@ -436,16 +381,8 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
                 {isEditable && (
                   <div className="text-center mt-4">
                     <button
-                      className="btn"
+                      className="btn btn-primary"
                       onClick={handleSaveOtherIncome}
-                      style={{
-                        background: "#FE9F43",
-                        color: "#fff",
-                        fontWeight: "600",
-                        padding: "10px 30px",
-                        borderRadius: "6px",
-                        border: "none",
-                      }}
                     >
                       Save
                     </button>

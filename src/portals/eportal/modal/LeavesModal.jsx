@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
+import "../assets/css/leaveModal.css";
+import SDLReactSelect from "../../../shared/components/form/SDLReactSelect";
 import moment from "moment";
 
 import SDLCalendar from "../../../shared/components/calendar/SDLCalendar";
@@ -1597,33 +1599,36 @@ const LeavesModal = ({
 
           <form onSubmit={handleSave}>
             <div className="modal-body">
+            {loading ? (
+              <div className="leave-modal-loading">
+                <span className="spinner-border text-warning" role="status" aria-hidden="true" />
+                <span>Loading leave details...</span>
+              </div>
+            ) : (
+              <>
               {/* ==================================================
                   LEAVE BALANCE
               ================================================== */}
 
-              <div className="row mb-4">
-                {Object.entries(
-                  leaveBal || {},
-                ).map(
-                  ([key, values]) => (
-                    <div
-                      className="col text-center"
-                      key={key}
-                    >
-                      <h6 className="text-info">
-                        {key}
-                      </h6>
+              <div className="leave-balance-grid">
+                {Object.entries(leaveBal || {}).map(([key, values], index) => {
+                  const total = Number(values?.[0] ?? 0);
+                  const available = Number(values?.[1] ?? 0);
 
-                      <strong>
-                        {values?.[1] ??
-                          0}{" "}
-                        /{" "}
-                        {values?.[0] ??
-                          0}
-                      </strong>
+                  return (
+                    <div
+                      key={key}
+                      className={`leave-balance-card leave-balance-tone-${index % 4}`}
+                    >
+                      <div className="leave-balance-code">{key}</div>
+                      <div className="leave-balance-count">
+                        <span className="leave-balance-available">{available}</span>
+                        <span className="leave-balance-total"> / {total}</span>
+                      </div>
+                      <div className="leave-balance-label">Available</div>
                     </div>
-                  ),
-                )}
+                  );
+                })}
               </div>
 
               {/* ==================================================
@@ -1634,57 +1639,22 @@ const LeavesModal = ({
                 {/* LEAVE CODE */}
 
                 <div className="col-md-3">
-                  <label>
+                  <label className="form-label">
                     Leave Code
                   </label>
 
-                  <select
-                    className={`select2 form-control ${
-                      errors.LVE_CODE
-                        ? "is-invalid"
-                        : ""
-                    }`}
-                    name="LVE_CODE"
-                    value={
-                      formData.LVE_CODE ||
-                      ""
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    disabled={
-                      isReadOnly ||
-                      isSubmitting
-                    }
-                  >
-                    <option
-                      value=""
-                      disabled
-                    >
-                      Select Leave Code
-                    </option>
-
-                    {(
-                      config?.type
-                        ?.SELECT
-                        ?.LVE_CODE
-                        ?.options || []
-                    ).map((opt) => (
-                      <option
-                        key={
-                          opt.LVE_CODE
-                        }
-                        value={
-                          opt.LVE_CODE
-                        }
-                      >
-                        {opt.LVED}
-                      </option>
-                    ))}
-                  </select>
+                  <SDLReactSelect
+                    value={formData.LVE_CODE || ""}
+                    options={(config?.type?.SELECT?.LVE_CODE?.options || []).map((opt) => ({ value: opt.LVE_CODE, label: opt.LVED }))}
+                    onChange={(value) => handleChange({ target: { name: "LVE_CODE", value: value ?? "" } })}
+                    placeholder="Select Leave Code"
+                    isClearable={false}
+                    isDisabled={isReadOnly || isSubmitting}
+                    hasError={!!errors.LVE_CODE}
+                  />
 
                   {errors.LVE_CODE && (
-                    <div className="invalid-feedback">
+                    <div className="invalid-feedback d-block">
                       {
                         errors.LVE_CODE
                       }
@@ -1695,7 +1665,7 @@ const LeavesModal = ({
                 {/* ALLOTTED */}
 
                 <div className="col-md-3">
-                  <label>
+                  <label className="form-label">
                     Alloted
                   </label>
 
@@ -1712,7 +1682,7 @@ const LeavesModal = ({
                 {/* UNAPPROVED */}
 
                 <div className="col-md-3">
-                  <label>
+                  <label className="form-label">
                     Unapproved
                   </label>
 
@@ -1729,7 +1699,7 @@ const LeavesModal = ({
                 {/* NET */}
 
                 <div className="col-md-3">
-                  <label>
+                  <label className="form-label">
                     Net Balance
                   </label>
 
@@ -1752,7 +1722,7 @@ const LeavesModal = ({
                 {/* FROM DATE */}
 
                 <div className="col-md-6">
-                  <label>
+                  <label className="form-label">
                     From Date
                   </label>
 
@@ -1801,54 +1771,22 @@ const LeavesModal = ({
                 {/* LEAVE STARTS */}
 
                 <div className="col-md-6">
-                  <label>
+                  <label className="form-label">
                     Leave Starts
                   </label>
 
-                  <select
-                    className={`select2 form-control ${
-                      errors.LEAVE_STARTS
-                        ? "is-invalid"
-                        : ""
-                    }`}
-                    name="LEAVE_STARTS"
-                    value={
-                      formData.LEAVE_STARTS ||
-                      ""
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    disabled={
-                      isSTENDLocked ||
-                      isReadOnly ||
-                      isSubmitting
-                    }
-                  >
-                    <option value="">
-                      Select
-                    </option>
-
-                    {Object.entries(
-                      config?.type
-                        ?.SELECT
-                        ?.LEAVE_STARTS
-                        ?.options ||
-                        {},
-                    ).map(
-                      ([key, value]) => (
-                        <option
-                          key={key}
-                          value={key}
-                        >
-                          {value}
-                        </option>
-                      ),
-                    )}
-                  </select>
+                  <SDLReactSelect
+                    value={formData.LEAVE_STARTS || ""}
+                    options={Object.entries(config?.type?.SELECT?.LEAVE_STARTS?.options || {}).map(([key, label]) => ({ value: key, label }))}
+                    onChange={(value) => handleChange({ target: { name: "LEAVE_STARTS", value: value ?? "" } })}
+                    placeholder="Select"
+                    isClearable={false}
+                    isDisabled={isSTENDLocked || isReadOnly || isSubmitting}
+                    hasError={!!errors.LEAVE_STARTS}
+                  />
 
                   {errors.LEAVE_STARTS && (
-                    <div className="invalid-feedback">
+                    <div className="invalid-feedback d-block">
                       {
                         errors.LEAVE_STARTS
                       }
@@ -1865,7 +1803,7 @@ const LeavesModal = ({
                 {/* TO DATE */}
 
                 <div className="col-md-6">
-                  <label>
+                  <label className="form-label">
                     To Date
                   </label>
 
@@ -1912,54 +1850,22 @@ const LeavesModal = ({
                 {/* LEAVE ENDS */}
 
                 <div className="col-md-6">
-                  <label>
+                  <label className="form-label">
                     Leave Ends
                   </label>
 
-                  <select
-                    className={`select2 form-control ${
-                      errors.LEAVE_ENDS
-                        ? "is-invalid"
-                        : ""
-                    }`}
-                    name="LEAVE_ENDS"
-                    value={
-                      formData.LEAVE_ENDS ||
-                      ""
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    disabled={
-                      isSTENDLocked ||
-                      isReadOnly ||
-                      isSubmitting
-                    }
-                  >
-                    <option value="">
-                      Select
-                    </option>
-
-                    {Object.entries(
-                      config?.type
-                        ?.SELECT
-                        ?.LEAVE_ENDS
-                        ?.options ||
-                        {},
-                    ).map(
-                      ([key, value]) => (
-                        <option
-                          key={key}
-                          value={key}
-                        >
-                          {value}
-                        </option>
-                      ),
-                    )}
-                  </select>
+                  <SDLReactSelect
+                    value={formData.LEAVE_ENDS || ""}
+                    options={Object.entries(config?.type?.SELECT?.LEAVE_ENDS?.options || {}).map(([key, label]) => ({ value: key, label }))}
+                    onChange={(value) => handleChange({ target: { name: "LEAVE_ENDS", value: value ?? "" } })}
+                    placeholder="Select"
+                    isClearable={false}
+                    isDisabled={isSTENDLocked || isReadOnly || isSubmitting}
+                    hasError={!!errors.LEAVE_ENDS}
+                  />
 
                   {errors.LEAVE_ENDS && (
-                    <div className="invalid-feedback">
+                    <div className="invalid-feedback d-block">
                       {
                         errors.LEAVE_ENDS
                       }
@@ -1976,7 +1882,7 @@ const LeavesModal = ({
                 {/* DAYS */}
 
                 <div className="col-md-4">
-                  <label>
+                  <label className="form-label">
                     No Of Days
                   </label>
 
@@ -2005,7 +1911,7 @@ const LeavesModal = ({
                 {/* REASON */}
 
                 <div className="col-md-8">
-                  <label>
+                  <label className="form-label">
                     Reason
                   </label>
 
@@ -2030,9 +1936,12 @@ const LeavesModal = ({
                         isReadOnly ||
                         isSubmitting
                       }
+                      rows={2}
                       style={{
-                        paddingBottom:
-                          "20px",
+                        // Two lines of text fit without scrolling.
+                        height: "66px",
+                        minHeight: "66px",
+                        resize: "vertical",
                       }}
                     />
 
@@ -2044,36 +1953,23 @@ const LeavesModal = ({
                       </div>
                     )}
 
+                    {/* Byte counter below the box on the right, same as Ticket Booking. */}
                     <div
+                      className="text-end small mt-1"
                       style={{
-                        position:
-                          "absolute",
-                        bottom: "2px",
-                        right: "8px",
-                        fontSize:
-                          "11px",
                         color:
-                          getByteLength(
-                            formData.REASON ||
-                              "",
-                          ) > 180
+                          getByteLength(formData.REASON || "") > 180
                             ? "red"
                             : "#666",
-                        background:
-                          "#fff",
-                        padding:
-                          "0 4px",
                       }}
                     >
-                      {getByteLength(
-                        formData.REASON ||
-                          "",
-                      )}{" "}
-                      / 200
+                      {getByteLength(formData.REASON || "")} / 200
                     </div>
                   </div>
                 </div>
               </div>
+              </>
+            )}
             </div>
 
             {/* ====================================================
@@ -2107,6 +2003,7 @@ const LeavesModal = ({
                     type="submit"
                     className="btn btn-primary"
                     disabled={
+                      loading ||
                       isSubmitting ||
                       isBtnDisable ||
                       !isLeaveAllowed

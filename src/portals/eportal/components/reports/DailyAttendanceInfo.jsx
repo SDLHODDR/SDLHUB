@@ -5,7 +5,11 @@ import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable";
 import Badge from "../../../../shared/components/Badge";
 import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/wideContentPages.css";
+import "../../assets/css/attendanceInfo.css";
 import EportalPageLoader from "../loader/EportalPageLoader";
+
+// Fixed names: en-GB gives "Sept"; other pages use dd-Mon-yyyy.
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const DailyAttendanceInfo = () => {
 
@@ -35,10 +39,7 @@ const DailyAttendanceInfo = () => {
     const formatMonthParam = (date) => date.toISOString().slice(0, 7);
 
     const formatMonthLabel = (date) =>
-        date.toLocaleDateString("en-GB", {
-            month: "short",
-            year: "numeric",
-        });
+        `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
 
     const prevMonth = () => {
         const d = new Date(selectedMonth);
@@ -104,11 +105,7 @@ const DailyAttendanceInfo = () => {
         });
 
     const formatDate = (date) =>
-        date.toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-        });
+        `${String(date.getDate()).padStart(2, "0")}-${MONTHS[date.getMonth()]}-${date.getFullYear()}`;
 
     /* ================= STATES ================= */
 
@@ -234,7 +231,7 @@ const DailyAttendanceInfo = () => {
 
             {/* META */}
             <div className="card mb-2 eportal-wide-card">
-                <div className="card-body py-2 px-3 d-flex justify-content-between">
+                <div className="card-body py-2 px-3 d-flex justify-content-between align-items-center flex-wrap gap-2 attendance-meta">
                     <div>
                         <strong>Shift:</strong>{" "}
                         {meta?.shift?.START_TIME} - {meta?.shift?.END_TIME}
@@ -242,17 +239,17 @@ const DailyAttendanceInfo = () => {
                     <div><strong>From:</strong> {meta?.startDate}</div>
                     <div><strong>To:</strong> {meta?.endDate}</div>
                     <div><strong>Grace:</strong> {meta?.shift?.GRACE_HRS}</div>
-                    <div className="d-flex align-items-center gap-2">
-                        <button className="btn btn-sm btn-light" onClick={prevMonth}>
-                            ◀
+                    <div className="d-flex align-items-center gap-2 attendance-month-nav">
+                        <button className="btn btn-light" onClick={prevMonth} title="Previous month">
+                            <i className="fas fa-chevron-left" />
                         </button>
 
-                        <span className="fw-semibold" style={{ minWidth: 100, textAlign: "center" }}>
+                        <span className="attendance-month-label">
                             {formatMonthLabel(selectedMonth)}
                         </span>
 
-                        <button className="btn btn-sm btn-light" onClick={nextMonth}>
-                            ▶
+                        <button className="btn btn-light" onClick={nextMonth} title="Next month">
+                            <i className="fas fa-chevron-right" />
                         </button>
                     </div>
                 </div>
@@ -268,22 +265,22 @@ const DailyAttendanceInfo = () => {
                         {/* LEFT */}
                         <div className="d-flex align-items-center gap-4">
                             <div>
-                                <div className="text-muted">Today</div>
-                                <div className="fw-semibold fs-18">
+                                <div className="attendance-today-label">Today</div>
+                                <div className="attendance-today-value">
                                     {formatDate(time)}
                                 </div>
                             </div>
 
                             <div>
-                                <div className="text-muted">Time</div>
-                                <div className="fw-bold fs-18">
+                                <div className="attendance-today-label">Time</div>
+                                <div className="attendance-today-value">
                                     {formatTime(time)}
                                 </div>
                             </div>
 
                             <div>
-                                <div className="text-muted">Break</div>
-                                <div className="fw-semibold fs-18">
+                                <div className="attendance-today-label">Break</div>
+                                <div className="attendance-today-value">
                                     {meta?.todayBreak || "00:00"}
                                 </div>
                             </div>
@@ -330,26 +327,19 @@ const MiniStat = ({ label, value, color }) => {
     const isLightBg = color?.includes("transparent");
 
     return (
-        <div style={{ minWidth: 90 }} className="text-center">
+        <div className="attendance-stat">
             <div
-                className={`avatar fw-bold ${color}`}
-                style={{
-                    width: 44,
-                    height: 44,
-                    fontSize: 15,
-                    color: isLightBg ? "#333" : "#fff" // ✅ fix contrast
-                }}
+                className={`avatar attendance-stat-value ${color}`}
+                style={{ color: isLightBg ? "#212b36" : "#fff" }}
             >
                 {value ?? 0}
             </div>
 
-            <div style={{ fontSize: 12 }}>
+            <div className="attendance-stat-label">
                 {label}
             </div>
         </div>
     );
 };
-
-
 
 export default DailyAttendanceInfo;

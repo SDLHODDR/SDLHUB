@@ -10,6 +10,22 @@ const formatRoute = (route) => {
 	return "/" + route.replace(".php", "").replaceAll("_", "-");
 };
 
+/*
+ * EPT_MENU.MENU_ICON holds old Line Awesome names (not loaded in SDL Hub) or nothing, and the
+ * table is shared with the old ePortal, so the icons are set here in the Font Awesome style HRMS uses.
+ */
+const MENU_ICONS = {
+	"dashboard": "fas fa-tachometer-alt",
+	"my activities": "fas fa-tasks",
+	"policies & documents": "fas fa-folder-open",
+	"maintenance": "fas fa-cog",
+	"reports": "fas fa-bolt",
+};
+
+const menuIconClass = (menu) =>
+	MENU_ICONS[String(menu.label || "").trim().toLowerCase()] ||
+	(/\bfa[srb]?\b/.test(menu.icon || "") ? menu.icon : "ti ti-layout-grid fs-16");
+
 const HorizontalMenu = () => {
 	const location = useLocation();
 
@@ -94,7 +110,7 @@ const HorizontalMenu = () => {
 							}
 						}}
 					>
-						<i className="ti ti-layout-grid fs-16 me-2"></i>
+						<i className={`${menuIconClass(menu)} me-2`}></i>
 
 						<span>{menu.label}</span>
 

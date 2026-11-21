@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
+import ResetButton from '../../../../shared/components/buttons/ResetButton'
 import { useLocation } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -1129,15 +1130,10 @@ const ProfileMaintenance = () => {
                 width='330px'
               />
 
-              <button
-                type='button'
-                className='btn btn-outline-secondary profile-reset-btn'
+              <ResetButton
                 onClick={resetPage}
                 disabled={loadingAccess || saving || !selectedProfile}
-              >
-                <i className='ti ti-refresh me-1' />
-                Reset
-              </button>
+              />
             </div>
           </div>
 

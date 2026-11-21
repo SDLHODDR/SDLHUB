@@ -11,6 +11,9 @@ const SDLDataTable = ({
     rows = 10,
     paginator = data.length > rows,
     rowsPerPageOptions = [10, 25, 50, 100],
+    // Same paging bar on every portal: "Showing 1 to 10 of N entries" + page links + rows per page.
+    paginatorTemplate = "CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown",
+    currentPageReportTemplate = "Showing {first} to {last} of {totalRecords} entries",
     className = "",
     tableStyle = { minWidth: "900px" },
     onRowClick,
@@ -27,6 +30,8 @@ const SDLDataTable = ({
             paginator={paginator}
             rows={rows}
             rowsPerPageOptions={rowsPerPageOptions}
+            paginatorTemplate={paginatorTemplate}
+            currentPageReportTemplate={currentPageReportTemplate}
             stripedRows
             showGridlines
             responsiveLayout="scroll"

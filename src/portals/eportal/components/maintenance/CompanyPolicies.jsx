@@ -88,7 +88,8 @@ const CompanyPolicies = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     // className="btn btn-icon btn-sm btn-primary"
-                    className="btn btn-sm btn-outline-primary"
+                    className="btn btn-sm btn-outline-primary sdl-icon-btn"
+                    title="View"
                 >
                     <i className="ti ti-eye"></i>
                 </a>

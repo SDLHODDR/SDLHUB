@@ -9,17 +9,12 @@ const EditButton = ({
   return (
     <button
       type="button"
-      className={`btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center ${className}`.trim()}
+      className={`btn btn-sm btn-outline-primary sdl-icon-btn ${className}`.trim()}
       onClick={onClick}
       aria-label={ariaLabel}
       title={ariaLabel}
       {...props}
-      style={{
-        width: "30px",
-        height: "30px",
-        padding: 0,
-        ...style,
-      }}
+      style={style}
     >
       <i className={iconClassName} />
     </button>

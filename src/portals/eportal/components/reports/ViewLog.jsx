@@ -239,7 +239,7 @@ const ViewLog = () => {
   const actionBody = (rowData) => (
     <button
       //className="btn btn-primary btn-sm"
-      className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
+      className="btn btn-sm btn-outline-primary sdl-icon-btn"
       title="View Details"
       onClick={() => setSelectedLog(rowData)}
       data-bs-toggle="modal"
@@ -360,7 +360,7 @@ const ViewLog = () => {
               </button>
             </div>
 
-            <div className="col-lg-3 col-md-4">
+            <div className="col-lg-auto col-md-4">
               <SDLSearch
                 value={searchQuery}
                 onChange={setSearchQuery}
@@ -368,7 +368,7 @@ const ViewLog = () => {
               />
             </div>
 
-            <div className="col-lg-3 d-flex align-items-end justify-content-end">
+            <div className="col-lg d-flex align-items-end justify-content-end">
               <button
                 className="btn btn-outline-primary view-log-filter-button"
                 onClick={() => loadLogs(selectedDate)}

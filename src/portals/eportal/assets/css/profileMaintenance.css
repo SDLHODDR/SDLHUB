@@ -26,9 +26,7 @@
     flex-wrap: wrap;
 }
 
-.action-btn-group .btn {
-    min-width: 110px;
-}
+/* Buttons keep the standard theme size, same as HRMS (no fixed width). */
 
 /* Task Access checklist */
 .profile-task-grid {
@@ -202,4 +200,10 @@
         min-width: 30px;
         height: 30px;
     }
+}
+
+/* Search boxes: same width as the HRMS Department search (SDLSearch, 330px). */
+.profile-search {
+  width: 330px;
+  max-width: 100%;
 }

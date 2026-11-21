@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import SDLSelect from "../../../../shared/components/form/SDLSelect";
 import { downloadDocuments, downloadDeclarations, getEmployeeDropdown } from "../../services/downloadItrDocs";
 import {
   notifySuccess,
@@ -207,7 +208,7 @@ useEffect(() => {
                 Download Category
               </label>
 
-              <select
+              <SDLSelect
                 className="form-control"
                 value={downloadCategory}
                 onChange={(e) => setDownloadCategory(e.target.value)}
@@ -219,7 +220,7 @@ useEffect(() => {
                 <option value="declaration">
                   ITR Declaration
                 </option>
-              </select>
+              </SDLSelect>
             </div>
 
             {/* DOWNLOAD TYPE */}
@@ -228,7 +229,7 @@ useEffect(() => {
                 Download Type
               </label>
 
-              <select
+              <SDLSelect
                 className="form-control"
                 value={type}
                 onChange={(e) => {
@@ -245,7 +246,7 @@ useEffect(() => {
               >
                 <option value="single"> Single Employee </option>
                 <option value="all"> All Employees </option>
-              </select>
+              </SDLSelect>
             </div>
 
             {/* FINANCIAL YEAR */}
@@ -254,7 +255,7 @@ useEffect(() => {
                 Financial Year
               </label>
 
-              <select
+              <SDLSelect
                 className={`form-control ${errors.financialYear
                   ? "is-invalid"
                   : ""
@@ -273,7 +274,7 @@ useEffect(() => {
                 <option value=""> Select Financial Year </option>
                 <option value="25-26">25-26</option>
                 <option value="26-27">26-27</option>
-              </select>
+              </SDLSelect>
 
               {errors.financialYear && (
                 <div className="invalid-feedback d-block">

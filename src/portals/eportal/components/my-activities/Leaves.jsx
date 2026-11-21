@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { ActivityPageLayout, ActivitySectionHead, ActivityFilterBar } from "./common/ActivityLayout";
 import { useDispatch, useSelector } from "react-redux";
 
 import { getLeavesDataResponse } from "../../store/ePortalLeavesSlice";
@@ -9,7 +10,6 @@ import EportalPageLoader from "../loader/EportalPageLoader";
 
 import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
 import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable";
-import SDLSearch from "../../../../shared/components/datatable/SDLSearch";
 import SDLCalendar from "../../../../shared/components/calendar/SDLCalendar";
 
 import LeavesModal from "../../modal/LeavesModal";
@@ -406,7 +406,7 @@ const Leaves = () => {
 
   return (
     <>
-      {loading && <EportalPageLoader />}
+      {(loading || modalLoading) && <EportalPageLoader />}
       {/* ======================================================
           PAGE HEADER
       ====================================================== */}
@@ -436,105 +436,31 @@ const Leaves = () => {
           MAIN CARD
       ====================================================== */}
 
-      <div className="card eportal-wide-card">
-        <div className="card-body">
-          <div className="row">
-            {/* ==================================================
-                LEFT CALENDAR
-            ================================================== */}
-
-            <div className="col-xl-3 border-end leaves-calendar-column">
-                <SDLCalendar
-                    mode="inline"
-                    openModal={openModal}
-                />
-            </div>
-
-            {/* ==================================================
-                RIGHT TABLE
-            ================================================== */}
-
-            <div className="col-xl-9 d-flex flex-column">
-              <h6 className="mb-3">Leave Request Preview</h6>
+      <ActivityPageLayout
+        calendarTitle="Select Leave Date"
+        calendarSubtitle="Select a date to apply for leave"
+        calendar={<SDLCalendar mode="inline" openModal={openModal} />}
+      >
+              <ActivitySectionHead
+                title="Leave Requests"
+                subtitle="View and track your leave requests"
+              />
 
               <div className="position-relative flex-grow-1">
                 {/* =================================================
                     SEARCH + STATUS FILTER
                 ================================================= */}
 
-                <div className="row mb-3 align-items-center g-2">
-                  {/* SEARCH */}
-
-                  <div className="col-lg-5 col-md-6 col-12">
-                    <SDLSearch
-                      value={searchQuery}
-                      onChange={setSearchQuery}
-                      placeholder="Search Leaves..."
-                      style={{
-                        width: "100%",
-                      }}
-                    />
-                  </div>
-
-                  {/* STATUS */}
-
-                  <div className="col-lg-3 col-md-4 col-12">
-                    <select
-                      className="form-control"
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                    >
-                      {statusOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* CLEAR */}
-
-                  <div className="col-lg-2 col-md-2 col-12">
-                    <button
-                      type="button"
-                      className="btn btn-outline-secondary"
-                      style={{ height: "40px" }}
-                      disabled={statusFilter === "ALL"}
-                      onClick={clearFilters}
-                    >
-                      <i className="ti ti-refresh me-1"></i>
-                      Reset
-                    </button>
-                  </div>
-
-                  {/* RESULT COUNT */}
-
-                  <div className="col-lg-2 col-md-12 col-12 text-lg-end">
-                    {/*<small className="text-muted">
-
-                      Showing{" "}
-
-                      <strong>
-                        {
-                          filteredData.length
-                        }
-                      </strong>
-
-                      {" "}of{" "}
-
-                      <strong>
-                        {
-                          listData.length
-                        }
-                      </strong>
-
-                    </small> */}
-                  </div>
-                </div>
-
-                {/* =================================================
-                    TABLE
-                ================================================= */}
+                <ActivityFilterBar
+                  searchValue={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  searchPlaceholder="Search Leaves..."
+                  statusValue={statusFilter}
+                  onStatusChange={setStatusFilter}
+                  statusOptions={statusOptions}
+                  onReset={clearFilters}
+                  resetDisabled={statusFilter === "ALL"}
+                />
 
                 <SDLDataTable
                   data={filteredData}
@@ -553,10 +479,7 @@ const Leaves = () => {
                   removableSort
                 />
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </ActivityPageLayout>
 
       {/* ======================================================
           LEAVE MODAL

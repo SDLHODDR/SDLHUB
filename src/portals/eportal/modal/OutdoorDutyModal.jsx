@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import SDLSelect from "../../../shared/components/form/SDLSelect";
 import {
     getGPDataDetails,
     //getGPSVDataDetails,
@@ -642,7 +643,7 @@ const OutdoorDutyModal = ({
                         <span className="text-danger ms-1">*</span>
                       </label>
 
-                      <select
+                      <SDLSelect
                         className={`form-control ${errors.OUT_TYPE ? "is-invalid" : ""}`}
                         name="OUT_TYPE"
                         id="OUT_TYPE"
@@ -656,7 +657,7 @@ const OutdoorDutyModal = ({
                             {val}
                           </option>
                         ))}
-                      </select>
+                      </SDLSelect>
                       {errors.OUT_TYPE && (
                         <div className="invalid-feedback">{errors.OUT_TYPE}</div>
                       )}
@@ -683,11 +684,16 @@ const OutdoorDutyModal = ({
                         disabled={isPostRemarkNwMode}
                         placeholder="Enter outdoor duty purpose"
                       />
-                      {!isPostRemarkNwMode && (
-                        <div className="char-counter">{getByteLength(formData.REMARKS || "")} / 200</div>
-                      )}
                       {errors.REMARKS && (
                         <div className="invalid-feedback">{errors.REMARKS}</div>
+                      )}
+                      {!isPostRemarkNwMode && (
+                        <div
+                          className="text-end small mt-1"
+                          style={{ color: getByteLength(formData.REMARKS || "") > 180 ? "red" : "#666" }}
+                        >
+                          {getByteLength(formData.REMARKS || "")} / 200
+                        </div>
                       )}
                     </div>
                   </div>

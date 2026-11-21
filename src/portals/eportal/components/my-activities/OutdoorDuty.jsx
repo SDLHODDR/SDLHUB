@@ -1,10 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
+import { ActivityPageLayout, ActivitySectionHead, ActivityFilterBar } from "./common/ActivityLayout";
 import { useDispatch, useSelector } from "react-redux";
 import { getOutdoorDutyDataResponse } from "../../store/ePortalOutdoorDutySlice";
 import { createOutdoorDutyHandlers } from "../../utils/outdoorDutyHandlers";
 import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
 import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable";
-import SDLSearch from "../../../../shared/components/datatable/SDLSearch";
 import SDLCalendar from "../../../../shared/components/calendar/SDLCalendar";
 import OutdoorDutyModal from "../../modal/OutdoorDutyModal";
 import { outdoorDutyColumns } from "../../utils/columnHandlers/outdoorDutyColumns";
@@ -183,56 +183,27 @@ const OutdoorDuty = () => {
         />
       </div>
 
-      <div className="card eportal-wide-card">
-        <div className="card-body">
-          <div className="row">
-            <div className="col-xl-3 border-end">
-              <SDLCalendar mode="inline" openModal={openModal} />
-            </div>
+      <ActivityPageLayout
+        calendarTitle="Select Duty Date"
+        calendarSubtitle="Select a date to create an outdoor duty request"
+        calendar={<SDLCalendar mode="inline" openModal={openModal} />}
+      >
+              <ActivitySectionHead
+                title="Outdoor Duty Requests"
+                subtitle="View and track your outdoor duty requests"
+              />
 
-            <div className="col-xl-9 d-flex flex-column">
-              <h6 className="mb-3">Outdoor Duty Preview</h6>
               <div className="position-relative flex-grow-1">
-                <div className="row mb-3">
-                  <div className="col-lg-4 col-md-6 col-12">
-                    <SDLSearch
-                      value={searchQuery}
-                      onChange={setSearchQuery}
-                      placeholder="Search Outdoor Duties..."
-                      style={{ width: "270px" }}
-                    />
-                  </div>
-
-                  {/* STATUS */}
-                  <div className="col-lg-3 col-md-4 col-12">
-                    <select
-                      className="form-select"
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                      style={{ border: "1px solid gray" }}
-                    >
-                      {statusOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* CLEAR */}
-                  <div className="col-lg-2 col-md-2 col-12">
-                    <button
-                      type="button"
-                      className="btn btn-outline-secondary"
-                      style={{ height: "40px" }}
-                      disabled={statusFilter === "ALL" && !searchQuery}
-                      onClick={clearFilters}
-                    >
-                      <i className="ti ti-refresh me-1"></i>
-                      Reset
-                    </button>
-                  </div>
-                </div>
+                <ActivityFilterBar
+                  searchValue={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  searchPlaceholder="Search Outdoor Duties..."
+                  statusValue={statusFilter}
+                  onStatusChange={setStatusFilter}
+                  statusOptions={statusOptions}
+                  onReset={clearFilters}
+                  resetDisabled={statusFilter === "ALL" && !searchQuery}
+                />
 
                 <SDLDataTable
                   data={filteredData}
@@ -251,10 +222,7 @@ const OutdoorDuty = () => {
                   removableSort
                 />
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </ActivityPageLayout>
 
       {modalState.isOpen && (
         <OutdoorDutyModal

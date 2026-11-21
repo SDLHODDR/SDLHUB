@@ -1,10 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
+import { ActivityPageLayout, ActivitySectionHead, ActivityFilterBar } from "./common/ActivityLayout";
 import { useDispatch, useSelector } from "react-redux";
 import { getTicketBookingDataResponse } from "../../store/ePortalTicketBookingSlice";
 import { createTicketBookingHandlers } from "../../utils/ticketBookingHandlers";
 import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
 import SDLDataTable from "../../../../shared/components/datatable/SDLDataTable";
-import SDLSearch from "../../../../shared/components/datatable/SDLSearch";
 import SDLCalendar from "../../../../shared/components/calendar/SDLCalendar";
 import TicketBookingModal from "../../modal/TicketBookingModal";
 import { ticketBookingColumns } from "../../utils/columnHandlers/ticketBookingColumns";
@@ -183,72 +183,34 @@ const TicketBooking = () => {
         />
       </div>
 
-      <div className="card ticket-booking-layout-card position-relative">
-        {loading && (
-          <div className="ticket-booking-loading-overlay">
-            <SDLPageLoader />
-          </div>
-        )}
-        <div className="card-body">
-          <div className="row">
-            <div className="col-12 col-xl-3 border-end ticket-booking-calendar-column">
-              <SDLCalendar mode="inline" openModal={openModal} />
+      <ActivityPageLayout
+        calendarTitle="Select Travel Date"
+        calendarSubtitle="Select a date to create a ticket booking"
+        calendar={<SDLCalendar mode="inline" openModal={openModal} />}
+        overlay={
+          loading && (
+            <div className="ticket-booking-loading-overlay">
+              <SDLPageLoader />
             </div>
+          )
+        }
+      >
+              <ActivitySectionHead
+                title="Ticket Booking Requests"
+                subtitle="View and track your ticket booking requests"
+              />
 
-            <div className="col-12 col-xl-9 d-flex flex-column ticket-booking-preview-column">
-              <h6 className="mb-3">Ticket Booking Preview</h6>
               <div className="position-relative flex-grow-1">
-                <div className="row mb-3">
-                  <div className="col-lg-4 col-md-6 col-12">
-                    <SDLSearch
-                      value={searchQuery}
-                      onChange={setSearchQuery}
-                      placeholder="Search Ticket Booking..."
-                      style={{ width: "270px" }}
-                    />
-                  </div>
-
-                  {/* STATUS — dark styled dropdown */}
-                  {/* <div className="col-lg-3 col-md-4 col-12">
-                    <select
-                      className="form-select bg-dark text-white border-secondary"
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                    >
-                      {statusOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div> */}
-                  <div className="col-lg-3 col-md-4 col-12">
-                    <select
-                      className="form-select ticket-booking-status-filter"
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                    >
-                      {statusOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="col-lg-2 col-md-2 col-12">
-                    <button
-                      type="button"
-                      className="btn btn-outline-secondary"
-                      style={{ height: "40px" }}
-                      disabled={statusFilter === "ALL" && !searchQuery}
-                      onClick={clearFilters}
-                    >
-                      <i className="ti ti-refresh me-1"></i>
-                      Reset
-                    </button>
-                  </div>
-                </div>
+                <ActivityFilterBar
+                  searchValue={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  searchPlaceholder="Search Ticket Booking..."
+                  statusValue={statusFilter}
+                  onStatusChange={setStatusFilter}
+                  statusOptions={statusOptions}
+                  onReset={clearFilters}
+                  resetDisabled={statusFilter === "ALL" && !searchQuery}
+                />
 
                 <SDLDataTable
                   data={filteredData}
@@ -267,10 +229,7 @@ const TicketBooking = () => {
                   removableSort
                 />
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </ActivityPageLayout>
 
       {modalState.isOpen && (
         <TicketBookingModal

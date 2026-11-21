@@ -2163,6 +2163,13 @@ textarea {
   font-family: 'Nunito', sans-serif;
 }
 
+/* PrimeReact theme sets 'Inter var' on its components (calendar header,
+   paginator, etc.); keep every portal on the app font. */
+.p-component,
+.p-link {
+  font-family: 'Nunito', sans-serif;
+}
+
 /* HRMS - Standard PrimeReact table font */
 .p-datatable,
 .p-datatable .p-datatable-table,
