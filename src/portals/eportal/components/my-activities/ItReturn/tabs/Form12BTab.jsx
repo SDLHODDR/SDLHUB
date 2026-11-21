@@ -494,7 +494,7 @@ export const Form12BTab = ({ editable }) => {
             ========================================= */}
 
             {!editable && (
-                <div className="alert alert-warning mb-3">
+                <div className="alert alert-danger mb-3">
                     {ITR_MESSAGES.ITR_EDIT}
                 </div>
             )}
@@ -514,7 +514,7 @@ export const Form12BTab = ({ editable }) => {
                 ========================================= */}
 
                 {!eligible && (
-                    <div className="alert alert-warning text-center">
+                    <div className="alert alert-danger text-center">
                         {ITR_MESSAGES.FORM12B_NOT_ELIGIBLE}
                     </div>
                 )}

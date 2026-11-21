@@ -822,10 +822,10 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
   const DetailItem = ({ label, value, fullWidth = false }) => (
     <div className={fullWidth ? "col-12 mb-2" : "col-xl-6 col-lg-6 col-md-6 col-12 mb-2"}>
       <div className="d-flex align-items-start">
-        <div className="text-muted fw-medium" style={{ minWidth: "135px", fontSize: "13px" }}>
+        <div className="fw-semibold text-dark" style={{ minWidth: "135px", fontSize: "14px" }}>
           {label}
         </div>
-        <div className="fw-semibold text-dark" style={{ fontSize: "13px", lineHeight: "1.45", wordBreak: "break-word" }}>
+        <div className="text-dark" style={{ fontSize: "14px", lineHeight: "1.45", wordBreak: "break-word" }}>
           {displayValue(value)}
         </div>
       </div>
@@ -843,10 +843,9 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
           <h6 className="mb-0 fw-semibold">Personal Information</h6>
           <button
             type="button"
-            className="btn btn-sm btn-outline-primary"
+            className="btn btn-primary"
             onClick={openContactModal}
           >
-            <i className="ti ti-edit me-1"></i>
             Edit Contact Details
           </button>
         </div>
@@ -874,10 +873,9 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
           <h6 className="mb-0 fw-semibold">Address</h6>
           <button
             type="button"
-            className="btn btn-sm btn-outline-primary"
+            className="btn btn-primary"
             onClick={openAddressModal}
           >
-            <i className="ti ti-edit me-1"></i>
             Edit Address
           </button>
         </div>

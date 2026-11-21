@@ -1,4 +1,5 @@
 import BreadcrumbNav from "../../components/BreadcrumbNav";
+import SDLPageLoader from "../../components/SDLPageLoader";
 import { useState, useEffect } from "react";
 
 import { getProfile } from "../../services/profile/profileService";
@@ -11,6 +12,14 @@ import PersonalDetailsTab from "./components/personaldetails/personalDetailsTab"
 import OfficeDetailsTab from "./components/officedetails/officeDetailsTab";
 import BankDetailsTab from "./components/bankdetails/bankDetailsTab";
 import FamilyDetailsTab from "./components/familydetails/familyDetailsTab";
+import SDLTabsComponent from "../../../portals/hrms/components/tabs/SDLTabsComponent";
+
+const PROFILE_TABS = [
+  { key: "personal", label: "Personal Details" },
+  { key: "family", label: "Family Details" },
+  { key: "office", label: "Office Details" },
+  { key: "bank", label: "Bank & Other Details" },
+];
 
 const profile = () => {
   /* =========================================================
@@ -109,18 +118,7 @@ const profile = () => {
 
   if (loading) {
     return (
-      <div className="page-wrapper">
-        <div className="content">
-          <div className="text-center py-5">
-            <span
-              className="spinner-border spinner-border-sm me-2"
-              role="status"
-              aria-hidden="true"
-            ></span>
-            Loading profile...
-          </div>
-        </div>
-      </div>
+      <SDLPageLoader />
     );
   }
 
@@ -150,11 +148,10 @@ const profile = () => {
             PAGE HEADER
         ===================================================== */}
 
-      <div className="page-header">
+      <div className="page-header" style={{ marginBottom: '8px' }}>
         <div className="add-item d-flex">
           <div className="page-title">
             <h4>Profile</h4>
-            <h6>Manage your profile</h6>
           </div>
         </div>
 
@@ -188,112 +185,15 @@ const profile = () => {
               minHeight: "402px",
             }}
           >
-            {/* =================================================
-                  TABS HEADER
-              ================================================= */}
-
-            <div className="card-header p-0">
-              <ul className="nav nav-tabs nav-tabs-bottom border-bottom mb-0">
-                {/* =============================================
-                      PERSONAL
-                  ============================================= */}
-
-                <li className="nav-item">
-                  <button
-                    type="button"
-                    className={`nav-link ${
-                      activeTab === "personal" ? "active" : ""
-                    }`}
-                    onClick={() => setActiveTab("personal")}
-                  >
-                    Personal Details
-                  </button>
-                </li>
-
-                {/* =============================================
-                      FAMILY
-                  ============================================= */}
-
-                <li className="nav-item">
-                  <button
-                    type="button"
-                    className={`nav-link ${
-                      activeTab === "family" ? "active" : ""
-                    }`}
-                    onClick={() => setActiveTab("family")}
-                  >
-                    Family Details
-                  </button>
-                </li>
-
-                {/* =============================================
-                      OFFICE
-                  ============================================= */}
-
-                <li className="nav-item">
-                  <button
-                    type="button"
-                    className={`nav-link ${
-                      activeTab === "office" ? "active" : ""
-                    }`}
-                    onClick={() => setActiveTab("office")}
-                  >
-                    Office Details
-                  </button>
-                </li>
-
-                {/* =============================================
-                      BANK
-                  ============================================= */}
-
-                <li className="nav-item">
-                  <button
-                    type="button"
-                    className={`nav-link ${
-                      activeTab === "bank" ? "active" : ""
-                    }`}
-                    onClick={() => setActiveTab("bank")}
-                  >
-                    Bank & Other Details
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            {/* =================================================
-                  TAB CONTENT
-              ================================================= */}
-
             <div className="card-body">
-              {/* ===============================================
-                    PERSONAL DETAILS
-                =============================================== */}
-
-              {activeTab === "personal" && (
-                <PersonalDetailsTab
-                  profile={profile}
-                  onProfileUpdated={loadProfile}
-                />
-              )}
-
-              {/* ===============================================
-                    FAMILY DETAILS
-                =============================================== */}
-
-              {activeTab === "family" && ( <FamilyDetailsTab profile={profile} setProfile={setProfile} /> )}
-
-              {/* ===============================================
-                    OFFICE DETAILS
-                =============================================== */}
-
-             {activeTab === "office" && <OfficeDetailsTab profile={profile} />}
-
-              {/* ===============================================
-                    BANK DETAILS
-                =============================================== */}
-
-             {activeTab === "bank" && (<BankDetailsTab profile={profile} />)}
-     
+              <SDLTabsComponent tabs={PROFILE_TABS} selectedTab={activeTab} onTabChange={setActiveTab}>
+                {activeTab === "personal" && (
+                  <PersonalDetailsTab profile={profile} onProfileUpdated={loadProfile} />
+                )}
+                {activeTab === "family" && <FamilyDetailsTab profile={profile} setProfile={setProfile} />}
+                {activeTab === "office" && <OfficeDetailsTab profile={profile} />}
+                {activeTab === "bank" && <BankDetailsTab profile={profile} />}
+              </SDLTabsComponent>
             </div>
           </div>
         </div>

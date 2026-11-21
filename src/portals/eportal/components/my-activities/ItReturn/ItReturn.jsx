@@ -7,6 +7,7 @@ import DeductionsTab from "./tabs/DeductionsTab";
 import ExemptionsTab from "./tabs/ExemptionsTab";
 import PreviewPrintTab from "./tabs/PreviewPrintTab";
 import EportalPageLoader from "../../loader/EportalPageLoader";
+import SDLTabsComponent from "../../../../hrms/components/tabs/SDLTabsComponent";
 
 import { getItReturnConfig } from "../../../services/itReturnService";
 import "../../../assets/css/wideContentPages.css";
@@ -134,51 +135,22 @@ const ItReturn = () => {
       <div className="card eportal-wide-card">
         <div className="card-body">
 
-          {/* TABS HEADER */}
-          <ul className="nav nav-tabs border-bottom mb-4">
-            {tabs.map((tab) => (
-              <li key={tab.id} className="nav-item">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab(tab.id)}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    borderBottom:
-                      activeTab === tab.id
-                        ? "2px solid #f59e0b"
-                        : "2px solid transparent",
-                    padding: "12px 18px",
-                    fontWeight:
-                      activeTab === tab.id ? 600 : 500,
-                    color:
-                      activeTab === tab.id ? "#000" : "#6c757d",
-                    cursor: "pointer",
-                  }}
-                >
-                  {tab.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-
-          {/* TAB CONTENT */}
-          <div className="tab-content">
+          <SDLTabsComponent
+            tabs={tabs.map(({ id, label }) => ({ key: id, label }))}
+            selectedTab={activeTab}
+            onTabChange={setActiveTab}
+          >
             {tabs.map(({ id, Component }) =>
               activeTab === id ? (
-                <div
+                <Component
                   key={id}
-                  className="tab-pane fade show active"
-                >
-                  <Component                   
-                    editable={canEdit}
-                    onDataSaved={triggerPreviewRefresh}
-                    refreshPreview={refreshPreview}
-                  />
-                </div>
+                  editable={canEdit}
+                  onDataSaved={triggerPreviewRefresh}
+                  refreshPreview={refreshPreview}
+                />
               ) : null
             )}
-          </div>
+          </SDLTabsComponent>
 
         </div>
       </div>

@@ -257,7 +257,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
   return (
     <>
       {!editable && (
-        <div className="alert alert-warning mb-3">{ITR_MESSAGES.ITR_EDIT}</div>
+        <div className="alert alert-danger mb-3">{ITR_MESSAGES.ITR_EDIT}</div>
       )}
 
       <div>

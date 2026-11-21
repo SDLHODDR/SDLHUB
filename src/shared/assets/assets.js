@@ -29,7 +29,8 @@ import store03 from "./img/store/store-03.png";
 import store04 from "./img/store/store-04.png";
 
 // Profiles
-import avatar1 from "./img/profiles/avator1.jpg";
+// Default user picture when an employee has no photo (the old avator1.jpg was a grey "300 x 300" placeholder).
+import avatar1 from "./img/profiles/default-avatar.svg";
 
 
 export { default as pdf } from "./img/icons/pdf.svg";

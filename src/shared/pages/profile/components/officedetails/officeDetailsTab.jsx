@@ -56,7 +56,7 @@ const OfficeDetailsTab = ({ profile }) => {
                   style={{
                     width: "58%",
                     fontWeight: 600,
-                    color: "#526273",
+                    color: "var(--bs-body-color)",
                     padding: "7px 6px",
                     borderBottom: "1px solid #e5e7eb",
                   }}
@@ -67,7 +67,7 @@ const OfficeDetailsTab = ({ profile }) => {
                 <td
                   style={{
                     width: "42%",
-                    color: "#68788a",
+                    color: "var(--bs-body-color)",
                     padding: "7px 6px",
                     borderBottom: "1px solid #e5e7eb",
                   }}

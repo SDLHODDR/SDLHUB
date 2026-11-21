@@ -843,7 +843,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
             <button
               type="button"
               title="Add Family Member"
-              className="btn btn-primary btn-sm d-flex align-items-center gap-1"
+              className="btn btn-primary d-flex align-items-center gap-1"
               onClick={handleAddFamily}
             >
               <i className="ti ti-plus"></i>
@@ -853,7 +853,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
         </div>
 
         {/* FAMILY TABLE */}
-        <div className="table-responsive">
+        <div>
           <SDLDataTable
             data={filteredFamilyData}
             columns={familyColumns}
@@ -863,7 +863,8 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
             removableSort
             dataKey="id"
             emptyMessage="No family members found"
-            tableStyle={{ minWidth: "800px" }}
+            // Fit the card: the columns share its width instead of forcing a sideways scroll.
+            tableStyle={{ width: "100%", tableLayout: "auto" }}
           />
         </div>
       </div>

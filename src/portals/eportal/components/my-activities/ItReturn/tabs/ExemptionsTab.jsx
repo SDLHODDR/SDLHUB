@@ -1212,7 +1212,7 @@ const formatDateForDisplay = value => {
       ===================================================== */}
 
       {!isEditable && (
-        <div className='alert alert-warning mb-3'>
+        <div className='alert alert-danger mb-3'>
           IT Return editing is allowed only on
           configured dates.
         </div>
@@ -1223,7 +1223,7 @@ const formatDateForDisplay = value => {
             FORM
         =================================================== */}
 
-        <div className='alert alert-warning'>
+        <div className='alert alert-danger'>
           If annual rent paid exceeds Rs 1,00,000,
           landlord PAN is mandatory. If PAN is not
           provided, the rent will not be considered

@@ -488,10 +488,9 @@ const bankDetailsTab = ({ profile }) => {
 
         <button
           type="button"
-          className="btn btn-primary btn-sm"
+          className="btn btn-primary"
           onClick={handleEditBank}
         >
-          <i className="ti ti-edit me-1"></i>
           Update
         </button>
       </div>

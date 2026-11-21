@@ -15,6 +15,14 @@ import { TELEGRAM_ENABLED } from "../config/featureFlags";
 import TelegramHeaderMenu from "../../portals/telegram/new/TelegramHeaderMenu";
 import { fetchTelegramCounts } from "../../portals/telegram/store/telegramCountSlice";
 
+// A saved photo path whose file is missing falls back to the default picture (once, so it can't loop).
+const showDefaultAvatar = (event) => {
+  const img = event.currentTarget;
+  if (img.dataset.fallback) return;
+  img.dataset.fallback = "1";
+  img.src = STOREIMAGES.PROFILE.AVATAR_1;
+};
+
 const HeaderTop = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -371,6 +379,7 @@ const HeaderTop = () => {
                     src={headerImage || STOREIMAGES.PROFILE.AVATAR_1}
                     alt="Profile"
                     className="img-fluid"
+                    onError={showDefaultAvatar}
                   />
                 </span>
               </span>
@@ -382,6 +391,7 @@ const HeaderTop = () => {
                   <img
                     src={headerImage || STOREIMAGES.PROFILE.AVATAR_1}
                     alt="Profile"
+                    onError={showDefaultAvatar}
                   />
                 </span>
                 <div>
