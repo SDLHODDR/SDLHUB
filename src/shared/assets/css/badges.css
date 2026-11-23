@@ -1,6 +1,5 @@
+/* Success badges keep the same size as every other status badge
+   (Bootstrap .badge: 12px text, 0.35em 0.6em padding); only stop wrapping. */
 .eportal-success-badge {
-  padding: 4px 8px !important;
-  font-size: 11px !important;
-  line-height: 1.2;
   white-space: nowrap;
 }

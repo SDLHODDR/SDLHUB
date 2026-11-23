@@ -38,7 +38,9 @@ export const getOutdoorDutyActions = ({
     className: "btn-outline-danger",
     show: (row) => {
       const status = row.status?.trim()?.toUpperCase();
-      return ["A", "R"].includes(status) && row.dateTimePass >= 0;
+      // Old ePortal (gatepass.php): Approved, Rejected or In Process requests
+      // can be closed (cancelled) until the outdoor duty date has passed.
+      return ["A", "R", "T"].includes(status) && row.dateTimePass >= 0;
     },
     onClick: (row) => closeTicketGP(row.id),
   },
