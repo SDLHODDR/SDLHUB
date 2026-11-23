@@ -175,15 +175,18 @@ const handleSearch = (value) => {
             addedon:row.addedon,
             task: row.task,
             room_id: row.original?.DETAILS?.ROOM_ID || "",
-                    starttime: row.original?.DETAILS?.START_TIME || "",
-                    endtime: row.original?.DETAILS?.END_TIME || "",
+                    starttime: row.original?.DETAILS?.STARTTIME || row.original?.DETAILS?.START_TIME || "",
+                    endtime: row.original?.DETAILS?.ENDTIME || row.original?.DETAILS?.END_TIME || "",
             book_time: row.original?.DETAILS?.BOOK_TIME || "",
             noofattd: row.original?.DETAILS?.NOOF_ATTD || "",
             room_facl1: row.original?.DETAILS?.ROOM_FACL1 || "",
             room_facl2: row.original?.DETAILS?.ROOM_FACL2 || "",
             room_facl3: row.original?.DETAILS?.ROOM_FACL3 || "",
             divsn_id: row.original?.DETAILS?.DIVSN_ID || "",
-                book_by_name: row.original?.DETAILS?.BOOK_BY_NAME || "",
+                book_by_name: row.original?.DETAILS?.BOOK_BY_NAME
+                    ? `${row.original.DETAILS.BOOK_BY_EMP} - ${row.original.DETAILS.BOOK_BY_NAME}`
+                    : "",
+            divsn_desc: row.original?.DETAILS?.DIVSN_DESC || "",
     };
 
     //console.log("----------taskEmployeeConfig-----------", taskEmployeeConfig );
@@ -286,7 +289,7 @@ const handleSearch = (value) => {
               <SDLSearch
                 value={searchQuery}
                 onChange={handleSearch}
-                placeholder="Search Policies..."
+                placeholder="Search Bookings..."
                 style={{ width: "270px" }}
               />
             </div>
@@ -299,6 +302,7 @@ const handleSearch = (value) => {
               loading={loading}
               emptyMessage="No Tasks found"
               className="company-policies-grid"
+              tableStyle={{ width: "100%", minWidth: "900px", tableLayout: "fixed" }}
               removableSort
               onRowClick={(e) => handleRowClick(e.data)}
             />

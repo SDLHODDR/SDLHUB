@@ -1139,7 +1139,7 @@ const formatDateForDisplay = value => {
         'Are you sure you want to delete this exemption record?'
       )
 
-    if (!result?.isConfirmed) {
+    if (!result) {
       return
     }
 

@@ -142,7 +142,7 @@ const useAllowancesTabHandler = (organogramId, locId) => {
   const removeAllowanceRow = useCallback(
     async (row) => {
       const result = await confirmAction(`Delete allowance "${row.ALLOW_DESC}"?`);
-      if (!result?.isConfirmed) return;
+      if (!result) return;
 
       try {
         setDeletingId(row.ID);

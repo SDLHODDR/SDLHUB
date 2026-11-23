@@ -21,36 +21,46 @@
   }
 }
 
-.eportal-fit-table,
-.eportal-fit-table .p-datatable-wrapper,
-.eportal-fit-table .p-datatable-table-container {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-}
+/* "Fit to card" tables only on desktop; below 992px they scroll sideways
+   (see the responsive table rule in shared/assets/css/eportal.css). */
+@media (min-width: 992px) {
+  .eportal-fit-table,
+  .eportal-fit-table .p-datatable-wrapper,
+  .eportal-fit-table .p-datatable-table-container {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
 
-.eportal-fit-table .p-datatable-wrapper {
-  overflow-x: hidden !important;
-}
+  .eportal-fit-table .p-datatable-wrapper {
+    overflow-x: hidden !important;
+  }
 
-.eportal-fit-table .p-datatable-table {
-  width: 100% !important;
-  min-width: 100% !important;
-  max-width: 100%;
-  table-layout: fixed !important;
-}
+  .eportal-fit-table .p-datatable-table {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100%;
+    table-layout: fixed !important;
+  }
 
-.eportal-fit-table .p-datatable-thead > tr > th,
-.eportal-fit-table .p-datatable-tbody > tr > td {
-  white-space: normal !important;
-  overflow-wrap: anywhere;
-}
+  .eportal-fit-table .p-datatable-thead > tr > th,
+  .eportal-fit-table .p-datatable-tbody > tr > td {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+  }
 
-.eportal-fit-table .badge {
-  white-space: normal;
-  overflow-wrap: anywhere;
+  .eportal-fit-table .badge {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
 }
 
 .leaves-request-table .p-datatable-thead > tr > th:nth-child(6) .p-column-header-content {
   justify-content: center !important;
+}
+
+/* Outdoor Duty Authorization: column widths come from the column config,
+   so drop the shared 250px minimum on the 2nd column (Created By). */
+.company-policies-grid.od-auth-grid .p-datatable-tbody td:nth-child(2) {
+  min-width: 0;
 }

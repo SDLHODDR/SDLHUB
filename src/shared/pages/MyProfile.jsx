@@ -330,7 +330,7 @@ const [originalPersonalForm, setOriginalPersonalForm] = useState({
       PROFILE_MESSAGES.DELETE_FAMILY_MESSAGE(row.name)
     )
 
-    if (!result.isConfirmed) {
+    if (!result) {
       return;
     }
 

@@ -24,30 +24,39 @@ export const handleRowClick = (e, rowData, openModal) => {
 export const getOutdoorDutyAuthorizationColumns = (openModal, formatDashDate) => [
   {
     header: "Created On",
+    style: { width: "11%" },
     body: (rowData) => formatDashDate(rowData.CREATED_ON),
   },
   {
     header: "Created By",
+    style: { width: "17%" },
     body: (rowData) => rowData?.CREATED_BY || "-",
   },
   {
     header: "Outdoor Date",
+    style: { width: "11%" },
     body: (rowData) => formatDashDate(rowData.GPASS_DATE) || "-",
   },
   {
-    header: "OUT TYPE",
+    header: "Out Type",
+    style: { width: "13%" },
     body: (rowData) => OUT_TYPE_LABELS[rowData?.OUT_TYPE] || rowData?.OUT_TYPE || "-",
   },
   {
     field: "REMARKS",
-    header: "REMARKS",
+    header: "Remarks",
+    style: { width: "48%" },
     body: (rowData) => {
       const text = rowData?.REMARKS || "-";
-      const trimmed = text.length > 15 ? `${text.substring(0, 15)}...` : text;
+      // Up to two lines in the wider column, then "..."; full text on hover.
       return (
         <div className="remarks-wrapper">
-          <div className="remarks-main" title={text}>
-            {trimmed}
+          <div
+            className="remarks-main"
+            title={text}
+            style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", wordBreak: "break-word" }}
+          >
+            {text}
           </div>
         </div>
       );

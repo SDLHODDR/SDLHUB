@@ -2,6 +2,7 @@ import BreadcrumbNav from "../../../shared/components/BreadcrumbNav";
 import SDLDataTable from "../../../shared/components/datatable/SDLDataTable";
 import SDLSearch from "../../../shared/components/datatable/SDLSearch";
 import "../../../shared/assets/css/companyPolicies.css";
+import "../assets/css/wideContentPages.css";
 import OutdoorDutyAuthorizationModal from "../modal/OutdoorDutyAuthorizationModal";
 import { formatDashDate } from "../../../shared/utils/formatUtils";
 import { useOutdoorDutyAuthorizationHandler } from "./useOutdoorDutyAuthorizationHandler";
@@ -60,7 +61,8 @@ const OutdoorDutyAuthorization = () => {
               columns={columns}
               loading={loading}
               emptyMessage="No Tasks found"
-              className="company-policies-grid"
+              className="company-policies-grid od-auth-grid"
+              tableStyle={{ width: "100%", minWidth: "900px", tableLayout: "fixed" }}
               removableSort
               onRowClick={(e) => handleRowClick(e.originalEvent, e.data, openModal)}
             />

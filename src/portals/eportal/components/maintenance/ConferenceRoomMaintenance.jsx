@@ -1016,7 +1016,6 @@ const ConferenceRoomMaintenance = () => {
                       </>
                     ) : (
                       <>
-                        <i className="ti ti-device-floppy me-1"></i>
                         Update
                       </>
                     )}

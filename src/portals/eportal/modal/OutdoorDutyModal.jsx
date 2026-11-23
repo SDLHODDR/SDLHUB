@@ -713,12 +713,12 @@ const OutdoorDutyModal = ({
                         placeholder="Enter post remarks"
                       />
 
-                      <div className="char-counter">
-                        {getByteLength(formData.POST_REMARKS || "")} / {MAX_POST_REMARKS_BYTES}
-                      </div>
                       {errors.POST_REMARKS && (
                         <div className="invalid-feedback d-block">{errors.POST_REMARKS}</div>
                       )}
+                      <div className="char-counter">
+                        {getByteLength(formData.POST_REMARKS || "")} / {MAX_POST_REMARKS_BYTES}
+                      </div>
                     </div>
 
                     {/* Attachment — required alongside Post Remarks */}
@@ -795,10 +795,10 @@ const OutdoorDutyModal = ({
                           placeholder="Enter post remarks"
                         />
                       
-                      <div className="char-counter">{getByteLength(formData.POST_REMARKS || "")} / {MAX_POST_REMARKS_BYTES}</div>
                       {errors.POST_REMARKS && (
-                        <div className="invalid-feedback">{errors.POST_REMARKS}</div>
+                        <div className="invalid-feedback d-block">{errors.POST_REMARKS}</div>
                       )}
+                      <div className="char-counter">{getByteLength(formData.POST_REMARKS || "")} / {MAX_POST_REMARKS_BYTES}</div>
                     </div>
                   </div>
                 </div>

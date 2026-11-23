@@ -94,3 +94,11 @@ a.portal-item:focus {
   font-weight: 600;
   color: #212b36;
 }
+
+/* Character counters ("0 / 200") sit under the field on the right, small grey text. */
+.char-counter {
+  text-align: right;
+  font-size: 0.875em;
+  color: #666;
+  margin-top: 0.25rem;
+}

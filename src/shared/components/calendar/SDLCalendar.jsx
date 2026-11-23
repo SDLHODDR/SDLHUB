@@ -197,7 +197,7 @@ const SDLCalendar = ({
 
     const content = (
       <span
-        className={`sdl-calendar-day${holiday?.type === "W" || holiday?.type === "H" ? " sdl-calendar-day-holiday" : ""}${holiday?.type === "O" ? " sdl-calendar-day-optional" : ""}${isToday ? " sdl-calendar-day-today" : ""}`}
+        className={`sdl-calendar-day${holiday?.type === "W" ? " sdl-calendar-day-weekend" : ""}${holiday?.type === "H" ? " sdl-calendar-day-holiday" : ""}${holiday?.type === "O" ? " sdl-calendar-day-optional" : ""}${isToday ? " sdl-calendar-day-today" : ""}`}
       >
         {date.day}
       </span>
@@ -298,6 +298,14 @@ const SDLCalendar = ({
         baseZIndex={baseZIndex}
         panelClassName="sdl-calendar-panel"
       />
+      {/* Key for the day colours (inline calendars only). */}
+      {isInline && showHolidays && (
+        <div className="sdl-calendar-legend" aria-hidden="true">
+          <span><i className="sdl-legend-dot sdl-legend-weekend" />Weekend</span>
+          <span><i className="sdl-legend-dot sdl-legend-holiday" />Holiday</span>
+          <span><i className="sdl-legend-dot sdl-legend-optional" />Optional Holiday</span>
+        </div>
+      )}
     </div>
   );
 };

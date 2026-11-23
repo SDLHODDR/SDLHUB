@@ -18,7 +18,7 @@ export const createLeavesHandlers = ({ handleSuccess, openModal }) => {
 
   const deleteLR = async (id) => {
     const result = await confirmAction("Delete this Ticket Booking request?");
-    if (!result.isConfirmed) return;
+    if (!result) return;
 
     const response = await deleteLRData({ deleteLR: true, delteId: id });
     if (response?.status) {

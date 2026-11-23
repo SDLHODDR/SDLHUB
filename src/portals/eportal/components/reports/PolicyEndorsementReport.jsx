@@ -218,12 +218,12 @@ const PolicyEndorsementReport = () => {
     {
       header: "Mandatory",
       body: mandatoryBody,
-      style: { width: "8%", textAlign: "center" },
+      style: { width: "10%", textAlign: "center" },
     },
     {
       header: "Applicable To",
       body: applicableToTemplate,
-      style: { width: "22%" },
+      style: { width: "20%" },
     },
     {
       field: "target_employees",

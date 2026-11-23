@@ -11,7 +11,7 @@ export const createTicketBookingHandlers = ({ handleSuccess }) => {
       "Send for Authorization?"
     );
    
-    if (!result.isConfirmed) return;
+    if (!result) return;
 
     const response = await sendauthTBDataDetails({ ID: id, sendAuth: true });
     if (response?.status) {
@@ -25,7 +25,7 @@ export const createTicketBookingHandlers = ({ handleSuccess }) => {
   const resendAuth = async (id) => {
     const result = await confirmAction("Resend Authorization?");
     
-    if (!result.isConfirmed) return;
+    if (!result) return;
 
     const response = await resendauthTBDataDetails({ ID: id, resendAuth: true });
     if (response?.status) {
@@ -38,9 +38,9 @@ export const createTicketBookingHandlers = ({ handleSuccess }) => {
 
   const closeTicketTB = async (id) => {
     try {
-      const result = await confirmAction("Close Ticket Booking?");
+      const result = await confirmAction("Cancel this ticket?", "This will cancel the approved ticket booking.");
             
-      if (!result.isConfirmed) return;
+      if (!result) return;
 
       const response = await closeTBTicket({
         ID: id,

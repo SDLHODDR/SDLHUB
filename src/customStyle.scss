@@ -1204,8 +1204,10 @@ body {
   }
 }
 
+/* Only the header search is hidden on phones; page/table search boxes
+   (SDLSearch) stay visible so lists can still be filtered on mobile. */
 @media (max-width: 574.98px) {
-  .search-set {
+  .header .search-set {
     display: none;
   }
 }
@@ -2655,4 +2657,35 @@ textarea {
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+
+/* Phone header: logo sits next to the menu button (not centred) and the
+   notification / Telegram / tasks icons are narrower, so they never cover it. */
+@media (max-width: 575.98px) {
+  .header .header-left {
+    width: fit-content !important;
+    left: 60px;
+  }
+  .header .header-left .logo {
+    text-align: left;
+    width: auto;
+  }
+  .header .header-left .logo img {
+    width: 84px;
+  }
+  .header .mobile-notification {
+    right: 56px;
+    padding-right: 0;
+  }
+  .header .mobile-notification .authorization-dropdown,
+  .header .mobile-notification .sdlhub-notification {
+    min-width: 40px;
+  }
+  .header .mobile-notification .sdlhub-notification__trigger,
+  .header .mobile-notification .authorization-dropdown button {
+    width: 40px;
+  }
+  .header .mobile-notification > * {
+    min-width: 40px;
+  }
 }

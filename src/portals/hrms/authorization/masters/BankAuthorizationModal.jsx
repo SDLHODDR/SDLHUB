@@ -73,7 +73,7 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
       `Are you sure you want to ${isApprove ? "accept" : "reject"} this bank details request?`,
     );
 
-    if (!confirmRes?.isConfirmed) return;
+    if (!confirmRes) return;
 
     try {
       setActionLoading(decision);

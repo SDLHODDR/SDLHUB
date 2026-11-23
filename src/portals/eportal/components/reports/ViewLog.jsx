@@ -327,7 +327,7 @@ const ViewLog = () => {
         <div className="card-body">
           {/* ================= FILTERS ================= */}
 
-          <div className="row align-items-end mb-3">
+          <div className="row g-2 align-items-end mb-3">
             <div className="col-lg-3 col-md-4">
               <label className="form-label fw-semibold">Log Date</label>
 

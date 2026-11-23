@@ -142,7 +142,7 @@ export const useQuestionMasterHandler = ({
 
   const handleDelete = useCallback(async (row) => {
     const result = await confirmAction("Are you sure you want to Delete?");
-    if (!result?.isConfirmed) return;
+    if (!result) return;
 
     try {
       setDeletingId(row.ID);

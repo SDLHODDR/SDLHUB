@@ -159,15 +159,54 @@ body .p-datepicker.sdl-calendar-panel:not(.p-datepicker-inline) table td > span.
   opacity: 1 !important;
 }
 
-.sdl-calendar-day-holiday {
-  text-decoration: underline dotted;
-  text-decoration-color: #dc3545;
+/* Day markers: a soft tinted circle instead of an underline.
+   The colour is applied to PrimeReact's day cell (td > span) so the whole circle
+   is tinted; the selected day (p-highlight) keeps the orange theme colour. */
+.p-datepicker table td > span:has(.sdl-calendar-day-weekend):not(.p-highlight) {
+  background: #eef1f6 !important;
+  color: #7a8599 !important;
 }
 
-.sdl-calendar-day-optional {
-  text-decoration: underline dotted;
-  text-decoration-color: #ff9800;
+.p-datepicker table td > span:has(.sdl-calendar-day-holiday):not(.p-highlight) {
+  background: #fdeaea !important;
+  color: #d63939 !important;
+  font-weight: 600;
 }
+
+.p-datepicker table td > span:has(.sdl-calendar-day-optional):not(.p-highlight) {
+  background: #fff4e5 !important;
+  color: #d9822b !important;
+  box-shadow: inset 0 0 0 1px #f5c48a;
+  font-weight: 600;
+}
+
+/* Legend under inline calendars */
+.sdl-calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: #646b72;
+}
+
+.sdl-calendar-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sdl-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.sdl-legend-weekend { background: #eef1f6; border: 1px solid #cfd6e1; }
+.sdl-legend-holiday { background: #fdeaea; border: 1px solid #f1a9a9; }
+.sdl-legend-optional { background: #fff4e5; border: 1px solid #f5c48a; }
 
 /* =========================================================
    BOOTSTRAP MODAL OVERRIDE COMPATIBILITY
@@ -240,4 +279,12 @@ body > .tooltip {
 
 .sdl-table-loader .spinner-border {
   color: #ff9800 !important;
+}
+
+/* Today: orange ring in the theme colour (selected day stays solid orange). */
+.sdl-calendar-inline-wrapper .p-datepicker table td.p-datepicker-today > span:not(.p-highlight) {
+  background: #ffffff !important;
+  color: #fe9f43 !important;
+  box-shadow: inset 0 0 0 2px #fe9f43;
+  font-weight: 700;
 }

@@ -8,8 +8,15 @@ import EportalPageLoader from "../loader/EportalPageLoader";
 
 import {MY_DOCUMENTS_MESSAGES} from "../../constants/policies-documentsConstants";
 import SDLPageLoader from "../../../../shared/components/SDLPageLoader"
+import SDLTabsComponent from "../../../hrms/components/tabs/SDLTabsComponent";
+
+const DOC_TABS = [
+  { key: "payslips", label: "Payslips" },
+  { key: "documents", label: "My Documents" },
+];
 
 const MyDocuments = () => {
+  const [activeTab, setActiveTab] = useState("payslips");
   const [payslips, setPayslips] = useState([]);
   const [documents, setDocuments] = useState([]);
 
@@ -129,32 +136,12 @@ const MyDocuments = () => {
       <div className="card vh-100 eportal-wide-card">
         <div className="card-body">
 
-          <ul className="nav nav-tabs nav-tabs-bottom border-bottom mb-3">
-            <li className="nav-item">
-              <a
-                className="nav-link active"
-                href="#bottom-tab1"
-                data-bs-toggle="tab"
-              >
-                Payslips
-              </a>
-            </li>
-            <li className="nav-item">
-              <a
-                className="nav-link"
-                href="#bottom-tab2"
-                data-bs-toggle="tab"
-              >
-                My Documents
-              </a>
-            </li>
-          </ul>
-
+          <SDLTabsComponent tabs={DOC_TABS} selectedTab={activeTab} onTabChange={setActiveTab}>
           <div className="tab-content">
 
             {/* ================= PAYSLIPS TAB ====================== */}
 
-            <div className="tab-pane show active" id="bottom-tab1">
+            <div className={`tab-pane ${activeTab === "payslips" ? "show active" : ""}`} id="bottom-tab1">
               <div className="row h-100">
 
                 {/* LEFT LIST */}
@@ -244,7 +231,7 @@ const MyDocuments = () => {
 
             {/* ================= DOCUMENTS TAB ===================== */}
 
-            <div className="tab-pane" id="bottom-tab2">
+            <div className={`tab-pane ${activeTab === "documents" ? "show active" : ""}`} id="bottom-tab2">
               <div className="row h-100">
 
                 {/* LEFT LIST */}
@@ -329,6 +316,7 @@ const MyDocuments = () => {
             </div>
 
           </div>
+          </SDLTabsComponent>
         </div>
       </div>
     </>

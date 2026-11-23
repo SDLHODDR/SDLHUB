@@ -117,7 +117,7 @@ const PersonalInfoAuthorizationModal = ({
       `Are you sure you want to ${isApprove ? "accept" : "reject"} this personal/address change request?`,
     );
 
-    if (!confirmRes?.isConfirmed) return;
+    if (!confirmRes) return;
 
     try {
       setSubmittingAction(decision);

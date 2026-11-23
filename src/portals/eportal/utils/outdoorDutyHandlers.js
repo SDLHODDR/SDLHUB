@@ -14,7 +14,7 @@ export const createOutdoorDutyHandlers = ({ handleSuccess, openModal }) => {
     );
        
     
-        if (!result.isConfirmed) return;
+        if (!result) return;
     
         //try {
           const response = await sendauthGPDataDetails({
@@ -35,7 +35,7 @@ export const createOutdoorDutyHandlers = ({ handleSuccess, openModal }) => {
         "Resend Authorization?"
       );
        
-        if (!result.isConfirmed) return;
+        if (!result) return;
           const response = await resendauthGPDataDetails({
             ID: id,
             resendAuth: true
@@ -64,7 +64,7 @@ export const createOutdoorDutyHandlers = ({ handleSuccess, openModal }) => {
             "Close OutDoor Duty Request?"
           );
           
-          if (!result.isConfirmed) return;
+          if (!result) return;
 
           const response = await closeGPTicket({
             ID: id,

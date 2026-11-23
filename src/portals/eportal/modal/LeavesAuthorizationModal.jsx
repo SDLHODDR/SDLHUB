@@ -6,6 +6,12 @@ import SDLFormField from "../../../shared/components/form/SDLFormField"
 import SDLAuthorizationActionButtons from "../../../shared/components/buttons/SDLAuthorizationActionButtons";
 import moment from "moment";
 import AuthModalLeavesList from "./AuthModalLeavesList";
+import SDLTabsComponent from "../../hrms/components/tabs/SDLTabsComponent";
+
+const AUTH_TABS = [
+  { key: "request", label: "Leave Request" },
+  { key: "history", label: "Past History" },
+];
 
 const LeavesAuthorizationModal = ({
   leaves,
@@ -14,6 +20,13 @@ const LeavesAuthorizationModal = ({
   onSuccess,
 }) => {
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("request");
+  // Every time the popup opens, start on the Leave Request tab.
+  const [wasOpen, setWasOpen] = useState(isOpen);
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
+    if (isOpen) setActiveTab("request");
+  }
   /* ========================================= */
   /* COMMON LEAVE DATA */
   /* ========================================= */
@@ -198,22 +211,10 @@ const LeavesAuthorizationModal = ({
             <form>
               {/* Body */}
               <div className="modal-body">
-                <ul className="nav nav-tabs nav-tabs-bottom border-bottom mb-3">
-                <li className="nav-item">
-                  <a className="nav-link active" href="#bottom-tab1" data-bs-toggle="tab">
-                    Leave Request
-                  </a>
-                </li>
-
-                <li className="nav-item">
-                  <a className="nav-link" href="#bottom-tab2" data-bs-toggle="tab" >
-                    Past History
-                  </a>
-                </li>
-              </ul>
+                <SDLTabsComponent tabs={AUTH_TABS} selectedTab={activeTab} onTabChange={setActiveTab}>
                <div className="tab-content">
                 {/* TAB 1 */}
-                <div className="tab-pane show active" id="bottom-tab1" >
+                <div className={`tab-pane ${activeTab === "request" ? "show active" : ""}`} id="bottom-tab1">
                   <div className="card border-0 shadow-sm">
                     <div className="card-body py-3">
                       <div className="row">
@@ -237,7 +238,7 @@ const LeavesAuthorizationModal = ({
                               value={formData.AUTH_REMARKS || ""}
                               onChange={handleChange}
                             />
-                            <div className="char-counter">
+                            <div className="text-end small mt-1" style={{ color: getByteLength(formData.AUTH_REMARKS || "") > 180 ? "red" : "#666" }}>
                               {getByteLength(formData.AUTH_REMARKS || "")} / 200
                             </div>
                           </div>
@@ -247,10 +248,11 @@ const LeavesAuthorizationModal = ({
                   </div>
                 </div>
                  {/* TAB 2 */}
-                <div className="tab-pane" id="bottom-tab2">
+                <div className={`tab-pane ${activeTab === "history" ? "show active" : ""}`} id="bottom-tab2">
                   <AuthModalLeavesList dataSource={ leaveHistoryData } loading={loading} />
                 </div>
                </div>
+                </SDLTabsComponent>
                 
               </div>
               {/* Footer */}

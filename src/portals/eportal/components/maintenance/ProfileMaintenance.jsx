@@ -649,10 +649,10 @@ const ProfileMaintenance = () => {
         <div className="card-body profile-maintenance">
           {/* PROFILE SELECT */}
 
-          <div className="row align-items-center mb-4">
+          <div className="row align-items-center g-2 mb-4">
             {/* Left Side */}
-            <div className="col d-flex align-items-center gap-2">
-              <div className="profile-selector" style={{ width: "320px" }}>
+            <div className="col-12 col-sm d-flex align-items-center gap-2">
+              <div className="profile-selector" style={{ width: "320px", maxWidth: "100%", flex: "0 1 320px" }}>
                 <Dropdown
                   value={profileId}
                   options={profiles}
@@ -674,7 +674,7 @@ const ProfileMaintenance = () => {
             </div>
 
             {/* Right Side */}
-            <div className="col-auto ms-auto">
+            <div className="col-12 col-sm-auto ms-auto text-end">
               <button className="btn btn-primary" onClick={openAddProfile}>
                 Add Profile
               </button>

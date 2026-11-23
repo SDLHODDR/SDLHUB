@@ -21,13 +21,12 @@ export const getTicketBookingActions = ({
   },
   {
     key: "closeTicket",
-    label: "Close Ticket",
+    label: "Cancel Ticket",
     icon: "ti ti-x",
     className: "btn-outline-danger",
-    show: (row) => {
-      const status = row.status?.trim()?.toUpperCase();
-      return status !== "X" && status !== "N" && status !== "R";
-    },
+    // Same as old ePortal: cancel is offered only once the request is approved
+    // (that is when the admin's ticket-booking task 347 is created).
+    show: (row) => row.status?.trim()?.toUpperCase() === "A",
     onClick: (row) => closeTicketTB(row.id),
   },
 ];

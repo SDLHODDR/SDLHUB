@@ -125,6 +125,11 @@ const createFormData = (booking = {}) => ({
     booking.DIVSN_ID ||
     "",
 
+  divsn_desc:
+    booking.divsn_desc ||
+    booking.DIVSN_DESC ||
+    "",
+
   AUTH_REMARKS: "",
 });
 
@@ -701,11 +706,13 @@ const AuthCFRModal = ({
 
               <button
                 type="button"
-                className="btn-close"
+                className="btn-close custom-btn-close p-0"
                 onClick={onClose}
                 disabled={loading}
                 aria-label="Close"
-              />
+              >
+                <i className="ti ti-x" />
+              </button>
 
             </div>
 
@@ -860,7 +867,7 @@ const AuthCFRModal = ({
                     type="text"
                     className="form-control"
                     value={
-                      formData.divsn_id || "-"
+                      formData.divsn_desc || formData.divsn_id || "-"
                     }
                     disabled
                   />

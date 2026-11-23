@@ -182,7 +182,7 @@ export const usePolicyHandler = ({
 
   // const handlePublish = useCallback(async (row) => {
   //   const result = await confirmAction("Are you sure you want to Publish this policy?");
-  //   if (!result?.isConfirmed) return;
+  //   if (!result) return;
 
   //   try {
   //     const response = await publishPolicy({ ID: row.ID });
@@ -203,7 +203,7 @@ export const usePolicyHandler = ({
       const result = await confirmAction(
         'Are you sure you want to Publish this policy?'
       )
-      if (!result?.isConfirmed) return
+      if (!result) return
 
       try {
         const response = await publishPolicy({ ID: row.ID })
