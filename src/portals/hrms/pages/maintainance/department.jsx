@@ -285,9 +285,9 @@ const Department = () => {
       newErrors.DEPT_DESC = 'Department Name is required'
     } else if (deptDesc.length > 20) {
       newErrors.DEPT_DESC = 'Department Name cannot exceed 20 characters'
-    } else if (!/^[A-Za-z0-9\s]+$/.test(deptDesc)) {
+    } else if (!/^[A-Za-z0-9\s&/]+$/.test(deptDesc)) {
       newErrors.DEPT_DESC =
-        'Department Name must not contain special characters'
+        'Department Name can only contain letters, numbers, spaces, & and /'
     }
 
     setErrors(newErrors)

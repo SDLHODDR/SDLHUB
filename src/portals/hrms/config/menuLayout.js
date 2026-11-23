@@ -14,7 +14,6 @@ export const MENU_LAYOUT = {
     "organogram_visual.php", // Organogram Visual
     "designation_map.php", // Department - Designation Map
     "mst_tables_edit.php", // Masters Master
-    "org_edit3.php", // Organogram V3
     "policy_edit.php", // Policy List
     "kra_activity_edit.php", // KRA Activity
     "questions_edit.php", // Question Master
@@ -30,10 +29,20 @@ export const MENU_LAYOUT = {
   ],
 };
 
+/** Pages still in HR_MENU_SUB (the old HRMS uses them) that SDL Hub does not show. */
+export const HIDDEN_PAGES = new Set([
+  "org_edit3.php", // Organogram V3
+]);
+
 const pageOf = (child) => String(child.url || child.route || child.path || "").trim().replace(/^\/+/, "").toLowerCase();
 
 /** Menus with their children regrouped and ordered by MENU_LAYOUT. */
-export const arrangeMenus = (menus) => {
+export const arrangeMenus = (allMenus) => {
+  const menus = allMenus.map((menu) => ({
+    ...menu,
+    children: (menu.children || []).filter((child) => !HIDDEN_PAGES.has(pageOf(child))),
+  }));
+
   // A page moves only to a menu this user has; otherwise it stays where the database puts it.
   const labels = new Set(menus.map((menu) => menu.label));
   const home = {};

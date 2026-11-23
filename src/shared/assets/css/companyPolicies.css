@@ -272,3 +272,16 @@
     overflow: hidden;
     overflow-wrap: anywhere;
 }
+
+/* Add "fit-width-scroll-sm" to a fit-width grid whose fixed columns cannot all fit
+   on a tablet or phone: below 992px the columns keep readable widths and the grid
+   scrolls sideways inside the card instead of squeezing a column to nothing. */
+@media (max-width: 991.98px) {
+    .company-policies-grid.fit-width-grid.fit-width-scroll-sm .p-datatable-table {
+        min-width: 960px;
+    }
+
+    .company-policies-grid.fit-width-grid.fit-width-scroll-sm .p-datatable-tbody > tr > td {
+        overflow-wrap: normal;
+    }
+}

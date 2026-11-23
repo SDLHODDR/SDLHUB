@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
+import { Paginator } from 'primereact/paginator'
 import { getPortalFromPath } from '../../../../shared/config/portalConfig'
 import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
 import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
@@ -12,6 +13,9 @@ import { notifySuccess, notifyError } from '../../../../shared/services/alertSer
 import '../../assets/departmentDesignation.css'
 import SDLReactMultiSelect from '../../../../shared/components/form/SDLReactMultiSelect'
 import UpdateButton from '../../../../shared/components/buttons/UpdateButton'
+
+// Same page sizes as the shared data grid (SDLDataTable).
+const PAGE_SIZES = [10, 25, 50, 100]
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload
@@ -57,6 +61,8 @@ const DepartmentDesignationMap = () => {
 
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [first, setFirst] = useState(0)
+  const [pageSize, setPageSize] = useState(PAGE_SIZES[0])
 
   const [rows, setRows] = useState([])
   const [designations, setDesignations] = useState([])
@@ -168,6 +174,15 @@ const DepartmentDesignationMap = () => {
     )
   }, [rows, searchQuery])
 
+  // Back to page 1 if the current page no longer exists (fewer rows after a reload).
+  const pageStart = first < listData.length ? first : 0
+  const pageRows = listData.slice(pageStart, pageStart + pageSize)
+
+  const handleSearch = value => {
+    setSearchQuery(value)
+    setFirst(0)
+  }
+
   const handleSave = async row => {
     if (!row) return
 
@@ -228,7 +243,7 @@ const DepartmentDesignationMap = () => {
                 >
                   <SDLSearch
                     value={searchQuery}
-                    onChange={setSearchQuery}
+                    onChange={handleSearch}
                     placeholder='Search Department...'
                     className='mb-0'
                     style={{
@@ -265,9 +280,9 @@ const DepartmentDesignationMap = () => {
                         </td>
                       </tr>
                     ) : (
-                      listData.map((row, idx) => (
+                      pageRows.map((row, idx) => (
                         <tr key={row.ID || idx}>
-                          <td>{idx + 1}</td>
+                          <td>{pageStart + idx + 1}</td>
                           <td>{row.DEPT_CODE}</td>
                           <td>{row.DEPT_NAME}</td>
 
@@ -300,6 +315,21 @@ const DepartmentDesignationMap = () => {
                   </tbody>
                 </table>
               </div>
+
+              {listData.length > 0 && (
+                <Paginator
+                  first={pageStart}
+                  rows={pageSize}
+                  totalRecords={listData.length}
+                  rowsPerPageOptions={PAGE_SIZES}
+                  onPageChange={event => {
+                    setFirst(event.first)
+                    setPageSize(event.rows)
+                  }}
+                  template='FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown'
+                  dropdownAppendTo='self'
+                />
+              )}
             </div>
           </div>
         </div>

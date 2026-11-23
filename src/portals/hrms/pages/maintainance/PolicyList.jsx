@@ -5,7 +5,8 @@ import { getPolicyDataResponse } from '../../store/hrmsPolicySlice'
 import {
   getCompanyMaster,
   getDepartmentMaster,
-  getDivisionMaster
+  getDivisionMaster,
+  getPolicyDocUrl
 } from '../../services/policyService'
 import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
 import { getPortalFromPath } from '../../../../shared/config/portalConfig'
@@ -271,9 +272,8 @@ const PolicyList = () => {
     return parsed.toDate()
   }
 
-  const calendarMinDate = moment().startOf('month').toDate()
-
-  const calendarMaxDate = moment().add(1, 'month').endOf('month').toDate()
+  // Start and End Date: any date from today onwards (no upper limit).
+  const calendarMinDate = moment().startOf('day').toDate()
 
   const companyOptions = useMemo(
     () =>
@@ -467,7 +467,6 @@ const PolicyList = () => {
                               handleFieldChange('START_DATE', date)
                             }
                             minDate={calendarMinDate}
-                            maxDate={calendarMaxDate}
                             allowAllDates={true}
                             disabled={isPublished}
                           />
@@ -491,7 +490,6 @@ const PolicyList = () => {
                               handleFieldChange('END_DATE', date)
                             }
                             minDate={calendarMinDate}
-                            maxDate={calendarMaxDate}
                             allowAllDates={true}
                             disabled={isPublished}
                           />
@@ -529,7 +527,7 @@ const PolicyList = () => {
                           )}
                           {formData.DOC_PATH && !formData.doc && (
                             <a
-                              href={formData.DOC_PATH}
+                              href={getPolicyDocUrl(formData.ID)}
                               target='_blank'
                               rel='noopener noreferrer'
                               className='d-block mt-1'

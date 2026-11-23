@@ -22,16 +22,16 @@
    HEADER
 ====================================================== */
 
-.bg-primary {
+.policy-page .bg-primary {
     background: linear-gradient(90deg, #ff8a00, #ffb347) !important;
 }
 
-.bg-primary h4 {
+.policy-page .bg-primary h4 {
     font-size: 1.7rem;
     font-weight: 700;
 }
 
-.bg-primary small {
+.policy-page .bg-primary small {
     opacity: .95;
     font-size: .92rem;
 }
@@ -255,7 +255,7 @@ a:hover {
         padding: 1rem !important;
     }
 
-    .bg-primary h4 {
+    .policy-page .bg-primary h4 {
         font-size: 1.4rem;
     }
 
@@ -291,11 +291,11 @@ a:hover {
         padding: 14px 16px;
     }
 
-    .bg-primary {
+    .policy-page .bg-primary {
         padding: 20px !important;
     }
 
-    .bg-primary h4 {
+    .policy-page .bg-primary h4 {
         font-size: 1.3rem;
     }
 

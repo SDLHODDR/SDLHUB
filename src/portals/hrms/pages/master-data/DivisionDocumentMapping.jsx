@@ -575,24 +575,22 @@ const DivisionDocumentMapping = () => {
   ========================================================== */
 
   const validateDocumentMappings = () => {
-    const documentErrors = {}
-    let isValid = true
-
-    documents.forEach(document => {
-      const documentId = String(document.ID)
-
-      if (!documentMappings[documentId]?.value) {
-        documentErrors[documentId] = 'Please select Organization Location.'
-        isValid = false
-      }
-    })
-
+    // Each document is optional (as in the old HRMS); only those with a position
+    // selected are saved, so at least one is needed.
     setErrors(prev => ({
       ...prev,
-      documents: documentErrors
+      documents: {}
     }))
 
-    return isValid
+    const hasAny = documents.some(
+      document => documentMappings[String(document.ID)]?.value
+    )
+
+    if (!hasAny) {
+      notifyError('Select an organogram position for at least one document.')
+    }
+
+    return hasAny
   }
 
   /* ==========================================================

@@ -62,3 +62,7 @@ export const publishPolicy = async (payload = {}) => {
     data: payload,
   });
 };
+
+// The policy's document, streamed by the backend (DOC_PATH is a server path, not a URL).
+export const getPolicyDocUrl = (id) =>
+  `${import.meta.env.VITE_API_URL || ""}/hrms${HRMS_API.MAINTAINANCE.POLICY_DOC_VIEW}?id=${encodeURIComponent(id)}`;
