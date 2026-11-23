@@ -1,3 +1,4 @@
+import { policyDocUrl } from '../../../../shared/config/documentPaths'
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
@@ -529,7 +530,7 @@ const PolicyList = () => {
                           )}
                           {formData.DOC_PATH && !formData.doc && (
                             <a
-                              href={formData.DOC_PATH}
+                              href={policyDocUrl(formData.DOC_PATH)}
                               target='_blank'
                               rel='noopener noreferrer'
                               className='d-block mt-1'

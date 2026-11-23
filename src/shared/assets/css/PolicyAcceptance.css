@@ -61,13 +61,33 @@
    PDF
 ====================================================== */
 
+/* The document gets most of the screen: it no longer shrinks to make room for the
+   acceptance card below (the page scrolls down to that instead). */
 .pdf-card {
-    height: calc(100vh - 280px);
+    flex: 0 0 auto;
+    height: calc(100vh - 170px);
+    min-height: 560px;
 }
 
 iframe {
     background: #fff;
     display: block;
+}
+
+/* The viewer fills the whole card under its header. A percentage height on the
+   iframe does not resolve here (it fell back to the browser default of 150px),
+   so the body and the iframe stretch as flex items instead. */
+.pdf-card > .card-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.pdf-card > .card-body > iframe {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto !important;
 }
 
 /* ======================================================
@@ -244,7 +264,7 @@ a:hover {
 
     .pdf-card {
         min-height: 450px;
-        height: auto;
+        height: 75vh;
     }
 
     .policy-btn {
@@ -283,8 +303,10 @@ a:hover {
         padding: 12px;
     }
 
+    /* Phones show an "open document" button instead of the viewer. */
     .pdf-card {
         min-height: 260px;
+        height: auto;
     }
 
     .card-header {

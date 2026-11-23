@@ -47,3 +47,12 @@ export const downloadUrl = path => (path ? join(DOWNLOAD_BASE_URL, path) : '')
 /** A file under DOCUMENT_ROOT, streamed by the backend document viewer. */
 export const documentViewerUrl = path =>
   path ? `${DOCUMENT_VIEWER_URL}?file=${encodeURIComponent(cleanPath(path))}` : ''
+
+/**
+ * A policy document (HR_POLICY.DOC_PATH). The backend serves it from this server,
+ * or redirects to the legacy HRMS server for policies uploaded before SDL Hub.
+ */
+export const policyDocUrl = path =>
+  path
+    ? `${trimEnd(import.meta.env.VITE_API_URL)}/common/viewPolicyDocument.php?path=${encodeURIComponent(cleanPath(path))}`
+    : ''

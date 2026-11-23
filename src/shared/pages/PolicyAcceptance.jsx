@@ -9,7 +9,7 @@ import {
   getPendingPolicies,
   acceptPolicy,
 } from "../services/policyEndorsement";
-import { LEGACY_DOC_BASE_URL } from "../config/documentPaths";
+import { policyDocUrl } from "../config/documentPaths";
 
 const PolicyAcceptance = () => {
   const navigate = useNavigate();
@@ -30,7 +30,6 @@ const PolicyAcceptance = () => {
 
   const [selectedDate] = useState(new Date());
 
-  const HRMS_DOC_BASE_URL = `${LEGACY_DOC_BASE_URL}/`;
 
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < 768,
@@ -278,9 +277,7 @@ const PolicyAcceptance = () => {
 
                 {currentPolicy?.DOC_PATH && (
                   <a
-                    href={`${HRMS_DOC_BASE_URL}${encodeURI(
-                      currentPolicy.DOC_PATH
-                    )}`}
+                    href={policyDocUrl(currentPolicy.DOC_PATH)}
                     target="_blank"
                     rel="noreferrer"
                     className="text-decoration-none fw-semibold"
@@ -316,9 +313,7 @@ const PolicyAcceptance = () => {
                       </p>
 
                       <a
-                        href={`${HRMS_DOC_BASE_URL}${encodeURI(
-                          currentPolicy.DOC_PATH
-                        )}`}
+                        href={policyDocUrl(currentPolicy.DOC_PATH)}
                         target="_blank"
                         rel="noreferrer"
                         className="btn btn-primary"
@@ -329,9 +324,7 @@ const PolicyAcceptance = () => {
                   ) : (
                     <iframe
                       title="Policy Document"
-                      src={`${HRMS_DOC_BASE_URL}${encodeURI(
-                        currentPolicy.DOC_PATH
-                      )}`}
+                      src={policyDocUrl(currentPolicy.DOC_PATH)}
                       width="100%"
                       height="100%"
                       style={{

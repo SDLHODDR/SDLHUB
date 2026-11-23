@@ -20,7 +20,6 @@ export const EPORTAL_API = {
     GET_CONFERENCE_ROOM_BOOKINGS: "/conference/getConferenceRooms.php",
     GET_BOOKING_DROPDOWN_DATA: "/conference/getBookingDropdownData.php",
     GET_BOOKING_AUTHDROPDOWN_DATA: "/conference/getBookingAuthDropdownData.php",
-    CANCEL_CONFERENCE_BOOKING: "/conference/cancelConferenceBooking.php",
     CONFERENCE_ACTION: "/conference/conferenceAction.php",
     CONFERENCE_YEARLY: "/conference/getConferenceYearly.php",
     EXPORT_CONFERENCE_BOOKING_DATA: "conference/exportConferenceBookings.php",
@@ -54,7 +53,6 @@ export const EPORTAL_API = {
     GET_ATTENDANCE: "/getAttendance.php",
   },
   DASHBOARD: {
-    STATS: "/dashboard_stats.php",
     ATTENDANCE_LOG: "/dashboard/attendanceLog.php",
     ATTENDANCE_LOG1: "/dashboard/attendanceLog1.php",
     ATTENDANCE_10_DAYS: "/dashboard/attendanceLast10Days.php",
