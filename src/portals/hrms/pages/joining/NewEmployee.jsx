@@ -1269,7 +1269,7 @@ const NewEmployee = () => {
                   columns={draftColumns}
                   loading={draftsLoading}
                   emptyMessage='No saved employees'
-                  className='company-policies-grid fit-width-grid'
+                  className='company-policies-grid fit-width-grid fit-width-scroll-sm'
                   tableStyle={{ width: '100%' }}
                   removableSort
                 />

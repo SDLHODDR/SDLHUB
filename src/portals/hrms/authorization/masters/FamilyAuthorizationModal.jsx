@@ -97,7 +97,7 @@ const FamilyAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
       `Are you sure you want to ${isApprove ? "accept" : "reject"} this family detail change?`,
     );
 
-    if (!confirmRes?.isConfirmed) return;
+    if (!confirmRes) return;
 
     try {
       setSubmittingAction(decision);

@@ -114,25 +114,6 @@ const KRAActivity = () => {
     })
   }, [listKRAMasterData])
 
-  const activityMasterOptions = useMemo(() => {
-    const optionsById = new Map()
-
-    listData.forEach(activity => {
-      const id = String(activity.KRA_ID ?? '').trim()
-      if (!id || optionsById.has(id)) return
-
-      const master = masterOptions.find(option => option.id === id)
-      const label =
-        (master?.label && master.label !== '-' && master.label) ||
-        (activity.KRA_DESC !== '-' && activity.KRA_DESC) ||
-        id
-
-      optionsById.set(id, { id, label })
-    })
-
-    return Array.from(optionsById.values())
-  }, [listData, masterOptions])
-
   // Table-mode search — driven only by the visible SDLSearch box, unchanged
   // from before. Independent from the form-mode search below.
   const filteredData = useMemo(() => {
@@ -396,7 +377,9 @@ const KRAActivity = () => {
                     {/* <div className="fixWidth"> */}
                     <SDLReactSelect
                       value={selectedMasterId}
-                      options={activityMasterOptions.map(opt => ({
+                      // Every KRA master, not only those that already have
+                      // activities, so a master's first activity can be added.
+                      options={masterOptions.map(opt => ({
                         value: opt.id,
                         label: opt.label
                       }))}

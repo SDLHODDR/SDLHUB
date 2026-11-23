@@ -64,6 +64,21 @@ const SDLCalendar = ({
   const selectedDate = isControlled ? value ?? null : internalDate;
 
   /* =========================================================
+     MONTH SHOWN WHEN THE PICKER OPENS
+  ========================================================= */
+  // PrimeReact keeps the last month it showed, even after the value is cleared, so a
+  // form opened after editing an old record would start on that old month. Each time
+  // the popup opens it starts on the selected date, else today, kept within min/max.
+  const openingMonth = () => {
+    const picked = selectedDate instanceof Date && !Number.isNaN(selectedDate.getTime());
+    let date = picked ? new Date(selectedDate) : new Date();
+    if (minDate instanceof Date && date < minDate) date = new Date(minDate);
+    if (maxDate instanceof Date && date > maxDate) date = new Date(maxDate);
+    return date;
+  };
+  const [viewDate, setViewDate] = useState(openingMonth);
+
+  /* =========================================================
      LOAD CALENDAR DATA
   ========================================================= */
   useEffect(() => {
@@ -287,6 +302,9 @@ const SDLCalendar = ({
         disabled={disabled}
         minDate={minDate}
         maxDate={maxDate}
+        viewDate={isInline ? undefined : viewDate}
+        onViewDateChange={isInline ? undefined : (event) => setViewDate(event.value)}
+        onShow={isInline ? undefined : () => setViewDate(openingMonth())}
         dateFormat={dateFormat}
         locale={locale}
         dateTemplate={dateTemplate}

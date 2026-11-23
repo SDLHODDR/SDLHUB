@@ -141,8 +141,9 @@ export const useQuestionMasterHandler = ({
   }, [setSelectedPair, setIsEditing, setShowAll, setForm]);
 
   const handleDelete = useCallback(async (row) => {
-    const result = await confirmAction("Are you sure you want to Delete?");
-    if (!result?.isConfirmed) return;
+    // confirmAction resolves to true / false.
+    const confirmed = await confirmAction("Are you sure you want to Delete?");
+    if (!confirmed) return;
 
     try {
       setDeletingId(row.ID);

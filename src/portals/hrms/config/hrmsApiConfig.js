@@ -19,6 +19,7 @@ export const HRMS_API = {
     POLICY_SAVE: "/maintainance/policylist/savePolicies.php",
     POLICY_ASSOCIATIONS: "/maintainance/policylist/getPolicyAssociations.php",
     POLICY_PUBLISH: "/maintainance/policylist/getPolicyPublish.php",
+    POLICY_DOC_VIEW: "/maintainance/policylist/viewPolicyDoc.php",
     KRAACTIVITY_GET: "/maintainance/kraactivity/getKRAActivityList.php",
     KRAMASTER: "/maintainance/kraactivity/getKRAMaster.php",
     KRAACTIVITY_SAVE: "/maintainance/kraactivity/saveKRAActivity.php",

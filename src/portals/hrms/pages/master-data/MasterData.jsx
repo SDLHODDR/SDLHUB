@@ -215,8 +215,8 @@ const MasterData = () => {
       return `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters.`
     }
 
-    if (!/^[A-Za-z0-9\s]+$/.test(value)) {
-      return 'Description must not contain special characters.'
+    if (!/^[A-Za-z0-9\s-]+$/.test(value)) {
+      return 'Description can only contain letters, numbers, spaces and -.'
     }
 
     return ''

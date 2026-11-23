@@ -56,7 +56,7 @@ const OrganogramAuthorizationModal = ({
       isApprove ? "Approve Organogram?" : "Reject Organogram?",
       `Are you sure you want to ${isApprove ? "approve" : "reject"} this organogram request?`,
     );
-    if (!confirmation?.isConfirmed) return;
+    if (!confirmation) return;
 
     try {
       setSubmittingAction(decision);

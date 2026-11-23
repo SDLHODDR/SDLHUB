@@ -361,7 +361,7 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
       `Are you sure you want to request removal of ${row.name}? This will be sent for authorization.`
     );
 
-    if (!result?.isConfirmed) return;
+    if (!result) return;
 
     try {
       const res = await saveFamilyMember({

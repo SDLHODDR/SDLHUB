@@ -1,5 +1,21 @@
 import { eportalRequest } from "../../../shared/services/request"; // central handler
 import { EPORTAL_API } from "../config/eportalApiConfig";
+import { getPolicyDocUrl } from "../../hrms/services/policyService";
+
+// The APIs link documents to the old HRMS server, where files uploaded in SDL Hub do
+// not exist. Open them through the policy document endpoint instead: it serves the
+// file from this server, or sends older ones on to the old HRMS server.
+const withDocUrls = (response) =>
+  response?.status && Array.isArray(response.data)
+    ? {
+        ...response,
+        data: response.data.map((policy) =>
+          policy?.previewUrl && policy.policyId
+            ? { ...policy, previewUrl: getPolicyDocUrl(policy.policyId) }
+            : policy
+        ),
+      }
+    : response;
 
 /* ---------------------------
    POLICIES API
@@ -24,7 +40,7 @@ export const getPolicies = () =>
       status: false,
       data: []
     }
-  });
+  }).then(withDocUrls);
 
 
 export const getActivePolicies = () =>
@@ -47,4 +63,4 @@ export const getActivePolicies = () =>
       status: false,
       data: []
     }
-  });
+  }).then(withDocUrls);
