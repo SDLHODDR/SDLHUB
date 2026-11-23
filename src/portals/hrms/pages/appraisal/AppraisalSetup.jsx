@@ -216,9 +216,11 @@ const AppraisalSetup = () => {
                       columns={columns}
                       loading={listLoading}
                       emptyMessage='No data found'
-                      className='company-policies-grid fit-width-grid'
+                      className='company-policies-grid fit-width-grid fit-width-scroll-sm'
                       dataKey='id'
-                      rows={25}
+                      paginator
+                      paginatorTemplate='CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown'
+                      currentPageReportTemplate='Showing {first} to {last} of {totalRecords} entries'
                       tableStyle={{ width: '100%' }}
                     />
                   </>
