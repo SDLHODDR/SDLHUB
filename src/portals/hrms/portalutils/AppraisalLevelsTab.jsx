@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
+import SDLPageLoader from "../../../shared/components/SDLPageLoader";
 import SDLCalendar from "../../../shared/components/calendar/SDLCalendar";
 import SDLReactSelect from "../../../shared/components/form/SDLReactSelect";
 import useApprLevelTabHandler from "./useApprLevelTabHandler";
@@ -110,12 +111,14 @@ const AppraisalLevelsTab = ({ organogramId, organogramStatus, showAll, onCancelE
         </div>
       )}
 
+      {/* The common orange loader, not the grid's own grey overlay. */}
+      {isLoading && <SDLPageLoader />}
       <DataTable
         value={apprLevels}
-        loading={isLoading}
+        loading={false}
         dataKey="APPR_ORGID"
         size="small"
-        emptyMessage="No appraisal levels defined for this organogram."
+        emptyMessage={isLoading ? " " : "No appraisal levels defined for this organogram."}
       >
         {columns}
       </DataTable>

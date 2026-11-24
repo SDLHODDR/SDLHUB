@@ -152,53 +152,49 @@ const OrganogramAuthorizationModal = ({
               tabContent={tabContent}
             />
 
-            {selectedTab === "organogram" && (
-              <div className="mt-4 pt-3 border-top">
-                <label className="form-label fw-semibold">
-                  Authorization Remarks <span className="text-muted">(Required for Rejection)</span>
-                </label>
-                <textarea
-                  rows="3"
-                  className={`form-control ${remarkError ? "is-invalid" : ""}`}
-                  value={remarks}
-                  maxLength={200}
-                  placeholder="Enter approval/rejection remarks..."
-                  onChange={(event) => {
-                    setRemarks(event.target.value);
-                    if (event.target.value.trim()) setRemarkError("");
-                  }}
-                />
-                <div className="d-flex justify-content-between">
-                  <div className="invalid-feedback d-block">{remarkError}</div>
-                  <small className="text-muted ms-auto">{remarks.length}/200</small>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {selectedTab === "organogram" && (
-            <div className="modal-footer d-flex justify-content-end">
-              <div className="d-flex gap-2">
-                <button
-                  type="button"
-                  className="btn btn-success"
-                  onClick={() => handleDecision("A")}
-                  disabled={isSubmitting}
-                >
-                  {submittingAction === "A" ? "Processing..." : "Accept"}
-                </button>
-
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={() => handleDecision("R")}
-                  disabled={isSubmitting}
-                >
-                  {submittingAction === "R" ? "Processing..." : "Reject"}
-                </button>
+            <div className="mt-4 pt-3 border-top">
+              <label className="form-label fw-semibold">
+                Authorization Remarks <span className="text-muted">(Required for Rejection)</span>
+              </label>
+              <textarea
+                rows="3"
+                className={`form-control ${remarkError ? "is-invalid" : ""}`}
+                value={remarks}
+                maxLength={200}
+                placeholder="Enter approval/rejection remarks..."
+                onChange={(event) => {
+                  setRemarks(event.target.value);
+                  if (event.target.value.trim()) setRemarkError("");
+                }}
+              />
+              <div className="d-flex justify-content-between">
+                <div className="invalid-feedback d-block">{remarkError}</div>
+                <small className="text-muted ms-auto">{remarks.length}/200</small>
               </div>
             </div>
-          )}
+          </div>
+
+          <div className="modal-footer d-flex justify-content-end">
+            <div className="d-flex gap-2">
+              <button
+                type="button"
+                className="btn btn-success"
+                onClick={() => handleDecision("A")}
+                disabled={isSubmitting}
+              >
+                {submittingAction === "A" ? "Processing..." : "Accept"}
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={() => handleDecision("R")}
+                disabled={isSubmitting}
+              >
+                {submittingAction === "R" ? "Processing..." : "Reject"}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
