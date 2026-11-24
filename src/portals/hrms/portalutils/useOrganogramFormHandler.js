@@ -15,7 +15,7 @@ import {
   getOrgLocReportingRows,
   saveOrganogram,
 } from "../services/orgonogramService";
-import { notifyError, notifySuccess } from "../../../shared/services/alertService";
+import { notifyError, notifySuccess, notifyWarning } from "../../../shared/services/alertService";
 import { getHRMSAuthroizationTaskCount } from "../store/hrmsAuthorizationCountSlice";
 import { normalizeOrganogramStatus } from "./organogramStatus";
 
@@ -346,7 +346,7 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
           // Edit mode already knows its ID. Add mode needs it back from the API.
           // TODO: confirm the actual key your backend returns the new ID under —
           // assuming res.data.ID below; change if it's e.g. res.data.ORGANOGRAM_ID.
-          const savedId = organogramId ?? res?.data?.ID ?? res?.task_id ?? res?.data?.id ?? null;
+          const savedId = organogramId ?? res?.data?.OrgId ?? res?.data?.ID ?? null;
 
           const didSendForAuth = status === "T";
           notifySuccess(
@@ -356,6 +356,12 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
                 : "Organogram saved successfully."),
             { onClose: () => onOrganogramSaved?.(savedId) }
           );
+        } else if (res?.data?.OrgId) {
+          // Saved, but the send-for-authorization checks failed; the message gives the reason.
+          const savedId = organogramId ?? res.data.OrgId
+          notifyWarning(res.message, 'Not sent for authorization', {
+            onClose: () => onOrganogramSaved?.(savedId)
+          })
         } else {
           notifyError(res?.message || 'Unable to save organogram.', {
             onClose: onOrganogramSaved

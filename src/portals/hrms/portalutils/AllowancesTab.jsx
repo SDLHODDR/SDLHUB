@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
+import SDLPageLoader from "../../../shared/components/SDLPageLoader";
 import SDLCalendar from "../../../shared/components/calendar/SDLCalendar";
 import SDLReactMultiSelect from "../../../shared/components/form/SDLReactMultiSelect";
 import useAllowancesTabHandler from "./useAllowancesTabHandler";
 import { getAllowancesColumns, renderAllowancesColumns } from "./allowancesColumns";
 import { isOrganogramReadOnly } from "./organogramStatus";
 import { DATE_PICKER_FORMAT, DATE_PICKER_LOCALE } from "../../../shared/utils/commonUtils";
+import SaveButton from "../../../shared/components/buttons/SaveButton";
+import CancelButton from "../../../shared/components/buttons/CancelButton";
 
 const AllowancesTab = ({ organogramId, organogramStatus, locId, showAll, onCancelEdit }) => {
   const {
@@ -80,45 +83,26 @@ const AllowancesTab = ({ organogramId, organogramStatus, locId, showAll, onCance
               disabled={saving}
             />
           </div>
-          <div className="col-auto">
-            <button
-              type="button"
-              className="btn btn-primary"
+          <div className="col-12 d-flex justify-content-end gap-2 mt-3">
+            <SaveButton
               onClick={saveAllowanceForm}
-              disabled={!selectedAllowIds.length || !effectiveFrom || saving}
-            >
-              {saving ? "Saving..." : editingAllowanceId ? "Update" : "Save"}
-            </button>
-            {editingAllowanceId && (
-              <button
-                type="button"
-                className="btn btn-secondary ms-2"
-                onClick={handleCancel}
-                disabled={saving}
-              >
-                Cancel
-              </button>
-            )}
-            {!editingAllowanceId && (
-              <button
-                type="button"
-                className="btn btn-secondary ms-2"
-                onClick={handleCancel}
-                disabled={saving}
-              >
-                Cancel
-              </button>
-            )}
+              disabled={!selectedAllowIds.length || !effectiveFrom}
+              isSubmitting={saving}
+              isEditing={!!editingAllowanceId}
+            />
+            <CancelButton onClick={handleCancel} disabled={saving} />
           </div>
         </div>
       )}
 
+      {/* The common orange loader, not the grid's own grey overlay. */}
+      {(loadingRows || saving) && <SDLPageLoader />}
       <DataTable
         value={allowanceRows}
-        loading={loadingRows || saving}
+        loading={false}
         dataKey="ID"
         size="small"
-        emptyMessage="No data found"
+        emptyMessage={(loadingRows || saving) ? " " : "No data found"}
       >
         {columns}
       </DataTable>

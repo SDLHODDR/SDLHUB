@@ -200,10 +200,11 @@ export const usePolicyHandler = ({
 
   const handlePublish = useCallback(
     async row => {
-      const result = await confirmAction(
+      // confirmAction resolves to true / false.
+      const confirmed = await confirmAction(
         'Are you sure you want to Publish this policy?'
       )
-      if (!result) return
+      if (!confirmed) return
 
       try {
         const response = await publishPolicy({ ID: row.ID })

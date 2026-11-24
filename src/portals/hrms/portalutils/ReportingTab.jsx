@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
+import SDLPageLoader from "../../../shared/components/SDLPageLoader";
 import SDLCalendar from "../../../shared/components/calendar/SDLCalendar";
 import SDLReactSelect from "../../../shared/components/form/SDLReactSelect";
 import {
@@ -10,6 +11,8 @@ import {
 import useReportingTabHandler from "./useReportingTabHandler";
 import { getReportingColumns, renderReportingColumns } from "./reportingColumns";
 import { isOrganogramReadOnly } from "./organogramStatus";
+import SaveButton from "../../../shared/components/buttons/SaveButton";
+import CancelButton from "../../../shared/components/buttons/CancelButton";
 
 const ReportingTab = ({ organogramId, organogramStatus, locId, repId, showAll, onCancelEdit, onSaved }) => {
   const {
@@ -114,45 +117,26 @@ const ReportingTab = ({ organogramId, organogramStatus, locId, repId, showAll, o
               disabled={savingRow}
             />
           </div>
-          <div className="col-12 mt-3">
-            <button
-              type="button"
-              className="btn btn-primary"
+          <div className="col-12 d-flex justify-content-end gap-2 mt-3">
+            <SaveButton
               onClick={handleSave}
-              disabled={!selectedParentLocId || !newEffectiveFrom || savingRow}
-            >
-              {savingRow ? "Saving..." : isUpdating ? "Update" : "Save"}
-            </button>
-            {isUpdating && (
-              <button
-                type="button"
-                className="btn btn-secondary ms-2"
-                onClick={handleCancel}
-                disabled={savingRow}
-              >
-                Cancel
-              </button>
-            )}
-            {!isUpdating && (
-              <button
-                type="button"
-                className="btn btn-secondary ms-2"
-                onClick={handleCancel}
-                disabled={savingRow}
-              >
-                Cancel
-              </button>
-            )}
+              disabled={!selectedParentLocId || !newEffectiveFrom}
+              isSubmitting={savingRow}
+              isEditing={!!isUpdating}
+            />
+            <CancelButton onClick={handleCancel} disabled={savingRow} />
           </div>
         </div>
       )}
 
+      {/* The common orange loader, not the grid's own grey overlay. */}
+      {(loadingRows || savingRow) && <SDLPageLoader />}
       <DataTable
         value={reportingRows}
-        loading={loadingRows || savingRow}
+        loading={false}
         dataKey="ID"
         size="small"
-        emptyMessage="No data found"
+        emptyMessage={(loadingRows || savingRow) ? " " : "No data found"}
       >
         {columns}
       </DataTable>

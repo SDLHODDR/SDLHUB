@@ -1,6 +1,6 @@
-import { policyDocUrl } from '../../../shared/config/documentPaths'
 import { formatDashDate } from '../../../shared/utils/formatUtils'
 import EditButton from '../../../shared/components/buttons/EditButton'
+import { getPolicyDocUrl } from '../services/policyService'
 
 export const policyColumns = ({ handleEdit }) => [
   {
@@ -53,7 +53,7 @@ export const policyColumns = ({ handleEdit }) => [
     body: row =>
       row.DOC_PATH ? (
         <a
-          href={policyDocUrl(row.DOC_PATH)}
+          href={getPolicyDocUrl(row.ID)}
           target='_blank'
           rel='noopener noreferrer'
           aria-label='Download policy document'

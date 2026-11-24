@@ -61,8 +61,9 @@ export const useKRAActivityHandler = ({
 
   const handleDeleteActivity = useCallback(async (row) => {
     try {
-      const result = await confirmAction("Are you sure you want to Delete?");
-      if (!result) return;
+      // confirmAction resolves to true / false.
+      const confirmed = await confirmAction("Are you sure you want to Delete?");
+      if (!confirmed) return;
 
       setDeletingId(row.ID);
       const response = await deleteKRAActivity({ ID: row.ID });

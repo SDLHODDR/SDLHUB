@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const SDLTabsComponent = ({
   tabs = [],
@@ -83,11 +84,7 @@ const SDLTabsComponent = ({
   }
 
   if (loading) {
-    return (
-      <div className='text-center py-4'>
-        <span className='spinner-border' role='status' />
-      </div>
-    )
+    return <SDLPageLoader />
   }
 
   if (!tabs.length) {

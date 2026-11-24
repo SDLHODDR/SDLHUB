@@ -1,4 +1,5 @@
 import { DataTable } from "primereact/datatable";
+import SDLPageLoader from "../../../shared/components/SDLPageLoader";
 import { createPortal } from "react-dom";
 import { useState } from "react";
 import useLocationsTabHandler from "./useLocationsTabHandler";
@@ -21,10 +22,13 @@ const LocationsDataTable = ({
   const [page, setPage] = useState({ first: 0, rows: 10 });
 
   return (
+    <>
+    {/* The common orange loader, not the grid's own grey overlay. */}
+    {loading && <SDLPageLoader />}
     <DataTable
       key={`${organogramId}-${isEditing}-${tableVersion}`}
       value={locations}
-      loading={loading}
+      loading={false}
       dataKey='SNO'
       size='small'
       paginator={locations.length > page.rows}
@@ -38,10 +42,11 @@ const LocationsDataTable = ({
           isEditing
         );
       }}
-      emptyMessage='No positions defined for this organogram.'
+      emptyMessage={loading ? ' ' : 'No positions defined for this organogram.'}
     >
       {columns}
     </DataTable>
+    </>
   );
 };
 
