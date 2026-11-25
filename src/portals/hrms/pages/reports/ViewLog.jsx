@@ -31,6 +31,8 @@ const ViewLog = () => {
   const [selectedDate, setSelectedDate] = useState(today);
 
   const [logDate, setLogDate] = useState("");
+  // Shown in the table when a date has no logs (e.g. "No errors were logged on 02-Nov-2026.")
+  const [emptyMessage, setEmptyMessage] = useState("No log records found.");
 
   const [selectedLog, setSelectedLog] = useState(null);
 
@@ -131,6 +133,9 @@ const ViewLog = () => {
 
       if (response.status) {
         setLogs(response.logs || []);
+
+        // No logs for the date is a normal result, not an error: say so in the table.
+        setEmptyMessage(response.message || "No errors were logged on this date.");
 
         setLogDate(response.logDate || date);
       } else {
@@ -393,7 +398,7 @@ const ViewLog = () => {
             columns={columns}
             loading={loading}
             removableSort
-            emptyMessage="No log records found."
+            emptyMessage={emptyMessage}
           />
         </div>
       </div>

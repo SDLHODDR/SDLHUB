@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getPortalFromPath } from "../config/portalConfig";
 import {
   cancelAllRequests,
   createController,
@@ -187,6 +188,18 @@ const attachInterceptor = (instance) => {
 
         config.headers["X-CSRF-Token"] = csrfToken;
       }
+
+      /*
+      |--------------------------------------------------------------------------
+      | PORTAL
+      |--------------------------------------------------------------------------
+      | The portal the user is in (eportal / hrms / epp / sfm), taken from the URL.
+      | Shared endpoints (api/common/...) use it to write errors to that portal's log.
+      |--------------------------------------------------------------------------
+      */
+
+      config.headers = config.headers || {};
+      config.headers["X-Portal"] = getPortalFromPath(window.location.pathname).key;
 
       /*
       |--------------------------------------------------------------------------

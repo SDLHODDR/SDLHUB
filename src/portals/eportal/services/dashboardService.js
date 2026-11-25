@@ -56,6 +56,23 @@ export const getUpcomingBirthdays = () =>
     fallback: {},
   });
 
+/* Send a birthday wish (only on the colleague's birthday, once a year). Throws with the backend message. */
+export const sendBirthdayWish = (empCode, message) =>
+  eportalRequest({
+    url: EPORTAL_API.DASHBOARD.SEND_BIRTHDAY_WISH,
+    method: "POST",
+    data: { emp_code: empCode, message },
+  });
+
+/* Birthday wishes the logged-in employee received this year. */
+export const getBirthdayWishes = () =>
+  eportalRequest({
+    url: EPORTAL_API.DASHBOARD.BIRTHDAY_WISHES,
+    method: "GET",
+    dedupe: true,
+    fallback: { status: false, data: { count: 0, wishes: [] } },
+  });
+
 export const getITRemarks = () =>
   eportalRequest({
     url: EPORTAL_API.DASHBOARD.IT_REMARKS,

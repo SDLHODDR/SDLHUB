@@ -1,9 +1,20 @@
-import { IMAGES } from "../../../assets/assets";
+import { useContext, useState } from "react";
+import { STOREIMAGES } from "../../../../../shared/assets/assets";
+import AuthContext from "../../../../../shared/auth/AuthContext";
+import BirthdayWishModal from "../../../modal/BirthdayWishModal";
+
+// Same default picture as the header (person icon), not the grey "300 x 300" placeholder.
+const DEFAULT_AVATAR = STOREIMAGES.PROFILE.AVATAR_1;
 
 const UpcomingBirthdays = ({ data }) => {
   const todayDate = new Date();
   const todayDay = todayDate.getDate();
   const todayMonth = todayDate.toLocaleString("en-GB", { month: "short" });
+  const { user } = useContext(AuthContext) || {};
+
+  // Wishes sent in this session (emp_code -> message), so the card updates without a reload.
+  const [sentWishes, setSentWishes] = useState({});
+  const [wishFor, setWishFor] = useState(null);
 
   if (!data || Object.keys(data).length === 0) return null;
 
@@ -31,10 +42,35 @@ const UpcomingBirthdays = ({ data }) => {
 
               {/* Employees Grid */}
               <div className="emp-grid">
-                {employees.map((emp) => (
+                {employees.map((emp) => {
+                  const wish = sentWishes[emp.emp_code] ?? emp.message;
+                  const isMe = String(emp.emp_code) === String(user?.empcode ?? "");
+
+                  // Wishes can be sent on the birthday or in advance: the card lists
+                  // birthdays up to 7 days ahead, the same window the backend allows.
+                  const openWish = () => {
+                    if (isMe) return;
+                    setWishFor({
+                      ...emp,
+                      message: wish,
+                      birthdayLabel: isToday ? null : formatDate(date),
+                    });
+                  };
+
+                  return (
                   <div
                     key={emp.emp_code}
-                    className={`emp-card ${isToday ? "today" : ""}`}
+                    className={`emp-card ${isToday ? "today" : ""} ${isMe ? "" : "clickable"}`}
+                    role={isMe ? undefined : "button"}
+                    tabIndex={isMe ? undefined : 0}
+                    title={isMe ? undefined : wish ? "View your wish" : "Send a birthday wish"}
+                    onClick={openWish}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        openWish();
+                      }
+                    }}
                   >
                     {isToday && (
                       <div className="today-badge">Today</div>
@@ -42,14 +78,13 @@ const UpcomingBirthdays = ({ data }) => {
 
                     <div className="avatar-ring">
                       <img
-                        src={
-                          emp.profile_image || IMAGES.DEFAULTAVTAR
-                        }
+                        src={emp.profile_image || DEFAULT_AVATAR}
                         alt={emp.name}
-                        onError={(e) =>
-                        (e.target.src =
-                          IMAGES.DEFAULTAVTAR)
-                        }
+                        onError={(e) => {
+                          if (e.currentTarget.src !== DEFAULT_AVATAR) {
+                            e.currentTarget.src = DEFAULT_AVATAR;
+                          }
+                        }}
                       />
                     </div>
 
@@ -59,18 +94,44 @@ const UpcomingBirthdays = ({ data }) => {
                     >
                       {emp.name}
                     </div>
+
+                    {/* One wish per colleague per birthday; on the day or in advance. */}
+                    {!isMe && (
+                      <button
+                        type="button"
+                        className={`btn btn-sm mt-2 wish-btn ${wish ? "btn-outline-primary" : "btn-primary"}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openWish();
+                        }}
+                      >
+                        <i className={`ti ${wish ? "ti-check" : "ti-cake"} me-1`} />
+                        {wish ? "Wished" : "Send a Wish"}
+                      </button>
+                    )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           );
         })}
       </div>
 
+      {wishFor && (
+        <BirthdayWishModal
+          employee={wishFor}
+          onClose={() => setWishFor(null)}
+          onSent={(code, text) =>
+            setSentWishes((prev) => ({ ...prev, [code]: text }))
+          }
+        />
+      )}
+
       {/* Styles */}
       <style>{`
         .birthday-widget {
-          background: linear-gradient(180deg, #ffffff, #f5f7ff);
+          background: linear-gradient(180deg, #ffffff, #fffaf5);
           overflow: hidden;
         }
 
@@ -146,10 +207,14 @@ const UpcomingBirthdays = ({ data }) => {
           position: relative;
         }
 
+        /* Highlight on hover without moving the card */
         .emp-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 8px 18px rgba(0,0,0,0.08);
-          background: #eef2ff;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          background: #fff6ed; /* light theme orange */
+        }
+
+        .emp-card.today:hover {
+          background: linear-gradient(135deg, #fff3cd, #ffe69c);
         }
 
         /* AVATAR */
@@ -159,7 +224,7 @@ const UpcomingBirthdays = ({ data }) => {
           margin: 0 auto 6px;
           border-radius: 50%;
           padding: 3px;
-          background: linear-gradient(135deg, #6f42c1, #0d6efd);
+          background: #fe9f43; /* theme orange (same as btn-primary) */
           position: relative;
         }
 
@@ -168,7 +233,7 @@ const UpcomingBirthdays = ({ data }) => {
           position: absolute;
           inset: -4px;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(13,110,253,0.2), transparent);
+          background: radial-gradient(circle, rgba(254,159,67,0.2), transparent);
           z-index: -1;
         }
 
@@ -194,6 +259,16 @@ const UpcomingBirthdays = ({ data }) => {
         .emp-card.today {
           background: linear-gradient(135deg, #fff3cd, #ffe69c);
           border: 1px solid #ffda6a;
+        }
+
+        .emp-card.clickable {
+          cursor: pointer;
+        }
+
+        .wish-btn {
+          font-size: 11.5px;
+          padding: 2px 8px;
+          white-space: nowrap;
         }
 
         .today-badge {

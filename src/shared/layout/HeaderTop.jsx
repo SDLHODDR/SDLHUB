@@ -11,6 +11,7 @@ import { getHRMSAuthroizationTaskCount } from "../../portals/hrms/store/hrmsAuth
 import { PORTALS, getPortalFromPath } from "../config/portalConfig";
 import PortalSwitcher from "./PortalSwitcher";
 import SDLHUBNotification from "./SDLHUBNotification";
+import ReceivedWishes from "../../portals/eportal/components/birthday/ReceivedWishes";
 import { TELEGRAM_ENABLED } from "../config/featureFlags";
 import TelegramHeaderMenu from "../../portals/telegram/new/TelegramHeaderMenu";
 import { fetchTelegramCounts } from "../../portals/telegram/store/telegramCountSlice";
@@ -343,6 +344,12 @@ const HeaderTop = () => {
           <span className="welcome-user">{user?.name || "Guest User"}</span>
 
           {/* {successCnt && <AuthorizationDropdown />} */}
+          {/* Birthday wishes received (ePortal only; hidden when there are none) */}
+          {activePortal.key === "eportal" && (
+            <li className="nav-item nav-item-box">
+              <ReceivedWishes />
+            </li>
+          )}
           <li className="nav-item nav-item-box">
             <SDLHUBNotification />
           </li>
@@ -427,6 +434,7 @@ const HeaderTop = () => {
 
         {/* Mobile Notification + Dropdown */}
         <div className="mobile-notification d-flex align-items-center d-lg-none">
+          {activePortal.key === "eportal" && <ReceivedWishes />}
           <SDLHUBNotification />
           {TELEGRAM_ENABLED && (
             <TelegramHeaderMenu mobile />

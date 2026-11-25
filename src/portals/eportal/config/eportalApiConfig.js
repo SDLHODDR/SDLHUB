@@ -59,6 +59,8 @@ export const EPORTAL_API = {
     LEAVE_SUMMARY: "/dashboard/leaveSummary.php",
     WORK_SUMMARY: "/dashboard/workSummary.php",
     BIRTHDAYS: "/dashboard/birthdays.php",
+    SEND_BIRTHDAY_WISH: "/dashboard/sendBirthdayWish.php",
+    BIRTHDAY_WISHES: "/dashboard/birthdayWishes.php",
     ALERTS: "/dashboard/dashboardAlerts.php",
     IT_REMARKS: "/dashboard/itRemarks.php",
     ACCESS_DATA: "/dashboard/getDashboardAccessData.php"
