@@ -12,6 +12,7 @@ import CancelButton from "../../../../shared/components/buttons/CancelButton";
 import { getHRMSAuthroizationTaskCount} from "../../store/hrmsAuthorizationCountSlice";
 import { useDispatch } from "react-redux";
 import { notifyError, notifySuccess } from "../../../../shared/services/alertService";
+import { isAllowedInput } from "../../../../shared/validation";
 
 const emptyAssessment = {
   ratings: {},
@@ -721,7 +722,7 @@ const TenureChangeAssessmentModal = ({
                         aria-invalid={Boolean(periodInputError || validationErrors.period)}
                         onChange={(event) => {
                           const value = event.target.value;
-                          if (!/^\d*$/.test(value)) {
+                          if (!isAllowedInput(value, { allow: "digits" })) {
                             setPeriodInputError(
                               "Period must be a whole number.",
                             );
@@ -762,7 +763,7 @@ const TenureChangeAssessmentModal = ({
                         value={assessment.proposedCtc}
                         onChange={(event) => {
                           const value = event.target.value;
-                          if (!/^\d*$/.test(value)) {
+                          if (!isAllowedInput(value, { allow: "digits" })) {
                             setProposedCtcInputError(
                               "Proposed CTC must be a whole number.",
                             );

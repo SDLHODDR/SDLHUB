@@ -1,3 +1,4 @@
+import { validateEmail, validateMobile, validatePattern } from "../../../../validation";
 import { useState } from "react";
 
 import {
@@ -263,19 +264,11 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
 
     switch (field) {
       case "mobile":
-        if (!fieldValue) {
-          error = "Mobile number is required.";
-        } else if (!/^[0-9]{10}$/.test(fieldValue)) {
-          error = "Please enter a valid 10 digit mobile number.";
-        }
+        error = validateMobile(fieldValue, { required: true });
         break;
 
       case "personalEmail":
-        if (!fieldValue) {
-          error = "Personal email is required.";
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fieldValue)) {
-          error = "Please enter a valid email address.";
-        }
+        error = validateEmail(fieldValue, { required: true, label: "personal email" });
         break;
 
       case "maritalStatus":
@@ -285,11 +278,12 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
         break;
 
       case "otp":
-        if (!fieldValue) {
-          error = "OTP is required.";
-        } else if (!/^[0-9]{5}$/.test(fieldValue)) {
-          error = "Please enter a valid 5 digit OTP.";
-        }
+        error = validatePattern(fieldValue, {
+          required: true,
+          label: "OTP",
+          pattern: /^\d{5}$/,
+          messages: { invalid: "Please enter a valid 5 digit OTP." },
+        });
         break;
 
       default:

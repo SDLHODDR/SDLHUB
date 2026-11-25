@@ -1,4 +1,5 @@
 import { useMemo, useState, useRef } from "react";
+import { validateAadhaar } from "../../../../validation";
 
 import SDLDataTable from "../../../../components/datatable/SDLDataTable";
 import SDLSearch from "../../../../components/datatable/SDLSearch";
@@ -515,21 +516,12 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
     /* -------------------------------------------------------
        AADHAAR VALIDATION
     ------------------------------------------------------- */
-    const aadhaar = familyForm.aadhaar?.trim();
+    // optional; when filled in: digits only, 12 digits, not starting with 0 or 1
+    const aadhaarError = validateAadhaar(familyForm.aadhaar);
 
-    if (aadhaar) {
-      if (!/^\d+$/.test(aadhaar)) {
-        notifyError(PROFILE_MESSAGES.AADHAAR_DIGITS_ONLY);
-        return;
-      }
-      if (aadhaar.length !== 12) {
-        notifyError(PROFILE_MESSAGES.AADHAAR_LENGTH);
-        return;
-      }
-      if (/^[01]/.test(aadhaar)) {
-        notifyError(PROFILE_MESSAGES.AADHAAR_INVALID);
-        return;
-      }
+    if (aadhaarError) {
+      notifyError(aadhaarError);
+      return;
     }
 
     /* -------------------------------------------------------

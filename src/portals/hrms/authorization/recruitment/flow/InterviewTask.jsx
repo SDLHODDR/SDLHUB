@@ -7,14 +7,14 @@ import { parseDateValue, toDateInputValue } from '../../../../../shared/utils/co
 import RecruitmentModal from '../../../pages/recruitment/RecruitmentModal'
 import { ActionError, Detail, FlowSummary } from './flowShared'
 import { useFlowTask } from './useFlowTask'
+import { validateTime } from '../../../../../shared/validation'
 
 const TASK_SCHEDULE = 8
 const TASK_CONFIRMATION = 16
-const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
 const pad2 = n => String(n).padStart(2, '0')
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, i) => ({ value: pad2(i), label: pad2(i) }))
 const MINUTE_OPTIONS = Array.from({ length: 60 }, (_, i) => ({ value: pad2(i), label: pad2(i) }))
-// "HH:MM" once both parts are chosen; a half-filled time fails TIME_PATTERN on submit.
+// "HH:MM" once both parts are chosen; a half-filled time fails validateTime on submit.
 const joinTime = (hour, minute) => (hour || minute ? `${hour || ''}:${minute || ''}` : '')
 const OUTCOMES = [
   { value: 'C', label: 'Candidate confirmed the interview' }
@@ -157,7 +157,8 @@ const InterviewTask = ({ taskId, title, record, onClose, onSuccess }) => {
   const validSchedule = needOutcome => {
     const next = {}
     if (!form.date) next.date = 'Interview date is required.'
-    if (!TIME_PATTERN.test(form.time)) next.time = 'Please enter the time as HH:MM.'
+    const timeError = validateTime(form.time, { required: true, message: 'Please enter the time as HH:MM.' })
+    if (timeError) next.time = timeError
     if (!form.mode) next.mode = 'Please select the interview mode.'
     if (needOutcome && !form.outcome) next.outcome = "Please select the candidate's response."
     setErrors(next)

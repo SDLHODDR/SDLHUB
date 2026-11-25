@@ -10,8 +10,10 @@ import { getAppraiserResponse, getFinalAppraisal, processFinalAppraisal } from '
 import RecruitmentModal from '../recruitment/RecruitmentModal'
 import '../../assets/css/appraisal.css'
 import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
+import { validateDecimal } from '../../../../shared/validation'
 
-const INCREMENT_PATTERN = /^\d{1,7}(\.\d{1,2})?$/
+// Monthly increment: up to 7 digits, 2 decimals
+const INCREMENT_RULES = { required: true, maxIntDigits: 7, maxDecimals: 2 }
 const REMARK_MAX = 4000
 
 const rupees = value => (value ? Number(value).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '-')
@@ -183,7 +185,7 @@ const FinalAppraisal = () => {
       notifyError('Please select one or more employees!')
       return
     }
-    const invalid = chosen.filter(employee => !INCREMENT_PATTERN.test(String(edits[employee.code].increment).trim()))
+    const invalid = chosen.filter(employee => validateDecimal(edits[employee.code].increment, INCREMENT_RULES))
     if (invalid.length) {
       notifyError(`Please enter a valid monthly increment for: ${invalid.map(employee => employee.name).join(', ')}`)
       return

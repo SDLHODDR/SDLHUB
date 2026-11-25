@@ -25,6 +25,7 @@ import CancelButton from '../../../../shared/components/buttons/CancelButton'
 import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import SDLInput from '../../../../shared/components/form/SDLInput'
 import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
+import { validateFields, validateText } from '../../../../shared/validation'
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload
@@ -265,30 +266,15 @@ const Department = () => {
     const deptDesc = String(formData.DEPT_DESC || '').trim()
 
     // Department Code
-    if (!deptCode) {
-      newErrors.DEPT_CODE = 'Department Code is required'
-    } else if (deptCode.length > 5) {
-      newErrors.DEPT_CODE = 'Department Code cannot exceed 5 characters'
-    } else if (!/^\d+$/.test(deptCode)) {
-      newErrors.DEPT_CODE = 'Department Code must contain numbers only'
-    }
-
-    // Short Code
-    if (shortCode.length > 5) {
-      newErrors.SHORT_CODE = 'Short Code cannot exceed 5 characters'
-    } else if (shortCode && !/^[A-Za-z]+$/.test(shortCode)) {
-      newErrors.SHORT_CODE = 'Short Code must contain alphabets only'
-    }
-
-    // Department Name
-    if (!deptDesc) {
-      newErrors.DEPT_DESC = 'Department Name is required'
-    } else if (deptDesc.length > 20) {
-      newErrors.DEPT_DESC = 'Department Name cannot exceed 20 characters'
-    } else if (!/^[A-Za-z0-9\s&/]+$/.test(deptDesc)) {
-      newErrors.DEPT_DESC =
-        'Department Name can only contain letters, numbers, spaces, & and /'
-    }
+    const errors = validateFields(
+      { DEPT_CODE: deptCode, SHORT_CODE: shortCode, DEPT_DESC: deptDesc },
+      {
+        DEPT_CODE: [validateText, { label: 'Department Code', required: true, allow: 'digits', max: 5 }],
+        SHORT_CODE: [validateText, { label: 'Short Code', allow: 'letters', max: 5 }],
+        DEPT_DESC: [validateText, { label: 'Department Name', required: true, allow: 'alphanumeric', spaces: true, extra: '&/', max: 20 }]
+      }
+    )
+    Object.assign(newErrors, errors)
 
     setErrors(newErrors)
 

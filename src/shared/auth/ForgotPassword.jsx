@@ -6,6 +6,7 @@ import {
   resetPassword,
 } from "../services/authService";
 import { LOGOS, IMAGES } from "../assets/assets";
+import { isAllowedInput } from "../validation";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const ForgotPassword = () => {
   const [timer, setTimer] = useState(60);
 
   const handleOtpChange = (value, index) => {
-    if (!/^\d?$/.test(value)) return; // only numbers
+    if (!isAllowedInput(value, { allow: "digits", maxLength: 1 })) return; // one digit per box
 
     const newOtp = [...otpValues];
     newOtp[index] = value;

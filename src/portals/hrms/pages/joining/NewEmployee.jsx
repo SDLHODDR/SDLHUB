@@ -37,6 +37,7 @@ import {
   toOptions
 } from './joiningFormUtils'
 import JoiningDetailTab from './JoiningDetailTabs'
+import { validateEmail, validateFields, validateMobile } from '../../../../shared/validation'
 
 const TABS = [
   { key: 'personal', label: 'Personal' },
@@ -145,7 +146,6 @@ const NAME_MAX = 25 // EPP employee name columns
 const CITY_MAX = 50
 const EMAIL_MAX = 50
 const ADDRESS_MAX = 300
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const DIGIT_LIMITS = {
   CURRENT_PINCODE: 6,
@@ -554,15 +554,16 @@ const NewEmployee = () => {
     Object.entries(REQUIRED_PERSONAL).forEach(([field, label]) => {
       if (!String(form[field] || '').trim()) next[field] = `${label} is required.`
     })
-    if (form.MOBILE_NUMBER && form.MOBILE_NUMBER.length !== 10) {
-      next.MOBILE_NUMBER = 'Mobile number must be 10 digits.'
-    }
-    if (form.PERSONAL_EMAIL && !EMAIL_PATTERN.test(form.PERSONAL_EMAIL)) {
-      next.PERSONAL_EMAIL = 'Please enter a valid email.'
-    }
-    if (form.COMPANY_EMAIL && !EMAIL_PATTERN.test(form.COMPANY_EMAIL)) {
-      next.COMPANY_EMAIL = 'Please enter a valid email.'
-    }
+    // required-ness comes from REQUIRED_PERSONAL above; these check format when filled in
+    const formatErrors = validateFields(form, {
+      MOBILE_NUMBER: [validateMobile],
+      PERSONAL_EMAIL: [validateEmail, { label: 'personal email' }],
+      // variant "company": HRMS can restrict domains in shared/validation/portalRules.js ("email.company")
+      COMPANY_EMAIL: [validateEmail, { label: 'company email', variant: 'company' }],
+    })
+    Object.entries(formatErrors).forEach(([field, error]) => {
+      if (!next[field]) next[field] = error
+    })
     if (form.DATE_OF_BIRTH && form.DATE_OF_BIRTH >= toDateValue(new Date())) {
       next.DATE_OF_BIRTH = 'Date of birth must be in the past.'
     }

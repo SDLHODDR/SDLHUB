@@ -12,6 +12,7 @@ import { notifyError, notifySuccess } from "../../../shared/services/alertServic
 //import Select from "react-select";
 import SDLReactSelect from "../../../shared/components/form/SDLReactSelect";
 import SDLPageLoader from "../../../shared/components/SDLPageLoader"
+import { validateTime } from "../../../shared/validation"
 
 const TicketBookingModal = ({
   formSettings,
@@ -348,10 +349,7 @@ const TicketBookingModal = ({
   // ===========================
   // Time helpers
   // ===========================
-  const isValidTime = (time) => {
-    const regex = /^(?:[01]\d|2[0-3]):[0-5]\d$|^24:00$/;
-    return regex.test(time);
-  };
+  const isValidTime = (time) => !validateTime(time, { required: true, allow24: true });
 
   // const toMinutes = (time) => {
   //   const [h, m] = time.split(":").map(Number);

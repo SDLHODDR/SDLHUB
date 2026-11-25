@@ -26,6 +26,7 @@ import {
 } from './exitOptions'
 import '../../../../shared/assets/css/companyPolicies.css'
 import '../../assets/css/tenureChange.css'
+import { validateEmail } from '../../../../shared/validation'
 
 
 const COMMENTS_MAX_LENGTH = 2000
@@ -41,7 +42,6 @@ const EMPTY_FORM = {
   status: ''
 }
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const RequiredMark = () => <span className='text-danger'>*</span>
 
@@ -123,8 +123,9 @@ const SeparationRequest = () => {
     if (!form.empCode) next.empCode = 'Employee is required.'
     if (!form.resignType) next.resignType = 'Resignation type is required.'
     if (!form.resignMode) next.resignMode = 'Resignation mode is required.'
-    if (form.resignMode === 'E' && !EMAIL_PATTERN.test(form.recipientEmail.trim())) {
-      next.recipientEmail = 'Please enter a valid email address.'
+    if (form.resignMode === 'E') {
+      const emailError = validateEmail(form.recipientEmail, { required: true })
+      if (emailError) next.recipientEmail = emailError
     }
     if (!form.resignationDate) next.resignationDate = 'Resignation date is required.'
     if (!form.expectedRelievingDate) {

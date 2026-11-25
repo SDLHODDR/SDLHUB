@@ -19,6 +19,7 @@ import '../assets/css/conferencebookingmodal.css'
 import SDLCalendar from '../../../shared/components/calendar/SDLCalendar'
 import { CONFERENCE_MESSAGES } from '../constants/conferenceMessages'
 import { getAuthroizationTaskCount } from '../store/ePortalAuthorizationCountSlice'
+import { isAllowedInput } from '../../../shared/validation'
 
 /* ============================================================
    DEFAULT FORM DATA
@@ -1082,7 +1083,7 @@ const ConferenceBookingModal = ({
                     onPaste={e => {
                       const pasted = e.clipboardData.getData('text')
 
-                      if (!/^\d+$/.test(pasted)) {
+                      if (!pasted || !isAllowedInput(pasted, { allow: 'digits' })) {
                         e.preventDefault()
                       }
                     }}

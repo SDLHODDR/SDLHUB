@@ -21,6 +21,7 @@ import { toOptions } from './joiningFormUtils'
 import '../../../../shared/assets/css/companyPolicies.css'
 import '../../assets/css/tenureChange.css'
 import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
+import { validateDigits } from '../../../../shared/validation'
 
 const EMPTY_FORM = {
   etypeId: '',
@@ -182,9 +183,8 @@ const RehireEmployee = () => {
     Object.entries(REQUIRED_FIELDS).forEach(([field, label]) => {
       if (!form[field]) next[field] = `${label} is required.`
     })
-    if (form.etypePeriod && !/^\d+$/.test(form.etypePeriod)) {
-      next.etypePeriod = 'Period must be a whole number of months.'
-    }
+    const periodError = validateDigits(form.etypePeriod, { message: 'Period must be a whole number of months.' })
+    if (periodError) next.etypePeriod = periodError
     if (form.effFrom && employee.dolIso && form.effFrom <= employee.dolIso) {
       next.effFrom = `Effective from must be after the leaving date (${employee.dolDate}).`
     }

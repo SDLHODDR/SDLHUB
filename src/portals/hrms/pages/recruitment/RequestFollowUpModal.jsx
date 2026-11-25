@@ -6,9 +6,10 @@ import { parseDateValue, toDateInputValue } from '../../../../shared/utils/commo
 import { notifySuccess } from '../../../../shared/services/alertService'
 import { REMARK_MAX_LENGTH } from './recruitmentOptions'
 import { getRequestFollowUps, saveFollowUp } from '../../services/recruitmentService'
+import { validateEmail, validateMobile } from '../../../../shared/validation'
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const MOBILE_PATTERN = /^[0-9+\- ]{7,20}$/
+// Candidate numbers may carry a country code, spaces or dashes.
+const MOBILE_RULES = { required: true, allowCountryCode: true, allowSeparators: true, minDigits: 7, maxDigits: 15, message: 'Please enter a valid mobile number.' }
 
 /* Candidate-search log of a request: people contacted who are not in the system yet.
    Legacy pending_recruitments.php followUp(reqId). */
@@ -54,8 +55,10 @@ const RequestFollowUpModal = ({ request, onClose }) => {
     const next = {}
     if (!form.date) next.date = 'Date is required.'
     if (!form.name.trim()) next.name = 'Candidate name is required.'
-    if (!MOBILE_PATTERN.test(form.mobile.trim())) next.mobile = 'Please enter a valid mobile number.'
-    if (!EMAIL_PATTERN.test(form.email.trim())) next.email = 'Please enter a valid email address.'
+    const mobileError = validateMobile(form.mobile, MOBILE_RULES)
+    if (mobileError) next.mobile = mobileError
+    const emailError = validateEmail(form.email, { required: true, message: 'Please enter a valid email address.' })
+    if (emailError) next.email = emailError
     if (!form.remarks.trim()) next.remarks = 'Remarks are required.'
     setErrors(next)
     if (Object.keys(next).length) return

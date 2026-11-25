@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { saveDeptActivity, deleteDeptActivity } from "../services/departmentActivityService";
 import { notifySuccess, notifyError, confirmAction } from "../../../shared/services/alertService";
+import { validateDigits } from "../../../shared/validation";
 
 export const useDepartmentActivityHandler = ({
   form,
@@ -37,17 +38,14 @@ export const useDepartmentActivityHandler = ({
       newErrors.ACT_DESC = "Department Activity must not exceed 100 characters";
     }
 
-    const seqRaw = String(form.DISP_SEQ).trim();
-    if (!seqRaw) {
-      newErrors.DISP_SEQ = "Sequence is required";
-    } else if (!/^\d+$/.test(seqRaw)) {
-      newErrors.DISP_SEQ = "Sequence must be a whole number";
-    } else {
-      const seqNum = Number(seqRaw);
-      if (seqNum < 1 || seqNum > 100) {
-        newErrors.DISP_SEQ = "Sequence must be between 1 and 100";
-      }
-    }
+    const seqError = validateDigits(form.DISP_SEQ, {
+      label: "Sequence",
+      required: true,
+      minValue: 1,
+      maxValue: 100,
+      messages: { invalid: "Sequence must be a whole number" },
+    });
+    if (seqError) newErrors.DISP_SEQ = seqError;
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

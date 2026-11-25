@@ -5,6 +5,7 @@ import { formatDate } from '../../../../shared/utils/commonUtils'
 import { notifySuccess } from '../../../../shared/services/alertService'
 import { REMARK_MAX_LENGTH } from './recruitmentOptions'
 import { getScreenRemark, saveScreenRemark } from '../../services/recruitmentService'
+import { validateDigits } from '../../../../shared/validation'
 
 const EMPTY = { expectedSalary: '', currentAge: '', relevantExperience: '', qualification: '', screenRemark: '' }
 const REQUIRED = {
@@ -61,7 +62,10 @@ const CandidateScreenModal = ({ candidate, onClose, onSaved }) => {
       if (!String(form[field]).trim()) next[field] = message
     })
     NUMERIC.forEach(field => {
-      if (!next[field] && !/^\d+$/.test(form[field].trim())) next[field] = 'Please enter a number only.'
+      if (!next[field]) {
+        const error = validateDigits(form[field], { required: true })
+        if (error) next[field] = error
+      }
     })
     setErrors(next)
     if (Object.keys(next).length) return

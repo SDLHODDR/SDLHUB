@@ -14,6 +14,7 @@ import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
 import SDLInput from '../../../../shared/components/form/SDLInput'
 import SDLCalendar from '../../../../shared/components/calendar/SDLCalendar'
 import { parseDateValue } from '../../../../shared/utils/commonUtils'
+import { filterInput } from '../../../../shared/validation'
 import { employeeDocumentUrl } from '../../services/newEmployeeService'
 
 const toDateInputValue = date => {
@@ -344,296 +345,50 @@ const EmployeeData = () => {
     PREVIOUS_LEAVE_REASON: 100
   }
 
+  const NUMERIC_MAX_LENGTHS = {
+    CURRENT_PINCODE: 6,
+    PERMANENT_PINCODE: 6,
+    TELEPHONE: 11,
+    MOBILE_NUMBER: 10,
+    EMERGENCY_CONTACT: 10,
+    TENURE_PERIOD: 2
+  }
+
+  // Typing rule for each field group: which characters are allowed and the max length
+  const getFilterRule = name => {
+    if (nameAndCityFields.includes(name)) return { allow: 'letters', spaces: true, maxLength: 15 }
+    if (numericFields.includes(name)) return { allow: 'digits', maxLength: NUMERIC_MAX_LENGTHS[name] ?? 10 }
+    if (emailFields.includes(name)) return { allow: 'any', maxLength: 15 } // no spaces
+
+    if (basicDetailsNumericFields.includes(name)) return { allow: 'digits', maxLength: basicDetailsMaxLengths[name] }
+    if (basicDetailsAlphaNumericFields.includes(name)) return { allow: 'alphanumeric', maxLength: basicDetailsMaxLengths[name] }
+    if (basicDetailsAlphaFields.includes(name)) return { allow: 'letters', spaces: true, maxLength: basicDetailsMaxLengths[name] }
+
+    if (bankNumericFields.includes(name)) return { allow: 'digits', maxLength: bankMaxLengths[name] }
+    if (bankAlphaNumericFields.includes(name)) return { allow: 'alphanumeric', maxLength: bankMaxLengths[name] }
+    if (bankAlphaFields.includes(name)) return { allow: 'letters', spaces: true, maxLength: bankMaxLengths[name] }
+
+    if (qualificationAlphaFields.includes(name)) return { allow: 'letters', spaces: true, extra: ".'", maxLength: qualificationMaxLengths[name] }
+    if (qualificationGradeFields.includes(name)) return { allow: 'alphanumeric', decimal: true, maxLength: qualificationMaxLengths[name] }
+
+    if (experienceCompanyFields.includes(name)) return { allow: 'alphanumeric', spaces: true, extra: ".'", maxLength: experienceMaxLengths[name] }
+    if (experienceAlphaNumericFields.includes(name)) return { allow: 'alphanumeric', spaces: true, maxLength: experienceMaxLengths[name] }
+    if (experienceSalaryFields.includes(name)) return { allow: 'digits', decimal: true, maxLength: experienceMaxLengths[name] }
+
+    return null
+  }
+
   const handleFieldChange = (name, value) => {
     let updatedValue = value
     let error = ''
 
-    // -----------------------------
-    // NAME + CITY FIELDS
-    // -----------------------------
-    if (nameAndCityFields.includes(name)) {
-      if (value.length > 15) {
-        error = 'Maximum 15 characters allowed'
-      }
-
-      if (/[^A-Za-z\s]/.test(value)) {
-        error = 'Only alphabets are allowed'
-      }
-
-      // Keep only valid characters and maximum length
-      updatedValue = value.replace(/[^A-Za-z\s]/g, '').slice(0, 15)
-    }
-
-    // -----------------------------
-    // NUMERIC FIELDS
-    // -----------------------------
-    if (numericFields.includes(name)) {
-      if (/\D/.test(value)) {
-        error = 'Only numbers are allowed'
-      }
-
-      let maxLength = 10
-
-      if (name === 'CURRENT_PINCODE' || name === 'PERMANENT_PINCODE') {
-        maxLength = 6
-      }
-
-      if (name === 'TELEPHONE') {
-        maxLength = 11
-      }
-
-      if (name === 'MOBILE_NUMBER' || name === 'EMERGENCY_CONTACT') {
-        maxLength = 10
-      }
-
-      if (name === 'TENURE_PERIOD') {
-        maxLength = 2
-      }
-
-      if (value.length > maxLength) {
-        error = `Maximum ${maxLength} digits allowed`
-      }
-
-      updatedValue = value.replace(/\D/g, '').slice(0, maxLength)
-    }
-
-    // -----------------------------
-    // EMAIL FIELDS
-    // -----------------------------
-    if (emailFields.includes(name)) {
-      if (/\s/.test(value)) {
-        error = 'Spaces are not allowed'
-      }
-
-      if (value.length > 15) {
-        error = 'Maximum 15 characters allowed'
-      }
-
-      updatedValue = value.replace(/\s/g, '').slice(0, 15)
-    }
-
-    // -----------------------------
-    // EMAIL FIELDS
-    // -----------------------------
-    if (emailFields.includes(name)) {
-      if (/\s/.test(value)) {
-        error = 'Spaces are not allowed'
-      }
-
-      if (value.length > 15) {
-        error = 'Maximum 15 characters allowed'
-      }
-
-      updatedValue = value.replace(/\s/g, '').slice(0, 15)
-    }
-
-    // -----------------------------
-    // BASIC DETAILS - NUMERIC
-    // -----------------------------
-    if (basicDetailsNumericFields.includes(name)) {
-      const maxLength = basicDetailsMaxLengths[name]
-
-      if (/\D/.test(value)) {
-        error = 'Only numbers are allowed'
-      }
-
-      if (value.length > maxLength) {
-        error = `Maximum ${maxLength} digits allowed`
-      }
-
-      updatedValue = value.replace(/\D/g, '').slice(0, maxLength)
-    }
-
-    // -----------------------------
-    // BASIC DETAILS - ALPHANUMERIC
-    // -----------------------------
-    if (basicDetailsAlphaNumericFields.includes(name)) {
-      const maxLength = basicDetailsMaxLengths[name]
-
-      if (/[^A-Za-z0-9]/.test(value)) {
-        error = 'Only letters and numbers are allowed'
-      }
-
-      if (value.length > maxLength) {
-        error = `Maximum ${maxLength} characters allowed`
-      }
-
-      updatedValue = value.replace(/[^A-Za-z0-9]/g, '').slice(0, maxLength)
-    }
-
-    // -----------------------------
-    // BASIC DETAILS - ALPHABETIC
-    // -----------------------------
-    if (basicDetailsAlphaFields.includes(name)) {
-      const maxLength = basicDetailsMaxLengths[name]
-
-      if (/[^A-Za-z\s]/.test(value)) {
-        error = 'Only letters are allowed'
-      }
-
-      if (value.length > maxLength) {
-        error = `Maximum ${maxLength} characters allowed`
-      }
-
-      updatedValue = value.replace(/[^A-Za-z\s]/g, '').slice(0, maxLength)
-    }
-
-    // -----------------------------
-    // BANK DETAILS - NUMERIC
-    // -----------------------------
-    if (bankNumericFields.includes(name)) {
-      const maxLength = bankMaxLengths[name]
-
-      if (/\D/.test(value)) {
-        error = 'Only numbers are allowed'
-      }
-
-      if (value.length > maxLength) {
-        error = `Maximum ${maxLength} digits allowed`
-      }
-
-      updatedValue = value.replace(/\D/g, '').slice(0, maxLength)
-    }
-
-    // -----------------------------
-    // BANK DETAILS - ALPHANUMERIC
-    // -----------------------------
-    if (bankAlphaNumericFields.includes(name)) {
-      const maxLength = bankMaxLengths[name]
-
-      if (/[^A-Za-z0-9]/.test(value)) {
-        error = 'Only letters and numbers are allowed'
-      }
-
-      if (value.length > maxLength) {
-        error = `Maximum ${maxLength} characters allowed`
-      }
-
-      updatedValue = value.replace(/[^A-Za-z0-9]/g, '').slice(0, maxLength)
-    }
-
-    // -----------------------------
-    // BANK DETAILS - ALPHABETIC
-    // -----------------------------
-    if (bankAlphaFields.includes(name)) {
-      const maxLength = bankMaxLengths[name]
-
-      if (/[^A-Za-z\s]/.test(value)) {
-        error = 'Only letters are allowed'
-      }
-
-      if (value.length > maxLength) {
-        error = `Maximum ${maxLength} characters allowed`
-      }
-
-      updatedValue = value.replace(/[^A-Za-z\s]/g, '').slice(0, maxLength)
-    }
-
-    // -----------------------------
-    // QUALIFICATION DETAILS - ALPHABETIC
-    // -----------------------------
-    if (qualificationAlphaFields.includes(name)) {
-      const maxLength = qualificationMaxLengths[name]
-
-      if (/[^A-Za-z.'\s]/.test(value)) {
-        error = 'Only letters are allowed'
-      }
-
-      if (value.length > maxLength) {
-        error = `Maximum ${maxLength} characters allowed`
-      }
-
-      updatedValue = value.replace(/[^A-Za-z.'\s]/g, '').slice(0, maxLength)
-    }
-
-    // -----------------------------
-    // QUALIFICATION DETAILS - GRADE
-    // -----------------------------
-    if (qualificationGradeFields.includes(name)) {
-      const maxLength = qualificationMaxLengths[name]
-
-      if (!/^[A-Za-z0-9.]*$/.test(value)) {
-        error = 'Only letters, numbers and decimal point are allowed'
-      }
-
-      // Only one decimal point is allowed
-      if ((value.match(/\./g) || []).length > 1) {
-        error = 'Only one decimal point is allowed'
-      }
-
-      if (value.length > maxLength) {
-        error = `Maximum ${maxLength} characters allowed`
-      }
-
-      updatedValue = value.replace(/[^A-Za-z0-9.]/g, '').slice(0, maxLength)
-
-      // Keep only the first decimal point if multiple are entered
-      const decimalParts = updatedValue.split('.')
-
-      if (decimalParts.length > 2) {
-        updatedValue = `${decimalParts[0]}.${decimalParts.slice(1).join('')}`
-      }
-    }
-
-    // -----------------------------
-    // EXPERIENCE - ORGANIZATION NAME
-    // -----------------------------
-    if (experienceCompanyFields.includes(name)) {
-      const maxLength = experienceMaxLengths[name]
-
-      if (/[^A-Za-z0-9.'\s]/.test(value)) {
-        error = 'Only letters, numbers, spaces and "\'" are allowed'
-      }
-
-      if (value.length > maxLength) {
-        error = `Maximum ${maxLength} characters allowed`
-      }
-
-      updatedValue = value.replace(/[^A-Za-z0-9.'\s]/g, '').slice(0, maxLength)
-    }
-
-    // -----------------------------
-    // EXPERIENCE - ALPHANUMERIC
-    // -----------------------------
-    if (experienceAlphaNumericFields.includes(name)) {
-      const maxLength = experienceMaxLengths[name]
-
-      if (/[^A-Za-z0-9\s]/.test(value)) {
-        error = 'Only letters and numbers are allowed'
-      }
-
-      if (value.length > maxLength) {
-        error = `Maximum ${maxLength} characters allowed`
-      }
-
-      updatedValue = value.replace(/[^A-Za-z0-9\s]/g, '').slice(0, maxLength)
-    }
-
-    // -----------------------------
-    // EXPERIENCE - GROSS SALARY
-    // -----------------------------
-    if (experienceSalaryFields.includes(name)) {
-      const maxLength = experienceMaxLengths[name]
-
-      if (!/^[0-9.]*$/.test(value)) {
-        error = 'Only numbers and decimal point are allowed'
-      }
-
-      if ((value.match(/\./g) || []).length > 1) {
-        error = 'Only one decimal point is allowed'
-      }
-
-      if (value.length > maxLength) {
-        error = `Maximum ${maxLength} characters allowed`
-      }
-
-      updatedValue = value.replace(/[^0-9.]/g, '').slice(0, maxLength)
-
-      const decimalParts = updatedValue.split('.')
-
-      if (decimalParts.length > 2) {
-        updatedValue = `${decimalParts[0]}.${decimalParts.slice(1).join('')}`
-      }
+    // Allowed characters + max length for the field (shared/validation filterInput)
+    const filterRule = getFilterRule(name)
+
+    if (filterRule) {
+      const filtered = filterInput(value, filterRule)
+      updatedValue = filtered.value
+      error = filtered.error
     }
 
     // -----------------------------

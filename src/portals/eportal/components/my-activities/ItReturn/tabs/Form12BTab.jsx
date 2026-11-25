@@ -14,6 +14,7 @@ import {
 import { ITR_MESSAGES } from "../../../../constants/itrMessages";
 
 import SDLCalendar from '../../../../../../shared/components/calendar/SDLCalendar'
+import { validatePAN, validateTAN } from '../../../../../../shared/validation'
 
 export const Form12BTab = ({ editable }) => {
 
@@ -297,37 +298,31 @@ export const Form12BTab = ({ editable }) => {
         /* -----------------------------------------
            TAN
         ----------------------------------------- */
-        if (!String(formData.tanNumber || "").trim()) {
+        const tanError = validateTAN(formData.tanNumber, {
+            required: true,
+            messages: {
+                required: "TAN Number is required",
+                invalid: "Enter valid TAN Number",
+            },
+        });
 
-            newErrors.tanNumber =
-                "TAN Number is required";
-
-        } else if (
-            !/^[A-Z]{4}[0-9]{5}[A-Z]$/i.test(
-                formData.tanNumber.trim()
-            )
-        ) {
-
-            newErrors.tanNumber =
-                "Enter valid TAN Number";
+        if (tanError) {
+            newErrors.tanNumber = tanError;
         }
 
         /* -----------------------------------------
            PAN
         ----------------------------------------- */
-        if (!String(formData.panNumber || "").trim()) {
+        const panError = validatePAN(formData.panNumber, {
+            required: true,
+            messages: {
+                required: "PAN Number is required",
+                invalid: "Enter valid PAN Number",
+            },
+        });
 
-            newErrors.panNumber =
-                "PAN Number is required";
-
-        } else if (
-            !/^[A-Z]{5}[0-9]{4}[A-Z]$/i.test(
-                formData.panNumber.trim()
-            )
-        ) {
-
-            newErrors.panNumber =
-                "Enter valid PAN Number";
+        if (panError) {
+            newErrors.panNumber = panError;
         }
 
         /* -----------------------------------------

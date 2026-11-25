@@ -12,9 +12,7 @@ export const PROFILE_MESSAGES = {
 
   FAMILY_REQUIRED_FIELDS: "Name and Relation are required.",
 
-  AADHAAR_DIGITS_ONLY: "Aadhaar number must contain only digits",
-  AADHAAR_LENGTH: "Aadhaar number must be 12 digits",
-  AADHAAR_INVALID: "Invalid Aadhaar number",
+  // Aadhaar messages now come from shared/validation (validateAadhaar)
 
   DUPLICATE_FAMILY:
     "Family member already exists with same Name and Relation",

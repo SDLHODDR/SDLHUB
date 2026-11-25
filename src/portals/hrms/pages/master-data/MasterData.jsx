@@ -10,6 +10,7 @@ import { getPortalFromPath } from '../../../../shared/config/portalConfig'
 import EditButton from '../../../../shared/components/buttons/EditButton'
 
 import '../../assets/css/masterData.css'
+import { validateText } from '../../../../shared/validation'
 
 const MasterData = () => {
   /* ==========================================================
@@ -207,19 +208,14 @@ const MasterData = () => {
   const validateDescription = description => {
     const value = String(description || '').trim()
 
-    if (!value) {
-      return 'Description is required.'
-    }
-
-    if (value.length > DESCRIPTION_MAX_LENGTH) {
-      return `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters.`
-    }
-
-    if (!/^[A-Za-z0-9\s-]+$/.test(value)) {
-      return 'Description can only contain letters, numbers, spaces and -.'
-    }
-
-    return ''
+    return validateText(value, {
+      label: 'Description',
+      required: true,
+      allow: 'alphanumeric',
+      spaces: true,
+      extra: '-',
+      max: DESCRIPTION_MAX_LENGTH
+    })
   }
 
   const handleSaveEdit = async row => {

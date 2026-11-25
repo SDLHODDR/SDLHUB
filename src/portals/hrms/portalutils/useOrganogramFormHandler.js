@@ -18,6 +18,7 @@ import {
 import { notifyError, notifySuccess, notifyWarning } from "../../../shared/services/alertService";
 import { getHRMSAuthroizationTaskCount } from "../store/hrmsAuthorizationCountSlice";
 import { normalizeOrganogramStatus } from "./organogramStatus";
+import { filterInput, validateDigits } from "../../../shared/validation";
 
 const INITIAL_FORM_STATE = {
   FIN_ENTITY_ID: "",
@@ -238,15 +239,9 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
     let error = ''
 
     if (field === 'POSITION_COUNT' || field === 'POSITION_OCCUPIED') {
-      if (!/^\d*$/.test(value)) {
-        updatedValue = value.replace(/\D/g, '')
-        error = 'Only numbers are allowed'
-      }
-
-      if (updatedValue.length > 3) {
-        updatedValue = updatedValue.slice(0, 3)
-        error = 'Maximum 3 digits are allowed'
-      }
+      const filtered = filterInput(value, { allow: 'digits', maxLength: 3 })
+      updatedValue = filtered.value
+      error = filtered.error
     }
 
     setFormData(prev => {
@@ -301,19 +296,18 @@ const useOrganogramFormHandler = (organogramId, onOrganogramSaved) => {
     required.forEach(field => {
       if (!formData[field]) newErrors[field] = 'This field is required.'
     })
-    if (formData.POSITION_COUNT !== '') {
-      if (!/^\d{1,3}$/.test(formData.POSITION_COUNT)) {
-        newErrors.POSITION_COUNT =
-          'Position Count must be a whole number with maximum 3 digits.'
-      }
-    }
+    // optional; when filled in: whole number, up to 3 digits
+    const positionCountError = validateDigits(formData.POSITION_COUNT, {
+      max: 3,
+      message: 'Position Count must be a whole number with maximum 3 digits.',
+    })
+    if (positionCountError) newErrors.POSITION_COUNT = positionCountError
 
-    if (formData.POSITION_OCCUPIED !== '') {
-      if (!/^\d{1,3}$/.test(formData.POSITION_OCCUPIED)) {
-        newErrors.POSITION_OCCUPIED =
-          'Position Occupied must be a whole number with maximum 3 digits.'
-      }
-    }
+    const positionOccupiedError = validateDigits(formData.POSITION_OCCUPIED, {
+      max: 3,
+      message: 'Position Occupied must be a whole number with maximum 3 digits.',
+    })
+    if (positionOccupiedError) newErrors.POSITION_OCCUPIED = positionOccupiedError
     if (formData.POSITION_OCCUPIED > formData.POSITION_COUNT) {
       newErrors.POSITION_OCCUPIED =
         'Position occupied must be less than Position count.'

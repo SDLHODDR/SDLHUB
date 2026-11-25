@@ -12,6 +12,7 @@ import {
 import { validateDocFile } from './policyOptionsUtils'
 import { toDateInputValue } from '../../../shared/utils/commonUtils'
 import moment from 'moment'
+import { validateText } from '../../../shared/validation'
 
 export const usePolicyHandler = ({
   formData,
@@ -95,13 +96,15 @@ export const usePolicyHandler = ({
 
     if (!formData.COMP_NAME) newErrors.COMP_NAME = 'Company is required'
 
-    if (!formData.POLICY_NAME || !formData.POLICY_NAME.trim()) {
-      newErrors.POLICY_NAME = 'Policy name is required'
-    } else if (formData.POLICY_NAME.length > 30) {
-      newErrors.POLICY_NAME = 'Policy name cannot exceed 30 characters'
-    } else if (!/^[A-Za-z0-9\s]+$/.test(formData.POLICY_NAME)) {
-      newErrors.POLICY_NAME = 'Policy name must not contain special characters'
-    }
+    const policyNameError = validateText(formData.POLICY_NAME, {
+      label: 'Policy name',
+      required: true,
+      allow: 'alphanumeric',
+      spaces: true,
+      max: 30,
+      messages: { invalid: 'Policy name must not contain special characters' }
+    })
+    if (policyNameError) newErrors.POLICY_NAME = policyNameError
 
     if (!formData.START_DATE) newErrors.START_DATE = 'Start date is required'
 

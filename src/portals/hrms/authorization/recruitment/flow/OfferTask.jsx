@@ -8,11 +8,13 @@ import RecruitmentModal from '../../../pages/recruitment/RecruitmentModal'
 import SaveButton from '../../../../../shared/components/buttons/SaveButton'
 import { ActionError, FlowSummary, SecondaryButton } from './flowShared'
 import { formatAmount, useFlowTask } from './useFlowTask'
+import { validateDecimal } from '../../../../../shared/validation'
 
 const TASK_GENERATE = 10
 const TASK_ANNEXURE = 21
 const TASK_PRINT = 22
-const AMOUNT_PATTERN = /^\d{1,8}(\.\d{1,2})?$/
+// Monthly amount per CTC head: up to 8 digits, 2 decimals
+const AMOUNT_RULES = { required: true, maxIntDigits: 8, maxDecimals: 2 }
 const ACCEPTANCE = [
   { value: 'Y', label: 'Yes' },
   { value: 'N', label: 'No' }
@@ -127,7 +129,7 @@ const OfferTask = ({ taskId, title, record, onClose, onSuccess }) => {
   })
 
   const validAmounts = () => {
-    const invalid = details.heads.some(head => !AMOUNT_PATTERN.test(String(amounts[head.code] ?? '').trim()))
+    const invalid = details.heads.some(head => validateDecimal(amounts[head.code], AMOUNT_RULES))
     if (invalid) {
       setActionError('Please enter a valid monthly amount for every CTC head.')
       return false

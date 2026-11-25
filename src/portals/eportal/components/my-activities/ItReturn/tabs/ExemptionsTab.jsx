@@ -20,6 +20,7 @@ import EportalPageLoader from '../../../loader/EportalPageLoader'
 
 import { ITR_MESSAGES } from '../../../../constants/itrMessages'
 import '../../../../assets/css/wideContentPages.css'
+import { validatePAN } from '../../../../../../shared/validation'
 
 const ExemptionsTab = ({ onDataSaved, editable }) => {
   /* =========================================================
@@ -658,33 +659,22 @@ const formatDateForDisplay = value => {
       .trim()
       .toUpperCase()
 
-    if (isPanMandatory) {
-      if (!landlordPan) {
-        newErrors.landlordPan =
+    /*
+     * Required when mandatory; otherwise optional but must be valid if entered.
+     */
+    const landlordPanError = validatePAN(landlordPan, {
+      required: isPanMandatory,
+      messages: {
+        required:
           annualRent > 100000
             ? 'Landlord PAN is required when annual rent exceeds Rs 1,00,000'
-            : 'Landlord PAN is required'
-      } else if (
-        !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(
-          landlordPan
-        )
-      ) {
-        newErrors.landlordPan =
-          'Enter valid PAN number'
-      }
-    } else if (landlordPan) {
-      /*
-       * PAN is optional, but if user enters it,
-       * it still needs to be valid.
-       */
-      if (
-        !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(
-          landlordPan
-        )
-      ) {
-        newErrors.landlordPan =
-          'Enter valid PAN number'
-      }
+            : 'Landlord PAN is required',
+        invalid: 'Enter valid PAN number',
+      },
+    })
+
+    if (landlordPanError) {
+      newErrors.landlordPan = landlordPanError
     }
 
     setErrors(newErrors)
@@ -867,22 +857,12 @@ const formatDateForDisplay = value => {
         return
       }
 
-      if (
-        !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(
-          pan
-        )
-      ) {
-        setErrors(prev => ({
-          ...prev,
-          landlordPan:
-            'Enter valid PAN number'
-        }))
-      } else {
-        setErrors(prev => ({
-          ...prev,
-          landlordPan: ''
-        }))
-      }
+      setErrors(prev => ({
+        ...prev,
+        landlordPan: validatePAN(pan, {
+          messages: { invalid: 'Enter valid PAN number' },
+        }),
+      }))
     }
 
     /* =========================

@@ -46,6 +46,17 @@ import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleBu
 import SDLInput from '../../../../shared/components/form/SDLInput'
 import SDLCalendar from '../../../../shared/components/calendar/SDLCalendar'
 import { parseDateValue } from '../../../../shared/utils/commonUtils'
+import {
+  filterInput,
+  validateDecimal,
+  validateDigits,
+  validateLength,
+  validateText
+} from '../../../../shared/validation'
+
+// Allowed characters, shared by the typing filter and the on-save check
+const JD_LABEL_CHARS = { allow: 'letters', spaces: true, extra: ".'-_,()" }
+const JD_TEXT_CHARS = { allow: 'alphanumeric', spaces: true, extra: ".'-,()" }
 
 const toDateInputValue = date => {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) return ''
@@ -1317,72 +1328,37 @@ const JobDescription = () => {
 
     // JD Label
     if (name === 'SH_DESC') {
-      if (!/^[A-Za-z.'\-_(),\s]*$/.test(value)) {
-        updatedValue = value.replace(/[^A-Za-z.'\-_(),\s]/g, '')
-        error = "Only letters, spaces and . ' - _ , ( ) are allowed"
-      }
-
-      if (updatedValue.length > 50) {
-        updatedValue = updatedValue.slice(0, 50)
-        error = 'Maximum 50 characters are allowed'
-      }
+      const filtered = filterInput(value, { ...JD_LABEL_CHARS, maxLength: 50 })
+      updatedValue = filtered.value
+      error = filtered.error
     }
 
     // Numeric fields with decimal support
     if (basicNumericDecimalFields.includes(name)) {
-      if (!/^[0-9.]*$/.test(value)) {
-        updatedValue = value.replace(/[^0-9.]/g, '')
-        error = 'Only numbers and decimal point are allowed'
-      }
-
-      if ((updatedValue.match(/\./g) || []).length > 1) {
-        updatedValue = updatedValue.replace(/\.(?=.*\.)/g, '')
-        error = 'Only one decimal point is allowed'
-      }
-
-      if (updatedValue.length > basicMaxLengths[name]) {
-        updatedValue = updatedValue.slice(0, basicMaxLengths[name])
-        error = `Maximum ${basicMaxLengths[name]} characters are allowed`
-      }
+      const filtered = filterInput(value, { allow: 'digits', decimal: true, maxLength: basicMaxLengths[name] })
+      updatedValue = filtered.value
+      error = filtered.error
     }
 
     // Numeric fields without decimal
     if (basicNumericFields.includes(name)) {
-      if (!/^\d*$/.test(value)) {
-        updatedValue = value.replace(/\D/g, '')
-        error = 'Only numbers are allowed'
-      }
-
-      if (updatedValue.length > basicMaxLengths[name]) {
-        updatedValue = updatedValue.slice(0, basicMaxLengths[name])
-        error = `Maximum ${basicMaxLengths[name]} digits are allowed`
-      }
+      const filtered = filterInput(value, { allow: 'digits', maxLength: basicMaxLengths[name] })
+      updatedValue = filtered.value
+      error = filtered.error
     }
 
     // Description
     if (name === 'DESCR') {
-      if (!/^[A-Za-z0-9.'\-,()\s]*$/.test(value)) {
-        updatedValue = value.replace(/[^A-Za-z0-9.'\-,()\s]/g, '')
-        error = "Only letters, numbers, spaces and . ' - , ( ) are allowed"
-      }
-
-      if (updatedValue.length > 250) {
-        updatedValue = updatedValue.slice(0, 250)
-        error = 'Maximum 250 characters are allowed'
-      }
+      const filtered = filterInput(value, { ...JD_TEXT_CHARS, maxLength: 250 })
+      updatedValue = filtered.value
+      error = filtered.error
     }
 
     // Education Comments
     if (name === 'EDUCATION_COMMENTS') {
-      if (!/^[A-Za-z0-9.'\-,()\s]*$/.test(value)) {
-        updatedValue = value.replace(/[^A-Za-z0-9.'\-,()\s]/g, '')
-        error = "Only letters, numbers, spaces and . ' - , ( ) are allowed"
-      }
-
-      if (updatedValue.length > 50) {
-        updatedValue = updatedValue.slice(0, 50)
-        error = 'Maximum 50 characters are allowed'
-      }
+      const filtered = filterInput(value, { ...JD_TEXT_CHARS, maxLength: 50 })
+      updatedValue = filtered.value
+      error = filtered.error
 
       // EDUCATION is a nested object
       setFormData(prev => ({
@@ -1403,15 +1379,9 @@ const JobDescription = () => {
 
     // Skills - Skill Details
     if (name === 'SKILL_DETAILS') {
-      if (!/^[A-Za-z0-9.'\-,\s]*$/.test(value)) {
-        updatedValue = value.replace(/[^A-Za-z0-9.'\-,\s]/g, '')
-        error = "Only letters, numbers, spaces and . ' - , are allowed"
-      }
-
-      if (updatedValue.length > 50) {
-        updatedValue = updatedValue.slice(0, 50)
-        error = 'Maximum 50 characters are allowed'
-      }
+      const filtered = filterInput(value, { allow: 'alphanumeric', spaces: true, extra: ".'-,", maxLength: 50 })
+      updatedValue = filtered.value
+      error = filtered.error
 
       setSkillForm(prev => ({
         ...prev,
@@ -1428,15 +1398,9 @@ const JobDescription = () => {
 
     // Allowance/Reimbursement - Amount
     if (name === 'ALLOWANCE_AMOUNT') {
-      if (!/^\d*$/.test(value)) {
-        updatedValue = value.replace(/\D/g, '')
-        error = 'Only numbers are allowed'
-      }
-
-      if (updatedValue.length > 10) {
-        updatedValue = updatedValue.slice(0, 10)
-        error = 'Maximum 10 digits are allowed'
-      }
+      const filtered = filterInput(value, { allow: 'digits', maxLength: 10 })
+      updatedValue = filtered.value
+      error = filtered.error
 
       setAllowanceForm(prev => ({
         ...prev,
@@ -1453,15 +1417,9 @@ const JobDescription = () => {
 
     // CTC Heads - Value
     if (name === 'CTC_VALUE') {
-      if (!/^\d*$/.test(value)) {
-        updatedValue = value.replace(/\D/g, '')
-        error = 'Only numbers are allowed'
-      }
-
-      if (updatedValue.length > 10) {
-        updatedValue = updatedValue.slice(0, 10)
-        error = 'Maximum 10 digits are allowed'
-      }
+      const filtered = filterInput(value, { allow: 'digits', maxLength: 10 })
+      updatedValue = filtered.value
+      error = filtered.error
 
       setCtcForm(prev => ({
         ...prev,
@@ -1478,15 +1436,9 @@ const JobDescription = () => {
 
     // Induction - Sequence
     if (name === 'INDUCTION_SEQUENCE') {
-      if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-        updatedValue = value.replace(/[^A-Za-z0-9\s]/g, '')
-        error = 'Only letters and numbers are allowed'
-      }
-
-      if (updatedValue.length > 50) {
-        updatedValue = updatedValue.slice(0, 50)
-        error = 'Maximum 50 characters are allowed'
-      }
+      const filtered = filterInput(value, { allow: 'alphanumeric', spaces: true, maxLength: 50 })
+      updatedValue = filtered.value
+      error = filtered.error
 
       setFormData(prev => ({
         ...prev,
@@ -1729,66 +1681,53 @@ const JobDescription = () => {
     }
 
     // JD Label
-    if (
-      formData.SH_DESC &&
-      !/^[A-Za-z.'\-_(),\s]{1,50}$/.test(formData.SH_DESC)
-    ) {
-      newErrors.SH_DESC =
-        "JD Label can contain only letters, spaces and . ' - _ , ( ) with maximum 50 characters"
-    }
+    const jdLabelError = validateText(formData.SH_DESC, { label: 'JD Label', ...JD_LABEL_CHARS, max: 50 })
+    if (jdLabelError) newErrors.SH_DESC = jdLabelError
 
     // Decimal numeric fields
     basicNumericDecimalFields.forEach(field => {
       const value = String(formData[field] || '')
+      const max = basicMaxLengths[field]
 
-      if (value && !/^\d+(\.\d+)?$/.test(value)) {
-        newErrors[field] = 'Enter a valid number with only one decimal point'
-      }
+      const error =
+        validateLength(value, { max, messages: { max: `Maximum ${max} characters are allowed` } }) ||
+        validateDecimal(value, { message: 'Enter a valid number with only one decimal point' })
 
-      if (value.length > basicMaxLengths[field]) {
-        newErrors[
-          field
-        ] = `Maximum ${basicMaxLengths[field]} characters are allowed`
-      }
+      if (error) newErrors[field] = error
     })
 
     // Age fields
     basicNumericFields.forEach(field => {
       const value = String(formData[field] || '')
+      const max = basicMaxLengths[field]
 
-      if (value && !/^\d+$/.test(value)) {
-        newErrors[field] = 'Only numbers are allowed'
-      }
+      const error = validateDigits(value, {
+        max,
+        messages: { invalid: 'Only numbers are allowed', max: `Maximum ${max} digits are allowed` }
+      })
 
-      if (value.length > basicMaxLengths[field]) {
-        newErrors[
-          field
-        ] = `Maximum ${basicMaxLengths[field]} digits are allowed`
-      }
+      if (error) newErrors[field] = error
     })
 
     // Description
     const description = String(formData.DESCR || '')
 
-    if (description && !/^[A-Za-z0-9.'\-,()\s]{1,250}$/.test(description)) {
-      newErrors.DESCR =
-        "Description can contain only letters, numbers, spaces and . ' - , ( ) with maximum 250 characters"
-    }
+    const descriptionError = validateText(description, { label: 'Description', ...JD_TEXT_CHARS, max: 250 })
+    if (descriptionError) newErrors.DESCR = descriptionError
 
     const qualificationId = formData.EDUCATION?.QUA_ID
     const comments = String(formData.EDUCATION?.COMMENTS || '')
 
     // Education is optional when creating a JD. Only validate its comments
     // when a qualification has actually been selected.
-    if (qualificationId && !comments.trim()) {
-      newErrors.EDUCATION_COMMENTS = 'Comments is required'
-    } else if (
-      comments &&
-      !/^[A-Za-z0-9.'\-,()\s]{1,50}$/.test(comments)
-    ) {
-      newErrors.EDUCATION_COMMENTS =
-        "Comments can contain only letters, numbers, spaces and . ' - , ( ) with maximum 50 characters"
-    }
+    const commentsError = validateText(comments, {
+      label: 'Comments',
+      required: Boolean(qualificationId),
+      ...JD_TEXT_CHARS,
+      max: 50,
+      messages: { required: 'Comments is required' }
+    })
+    if (commentsError) newErrors.EDUCATION_COMMENTS = commentsError
 
     setErrors(newErrors)
     return newErrors

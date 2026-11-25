@@ -6,6 +6,14 @@ import SDLSearch from '../components/datatable/SDLSearch'
 
 import { STOREIMAGES } from '../assets/assets'
 import {
+  isAllowedInput,
+  validateAadhaar,
+  validateEmail,
+  validateIFSC,
+  validateMobile,
+  validatePincode,
+} from '../validation'
+import {
   getProfile,
   uploadProfileImage,
   saveFamilyMember,
@@ -429,25 +437,11 @@ const [originalPersonalForm, setOriginalPersonalForm] = useState({
 
     /* ================= AADHAAR VALIDATION ================= */
 
-    const aadhaar = familyForm.aadhaar?.trim()
-    if (aadhaar) {
-      // only digits allowed
-      if (!/^\d+$/.test(aadhaar)) {
-        notifyError(PROFILE_MESSAGES.AADHAAR_DIGITS_ONLY)
-        return
-      }
-
-      // must be 12 digits
-      if (aadhaar.length !== 12) {
-        notifyError(PROFILE_MESSAGES.AADHAAR_LENGTH)
-        return
-      }
-
-      // should not start with 0 or 1
-      if (/^[01]/.test(aadhaar)) {
-        notifyError(PROFILE_MESSAGES.AADHAAR_INVALID)
-        return
-      }
+    // optional; when filled in: digits only, 12 digits, not starting with 0 or 1
+    const aadhaarError = validateAadhaar(familyForm.aadhaar)
+    if (aadhaarError) {
+      notifyError(aadhaarError)
+      return
     }
 
     /* ================= DUPLICATE VALIDATION ================= */
@@ -859,11 +853,11 @@ const handleSaveBank = async () => {
      IFSC VALIDATION
      ========================================================== */
 
-  if (!/^[A-Z0-9]+$/.test(currentBank.bank_ifsc)) {
+  const ifscError = validateIFSC(currentBank.bank_ifsc, { required: true })
 
-    notifyError(
-      'Please enter a valid IFSC.'
-    )
+  if (ifscError) {
+
+    notifyError(ifscError)
 
     return
   }
@@ -1205,21 +1199,11 @@ const validatePersonalField = (name, value) => {
   switch (name) {
 
     case 'cell':
-      if (!fieldValue) {
-        error = 'Mobile number is required.'
-      } else if (!/^\d{10}$/.test(fieldValue)) {
-        error = 'Enter a valid 10 digit mobile number.'
-      }
+      error = validateMobile(fieldValue, { required: true })
       break
 
     case 'per_email':
-      if (!fieldValue) {
-        error = 'Personal email is required.'
-      } else if (
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fieldValue)
-      ) {
-        error = 'Enter a valid personal email address.'
-      }
+      error = validateEmail(fieldValue, { required: true, label: 'personal email' })
       break
 
     case 'address':
@@ -1241,11 +1225,7 @@ const validatePersonalField = (name, value) => {
       break
 
     case 'pincode':
-      if (!fieldValue) {
-        error = 'Pincode is required.'
-      } else if (!/^\d{6}$/.test(fieldValue)) {
-        error = 'Enter a valid 6 digit pincode.'
-      }
+      error = validatePincode(fieldValue, { required: true })
       break
 
     case 'm_status':
@@ -1612,7 +1592,7 @@ const handlePersonalOtpChange = (
   index
 ) => {
 
-  if (!/^\d?$/.test(value)) {
+  if (!isAllowedInput(value, { allow: 'digits', maxLength: 1 })) {
     return
   }
 

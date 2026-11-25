@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useCareersAuth } from '../careersAuthContext'
 import { forgotCandidatePassword, loginCandidate, registerCandidate } from '../services/careersApi'
+import { validateEmail, validateMobile } from '../../../shared/validation'
 
 const EMPTY_REGISTER = { name: '', email: '', mobile: '', country: 'India', password: '', confirm: '' }
 
@@ -66,8 +67,11 @@ const CareersLogin = () => {
     event.preventDefault()
     const next = {}
     if (!register.name.trim()) next.name = 'Enter your full name.'
-    if (!/^\S+@\S+\.\S+$/.test(register.email.trim())) next.email = 'Enter a valid email address.'
-    if (!/^\+?[0-9]{10,15}$/.test(register.mobile.replace(/\s+/g, ''))) next.mobile = 'Enter a valid mobile number.'
+    const emailError = validateEmail(register.email, { required: true, message: 'Enter a valid email address.' })
+    if (emailError) next.email = emailError
+    // careers mobile rules (country code, 10-15 digits) are in shared/validation/portalRules.js
+    const mobileError = validateMobile(register.mobile.replace(/\s+/g, ''), { required: true, message: 'Enter a valid mobile number.' })
+    if (mobileError) next.mobile = mobileError
     if (!register.country) next.country = 'Select your country.'
     if (register.password.length < 8) next.password = 'Use at least 8 characters.'
     if (register.confirm !== register.password) next.confirm = 'Passwords do not match.'
@@ -89,7 +93,7 @@ const CareersLogin = () => {
 
   const handleForgot = async event => {
     event.preventDefault()
-    if (!/^\+?[0-9]{10,15}$/.test(mobile.replace(/\s+/g, ''))) {
+    if (validateMobile(mobile.replace(/\s+/g, ''), { required: true })) {
       setErrors({ mobile: 'Enter your registered mobile number.' })
       return
     }
