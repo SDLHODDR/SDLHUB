@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getHRMSAuthTableDataResponse } from "../../store/hrmsAuthorizationDataSlice";
+import { handleError } from "../../../../shared/services/errorHandler";
 
 export const useMastersAuthorizationHandler = (tid = 0) => {
   const dispatch = useDispatch();
@@ -18,7 +19,11 @@ export const useMastersAuthorizationHandler = (tid = 0) => {
 
   useEffect(() => {
     if (tid) {
-      dispatch(getHRMSAuthTableDataResponse({ task_id: tid }));
+      // Cancel this load if the page closes or loads another list first,
+      // so a stale request can't show an error or overwrite newer data.
+      const load = dispatch(getHRMSAuthTableDataResponse({ task_id: tid }));
+      load.unwrap().catch(error => handleError(error, { context: "Load master authorization requests", fallback: "Unable to load master authorization requests." }));
+      return () => load.abort();
     }
   }, [dispatch, tid, refreshKey]);
 
@@ -30,7 +35,7 @@ export const useMastersAuthorizationHandler = (tid = 0) => {
       }));
       if (mounted) setListData(records);
     } catch (error) {
-      console.error("Failed to load master authorization records:", error);
+      handleError(error, { context: "Build master authorization requests rows", notify: false });
       if (mounted) setListData([]);
     }
     return () => {

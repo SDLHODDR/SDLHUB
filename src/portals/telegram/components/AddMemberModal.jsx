@@ -13,6 +13,7 @@ import {
 } from "../services/telegramService";
 import AuthContext from "../../../shared/auth/AuthContext";
 import Swal from "sweetalert2";
+import { handleError } from "../../../shared/services/errorHandler";
 
 const AddMemberModal = ({ show, onClose, onSave }) => {
   const initialState = {
@@ -154,7 +155,7 @@ const AddMemberModal = ({ show, onClose, onSave }) => {
 	    const res = await getCompanies();
 	    setCompanyList(res.data || []);
 	  } catch (error) {
-	    console.log("Companies Load Error", error);
+	    handleError(error, { context: "Load companies", fallback: "Unable to load companies." });
 	  }
   };
 
@@ -163,7 +164,7 @@ const AddMemberModal = ({ show, onClose, onSave }) => {
 	    const res = await getDivisions();
 	    setDivisionList(res.data || []);
 	  } catch (error) {
-	    console.log("Division Load Error", error);
+	    handleError(error, { context: "Load divisions", fallback: "Unable to load divisions." });
 	  }
   };
 
@@ -172,7 +173,7 @@ const AddMemberModal = ({ show, onClose, onSave }) => {
 	    const res = await getDepartments();
 	    setDepartmentList(res.data || []);
 	  } catch (error) {
-	    console.log("Department Load Error", error);
+	    handleError(error, { context: "Load departments", fallback: "Unable to load departments." });
 	  }
   };
 
@@ -217,7 +218,7 @@ const loadMemberList = async (dept_id, comp_id, divsn_id) => {
 
     setMemberList(response.data || []);
   } catch (error) {
-    console.log("Member Load Error", error);
+    handleError(error, { context: "Load members", fallback: "Unable to load members." });
     setMemberList([]);
   } finally {
     setLoading(false);

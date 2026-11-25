@@ -14,6 +14,7 @@ import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../../../shared/assets/css/companyPolicies.css";
 import "../../assets/css/ticketBooking.css";
 import SDLPageLoader from "../../../../shared/components/SDLPageLoader"
+import { handleError } from "../../../../shared/services/errorHandler";
 
 const TicketBooking = () => {
   const dispatch = useDispatch();
@@ -48,7 +49,7 @@ const TicketBooking = () => {
         status: item.status || "-",
       }));
     } catch (error) {
-      console.error(error);
+      handleError(error, { context: "Build ticket booking rows", notify: false });
       return [];
     }
   }, [ticketBookingData]);

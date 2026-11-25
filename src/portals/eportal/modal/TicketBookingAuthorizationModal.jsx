@@ -1,9 +1,9 @@
-// import { useState, useEffect, useRef } from "react";
 import { useState } from "react";
 import { authTBRData, rejectTBRData } from "../services/ticketbookingService";
 import { notifyError, notifySuccess } from "../../../shared/services/alertService";
 import SDLFormField from "../../../shared/components/form/SDLFormField"
 import SDLAuthorizationActionButtons from "../../../shared/components/buttons/SDLAuthorizationActionButtons";
+import { handleError } from "../../../shared/services/errorHandler";
 
 const TicketBookingAuthorizationModal = ({
   ticketbooking,
@@ -56,7 +56,6 @@ const TicketBookingAuthorizationModal = ({
     try {
       const latestData = formData;
 
-      //console.log("---------Reject request -------", latestData);
       const response = await rejectTBRData({
         ...latestData,
         authForm: true,
@@ -72,14 +71,13 @@ const TicketBookingAuthorizationModal = ({
       notifySuccess("Request rejected successfully");
       onSuccess?.(); // only refetch on actual success
     } catch (err) {
-      console.error(err);
+      handleError(err, { context: "Reject ticket booking request", fallback: "Unable to reject the request." });
     }
   };
 
   const handleAuthorize = async () => {
     try {
       const latestData = formData;
-      //console.log("---------Authorize request -------", latestData);
       const response = await authTBRData({
         ...latestData,
         authForm: true,

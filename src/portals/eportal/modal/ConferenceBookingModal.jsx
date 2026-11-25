@@ -14,12 +14,12 @@ import {
 } from '../../../shared/services/alertService'
 
 import AuthContext from '../../../shared/auth/AuthContext'
-import Select from 'react-select'
 import '../assets/css/conferencebookingmodal.css'
 import SDLCalendar from '../../../shared/components/calendar/SDLCalendar'
 import { CONFERENCE_MESSAGES } from '../constants/conferenceMessages'
 import { getAuthroizationTaskCount } from '../store/ePortalAuthorizationCountSlice'
 import { isAllowedInput } from '../../../shared/validation'
+import { handleError } from '../../../shared/services/errorHandler'
 
 /* ============================================================
    DEFAULT FORM DATA
@@ -220,7 +220,7 @@ const ConferenceBookingModal = ({
           setDivisions([])
         }
       } catch (err) {
-        console.error('Dropdown fetch error:', err)
+        handleError(err, { context: 'Load booking users / divisions', fallback: 'Unable to load employees and divisions.' })
 
         setBookingUsers([])
         setDivisions([])
@@ -302,10 +302,6 @@ const ConferenceBookingModal = ({
 
     if (mode === 'add') {
       const calendarDate = formatDateForForm(selectedDate)
-
-      console.log('Conference modal selectedDate:', selectedDate)
-
-      console.log('Conference modal formatted date:', calendarDate)
 
       const data = {
         ...DEFAULT_FORM_DATA,
@@ -664,46 +660,6 @@ const ConferenceBookingModal = ({
   }
 
   /* ============================================================
-     DELETE BOOKING
-  ============================================================ */
-
-  const handleDeleteBooking = async () => {
-    const confirmed = await confirmAction(
-      CONFERENCE_MESSAGES.CONFIRM_DELETE_TITLE,
-
-      CONFERENCE_MESSAGES.CONFIRM_DELETE_MESSAGE
-    )
-
-    if (!confirmed) {
-      return
-    }
-
-    try {
-      setSubmittingAction('delete')
-
-      const res = await conferenceAction({
-        bookingId: formData.bookingId,
-
-        action: 'delete'
-      })
-
-      if (res.status) {
-        await notifySuccess(CONFERENCE_MESSAGES.BOOKING_DELETED)
-
-        await refreshTable()
-
-        onClose()
-      } else {
-        notifyError(res.message)
-      }
-    } catch {
-      notifyError(CONFERENCE_MESSAGES.DELETE_FAILED)
-    } finally {
-      setSubmittingAction(null)
-    }
-  }
-
-  /* ============================================================
      CANCEL BOOKING
   ============================================================ */
 
@@ -740,43 +696,6 @@ const ConferenceBookingModal = ({
       notifyError(CONFERENCE_MESSAGES.CANCEL_FAILED)
     } finally {
       setSubmittingAction(null)
-    }
-  }
-
-  /* ============================================================
-     BACKDROP CLICK
-  ============================================================ */
-
-  const handleBackdropClick = async () => {
-    if (loading) {
-      return
-    }
-
-    const hasChanges =
-      JSON.stringify(formData) !== JSON.stringify(initialFormData)
-
-    /*
-     * Nothing changed
-     */
-
-    if (!hasChanges) {
-      onClose()
-
-      return
-    }
-
-    /*
-     * Confirm discard
-     */
-
-    const confirmed = await confirmAction(
-      CONFERENCE_MESSAGES.CONFIRM_DISCARD_TITLE,
-
-      CONFERENCE_MESSAGES.CONFIRM_DISCARD_MESSAGE
-    )
-
-    if (confirmed) {
-      onClose()
     }
   }
 
@@ -822,17 +741,6 @@ const ConferenceBookingModal = ({
     label: div.DIVSN_DESC
   }))
 
-  const selectedBookingUser =
-    bookingUserOptions.find(
-      option => String(option.value) === String(formData.bookingBy)
-    ) || null
-
-  const selectedDivision =
-    divisionOptions.find(
-      option => String(option.value) === String(formData.division)
-    ) || null
-
-
   /* ============================================================
      HANDLE CLOSE MODAL
   ============================================================ */
@@ -861,7 +769,6 @@ const ConferenceBookingModal = ({
       onClose()
     }
   } 
-
 
   /* ============================================================
      RENDER
@@ -897,7 +804,7 @@ const ConferenceBookingModal = ({
                 type='button'
                 className='close'
                 aria-label='Close'
-                onClick={handleBackdropClick}
+                onClick={handleCloseModal}
                 disabled={loading}
               >
                 <span aria-hidden='true'>×</span>
@@ -1360,7 +1267,7 @@ const ConferenceBookingModal = ({
 
       <div
         className='modal-backdrop fade show'
-        onClick={loading ? undefined : handleBackdropClick}
+        onClick={loading ? undefined : handleCloseModal}
       />
     </>
   )

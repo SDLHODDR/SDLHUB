@@ -12,6 +12,8 @@ import {
 
 import { ITR_MESSAGES } from "../../../../constants/itrMessages";
 import EportalPageLoader from "../../../loader/EportalPageLoader";
+import { handleError } from "../../../../../../shared/services/errorHandler";
+import { isPdfFile } from "../../../../../../shared/utils/fileUtils";
 
 const DeductionsTab = ({ onDataSaved, editable }) => {
   const [deductions, setDeductions] = useState([]);
@@ -79,7 +81,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
         setDeductions([]);
       }
     } catch (error) {
-      console.error("Error fetching deductions:", error);
+      handleError(error, { context: "Load deductions", fallback: "Unable to load deductions." });
 
       setFinancialYear("");
       setEmpCode("");
@@ -157,25 +159,6 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
     setDeductions(finalUpdated);
   };
 
-  /*
-| Pair       | Meaning                                               |
-| ---------- | ----------------------------------------------------- |
-| `[21, 93]` | If 21 is filled, clear 93. If 93 is filled, clear 21. |
-| `[8, 94]`  | If 8 is filled, clear 94. If 94 is filled, clear 8.   |
-| `[43, 44]` | If 43 is filled, clear 44. If 44 is filled, clear 43. |
-*/
-
-  /* =========================================
-     FILE CHANGE
-  ========================================= */
-
-  const isPdf = (file) => {
-    return (
-      file?.type === "application/pdf" ||
-      file?.name?.toLowerCase().endsWith(".pdf")
-    );
-  };
-
   const handleFileChange = (itaxId, file) => {
     if (file && file.type !== "application/pdf") {
       notifyError(ITR_MESSAGES.ONLY_PDF_ALLOWED);
@@ -223,7 +206,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
   const handleSave = async () => {
     try {
       for (const item of deductions) {
-        if (item.file && !isPdf(item.file)) {
+        if (item.file && !isPdfFile(item.file)) {
           notifyError("Only PDF files are allowed");
           return;
         }

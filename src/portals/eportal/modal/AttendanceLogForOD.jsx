@@ -1,15 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { getAttendanceLog } from "../services/dashboardService";
 import SDLPageLoader from "../../../shared/components/SDLPageLoader";
-
-const formatAPIDate = (date) =>
-  date
-    .toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    })
-    .replace(/ /g, "-");
+import { handleError } from "../../../shared/services/errorHandler";
+import { toDMYDate } from "../../../shared/utils/formatUtils";
 
 const AttendanceLogForOD = ({ empCode = null, gpassDate = null }) => {
   const [records, setRecords] = useState([]);
@@ -26,14 +19,14 @@ const AttendanceLogForOD = ({ empCode = null, gpassDate = null }) => {
 
     try {
       const response = await getAttendanceLog(
-        formatAPIDate(new Date(gpassDate)),
+        toDMYDate(new Date(gpassDate)),
         empCode
       );
 
       const data = response?.data || response || {};
       setRecords(data.records || []);
     } catch (err) {
-      console.error("Attendance load failed:", err);
+      handleError(err, { context: "Load attendance for outdoor duty", fallback: "Unable to load the attendance log." });
       setRecords([]);
     } finally {
       setLoading(false);

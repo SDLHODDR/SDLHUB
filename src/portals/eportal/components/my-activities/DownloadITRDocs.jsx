@@ -10,6 +10,7 @@ import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import EportalPageLoader from "../loader/EportalPageLoader";
 import "../../assets/css/wideContentPages.css";
+import { handleError } from "../../../../shared/services/errorHandler";
 
 const DownloadItrDocs = () => {
 
@@ -41,7 +42,7 @@ const fetchEmployees = async () => {
       setEmployeeList(response.data || []);
     }
   } catch (error) {
-    console.error("Error loading employees:", error);
+    handleError(error, { context: "Load employees", fallback: "Unable to load employees." });
   }
 };
 
@@ -137,15 +138,6 @@ useEffect(() => {
 				data.download_url,
 				"_blank"
 			);
-
-			/*window.open(data.download_url, "_self"); */
-			/*
-			const link = document.createElement("a");
-			link.href = data.download_url;
-			link.download = "";
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link); */
 
 			return;
 		}

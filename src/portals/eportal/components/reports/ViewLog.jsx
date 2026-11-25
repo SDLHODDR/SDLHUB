@@ -13,6 +13,7 @@ import Badge from "../../../../shared/components/Badge";
 import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/wideContentPages.css";
 import EportalPageLoader from "../loader/EportalPageLoader";
+import { toISODate, isoToDate } from "../../../../shared/utils/formatUtils";
 
 const ViewLog = () => {
   /* ==========================================
@@ -42,7 +43,6 @@ const ViewLog = () => {
 	const portal = getPortalFromPath(location.pathname);
 	const portalHome = `/${portal.key}/dashboard`;
 
-
   /* ==========================================
         INITIAL LOAD
     ========================================== */
@@ -51,74 +51,12 @@ const ViewLog = () => {
     loadLogs(today);
   }, []);
 
-    /* ==========================================
-        DATE HELPERS
-  ========================================== */
-
-  /**
-   * JS Date -> YYYY-MM-DD
-   *
-   * Used when sending the selected date to API.
-   */
-  const formatDateForForm = (date) => {
-    if (
-      !date ||
-      !(date instanceof Date) ||
-      isNaN(date.getTime())
-    ) {
-      return "";
-    }
-
-    const year = date.getFullYear();
-
-    const month = String(
-      date.getMonth() + 1
-    ).padStart(2, "0");
-
-    const day = String(
-      date.getDate()
-    ).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-  };
-
-  /**
-   * YYYY-MM-DD -> JS Date
-   *
-   * Used by SDLCalendar.
-   */
-  const formDateToJSDate = (value) => {
-    if (!value) {
-      return null;
-    }
-
-    const match = String(value).match(
-      /^(\d{4})-(\d{2})-(\d{2})$/
-    );
-
-    if (!match) {
-      return null;
-    }
-
-    const [, year, month, day] = match;
-
-    const date = new Date(
-      Number(year),
-      Number(month) - 1,
-      Number(day)
-    );
-
-    return isNaN(date.getTime())
-      ? null
-      : date;
-  };
-
   /**
    * SDLCalendar date change
    */
   const handleDateChange = (date) => {
     const formattedDate =
-      formatDateForForm(date);
+      toISODate(date);
 
     setSelectedDate(formattedDate);
   };
@@ -243,7 +181,6 @@ const ViewLog = () => {
 
   const actionBody = (rowData) => (
     <button
-      //className="btn btn-primary btn-sm"
       className="btn btn-sm btn-outline-primary sdl-icon-btn"
       title="View Details"
       onClick={() => setSelectedLog(rowData)}
@@ -337,7 +274,7 @@ const ViewLog = () => {
               <label className="form-label fw-semibold">Log Date</label>
 
                <SDLCalendar
-                value={formDateToJSDate(selectedDate)}
+                value={isoToDate(selectedDate)}
                 onChange={handleDateChange}
                 allowAllDates={true}
                 maxDate={new Date()}

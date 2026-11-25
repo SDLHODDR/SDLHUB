@@ -5,20 +5,9 @@ import moment from "moment";
 
 import SDLCalendar from "../../../shared/components/calendar/SDLCalendar";
 
-import {
-  getLRDataDetails,
-  saveLRData,
-  saveLRDataAUTH,
-  editLRData,
-  editLRDataAUTH,
-  checkCL,
-  checkOL,
-} from "../services/leavesService";
+import { getLRDataDetails, saveLRData, editLRData, checkCL, checkOL } from "../services/leavesService";
 
-import {
-  notifyError,
-  notifySuccess,
-} from "../../../shared/services/alertService";
+import { notifySuccess } from "../../../shared/services/alertService";
 
 const LeavesModal = ({
   formSettings,
@@ -26,13 +15,7 @@ const LeavesModal = ({
   closeModal,
   onSuccess,
 }) => {
-  const {
-    modalPage,
-    mode,
-    modeLabel,
-    form_header,
-    form_text,
-  } = formSettings || {};
+  const { mode } = formSettings || {};
 
   const { isOpen, modalDate } = modalState || {};
 
@@ -72,7 +55,6 @@ const LeavesModal = ({
 
   const mid = modalState?.mid;
 
-  const isEditMode = mode === "edit";
   const isCreateMode = mode === "create";
   const isReadOnly =
     mode === "view" || mode === "readonly";
@@ -362,11 +344,6 @@ const LeavesModal = ({
           modal_date:
             formatLocalDateTime(modalDate),
         });
-
-      console.log(
-        "Leave Request Response:",
-        response,
-      );
 
       const passData =
         response?.data?.pass || {};
@@ -679,17 +656,6 @@ const LeavesModal = ({
 
   if (leaveCode === "CL") {
     try {
-      console.log(
-        "========== SENDING CL VALIDATION =========="
-      );
-
-      console.log({
-        ClValidate: true,
-        EMP_CODE: data.EMP_CODE,
-        no_days: data.NO_DAYS,
-        fr_dt: data.LVE_DATE_FR,
-        to_dt: data.LVE_DATE_TO,
-      });
 
       const responseCL = await checkCL({
         ClValidate: true,
@@ -698,12 +664,6 @@ const LeavesModal = ({
         fr_dt: data.LVE_DATE_FR,
         to_dt: data.LVE_DATE_TO,
       });
-
-      console.log(
-        "========== CL VALIDATION RESPONSE =========="
-      );
-
-      console.log(responseCL);
 
       /*
        * Depending on your axios service implementation,
@@ -725,11 +685,6 @@ const LeavesModal = ({
         )
           ? responseCL.data
           : responseCL;
-
-      console.log(
-        "Normalized CL Response:",
-        result
-      );
 
       /* --------------------------------------------------------
          API VALIDATION FAILED
@@ -798,11 +753,6 @@ const LeavesModal = ({
         lv_type: leaveCode,
         attd_date: dateStart,
       });
-
-      console.log(
-        "OL Validation Response:",
-        responseOL
-      );
 
       const result =
         responseOL?.data &&
@@ -1113,7 +1063,6 @@ const LeavesModal = ({
     });
   }
 
-
   /* ---------------------------------------------------------
      Leave Code
   --------------------------------------------------------- */
@@ -1127,7 +1076,6 @@ const LeavesModal = ({
     updated.NET_BAL = selected?.[1] ?? 0;
   }
 
-
   /* ---------------------------------------------------------
      Calculate leave days ONLY when both dates exist
   --------------------------------------------------------- */
@@ -1137,12 +1085,10 @@ const LeavesModal = ({
 
   let noDays = 0;
 
-
   if (fromDate && toDate) {
 
     const start = moment(fromDate, "YYYY-MM-DD", true);
     const end = moment(toDate, "YYYY-MM-DD", true);
-
 
     if (
       start.isValid() &&
@@ -1169,14 +1115,12 @@ const LeavesModal = ({
     }
   }
 
-
   /* ---------------------------------------------------------
      Half-day adjustment
   --------------------------------------------------------- */
 
   const leaveStart = updated.LEAVE_STARTS;
   const leaveEnd = updated.LEAVE_ENDS;
-
 
   if (
     noDays > 0 &&
@@ -1189,10 +1133,8 @@ const LeavesModal = ({
     noDays = noDays - 0.5;
   }
 
-
   updated.NO_DAYS = noDays;
   updated.noDaysNww = noDays;
-
 
   /* ---------------------------------------------------------
      IMPORTANT:
@@ -1216,7 +1158,6 @@ const LeavesModal = ({
 
       const isAllow =
         await validateLeaveStatus(updated);
-
 
       if (!isAllow.status) {
 
@@ -1256,7 +1197,6 @@ const LeavesModal = ({
     setErrorMsg("");
     setIsBtnDisable(false);
   }
-
 
   setFormData(updated);
 };
@@ -1335,22 +1275,12 @@ const LeavesModal = ({
             }),
       };
 
-      console.log(
-        "Leave Save Payload:",
-        payload,
-      );
-
       const apiCall = isEdit
         ? editLRData
         : saveLRData;
 
       const response =
         await apiCall(payload);
-
-      console.log(
-        "Leave Save Response:",
-        response,
-      );
 
       if (response?.status) {
         notifySuccess(
@@ -1398,119 +1328,6 @@ const LeavesModal = ({
 
       setErrorMsg(
         backendMessage,
-      );
-
-      setIsSubmitting(false);
-    }
-  };
-
-  /* ============================================================
-     SAVE + AUTH
-  ============================================================ */
-
-  const handleSaveAuth = async (e) => {
-    e.preventDefault();
-
-    if (isSubmitting) {
-      return;
-    }
-
-    const isValid =
-      validateForm(formData);
-
-    if (!isValid) {
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      /*
-       * Run same validation before AUTH save.
-       */
-      const validation =
-        await validateLeaveStatus(
-          formData,
-        );
-
-      if (!validation.status) {
-        setErrorMsg(
-          validation.message ||
-            "Leave validation failed.",
-        );
-
-        setIsBtnDisable(true);
-        setIsSubmitting(false);
-
-        return;
-      }
-
-      setErrorMsg("");
-      setIsBtnDisable(false);
-
-      const isEdit =
-        modalState?.mode === "edit";
-
-      const payload = {
-        ...formData,
-
-        ...(isEdit
-          ? {
-              editLrData: true,
-            }
-          : {
-              saveLrData: true,
-            }),
-
-        withAuth: true,
-      };
-
-      const apiCall = isEdit
-        ? editLRDataAUTH
-        : saveLRDataAUTH;
-
-      const response =
-        await apiCall(payload);
-
-      if (response?.status) {
-        notifySuccess(
-          response?.message ||
-            `Leave Request ${
-              isEdit
-                ? "updated"
-                : "saved"
-            } successfully.`,
-        );
-
-        resetForm();
-
-        onSuccess?.();
-
-        closeModal();
-
-        return;
-      }
-
-      const backendMessage =
-        response?.message ||
-        response?.data?.message ||
-        "Unable to save Leave Request.";
-
-      setErrorMsg(
-        backendMessage,
-      );
-
-      setIsSubmitting(false);
-    } catch (err) {
-      console.error(
-        "Submit Auth Error:",
-        err,
-      );
-
-      setErrorMsg(
-        err?.response?.data?.message ||
-          err?.message ||
-          "Something went wrong while saving data.",
       );
 
       setIsSubmitting(false);

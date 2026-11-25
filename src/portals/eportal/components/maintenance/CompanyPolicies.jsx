@@ -9,6 +9,7 @@ import SDLSearch from "../../../../shared/components/datatable/SDLSearch";
 import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/wideContentPages.css";
 import EportalPageLoader from "../loader/EportalPageLoader";
+import { handleError } from "../../../../shared/services/errorHandler";
 
 const CompanyPolicies = () => {
     const [listData, setListData] = useState([]);
@@ -18,7 +19,6 @@ const CompanyPolicies = () => {
     // Get current portal dynamically
 	const portal = getPortalFromPath(location.pathname);
 	const portalHome = `/${portal.key}/dashboard`;
-
 
     useEffect(() => {
         let mounted = true;
@@ -44,7 +44,7 @@ const CompanyPolicies = () => {
                     setListData([]);
                 }
             } catch (error) {
-                console.error(error);
+                handleError(error, { context: "Load company policies", fallback: "Unable to load company policies." });
 
                 if (mounted) {
                     setListData([]);
@@ -87,7 +87,6 @@ const CompanyPolicies = () => {
                     title="View Policy"
                     target="_blank"
                     rel="noopener noreferrer"
-                    // className="btn btn-icon btn-sm btn-primary"
                     className="btn btn-sm btn-outline-primary sdl-icon-btn"
                     title="View"
                 >

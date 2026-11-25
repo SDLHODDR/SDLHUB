@@ -7,6 +7,7 @@ import EportalPageLoader from "../loader/EportalPageLoader";
 
 import { POLICY_MESSAGES } from "../../constants/policies-documentsConstants";
 import SDLPageLoader from "../../../../shared/components/SDLPageLoader"
+import { handleError } from "../../../../shared/services/errorHandler";
 
 const Policies = () => {
   const hasFetched = useRef(false);
@@ -40,7 +41,7 @@ const Policies = () => {
         setPolicies([]);
       }
     } catch (error) {
-      console.error("Policy fetch error:", error);
+      handleError(error, { context: "Load policies", fallback: "Unable to load policies." });
       setPolicies([]);
     } finally {
       setLoading(false);
@@ -151,7 +152,6 @@ const Policies = () => {
                     title="Policy Preview"
                     width="100%"
                     onLoad={() => {
-                      console.log("iframe loaded");
                       setPdfLoading(false);
                     }}
                     style={{

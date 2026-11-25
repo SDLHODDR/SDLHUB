@@ -18,7 +18,6 @@ export const getAuthroizationTaskCount = createAsyncThunk(
   async (payload) => {
     try {
       const response = await fetchAuthorizationData(payload);
-      console.log("========authorizationDataSLice Response========", response);
       if(!response.status) {
         return {
           response: "error",
@@ -60,11 +59,9 @@ export const authorizationCountSlice = createSlice({
         state.loading = true;
       })
       .addCase(getAuthroizationTaskCount.fulfilled, (state, action) => {
-        //console.log(action);
         state.data = action.payload.taskscnt;
         state.subtotal = action.payload.SUBTOTAL;
         state.success = action.payload.success;        
-        //state.totalRecords = action.payload.totalRecords;
         state.successMessage = "Data fetched successfully";
         state.status = "idle";
       });

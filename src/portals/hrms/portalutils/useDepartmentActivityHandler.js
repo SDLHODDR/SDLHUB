@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { saveDeptActivity, deleteDeptActivity } from "../services/departmentActivityService";
 import { notifySuccess, notifyError, confirmAction } from "../../../shared/services/alertService";
 import { validateDigits } from "../../../shared/validation";
+import { handleError } from "../../../shared/services/errorHandler";
 
 export const useDepartmentActivityHandler = ({
   form,
@@ -113,7 +114,7 @@ export const useDepartmentActivityHandler = ({
 
       dispatch(getDeptActivitiesDataResponse());
     } catch (err) {
-      console.error(err);
+      handleError(err, { context: "Delete department activity", fallback: "Unable to delete record." });
     } finally {
       setDeletingId(null);
     }

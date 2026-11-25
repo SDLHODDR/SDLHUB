@@ -41,11 +41,12 @@ export const fetchHRMSAuthorizationData = async () => {
   });
 };
 
-export const fetchHRMSListAuthorizationData = async (payload = {}) => {
+export const fetchHRMSListAuthorizationData = async (payload = {}, { signal } = {}) => {
   return hrmsRequest({
     url: HRMS_API.AUTHORIZATION.TASKTABLEDATA,
     method: "POST",
     data: payload,
+    signal,
   });
 }
 

@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAuthDataResponse } from "../store/ePortalAuthorizationDataSlice";
 import { getAuthroizationTaskCount } from "../store/ePortalAuthorizationCountSlice";
+import { handleError } from "../../../shared/services/errorHandler";
 
 export const useLeavesAuthorizationHandler = () => {
   const dispatch = useDispatch();
@@ -15,7 +16,11 @@ export const useLeavesAuthorizationHandler = () => {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    dispatch(getAuthDataResponse({ task_id: 109 }));
+    // Cancel this load if the page closes or loads another list first,
+    // so a stale request can't show an error or overwrite newer data.
+    const load = dispatch(getAuthDataResponse({ task_id: 109 }));
+    load.unwrap().catch(error => handleError(error, { context: "Load leave requests", fallback: "Unable to load leave requests." }));
+    return () => load.abort();
   }, [dispatch, refreshKey]);
 
   useEffect(() => {
@@ -40,7 +45,7 @@ export const useLeavesAuthorizationHandler = () => {
       });
       if (mounted) setListData(flattened);
     } catch (error) {
-      console.error(error);
+      handleError(error, { context: "Build leave requests rows", notify: false });
       if (mounted) setListData([]);
     }
     return () => {

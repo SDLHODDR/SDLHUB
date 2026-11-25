@@ -12,7 +12,6 @@ export const getPayslips = () =>
     // IMPORTANT FIX
     isEportal: true,
 
-    // prevent duplicate calls (React StrictMode safe)
     dedupe: true,
 
     // cache for faster revisit

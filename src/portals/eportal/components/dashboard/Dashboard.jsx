@@ -10,6 +10,7 @@ import WorkLeaveTabs from "./widgets/WorkLeaveTabs";
 import MeetingsWidget from "./widgets/MeetingsWidget";
 import "../../assets/css/wideContentPages.css";
 import SDLPageLoader from "../../../../shared/components/SDLPageLoader"
+import { handleError } from "../../../../shared/services/errorHandler";
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
@@ -41,13 +42,12 @@ const Dashboard = () => {
         if (res._last10Days) {
           const records = await res._last10Days;
 
-          //console.log(records);
           setAttendance10Days(
             Array.isArray(records) ? records : []
           );
         }
       } catch (err) {
-        console.error("Dashboard load failed:", err);
+        handleError(err, { context: "Load dashboard", fallback: "Unable to load the dashboard." });
       }
     };
 

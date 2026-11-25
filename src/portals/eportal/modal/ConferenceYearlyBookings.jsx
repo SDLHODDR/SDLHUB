@@ -6,6 +6,7 @@ import {
   getConferenceYearlyBookings,
   exportToExcelCBRData,
 } from "../services/conferenceService";
+import { handleError } from "../../../shared/services/errorHandler";
 
 const ConferenceYearlyBookings = ({ onClose }) => {
   const [bookings, setBookings] = useState([]);
@@ -27,7 +28,7 @@ const ConferenceYearlyBookings = ({ onClose }) => {
           setBookings([]);
         }
       } catch (error) {
-        console.error("Yearly conference fetch error:", error);
+        handleError(error, { context: "Load yearly conference bookings", fallback: "Unable to load yearly bookings." });
         setBookings([]);
       } finally {
         setLoading(false);

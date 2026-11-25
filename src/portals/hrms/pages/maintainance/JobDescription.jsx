@@ -53,6 +53,7 @@ import {
   validateLength,
   validateText
 } from '../../../../shared/validation'
+import { handleError } from '../../../../shared/services/errorHandler'
 
 // Allowed characters, shared by the typing filter and the on-save check
 const JD_LABEL_CHARS = { allow: 'letters', spaces: true, extra: ".'-_,()" }
@@ -2089,7 +2090,7 @@ const refreshSavedJobDetails = async jobId => {
     setInductionDataList(inductionList)
   } catch (error) {
     // A refresh failure should not turn a successful save into a failed save.
-    console.error('Refresh job description details error:', error)
+    handleError(error, { context: 'Refresh job description after save', notify: false })
   }
 }
 
@@ -2526,7 +2527,7 @@ if (!isValid) {
         return
       }
     } catch (error) {
-      console.error('JD completeness check error:', error)
+      handleError(error, { context: 'JD completeness check', notify: false })
     }
 
     // Basic Details / Education are validated here even when another tab is

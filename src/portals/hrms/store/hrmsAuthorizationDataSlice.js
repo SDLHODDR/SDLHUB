@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { fetchHRMSListAuthorizationData } from "../../../shared/services/authorizationService";
+import { getErrorMessage, isCancelledError } from "../../../shared/services/errorHandler";
 
 const initialState = {
   data: [],           // this will hold the `tasks` array
@@ -18,13 +19,14 @@ const initialState = {
 
 export const getHRMSAuthTableDataResponse = createAsyncThunk(
   "fetch/hrmsAuthDataTable",
-  async (payload, { rejectWithValue }) => {
+  async (payload, { rejectWithValue, signal }) => {
     try {
-      const response = await fetchHRMSListAuthorizationData(payload);
+      const response = await fetchHRMSListAuthorizationData(payload, { signal });
       if (!response.status) {
         return rejectWithValue({
           errorCode: response.status,
           errorMessage: response.message,
+          userMessage: response.message || "Unable to load authorization requests.",
         });
       }
       
@@ -34,6 +36,8 @@ export const getHRMSAuthTableDataResponse = createAsyncThunk(
       return rejectWithValue({
         errorCode: error?.response?.status || -1,
         errorMessage: error?.message || "Something went wrong",
+        cancelled: isCancelledError(error),
+        userMessage: getErrorMessage(error, "Unable to load authorization requests."),
       });
     }
   },
@@ -69,6 +73,9 @@ export const hrmsAuthSlice = createSlice({
         state.status = "idle";
       })
       .addCase(getHRMSAuthTableDataResponse.rejected, (state, action) => {
+        // A cancelled load was replaced by a newer one (or the page closed):
+        // leave loading/error to that newer load.
+        if (action.meta.aborted || action.payload?.cancelled) return;
         state.loading = false;
         state.success = false;
         state.error = true;

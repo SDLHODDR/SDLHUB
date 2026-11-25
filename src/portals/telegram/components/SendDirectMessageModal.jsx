@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   getGroupMembers
 } from "../services/telegramMemberService";
+import { handleError } from "../../../shared/services/errorHandler";
 
 const SendDirectMessageModal = ({
   show,
@@ -23,7 +24,7 @@ const SendDirectMessageModal = ({
         );
         setMemberFormData( formattedMembers );
       } catch (error) {
-        console.log(error);
+        handleError(error, { context: "Load group members", fallback: "Unable to load group members." });
       } finally {
         setLoading(false);
       }

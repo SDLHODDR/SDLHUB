@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAuthDataResponse } from "../store/ePortalAuthorizationDataSlice";
 import { getAuthroizationTaskCount } from "../store/ePortalAuthorizationCountSlice";
 import { useLocation } from "react-router-dom";
+import { handleError } from "../../../shared/services/errorHandler";
 
 export const useOutdoorDutyAuthorizationHandler = () => {
   const dispatch = useDispatch();
@@ -18,17 +19,16 @@ export const useOutdoorDutyAuthorizationHandler = () => {
   // Assuming your route is defined like: /eportal/taskauthorization/:taskId
   const location = useLocation();
   // pathname will be something like "/eportal/taskauthorization/21" or ".../349"
-  //const isTask21 = location.pathname.endsWith("/21");
-  //const segments = location.pathname.split("/").filter(Boolean); // removes empty strings
-  //const lastSegment = segments[segments.length - 1];
-  //const isTask21 = lastSegment === "21";
 
   const segments = location.pathname.split("/").filter(Boolean);
   const currentTaskId = segments[segments.length - 1]; // "21" or "349"
 
   useEffect(() => {
-    //dispatch(getAuthDataResponse({ task_id: 349 }));
-    dispatch(getAuthDataResponse({ task_id: currentTaskId }));
+    // Cancel this load if the page closes or loads another list first,
+    // so a stale request can't show an error or overwrite newer data.
+    const load = dispatch(getAuthDataResponse({ task_id: currentTaskId }));
+    load.unwrap().catch(error => handleError(error, { context: "Load outdoor duty requests", fallback: "Unable to load outdoor duty requests." }));
+    return () => load.abort();
   }, [dispatch, refreshKey, currentTaskId]);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export const useOutdoorDutyAuthorizationHandler = () => {
       });
       if (mounted) setListData(flattened);
     } catch (error) {
-      console.error(error);
+      handleError(error, { context: "Build outdoor duty requests rows", notify: false });
       if (mounted) setListData([]);
     }
     return () => {
@@ -56,25 +56,7 @@ export const useOutdoorDutyAuthorizationHandler = () => {
     };
   }, [authODdata]);
 
-  // const filteredData = useMemo(() => {
-  //   if (!searchQuery.trim()) return listData;
-  //   const query = searchQuery.trim().toLowerCase();
-  //   return listData.filter(
-  //     (item) =>
-  //       (item.OUT_TYPE || "").toLowerCase().includes(query) ||
-  //       (item.REMARKS || "").toLowerCase().includes(query) ||
-  //       (item.REQUEST_FOR || "").toLowerCase().includes(query) ||
-  //       (item.CREATED_BY || "").toLowerCase().includes(query),
-  //   );
-  // }, [searchQuery, listData]);
-
   const filteredData = useMemo(() => {
-    // const scopedData = isTask21
-    // ? listData.filter((item) => String(item.TASK_ID) === "21")
-    // : listData;
-
-    // // Step 2: apply search on top of the scoped dataset
-    // if (!searchQuery.trim()) return scopedData;
 
     // Scope to whichever TASK_ID matches the current route, not just "21"
     const scopedData = listData.filter(
@@ -82,7 +64,6 @@ export const useOutdoorDutyAuthorizationHandler = () => {
     );
 
     if (!searchQuery.trim()) return scopedData;
-
 
     const query = searchQuery.trim().toLowerCase();
     return scopedData.filter(

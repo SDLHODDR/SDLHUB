@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import SDLSelect from "../../../shared/components/form/SDLSelect";
 import {
@@ -9,15 +9,13 @@ import {
 } from "../services/conferenceService";
 
 import { notifyError, notifySuccess } from "../../../shared/services/alertService";
-
+import { handleError } from "../../../shared/services/errorHandler";
 
 const getByteLength = (value) =>
   new TextEncoder().encode(value || "").length;
 
-
 const isSelectedFacility = (value) =>
   value === "Y" || value === "1" || value === 1;
-
 
 const createFormData = (booking = {}) => ({
   ID: booking.TRAN_CODE || booking.ID || "",
@@ -133,7 +131,6 @@ const createFormData = (booking = {}) => ({
   AUTH_REMARKS: "",
 });
 
-
 /* ==========================================================
    FORMAT TIME
 ========================================================== */
@@ -167,7 +164,6 @@ const formatTime = (value) => {
 
   return String(value);
 };
-
 
 /* ==========================================================
    NORMALIZE DATE
@@ -236,7 +232,6 @@ const normalizeDateForApi = (value) => {
   return stringValue;
 };
 
-
 const AuthCFRModal = ({
   formSettings = {},
   isOpen,
@@ -269,7 +264,6 @@ const AuthCFRModal = ({
   const [roomError, setRoomError] =
     useState("");
 
-
   /* ==========================================================
      RELOAD FORM WHEN MODAL OPENS
   ========================================================== */
@@ -293,7 +287,6 @@ const AuthCFRModal = ({
     isOpen,
     formSettings.taskEmployeeConfig,
   ]);
-
 
   /* ==========================================================
      LOAD ACTIVE ROOMS
@@ -360,11 +353,9 @@ const AuthCFRModal = ({
       }
     };
 
-
     loadRoomOptions();
 
   }, [isOpen]);
-
 
   /* ==========================================================
      FIND CURRENT ROOM
@@ -390,7 +381,6 @@ const AuthCFRModal = ({
     formData.room_id,
     roomOptions,
   ]);
-
 
   /* ==========================================================
      LOAD AVAILABILITY
@@ -450,23 +440,21 @@ const AuthCFRModal = ({
 
     } catch (error) {
 
-      console.error(
-        "Room availability error:",
-        error
-      );
-
       setRoomAvailability([]);
 
-      setRoomError(
-        "Unable to check room availability."
-      );
+      // Shown inline under the room field, not as a popup
+      handleError(error, {
+        context: "Check room availability",
+        fallback: "Unable to check room availability.",
+        notify: false,
+        onError: setRoomError,
+      });
 
     } finally {
 
       setLoadingAvailability(false);
     }
   };
-
 
   /* ==========================================================
      ROOM CHANGE
@@ -500,7 +488,6 @@ const AuthCFRModal = ({
         "",
     }));
 
-
     if (roomId) {
 
       await loadRoomAvailability(
@@ -508,7 +495,6 @@ const AuthCFRModal = ({
       );
     }
   };
-
 
   /* ==========================================================
      REMARKS
@@ -532,7 +518,6 @@ const AuthCFRModal = ({
     }));
   };
 
-
   /* ==========================================================
      CAPACITY CHECK
   ========================================================== */
@@ -554,25 +539,6 @@ const AuthCFRModal = ({
       selectedRoom &&
       attendeeCount > roomCapacity
     );
-
-
-  /* ==========================================================
-     TIME CONFLICT CHECK
-     
-     Backend availability gives us existing bookings.
-     This additional frontend check makes the UI immediately
-     clear.
-  ========================================================== */
-
-  const bookingStart =
-    formatTime(formData.starttime);
-
-  const bookingEnd =
-    formatTime(formData.endtime);
-
-
-  const hasRoomBookings =
-    roomAvailability.length > 0;
 
 
   /* ==========================================================
@@ -599,7 +565,6 @@ const AuthCFRModal = ({
           return;
         }
 
-
         if (capacityExceeded) {
 
           setRoomError(
@@ -609,7 +574,6 @@ const AuthCFRModal = ({
           return;
         }
 
-
         /*
          * If availability has bookings, don't automatically
          * reject here because the backend should ultimately
@@ -618,7 +582,6 @@ const AuthCFRModal = ({
          * We display the bookings to admin.
          */
       }
-
 
       try {
 
@@ -636,7 +599,6 @@ const AuthCFRModal = ({
             flag,
           });
 
-
         if (!response?.status) {
 
           notifyError(
@@ -646,7 +608,6 @@ const AuthCFRModal = ({
 
           return;
         }
-
 
         notifySuccess(
           flag === "A"
@@ -675,11 +636,9 @@ const AuthCFRModal = ({
       }
     };
 
-
   if (!isOpen) {
     return null;
   }
-
 
   return (
     <>
@@ -692,7 +651,6 @@ const AuthCFRModal = ({
         <div className="modal-dialog modal-dialog-centered modal-lg">
 
           <div className="modal-content">
-
 
             {/* ==================================================
                 HEADER
@@ -716,13 +674,11 @@ const AuthCFRModal = ({
 
             </div>
 
-
             {/* ==================================================
                 BODY
             ================================================== */}
 
             <div className="modal-body">
-
 
               {/* ==================================================
                   DATE / TIME
@@ -747,7 +703,6 @@ const AuthCFRModal = ({
 
                 </div>
 
-
                 <div className="col-md-4">
 
                   <label className="form-label">
@@ -764,7 +719,6 @@ const AuthCFRModal = ({
                   />
 
                 </div>
-
 
                 <div className="col-md-4">
 
@@ -804,7 +758,6 @@ const AuthCFRModal = ({
 
               </div>
 
-
               {/* ==================================================
                   BOOKING DETAILS
               ================================================== */}
@@ -830,7 +783,6 @@ const AuthCFRModal = ({
 
                 </div>
 
-
                 <div className="col-md-6">
 
                   <label className="form-label">
@@ -849,7 +801,6 @@ const AuthCFRModal = ({
                 </div>
 
               </div>
-
 
               {/* ==================================================
                   DIVISION / REASON
@@ -874,7 +825,6 @@ const AuthCFRModal = ({
 
                 </div>
 
-
                 <div className="col-md-6">
 
                   <label className="form-label">
@@ -893,7 +843,6 @@ const AuthCFRModal = ({
                 </div>
 
               </div>
-
 
               {/* ==================================================
                   BOOKING FACILITIES
@@ -923,7 +872,6 @@ const AuthCFRModal = ({
 
                 </div>
 
-
                 <div className="col-md-4">
 
                   <div className="form-check">
@@ -945,7 +893,6 @@ const AuthCFRModal = ({
                   </div>
 
                 </div>
-
 
                 <div className="col-md-4">
 
@@ -971,7 +918,6 @@ const AuthCFRModal = ({
 
               </div>
 
-
               {/* ==================================================
                   ROOM
               ================================================== */}
@@ -987,7 +933,6 @@ const AuthCFRModal = ({
                     {" "}*
                   </span>
                 </label>
-
 
                 <SDLSelect
                   id="conference-auth-room"
@@ -1012,7 +957,6 @@ const AuthCFRModal = ({
                       : "Select Room"}
                   </option>
 
-
                   {roomOptions.map(
                     (room) => (
 
@@ -1028,7 +972,6 @@ const AuthCFRModal = ({
 
                 </SDLSelect>
 
-
                 {roomError && (
                   <div className="invalid-feedback">
                     {roomError}
@@ -1036,7 +979,6 @@ const AuthCFRModal = ({
                 )}
 
               </div>
-
 
               {/* ==================================================
                   SELECTED ROOM INFORMATION
@@ -1069,7 +1011,6 @@ const AuthCFRModal = ({
 
                     </div>
 
-
                     {/* LOCATION */}
 
                     <div className="col-md-4">
@@ -1084,7 +1025,6 @@ const AuthCFRModal = ({
                       </strong>
 
                     </div>
-
 
                     {/* FACILITIES */}
 
@@ -1123,7 +1063,6 @@ const AuthCFRModal = ({
 
                   </div>
 
-
                   {/* CAPACITY WARNING */}
 
                   {capacityExceeded && (
@@ -1146,7 +1085,6 @@ const AuthCFRModal = ({
                 </div>
 
               )}
-
 
               {/* ==================================================
                   ROOM AVAILABILITY
@@ -1179,7 +1117,6 @@ const AuthCFRModal = ({
 
                   </div>
 
-
                   {!loadingAvailability &&
                     roomAvailability.length === 0 && (
 
@@ -1197,7 +1134,6 @@ const AuthCFRModal = ({
                       </div>
 
                     )}
-
 
                   {!loadingAvailability &&
                     roomAvailability.length > 0 && (
@@ -1235,7 +1171,6 @@ const AuthCFRModal = ({
                               </tr>
 
                             </thead>
-
 
                             <tbody>
 
@@ -1292,7 +1227,6 @@ const AuthCFRModal = ({
 
               )}
 
-
               {/* ==================================================
                   AUTH REMARKS
               ================================================== */}
@@ -1327,7 +1261,6 @@ const AuthCFRModal = ({
               </div>
 
             </div>
-
 
             {/* ==================================================
                 FOOTER
@@ -1368,7 +1301,6 @@ const AuthCFRModal = ({
 
                 </button>
 
-
                 <button
                   type="button"
                   className="btn btn-danger"
@@ -1390,12 +1322,10 @@ const AuthCFRModal = ({
 
       </div>
 
-
       <div className="modal-backdrop fade show" />
 
     </>
   );
 };
-
 
 export default AuthCFRModal;

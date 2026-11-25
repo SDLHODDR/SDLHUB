@@ -22,6 +22,7 @@ import '../../assets/departmentDesignation.css'
 import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
 import SDLInput from '../../../../shared/components/form/SDLInput'
 import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
+import { handleError } from '../../../../shared/services/errorHandler'
 
 const KRAActivity = () => {
   const dispatch = useDispatch()
@@ -58,7 +59,7 @@ const KRAActivity = () => {
       const response = await getKRAMasterData()
       setListKRAMasterData(normalizeRecords(response))
     } catch (error) {
-      console.error('Error fetching KRA Master Data:', error)
+      handleError(error, { context: 'Load KRA master', fallback: 'Unable to load KRA master data.' })
     } finally {
       setLoading(false)
     }
@@ -86,7 +87,7 @@ const KRAActivity = () => {
         createdOn: item.created_on || item.createdOn || '-'
       }))
     } catch (error) {
-      console.error(error)
+      handleError(error, { context: 'Build KRA activity rows', notify: false })
       return []
     }
   }, [kraActivityData])

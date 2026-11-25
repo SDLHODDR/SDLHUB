@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getLeavesDataResponse } from "../../store/ePortalLeavesSlice";
 import { getAuthroizationTaskCount } from "../../store/ePortalAuthorizationCountSlice";
 
-import { createLeavesHandlers } from "../../utils/LeavesHandlers";
 import EportalPageLoader from "../loader/EportalPageLoader";
 
 import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
@@ -21,6 +20,7 @@ import { getLRDataDetails } from "../../services/leavesService";
 
 import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/wideContentPages.css";
+import { handleError } from "../../../../shared/services/errorHandler";
 
 const Leaves = () => {
   const dispatch = useDispatch();
@@ -122,7 +122,7 @@ const Leaves = () => {
         };
       });
     } catch (error) {
-      console.error("Error preparing leave data:", error);
+      handleError(error, { context: "Build leave rows", notify: false });
 
       return [];
     }
@@ -268,8 +268,6 @@ const Leaves = () => {
           modal_date: formatLocalDateTime(modalDate),
         });
 
-        console.log("Leave modal validation response:", response);
-
         const flag = response?.data?.pass?.flag;
 
         if (flag === "Yes") {
@@ -380,16 +378,7 @@ const Leaves = () => {
     dispatch(getAuthroizationTaskCount());
   };
 
-  /* ============================================================
-     HANDLERS
-  ============================================================ */
-
-  const handlers = createLeavesHandlers({
-    handleSuccess,
-    openModal,
-  });
-
-  const columns = leavesColumns(handlers);
+  const columns = leavesColumns();
 
   /* ============================================================
      CLEAR FILTERS

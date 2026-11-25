@@ -16,6 +16,7 @@ import SDLCalendar from '../../../../shared/components/calendar/SDLCalendar'
 import { parseDateValue } from '../../../../shared/utils/commonUtils'
 import { filterInput } from '../../../../shared/validation'
 import { employeeDocumentUrl } from '../../services/newEmployeeService'
+import { handleError } from '../../../../shared/services/errorHandler'
 
 const toDateInputValue = date => {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) return ''
@@ -891,7 +892,7 @@ const EmployeeData = () => {
         setEmployeeData({})
       }
     } catch (error) {
-      console.error('Error loading employee details:', error)
+      handleError(error, { context: 'Load employee details', fallback: 'Unable to load employee details.' })
       setEmployeeData({})
     } finally {
       setLoading(false)
@@ -920,7 +921,7 @@ const EmployeeData = () => {
         setEmployees([])
       }
     } catch (error) {
-      console.error('Error loading employees:', error)
+      handleError(error, { context: 'Load employees', fallback: 'Unable to load employees.' })
       setEmployees([])
     } finally {
       setEmployeesLoading(false)
@@ -937,7 +938,7 @@ const EmployeeData = () => {
         console.error(response?.message || 'Unable to load employee masters.')
       }
     } catch (error) {
-      console.error('Error loading employee masters:', error)
+      handleError(error, { context: 'Load employee masters', fallback: 'Unable to load dropdown data.' })
     }
   }
 

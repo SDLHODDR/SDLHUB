@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { getGpAttdData, authGPData, rejectGPData, closeTaskData } from "../services/outdoorDutyService";
+import { getGPDataDetails, authGPData, rejectGPData, closeTaskData } from "../services/outdoorDutyService";
 import { notifyError, notifySuccess } from "../../../shared/services/alertService";
 import SDLAuthorizationActionButtons from "../../../shared/components/buttons/SDLAuthorizationActionButtons";
 import AttendanceLogForOD from "./AttendanceLogForOD";
 import { DOC_FOLDERS, downloadUrl } from "../../../shared/config/documentPaths";
+import { handleError } from "../../../shared/services/errorHandler";
 
 const OutdoorDutyAuthorizationModal = ({
   outddorduty,
@@ -27,7 +28,6 @@ const OutdoorDutyAuthorizationModal = ({
   const currentTaskId = segments[segments.length - 1]; // "21" or "349"
   const isPostRemarksView = currentTaskId === "21"; // read-only view mode
 
-  const [loading, setLoading] = useState(true);
   const [gpAttdData, setGPAttdData] = useState({});
 
   const getByteLength = (str) => new TextEncoder().encode(str || "").length;
@@ -54,8 +54,7 @@ const OutdoorDutyAuthorizationModal = ({
 
   const fetchGPAttdData = async (frmDt) => {
     try {
-      setLoading(true);
-      const response = await getGpAttdData({
+      const response = await getGPDataDetails({
         emp_code: frmDt?.DETAILS?.EMP_CODE || null,
         gpass_date: frmDt.GPASS_DATE || null,
         out_type: frmDt.OUT_TYPE || null,
@@ -67,9 +66,7 @@ const OutdoorDutyAuthorizationModal = ({
         notifyError(response?.message || `Unable to fetch Emp Attendance.`);
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
+      handleError(error, { context: "Load employee attendance", fallback: "Unable to fetch Emp Attendance." });
     }
   };
 
@@ -77,8 +74,6 @@ const OutdoorDutyAuthorizationModal = ({
     // Skip the attendance fetch entirely in the read-only Post Remarks view
     if (!isPostRemarksView) {
       fetchGPAttdData(outddorduty);
-    } else {
-      setLoading(false);
     }
   }, [outddorduty, isPostRemarksView]);
 
@@ -116,7 +111,7 @@ const OutdoorDutyAuthorizationModal = ({
       notifySuccess("Request rejected successfully");
       onSuccess?.();
     } catch (err) {
-      console.error(err);
+      handleError(err, { context: "Reject outdoor duty request", fallback: "Unable to reject the request." });
     }
   };
 
@@ -160,8 +155,6 @@ const OutdoorDutyAuthorizationModal = ({
       notifyError("Something went wrong");
     }
   };
-
-  console.log("===================AuthRemarks===================", formData);
 
   const attachmentFileName = formData.ATTACHMENT_URL
   ? formData.ATTACHMENT_URL.split("/").pop()
@@ -259,10 +252,6 @@ const OutdoorDutyAuthorizationModal = ({
                                 <i className="ti ti-eye me-1" />
                                 View
                               </a>
-                              {/* <a href={attachmentUrl} download>
-                                <i className="ti ti-download me-1" />
-                                Download
-                              </a> */}
                             </span>
                           </div>
                         </div>
@@ -301,16 +290,6 @@ const OutdoorDutyAuthorizationModal = ({
                       </div>
                     </div>
 
-                    {/* {gpAttdData?.keyRt && (
-                      <div className="row">
-                        <div className="col-12">
-                          <div className="form-group mb-3">
-                            <label className="form-label">{gpAttdData.keyRt}:</label>
-                            <span className="ms-2">{gpAttdData.valRt || ""}</span>
-                          </div>
-                        </div>
-                      </div>
-                    )} */}
                     {hasGpAttdInfo && (
                       <div className="row">
                         <div className="col-12">
@@ -326,14 +305,6 @@ const OutdoorDutyAuthorizationModal = ({
               </div>
 
               {/* Authorize / Reject: only in the /349 action view */}
-              {/* {!isPostRemarksView && (
-                <div className="modal-footer">
-                  <SDLAuthorizationActionButtons
-                  onAuthorize={handleAuthorize}
-                  onReject={handleReject}
-                />
-                </div>
-              )} */}
               <div className="modal-footer">
                 {isPostRemarksView ? (
                   <button

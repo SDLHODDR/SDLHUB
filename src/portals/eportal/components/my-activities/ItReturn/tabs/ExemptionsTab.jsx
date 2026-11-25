@@ -67,7 +67,6 @@ const ExemptionsTab = ({ onDataSaved, editable }) => {
 
   const hasFetched = useRef(false)
 
-  
   /* =========================================================
      DATE HELPERS
   ========================================================= */
@@ -482,8 +481,6 @@ const formatDateForDisplay = value => {
       setLoading(true)
 
       const res = await getExemptionData()
-
-      console.log('Exemption GET response:', res)
 
       if (res?.status) {
         const {
@@ -1031,18 +1028,8 @@ const formatDateForDisplay = value => {
         }
       })
 
-      console.log(
-        'Saving exemption payload:',
-        Object.fromEntries(payload.entries())
-      )
-
       const res =
         await saveExemptions(payload)
-
-      console.log(
-        'Save exemption response:',
-        res
-      )
 
       if (res?.status) {
         notifySuccess(
@@ -1130,11 +1117,6 @@ const formatDateForDisplay = value => {
         await deleteExemptionData(
           exemptionId
         )
-
-      console.log(
-        'Delete exemption response:',
-        response
-      )
 
       if (response?.status) {
         notifySuccess(

@@ -1,6 +1,6 @@
 ﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Badge from "../../../shared/components/Badge";
 
 const TASK_CONFIG = {
@@ -45,7 +45,6 @@ const ActivityHeader = ({ open, onToggle }) => (
 );
 
 const ActivityItem = ({ item, onNavigate }) => {
-  console.log("-------item---------", item);
   const badgeClass = item.badgeClass
     ? `${item.badgeClass} badge-xs`
     : "text-gray";
@@ -67,7 +66,6 @@ const ActivityItem = ({ item, onNavigate }) => {
 const AuthorizationDropdown = () => {
   const [bellOpen, setBellOpen] = useState(false);
   const [activitiesOpen, setActivitiesOpen] = useState(true);
-  const [authBellCount, setAuthBellCount] = useState(0);
 
   const wrapperRef = useRef(null);
 
@@ -97,10 +95,6 @@ const AuthorizationDropdown = () => {
       return undefined;
     }
 
-    if (successCnt && countTotalData) {
-      setAuthBellCount(countTotalData || 0);
-    }
-
     const handleClickOutside = (event) => {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
         setBellOpen(false);
@@ -112,7 +106,7 @@ const AuthorizationDropdown = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [bellOpen, successCnt, countTotalData]);
+  }, [bellOpen]);
 
   return (
     <div

@@ -1,25 +1,9 @@
 import { eportalRequest } from "../../../shared/services/request"; // central handler
 import { EPORTAL_API } from "../config/eportalApiConfig";
-import { PORTALAPI } from "../../../shared/services/apiConfig";
-
-// export const getTBRDataDetails = async (payload = {}) => {
-//   const res = await eportalAPI.post(
-//     PORTALAPI.TICKETBOOKING.TBData,
-//     payload,
-//     {
-//       // headers: {
-//       //   "X-CSRF-Token": csrfToken
-//       // },
-//       withCredentials: true
-//     }
-//   );
-  
-//   return res.data.pass || [];
-// };
 
 export const getTBRDataDetails = (payload = {}) => 
   eportalRequest({
-    url: PORTALAPI.TICKETBOOKING.TBData,
+    url: EPORTAL_API.TICKETBOOKING.TBData,
     method: "POST",
     dedupe: true,
     data: payload,
@@ -38,7 +22,7 @@ export const ticketBookingFetchData = () =>
 
 export const saveTBRData = (payload = {}) => 
   eportalRequest({
-    url: PORTALAPI.TICKETBOOKING.SAVETBData,
+    url: EPORTAL_API.TICKETBOOKING.SAVETBData,
     method: "POST",
     dedupe: true,
     data: payload,
@@ -46,7 +30,7 @@ export const saveTBRData = (payload = {}) =>
 
 export const saveTBRDataAUTH = (payload = {}) => 
   eportalRequest({
-    url: PORTALAPI.TICKETBOOKING.SAVETBDataAuth,
+    url: EPORTAL_API.TICKETBOOKING.SAVETBDataAuth,
     method: "POST",
     dedupe: true,
     data: payload,
@@ -54,7 +38,7 @@ export const saveTBRDataAUTH = (payload = {}) =>
   
 export const editTBRData = (payload = {}) => 
   eportalRequest({
-    url: PORTALAPI.TICKETBOOKING.EDITTBData,
+    url: EPORTAL_API.TICKETBOOKING.EDITTBData,
     method: "POST",
     dedupe: true,
     data: payload,
@@ -62,16 +46,15 @@ export const editTBRData = (payload = {}) =>
   
 export const editTBRDataAUTH = (payload = {}) =>
   eportalRequest({
-    url: PORTALAPI.TICKETBOOKING.EDITTBDataAuth,
+    url: EPORTAL_API.TICKETBOOKING.EDITTBDataAuth,
     method: "POST",
     dedupe: true,
     data: payload,
   });
- 
 
 export const authTBRData = (payload = {}) => 
   eportalRequest({
-    url: PORTALAPI.TICKETBOOKING.AUTHTBData,
+    url: EPORTAL_API.TICKETBOOKING.AUTHTBData,
     method: "POST",
     dedupe: true,
     data: payload,
@@ -79,17 +62,15 @@ export const authTBRData = (payload = {}) =>
 
 export const rejectTBRData = (payload = {}) =>
   eportalRequest({
-    url: PORTALAPI.TICKETBOOKING.REJECTTBData,
+    url: EPORTAL_API.TICKETBOOKING.REJECTTBData,
     method: "POST",
     dedupe: true,
     data: payload,
   });
 
-export const deleteTBRData = () => {};
-
 export const getTBRList = (payload = {}) =>
   eportalRequest({
-    url: PORTALAPI.TICKETBOOKING.TB_LIST,
+    url: EPORTAL_API.TICKETBOOKING.TB_LIST,
     method: "POST",
     dedupe: true,
     data: payload,
@@ -97,16 +78,15 @@ export const getTBRList = (payload = {}) =>
 
 export const sendauthTBDataDetails = (payload = {}) =>
   eportalRequest({
-    url: PORTALAPI.TICKETBOOKING.SENDAUTHTBData,
+    url: EPORTAL_API.TICKETBOOKING.SENDAUTHTBData,
     method: "POST",
     dedupe: true,
     data: payload,
   });
 
-
 export const closeTBTicket = (payload = {}) =>
   eportalRequest({
-    url: PORTALAPI.TICKETBOOKING.CLOSETBData,
+    url: EPORTAL_API.TICKETBOOKING.CLOSETBData,
     method: "POST",
     dedupe: true,
     data: payload,
@@ -114,7 +94,7 @@ export const closeTBTicket = (payload = {}) =>
 
 export const resendauthTBDataDetails = (payload = {}) =>
   eportalRequest({
-    url: PORTALAPI.TICKETBOOKING.RESENDAUTHTBData,
+    url: EPORTAL_API.TICKETBOOKING.RESENDAUTHTBData,
     method: "POST",
     dedupe: true,
     data: payload,

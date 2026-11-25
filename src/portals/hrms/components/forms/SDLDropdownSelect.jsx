@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import "../../assets/css/sdldropselect.css";
+import { handleError } from "../../../../shared/services/errorHandler";
 
 /**
  * Click-to-open searchable / creatable dropdown, styled after PrimeReact's
@@ -148,7 +149,7 @@ const SDLDropdownSelect = ({
         handleSelectOption(newOption); // new option behaves exactly like a normal selection
       }
     } catch (error) {
-      console.error("Error adding new option:", error);
+      handleError(error, { context: "Add new option", fallback: "Unable to add the new option." });
     } finally {
       setAdding(false);
     }

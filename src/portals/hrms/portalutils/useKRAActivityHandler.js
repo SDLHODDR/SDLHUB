@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { saveKRAActivity, deleteKRAActivity } from "../services/kraActivityService";
 import { notifySuccess, notifyError, confirmAction } from "../../../shared/services/alertService";
+import { handleError } from "../../../shared/services/errorHandler";
 
 export const useKRAActivityHandler = ({
   formData,
@@ -75,7 +76,7 @@ export const useKRAActivityHandler = ({
       }
       dispatch(getKRAActivityDataResponse());
     } catch (err) {
-      console.error(err);
+      handleError(err, { context: "Delete KRA activity", fallback: "Unable to delete record." });
     } finally {
       setDeletingId(null);
     }

@@ -44,7 +44,7 @@ const PROFILE_TABS = [
   { key: "dash", label: "Dashboard Access" },
   { key: "profileUsers", label: "Profile Users" },
 ];
-import { Alignment } from "ckeditor5";
+import { apiError, handleError } from "../../../../shared/services/errorHandler";
 
 const ProfileMaintenance = () => {
   const hasFetchedProfiles = useRef(false);
@@ -192,22 +192,6 @@ const ProfileMaintenance = () => {
 
   /* ---------------- LOAD PROFILES ---------------- */
 
-  /* const loadProfiles = async () => {
-
-        try {
-            const data = await getProfiles();
-
-            const options = data.map((p) => ({
-                value: p.PROFILE_ID,
-                label: p.PROFILE_DESC
-            }));
-
-            setProfiles(options);
-
-        } catch (err) {
-            console.error(err);
-        }
-    };*/
   /* ---------------- LOAD PROFILE ACCESS ---------------- */
 
   const loadProfileAccess = async (profileId) => {
@@ -247,10 +231,10 @@ const ProfileMaintenance = () => {
             })),
           );
         } else {
-          console.error(response?.message);
+          handleError(apiError(response, "Unable to load profiles."), { context: "Load profiles" });
         }
       } catch (err) {
-        console.error(err);
+        handleError(err, { context: "Load profiles", fallback: "Unable to load profiles." });
       }
     };
 
@@ -269,7 +253,7 @@ const ProfileMaintenance = () => {
         setProfileUsers([]);
       }
     } catch (error) {
-      console.error("Profile Users Fetch Error:", error);
+      handleError(error, { context: "Load profile users", fallback: "Unable to load profile users." });
       setProfileUsers([]);
     } finally {
       setUserLoading(false);
@@ -383,7 +367,6 @@ const ProfileMaintenance = () => {
         );
 
         // reload page so latest menu access reflects in sidebar/menu
-        //window.location.reload();
 
         setProfileId(profileId);
 
@@ -397,12 +380,6 @@ const ProfileMaintenance = () => {
     } catch {
       notifyError(PROFILE_MAINTENANCE_MESSAGES.MENU_SAVE_ERROR);
 
-      /*
-      notifyError(
-          err?.response?.data?.message ||
-          err?.message ||
-          "Something went wrong while saving menu access"
-      );*/
     }
   };
 
@@ -465,8 +442,6 @@ const ProfileMaintenance = () => {
       notifyError(PROFILE_MAINTENANCE_MESSAGES.DASH_SAVE_ERROR);
     }
   };
-
-  //const selectedProfileName = profiles.find(p => p.value === profileId)?.label || "";
 
   /* ================= PROFILE USERS TAB ================= */
 
@@ -681,16 +656,6 @@ const ProfileMaintenance = () => {
             </div>
           </div>
 
-          {/*
-            {profileId && (
-            <div className="card mb-3 border-primary">
-            <div className="card-body py-2">
-            <h5 className="mb-0 text-primary">
-            Profile Access : {selectedProfileName}
-            </h5>
-            </div>
-            </div>
-        )} */}
           {profileId && (
             <>
               {/* TABS */}
@@ -766,27 +731,6 @@ const ProfileMaintenance = () => {
                           return (
                             <div key={menu.ID} className="border rounded mb-2">
                               {/* MENU HEADER */}
-                              {/*<div
-                                  className="p-2 bg-light d-flex justify-content-between align-items-center"
-                                  style={{ cursor: hasSubmenus ? "pointer" : "default" }}
-                                  onClick={() => hasSubmenus && toggleExpand(menu.ID)} >
-                                  <div>
-                                  <strong>
-                                  {hasSubmenus && (expandedMenus[menu.ID] ? "▼" : "▶")}{" "}
-                                  {menu.LABEL}
-                                  </strong>
-                                  </div>
-
-                                  <div>
-                                  <input
-                                  type="checkbox"
-                                  checked={menuAccess[menu.ID] || false}
-                                  onChange={(e) =>
-                                  toggleMenu(menu.ID, e.target.checked)
-                                  }
-                                  />
-                                  </div>
-                              </div> */}
 
                               <div
                                 className="p-2 bg-light d-flex align-items-center menu-header"
@@ -1146,10 +1090,6 @@ const ProfileMaintenance = () => {
                       "Save"
                     )}
                   </button>
-
-                  {/* <button className="btn btn-light" onClick={closeAddProfile}>
-                    Cancel
-                  </button> */}
 
                   <button
                   type="button"

@@ -133,21 +133,6 @@ export const saveForm12B = (payload) =>
   });
 
 /* ============================
-   GET PREVIEW DATA
-============================ */
-
-export const getPreviewData = () =>
-  eportalRequest({
-    url: EPORTAL_API.IT_RETURN.GET_PREVIEW_DATA,
-    method: "GET",
-    dedupe: true,
-    fallback: {
-      status: false,
-      data: {},
-    },
-  });
-
-/* ============================
    GET FORM 12B DATA
 ============================ */
 

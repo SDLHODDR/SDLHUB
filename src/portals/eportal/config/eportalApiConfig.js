@@ -66,44 +66,39 @@ export const EPORTAL_API = {
     ACCESS_DATA: "/dashboard/getDashboardAccessData.php"
   },
   GATEPASS: {
-    GPData: "/gatepass/gp_info_sv.php", // GP Info Data
-    SAVEGPData: "/gatepass/gp_save.php", // GP Info Data
-    SAVEGPDataAuth: "/gatepass/gp_save.php", // GP Info Data
-    EDITGPData: "/gatepass/gp_save.php", // GP Info Data
-    EDITGPDataAuth: "/gatepass/gp_save.php", // GP Info Data
-    DELETEGPData: "/gatepass/gp_save.php", // GP Info Data
-    GP_LIST: "/gatepass/gp_list.php",
+    GPData: "/gatepass/gp_info_sv.php",
+    SAVEGPData: "/gatepass/gp_save.php",
+    SAVEGPDataAuth: "/gatepass/gp_save.php",
     GET_GP_LIST: "/gatepass/gp_get_list.php",
     SENDAUTHGPData: "/gatepass/gp_auth.php",
     RESENDAUTHGPData: "/gatepass/gp_auth.php",
     AUTHGPData: "/gatepass/gp_svauth.php",
     REJECTGPData: "/gatepass/gp_svauth.php",
+    CLOSETASKGPData: "/gatepass/gp_svauth.php",
     CLOSEGPData: "/gatepass/gp_save.php"
   },
 
   TICKETBOOKING: {
-    TBData: "/ticketbooking/tb_info_sv.php", // GP Info Data
-    EDITTBData: "/ticketbooking/tb_save.php", // GP Info Data
-    EDITTBDataAuth: "/ticketbooking/tb_save.php", // GP Info Data
-    DELETETBData: "/ticketbooking/tb_save.php", // GP Info Data
-    SAVETBData: "/ticketbooking/tb_save.php", // GP Info Data
-    SAVETBDataAuth: "/ticketbooking/tb_save.php", // GP Info Data
+    TBData: "/ticketbooking/tb_info_sv.php",
+    EDITTBData: "/ticketbooking/tb_save.php",
+    EDITTBDataAuth: "/ticketbooking/tb_save.php",
+    SAVETBData: "/ticketbooking/tb_save.php",
+    SAVETBDataAuth: "/ticketbooking/tb_save.php",
     GET_TB_LIST: "/ticketbooking/tb_get_list.php",
     TB_LIST: "/ticketbooking/tb_list.php",
     SENDAUTHTBData: "/ticketbooking/tb_auth.php",
+    RESENDAUTHTBData: "/ticketbooking/tb_auth.php",
     AUTHTBData: "/ticketbooking/tb_svauth.php",
     REJECTTBData: "/ticketbooking/tb_svauth.php",
     CLOSETBData: "/ticketbooking/tb_save.php"
   },
 
   LEAVEREQUEST: {
-    LRData: "/leaverequest/lr_info_sv.php", // GP Info Data
-    SAVELRData: "/leaverequest/lr_save.php", // GP Info Data
-    SAVELRDataAuth: "/leaverequest/lr_save.php", // GP Info Data
+    LRData: "/leaverequest/lr_info_sv.php",
+    SAVELRData: "/leaverequest/lr_save.php",
     GET_LR_LIST: "/leaverequest/lr_get_list.php",
     LR_LIST: "/leaverequest/lr_list.php",
     AUTHLRData: "/leaverequest/lr_auth.php",
-    AUTHLEAVEData: "/leaverequest/lr_auth.php",
     REJECTLEAVEData: "/leaverequest/lr_auth.php",
     CHECKCLDATA: "/leaverequest/lr_validate.php",
     CHECKOLDATA: "/leaverequest/lr_validate.php",
@@ -114,7 +109,6 @@ export const EPORTAL_API = {
     GET_INCOME_DATA: "/itreturn/getItReturnData.php", // Get income Data
     GET_DEDUCTION_DATA: "/itreturn/getDeductionData.php", // Get deduction Data
     GET_FORM12B_DATA: "/itreturn/getForm12B.php", // Get form12 B Data
-    GET_PREVIEW_DATA: "/itreturn/getPreview.php", // Get preview Data
     GET_EXEMPTION_DATA: "/itreturn/getExemptionData.php", // Get exemption Data
     DELETE_EXEMPTION: "/itreturn/deleteExemptionData.php", // Delete exemption Data
     SAVE_REGIME: "/itreturn/saveRegime.php", // Save regime Data
@@ -140,7 +134,7 @@ export const EPORTAL_API = {
     EXPORT_ACCEPTANCE_REPORT: "/reports/exportPolicyAcceptanceReport.php",
   },
   AUTHORIZATION: {
-    TASKDATA: "/getAuthorization.php", // GP Info Data
+    TASKDATA: "/getAuthorization.php",
     TASKTABLEDATA: "/getTable.php",
   },
   LOGS: {

@@ -18,7 +18,6 @@ export const getOutdoorDutyDataResponse = createAsyncThunk(
   async (payload, { rejectWithValue }) => {
     try {
       const response = await outDoorDutyFetchData(payload);
-      console.log("========eportalOutDoorDutySLice Response========", response);
       if(!response.status) {
         return rejectWithValue({
           errorCode: response.status,
@@ -57,7 +56,6 @@ export const myActivitiesODSlice = createSlice({
         state.error = false;
       })
       .addCase(getOutdoorDutyDataResponse.fulfilled, (state, action) => {
-        //console.log(action);
         state.loading = false;
         state.data = action.payload || [];
         state.success = !!action.payload.status;

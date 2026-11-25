@@ -13,6 +13,7 @@ import { getAuthroizationTaskCount } from "../../store/ePortalAuthorizationCount
 import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import EportalPageLoader from "../loader/EportalPageLoader";
 import "../../assets/css/wideContentPages.css";
+import { handleError } from "../../../../shared/services/errorHandler";
 
 const OutdoorDuty = () => {
   const dispatch = useDispatch();
@@ -45,7 +46,7 @@ const OutdoorDuty = () => {
         authremarks: item.authremarks || "_",
       }));
     } catch (error) {
-      console.error(error);
+      handleError(error, { context: "Build outdoor duty rows", notify: false });
       return [];
     }
   }, [outdoorDutydata]);

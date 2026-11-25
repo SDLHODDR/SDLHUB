@@ -57,12 +57,8 @@ export const myActivitiesTBRSlice = createSlice({
         state.error = false;
       })
       .addCase(getTicketBookingDataResponse.fulfilled, (state, action) => {
-        //console.log(action);
         state.loading = false;
         state.data = action.payload || [];
-        //state.page = action.payload.page;
-        //state.limit = action.payload.limit;
-        //state.totalRecords = action.payload.totalRecords;
         state.success = !!action.payload.status;
         state.successMessage = "Data fetched successfully";
         state.status = "idle";

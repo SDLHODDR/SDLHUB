@@ -2,16 +2,14 @@ import { useState, useEffect, useCallback } from "react";
 import SDLSelect from "../../../shared/components/form/SDLSelect";
 import {
     getGPDataDetails,
-    //getGPSVDataDetails,
     saveGPData,
     saveGPDataAUTH,
-    //editGPData,
-    //editGPDataAUTH,
 } from "../services/outdoorDutyService";
 
 import { notifyError, notifySuccess } from "../../../shared/services/alertService";
 import SDLtextEditor  from "../../../shared/components/editor/SDLtextEditor";
-import { stripHtmlToText } from "../../../shared/utils/formatUtils";
+import { stripHtmlToText, toDMYDate } from "../../../shared/utils/formatUtils";
+import { handleError } from "../../../shared/services/errorHandler";
 
 const OutdoorDutyModal = ({
     formSettings,
@@ -42,40 +40,15 @@ const OutdoorDutyModal = ({
       "video/x-msvideo",
       "video/x-matroska",
     ];
-    //const [date, setDate] = useState(new Date());
-    //const [startTime, setStartTime] = useState("");
-    //const [endTime, setEndTime] = useState("");
-    const [loading, setLoading] = useState(true);
     const [gpData, setGPData] = useState({});
     const [formData, setFormData] = useState({});
     const { isOpen, modalDate } = modalState;
     const [attachment, setAttachment] = useState(null); // File object
-    const [fileError, setFileError] = useState("");
     const [existingAttachment, setExistingAttachment] = useState(null); // { name, url } from gpData, for edit mode
-    // console.log(
-    //     "===========Outdoor Duty Submitted 123=========",
-    //     formSettings,
-    //     modalState,
-    // );
     const [errors, setErrors] = useState({});
-    //const isReadOnly = ["view", "readonly"].includes(mode);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    //const isEditMode = modalState.mode === "edit";
-    //const isRejectEditMode = mode === "edit-reject";
-    //const isPostRemarkMode = mode === "postremark";
-    //const isCreateMode = mode === "create";
     const isPostRemarkNwMode = modalState.isPostRemark;
     const [postRemarksKey, setPostRemarksKey] = useState(0);
-
-    //const enableOutType = isCreateMode || isEditMode || isRejectEditMode;
-    //const enablePostRemarks = (isEditMode && status === "Not send to auth") || isPostRemarkMode;
-
-    // useEffect(() => {
-    //     if (isOpen) {
-    //         setIsSubmitting(false); // reset every time modal opens
-    //         //setIsUpdating(false);
-    //     }
-    // }, [isOpen]);
 
     const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
     if (isOpen !== prevIsOpen) {
@@ -99,9 +72,8 @@ const OutdoorDutyModal = ({
         setErrors(initialErrors);
         setGPData({});
         setIsSubmitting(false);
-        setLoading(false);
         setAttachment(null);         // add
-        setFileError("");            // add
+                    // add
         setExistingAttachment(null); // add
     };
 
@@ -109,8 +81,6 @@ const OutdoorDutyModal = ({
         resetForm();
         closeModal();
     };
-
-    
 
     const handlePostRemarksChange = (e) => {
       const html = e.target.value;
@@ -140,14 +110,7 @@ const OutdoorDutyModal = ({
     };
 
     const buildSubmitPayload = (extraFields = {}) => {
-      console.log("[5] buildSubmitPayload — attachment at submit time:", attachment);
       const { POST_REMARKS_DOC: _ignoredStale, ...cleanFormData } = formData;
-
-      // const basePayload = {
-      //   ...formData,
-      //   POST_REMARKS: stripHtmlToText(formData.POST_REMARKS) ?? "",
-      //   ...extraFields,
-      // };
 
       const basePayload = {
         ...cleanFormData,
@@ -166,10 +129,6 @@ const OutdoorDutyModal = ({
         fd.append(key, value ?? "");
       });
       fd.append("POST_REMARKS_DOC", attachment, attachment.name); // matches PHP $_FILES key
-      // console.log("[8] FormData entries check:");
-      // for (const [key, value] of fd.entries()) {
-      //   console.log(" ", key, "=", value);
-      // }
       return fd;
     };
 
@@ -184,11 +143,6 @@ const OutdoorDutyModal = ({
         try {
             let isEditPM = modalState.mode === "edit";
             isEditPM = isPostRemarkNwMode ? isPostRemarkNwMode : isEditPM;
-            // const payload = {
-            //     ...formData,
-            //     POST_REMARKS: stripHtmlToText(formData.POST_REMARKS) ?? "",
-            //     ...(isEditPM ? { editGpData: true } : { saveGpData: true }),
-            // };
             const payload = buildSubmitPayload(
                 isEditPM ? { editGpData: true } : { saveGpData: true }
             );
@@ -203,17 +157,11 @@ const OutdoorDutyModal = ({
                 setIsSubmitting(false); // re-enable
                 notifyError(response?.message || "Unable to save Outdoor Duty");
             }
-            //console.log("Submitting:", formData);
-            //console.log("-------Submitting:-------Payload---", payload);
-            setLoading(true);
-            //console.log("==============Save Response:==========", response);
         } catch (err) {
-            console.error("Submit Error:", err);
+            handleError(err, { context: "Save outdoor duty", fallback: "Unable to save Outdoor Duty." });
             setIsSubmitting(false); // re-enable on error
-            notifyError("Something went wrong while saving data.");
         } finally {
             setIsSubmitting(false); // ALWAYS reset
-            setLoading(false);
         }
     };
 
@@ -227,12 +175,6 @@ const OutdoorDutyModal = ({
 
         try {
             const isEdit = modalState.mode === "edit";
-            // const payload = {
-            //     ...formData,
-            //     POST_REMARKS: stripHtmlToText(formData.POST_REMARKS) ?? "",
-            //     ...(isEdit ? { editGpData: true } : { saveGpData: true }),
-            //     withAuth: true,
-            // };
             const payload = buildSubmitPayload({
                 ...(isEdit ? { editGpData: true } : { saveGpData: true }),
                 withAuth: true,
@@ -248,23 +190,16 @@ const OutdoorDutyModal = ({
                 setIsSubmitting(false); // re-enable
                 notifyError(response?.message || "Unable to save Outdoor Duty.");
             }
-            //console.log("Submitting:", formData);
-            //console.log("-------Submitting:-------Payload---", payload);
-            setLoading(true);
-            //console.log("==============Save Response:==========", response);
         } catch (err) {
-            console.error("Submit Error:", err);
+            handleError(err, { context: "Save outdoor duty", fallback: "Unable to save Outdoor Duty." });
             setIsSubmitting(false); // re-enable on error
-            notifyError("Something went wrong while saving data.");
         } finally {
             setIsSubmitting(false); // ALWAYS reset
-            setLoading(false);
         }
     };
 
     const fetchGPData = useCallback(async () => {
         try {
-            setLoading(true);
             const response = await getGPDataDetails({
                 id: modalState.id || null,
                 getGpdata: true,
@@ -275,62 +210,17 @@ const OutdoorDutyModal = ({
                 notifyError(response?.message || "Unable to fetch Outdoor Duty.");
             }
         } catch (error) {
-            console.error("Error fetching data:", error);
+            handleError(error, { context: "Load outdoor duty", fallback: "Unable to fetch Outdoor Duty." });
         }
     }, [modalState.id]);
 
     useEffect(() => {
         if (isOpen) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect -- legitimate fetch-on-open; setLoading(true) fires before the await
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- legitimate fetch-on-open
             fetchGPData();
         }
     }, [isOpen, fetchGPData]);
 
-    // const checkGPData = async (newValue) => {
-    //     try {
-    //         setLoading(true);
-    //         const response = await getGPSVDataDetails({
-    //             val: newValue,
-    //             id: gpData.ID || null,
-    //             emp: gpData.EMP_CODE,
-    //             gd: formData.GPASS_DATE,
-    //             getValues: true,
-    //         });
-    //         // Expecting FORM API response (not list)
-    //         return response || {};
-    //     } catch (error) {
-    //         console.error("Error fetching data:", error);
-    //     }
-    // };
-
-    // ===========================
-    // Format Date
-    // ===========================
-    const formatDate = (dateVal) => {
-        if (!dateVal) return "";
-
-        const date = new Date(dateVal);
-        if (isNaN(date)) return "";
-
-        const day = String(date.getDate()).padStart(2, "0");
-        const months = [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
-        ];
-
-        return `${day}-${months[date.getMonth()]}-${date.getFullYear()}`;
-    };
-    //console.log("****************** GPData *******************", gpData);
     // Initialize Form
     // ===========================
     const [prevGPData, setPrevGPData] = useState(gpData);
@@ -364,7 +254,7 @@ const OutdoorDutyModal = ({
 
             const rawDate = initial["GPASS_DATE"] || modalDate;
             if (rawDate) {
-                initial["GPASS_DATE"] = formatDate(rawDate);
+                initial["GPASS_DATE"] = toDMYDate(rawDate);
             }
 
             initial["employee_name"] = gpFormData["employee_name"];
@@ -372,46 +262,7 @@ const OutdoorDutyModal = ({
             setFormData(initial);
         }
     }
-        // useEffect(() => {
-        //     const gpFormData = gpData?.form_data;
-        //     //const gpFormData = gpData?.formData;
-        //     const gpFormDataHdn = gpData?.hidden;
 
-        //     if (!gpFormData) return;
-        //     const initial = {};
-
-        //     //console.log("=========== gpFormData =========", gpFormData);
-        //     //console.log("=========== gpFormData-Hidden =========", gpFormDataHdn);
-
-        //     // Main form fields
-        //     Object.values(gpFormData).forEach((field) => {
-        //         if (field?.name) {
-        //             initial[field.name] = field.value ?? "";
-        //         }
-        //     });
-
-        //     // Hidden fields
-        //     (gpFormDataHdn || []).forEach((field) => {
-        //         if (field?.name) {
-        //             initial[field.name] = field.value ?? "";
-        //         }
-        //     });
-
-        //     // Format Date
-        //     const rawDate = initial["GPASS_DATE"] || modalDate;
-
-        //     if (rawDate) {
-        //         initial["GPASS_DATE"] = formatDate(rawDate);
-        //     }
-
-        //     initial["employee_name"] = gpFormData["employee_name"];
-        //     //console.log("=========== Initial FormData =========", initial);
-
-        //     setFormData(initial);
-        // }, [gpData, modalDate]);
-
-    //console.log("=========== Gp Data =========", gpData);
-    //console.log("=========== formData =========", formData);
     // ===========================
     // Handle Change
     // ===========================
@@ -455,7 +306,6 @@ const OutdoorDutyModal = ({
 
     const handleFileChange = (e) => {
       const file = e.target.files?.[0] || null;
-      console.log("========[1] file picked from input:========", file);
 
       if (!file) {
         setAttachment(null);
@@ -464,7 +314,6 @@ const OutdoorDutyModal = ({
       }
 
       const error = validateFile(file);
-      console.log("[2] validateFile result:", error || "no error - valid");
 
       if (error) {
         setErrors((prev) => ({ ...prev, ATTACHMENT: error }));
@@ -474,7 +323,6 @@ const OutdoorDutyModal = ({
       }
 
       setErrors((prev) => ({ ...prev, ATTACHMENT: "" }));
-      console.log("[3] setAttachment called with:", file.name);
       setAttachment(file);
       setExistingAttachment(null);
     };
@@ -498,9 +346,7 @@ const OutdoorDutyModal = ({
             if (bytes.length > 200) {
                 newValue = newValue.slice(0, 200); // simple cut
             }
-        } // else if (name  === "OUT_TYPE") {
-        //     checkGPData(newValue);
-        // }
+        }
 
         setFormData((prev) => ({
             ...prev,
@@ -518,9 +364,6 @@ const OutdoorDutyModal = ({
     // ===========================
     const validateForm = () => {
         const newErrors = {};
-        // if (!formData.GPASS_DATE) {
-        //   newErrors.GPASS_DATE = "GatePass Date is required";
-        // }
 
         if (!formData.OUT_TYPE) {
             newErrors.OUT_TYPE = "Out Type is required";
@@ -530,14 +373,6 @@ const OutdoorDutyModal = ({
             newErrors.REMARKS = "Remarks is required";
         }
 
-        // if (isPostRemarkNwMode) {
-        //     const plainPostRemarks = stripHtmlToText(formData.POST_REMARKS).trim();
-        //     if (!plainPostRemarks) {
-        //         newErrors.POST_REMARKS = "Post Remarks is required";
-        //     } else if (getByteLength(plainPostRemarks) > MAX_POST_REMARKS_BYTES) {
-        //         newErrors.POST_REMARKS = `Post Remarks exceeds ${MAX_POST_REMARKS_BYTES} characters`;
-        //     }
-        // }
         if (isPostRemarkNwMode) {
           const plainPostRemarks = stripHtmlToText(formData.POST_REMARKS).trim();
           if (!plainPostRemarks) {
@@ -545,11 +380,6 @@ const OutdoorDutyModal = ({
           } else if (getByteLength(plainPostRemarks) > MAX_POST_REMARKS_BYTES) {
               newErrors.POST_REMARKS = `Post Remarks exceeds ${MAX_POST_REMARKS_BYTES} characters`;
           }
-
-          // New: attachment required only when adding Post Remarks
-          // if (!attachment && !existingAttachment) {
-          //     newErrors.ATTACHMENT = "Attachment is required when adding Post Remarks";
-          // }
         }
 
         setErrors(newErrors);
@@ -558,36 +388,12 @@ const OutdoorDutyModal = ({
     };
 
     const outTypeField = Object.values(gpData?.form_data || {}).find(
-    //const outTypeField = Object.values(gpData?.formData || {}).find(    
         (field) => field?.name === "OUT_TYPE",
     );
 
-    //const enableRemarks = isCreateMode || (isEditMode && config["type"]["GPSTATUS"] === "Not Sent for Auth");
-
-    // useEffect(() => {
-    //   if (formSettings?.mode === "edit" && formSettings?.data) {
-
-    //     const data = formSettings.data;
-
-    //     setFormData((prev) => ({
-    //       ...prev,
-    //       GPASS_DATE: data.GPASS_DATE || "",
-    //       OUT_TYPE: data.OUT_TYPE || "",
-    //       REMARKS: data.REMARKS || "",
-    //       POST_REMARKS: data.POST_REMARKS || ""
-    //     }));
-    //   }
-    // }, [formSettings]);
-
-    //   console.log("===========Outdoor Duty Rebuild =========", formSettings, formData);
     if (!isOpen) return null;
     return (
     <>
-        {/* {loading && (
-        <div className="p-4 text-center">
-          <div className="spinner-border text-warning"></div>
-        </div>
-      )} */}
         {/* Add Outdoor Duty */}
         <div
             className={`modal fade ${isOpen ? "show d-block" : ""}`}
@@ -603,7 +409,6 @@ const OutdoorDutyModal = ({
                         {/* Header */}
                 <div className="modal-header">
                     <div style={{ display: "flex", alignItems: "center", gap: "10px", }} >
-                        {/* <h4 className="modal-title mb-1"> {modeLabel} {form_header} </h4> */}
                         <h4 className="modal-title">
                             {" "}
                             Apply For Outdoor Duty{" "}
@@ -628,14 +433,6 @@ const OutdoorDutyModal = ({
               {/* Body */}
               <div className="modal-body">
                 <div className="row">
-                  {/* <div className="col-md-6">
-                    <div className="mb-3 d-flex align-items-center">
-                      <label className="form-label mb-0 me-2">
-                        Employee Name
-                      </label>
-                      : <span className="text-danger ms-1"> {formData.employee_name || ""} </span>
-                    </div>
-                  </div> */}
                   <div className="col-md-6">
                     <div className="mb-3">
                       <label className="form-label">
@@ -665,7 +462,6 @@ const OutdoorDutyModal = ({
                   </div>
                 </div>
 
-
                 <div className="row">
                   <div className="col-12">
                     <div className="mb-3">
@@ -680,7 +476,6 @@ const OutdoorDutyModal = ({
                         id="REMARKS"
                         value={formData.REMARKS || ""}
                         onChange={handleChange}
-                        // disabled={formData.REMARKS?.is_readonly}
                         disabled={isPostRemarkNwMode}
                         placeholder="Enter outdoor duty purpose"
                       />
@@ -777,32 +572,6 @@ const OutdoorDutyModal = ({
                   </div>
                 </div>
               )}
-                {/* {isPostRemarkNwMode && (
-                    <div className="row">
-                  <div className="col-12">
-                    <div className="mb-3">
-                      <label className="form-label">
-                        Post Remarks
-                      </label>
-
-                      
-                        
-                        <SDLtextEditor
-                          key={postRemarksKey}
-                          value={formData.POST_REMARKS || ""}
-                          onChange={handlePostRemarksChange}
-                          disabled={isSubmitting}
-                          placeholder="Enter post remarks"
-                        />
-                      
-                      {errors.POST_REMARKS && (
-                        <div className="invalid-feedback d-block">{errors.POST_REMARKS}</div>
-                      )}
-                      <div className="char-counter">{getByteLength(formData.POST_REMARKS || "")} / {MAX_POST_REMARKS_BYTES}</div>
-                    </div>
-                  </div>
-                </div>
-                )} */}
               </div>
               <input
                   type="hidden"

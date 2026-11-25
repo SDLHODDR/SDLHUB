@@ -4,6 +4,7 @@ import { getEmployeeSummary }  from "../../../../services/itReturnService";
 import "../../../../assets/css/PreviewPrintTab.css";
 
 import { useReactToPrint } from "react-to-print";
+import { apiError, handleError } from "../../../../../../shared/services/errorHandler";
 
 const PreviewPrintTab = ({ refreshPreview }) => {
   const [summary, setSummary] = useState(null);
@@ -36,13 +37,13 @@ const PreviewPrintTab = ({ refreshPreview }) => {
         if (success) {
           setSummary(data);
         } else {
-          console.error("Employee summary not available.");
+          handleError(apiError(res.data, "Employee summary is not available."), { context: "Load employee summary" });
         }
       } else {
-        console.error(res?.message || "Unable to fetch employee summary.");
+        handleError(apiError(res, "Unable to fetch employee summary."), { context: "Load employee summary" });
       }
     } catch (error) {
-      console.error("Employee summary fetch failed:", error);
+      handleError(error, { context: "Load employee summary", fallback: "Unable to load the employee summary." });
     }
   };
 

@@ -39,22 +39,6 @@ export const outdoorDutyColumns = (handlers) => {
         );
       },
     },
-    // {
-    //   field: "authremarks",
-    //   header: "Auth Remarks",
-    //   body: (rowData) => {
-    //     const text =
-    //       rowData?.status === "R" && rowData?.authremarks ? rowData.authremarks : "-";
-    //     const trimmed = text.length > 15 ? `${text.substring(0, 15)}...` : text;
-    //     return (
-    //       <div className="remarks-wrapper">
-    //         <IconWithTooltip text={rowData.authremarks}>
-    //           <span className="text-danger small ms-1">{trimmed}</span>
-    //         </IconWithTooltip>
-    //       </div>
-    //     );
-    //   },
-    // },
     {
       field: "statusText",
       header: "Status",
@@ -74,16 +58,8 @@ export const outdoorDutyColumns = (handlers) => {
       header: "Actions",
       sortable: false,
       body: (rowData) => {
-        //const status = rowData.status?.trim()?.toUpperCase();
-        //const showDash = status === "T" && !rowData.postremarks;
         const visibleActions = actions.filter((a) => !a.show || a.show(rowData));
 
-        // return (
-        //   <div className="d-flex align-items-center justify-content-center gap-2">
-        //     <SDLActionButtons row={rowData} actions={actions} />
-        //     {showDash && <span className="text-muted">-</span>}
-        //   </div>
-        // );
         return (
             <div className="d-flex align-items-center justify-content-center gap-2" style={{ minWidth: "90px" }}>
                 {visibleActions.length > 0 ? (
@@ -94,7 +70,6 @@ export const outdoorDutyColumns = (handlers) => {
             </div>
         );
       },
-    //   style: { width: "180px" },
       style: { width: "120px", textAlign: "center" },
       bodyStyle: { textAlign: "center" },
     },

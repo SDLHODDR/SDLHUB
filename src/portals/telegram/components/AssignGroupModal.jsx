@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getGroups } from "../services/telegramMemberService";
+import { handleError } from "../../../shared/services/errorHandler";
 
 const AssignGroupModal = ({
   show,
@@ -23,7 +24,7 @@ const AssignGroupModal = ({
 
         setGroups(response.data || []);
       } catch (error) {
-        console.error("Failed to fetch groups", error);
+        handleError(error, { context: "Load groups", fallback: "Unable to load groups." });
       } finally {
         setLoading(false);
       }

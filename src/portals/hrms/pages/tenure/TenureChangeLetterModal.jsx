@@ -11,6 +11,7 @@ import '../../assets/css/tenureChange.css'
 import SaveButton from '../../../../shared/components/buttons/SaveButton'
 import CancelButton from '../../../../shared/components/buttons/CancelButton'
 import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
+import { handleError } from '../../../../shared/services/errorHandler'
 
 const TenureChangeLetterModal = ({
   config,
@@ -229,7 +230,7 @@ const TenureChangeLetterModal = ({
       const rawUrl = URL.createObjectURL(file)
       setEmbeddedPdfUrl(`${rawUrl}#toolbar=1&navpanes=0&zoom=page-width`)
     } catch (err) {
-      console.error('Failed to load embedded PDF document:', err)
+      handleError(err, { context: 'Load letter PDF', fallback: 'Unable to load the letter.' })
     } finally {
       setEmbeddedLoading(false)
     }

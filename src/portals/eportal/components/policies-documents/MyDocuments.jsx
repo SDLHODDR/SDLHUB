@@ -9,6 +9,7 @@ import EportalPageLoader from "../loader/EportalPageLoader";
 import {MY_DOCUMENTS_MESSAGES} from "../../constants/policies-documentsConstants";
 import SDLPageLoader from "../../../../shared/components/SDLPageLoader"
 import SDLTabsComponent from "../../../hrms/components/tabs/SDLTabsComponent";
+import { handleError } from "../../../../shared/services/errorHandler";
 
 const DOC_TABS = [
   { key: "payslips", label: "Payslips" },
@@ -95,10 +96,8 @@ const MyDocuments = () => {
         documents.length > 0 ? documents[0].previewUrl : null
       );
     } catch (err) {
-      // Ignore cancelled requests
-      if (!err.cancelled) {
-        console.error("Document fetch error", err);
-      }
+      // handleError ignores cancelled requests
+      handleError(err, { context: "Load documents", fallback: "Unable to load documents." });
 
       setDocuments([]);
       setSelectedDoc(null);

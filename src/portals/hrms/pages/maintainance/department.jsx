@@ -26,6 +26,7 @@ import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import SDLInput from '../../../../shared/components/form/SDLInput'
 import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
 import { validateFields, validateText } from '../../../../shared/validation'
+import { handleError } from '../../../../shared/services/errorHandler'
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload
@@ -106,7 +107,7 @@ const Department = () => {
         dispatch(mod.getDepartmentDataResponse())
       }
     } catch {
-      // slice not available - ignore
+      // optional redux slice not present in this build - nothing to refresh
     }
   }, [dispatch])
 
@@ -121,7 +122,7 @@ const Department = () => {
       const normalizedData = normalizeRecords(response)
       setListDepartmentMasterData(normalizedData)
     } catch (error) {
-      console.error('REFRESH DEPARTMENT ERROR:', error)
+      handleError(error, { context: 'Load departments', fallback: 'Unable to load departments.' })
     }
   }
 
@@ -149,7 +150,10 @@ const Department = () => {
         setAccountOptions(accounts)
         setCostCenterOptions(costCenters)
       } catch (error) {
-        console.error('Error loading account/cost center data:', error)
+        handleError(error, {
+          context: 'Load account codes / cost centers',
+          fallback: 'Unable to load account codes and cost centers.'
+        })
       }
     }
 
@@ -211,7 +215,8 @@ const Department = () => {
         }
       })
     } catch (error) {
-      console.error(error)
+      // building table rows; log only (no popup from inside render)
+      handleError(error, { context: 'Build department rows', notify: false })
       return []
     }
   }, [
@@ -308,8 +313,7 @@ const Department = () => {
         notifyError(response?.message || 'Unable to save Department')
       }
     } catch (err) {
-      console.error('Save Error:', err)
-      notifyError('Something went wrong while saving data.')
+      handleError(err, { context: 'Save department', fallback: 'Something went wrong while saving data.' })
     } finally {
       setIsSubmitting(false)
     }
@@ -389,7 +393,7 @@ const Department = () => {
       await fetchDepartmentMasterData()
       void refreshDepartmentData()
     } catch (err) {
-      console.error(err)
+      handleError(err, { context: 'Delete department', fallback: 'Unable to delete record.' })
     } finally {
       setDeletingId(null)
     }

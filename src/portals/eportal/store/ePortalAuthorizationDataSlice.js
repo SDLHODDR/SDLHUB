@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { eportalAPI } from "../../../shared/services/api";
 import { EPORTAL_API } from "../config/eportalApiConfig";
+import { getErrorMessage, isCancelledError } from "../../../shared/services/errorHandler";
 
 const initialState = {
   data: [],           // this will hold the `tasks` array
@@ -11,26 +12,25 @@ const initialState = {
   success: false,
   successMessage: "",
   status: false,
-  //authFor: "outdoorduty",
-  // page: 1,
-  // limit: 10,
 };
 
 export const getAuthDataResponse = createAsyncThunk(
   "fetch/authdatatable",
-  async (payload, { rejectWithValue }) => {
+  async (payload, { rejectWithValue, signal }) => {
     try {
       const response = await eportalAPI.post(
       EPORTAL_API.AUTHORIZATION.TASKTABLEDATA, 
       payload, 
       {
         withCredentials: true,
+        signal, // cancelled when the page closes or loads another list
       });
 
       if (response.status !== 200) {
         return rejectWithValue({
           errorCode: response.status,
           errorMessage: response.statusText,
+          userMessage: "Unable to load authorization requests.",
         });
       }
       
@@ -39,6 +39,8 @@ export const getAuthDataResponse = createAsyncThunk(
       return rejectWithValue({
         errorCode: error?.response?.status || -1,
         errorMessage: error?.message || "Something went wrong",
+        cancelled: isCancelledError(error),
+        userMessage: getErrorMessage(error, "Unable to load authorization requests."),
       });
     }
   },
@@ -65,15 +67,6 @@ export const myActivitiesAuthSlice = createSlice({
         state.error = false;
       })
       .addCase(getAuthDataResponse.fulfilled, (state, action) => {
-        //console.log(action);
-        // state.data = action.payload.data;
-        // state.success = action.payload.data.success;
-        // state.page = action.payload.data.page;
-        // state.limit = action.payload.data.limit;
-        // state.totalRecords = action.payload.data.totalRecords;
-        // state.successMessage = "Data fetched successfully";
-        // state.status = "idle";
-        // state.authFor = "outdoorduty";
 
         state.loading = false;
         state.data = action.payload.tasks || [];
@@ -83,9 +76,11 @@ export const myActivitiesAuthSlice = createSlice({
         state.success = !!action.payload.status;
         state.successMessage = "Data fetched successfully";
         state.status = "idle";
-        //state.authFor = "outdoorduty";
       })
       .addCase(getAuthDataResponse.rejected, (state, action) => {
+        // A cancelled load was replaced by a newer one (or the page closed):
+        // leave loading/error to that newer load.
+        if (action.meta.aborted || action.payload?.cancelled) return;
         state.loading = false;
         state.success = false;
         state.error = true;

@@ -23,6 +23,7 @@ import SaveButton from '../../../../shared/components/buttons/SaveButton'
 import CancelButton from '../../../../shared/components/buttons/CancelButton'
 import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
 import SDLInput from '../../../../shared/components/form/SDLInput'
+import { handleError } from '../../../../shared/services/errorHandler'
 
 const ACT_TYPES = { J: 'Join', E: 'Exit' }
 
@@ -67,7 +68,7 @@ const DepartmentActivity = () => {
       const response = await getDepartmentMaster()
       setListDeptMasterData(normalizeRecords(response))
     } catch (error) {
-      console.error('Error fetching Department Master Data:', error)
+      handleError(error, { context: 'Load department master', fallback: 'Unable to load departments.' })
     } finally {
       setLoading(false)
     }
@@ -103,7 +104,7 @@ const DepartmentActivity = () => {
         createdOn: item.created_on || item.createdOn || '-'
       }))
     } catch (error) {
-      console.error(error)
+      handleError(error, { context: 'Build department activity rows', notify: false })
       return []
     }
   }, [deptActivityData])

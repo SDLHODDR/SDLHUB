@@ -3,14 +3,12 @@ import BreadcrumbNav from "../../../shared/components/BreadcrumbNav";
 import SDLDataTable from "../../../shared/components/datatable/SDLDataTable";
 import SDLSearch from "../../../shared/components/datatable/SDLSearch";
 import "../../../shared/assets/css/companyPolicies.css";
-import { getTaskTableData } from "../../../shared/services/authorizationService";
 import ConferenceRoomAuthorizationModal from "../modal/ConferenceRoomAuthorizationModal";
-//import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { getAuthDataResponse } from "../store/ePortalAuthorizationDataSlice";
-import { getAuthroizationTaskCount } from "../store/ePortalAuthorizationCountSlice";
 import { formatDashDate } from "../../../shared/utils/formatUtils";
 import { getCFColumns } from "./CFAuthorizationColumns";
+import { handleError } from "../../../shared/services/errorHandler";
 
 const TASK_MODAL_MAP = {
     357: {
@@ -25,17 +23,9 @@ const ConferenceRoomAuthorization = () => {
   const dispatch = useDispatch();
   const authData = useSelector((state) => state.eportalAuthData.data);
   const loading = useSelector((state) => state.eportalAuthData.loading);
-  //const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [listData, setListData] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [tabId, setTabId] = useState(357);
-
-  //const [currentPage, setCurrentPage] = useState(1);
-  //const [rows, setRows] = useState(10);
-  //const [authData, setAuthData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-   const [totalRecords, setTotalRecords] = useState(0);
 
   const cfcolumns = getCFColumns(formatDashDate);
 
@@ -77,12 +67,13 @@ const ConferenceRoomAuthorization = () => {
   // =========================
   // FETCH DATA
   // =========================
-//   useEffect(() => {
-//     fetchAuthRequests();
-//   }, [ refreshKey]);
 
   useEffect(() => {
-    dispatch(getAuthDataResponse({ task_id: 357 }));
+    // Cancel this load if the page closes or loads another list first,
+    // so a stale request can't show an error or overwrite newer data.
+    const load = dispatch(getAuthDataResponse({ task_id: 357 }));
+    load.unwrap().catch(error => handleError(error, { context: "Load conference room requests", fallback: "Unable to load conference room requests." }));
+    return () => load.abort();
   }, [dispatch, refreshKey]);
 
   useEffect(() => {
@@ -107,7 +98,7 @@ const ConferenceRoomAuthorization = () => {
       });
       if (mounted) setListData(flattened);
     } catch (error) {
-      console.error(error);
+      handleError(error, { context: "Build conference room requests rows", notify: false });
       if (mounted) setListData([]);
     }
     return () => {
@@ -115,8 +106,7 @@ const ConferenceRoomAuthorization = () => {
     };
   }, [authData]);
 
-  // useMemo now runs on every render, no matter what
-  const filteredData1 = useMemo(() => {
+  const filteredData = useMemo(() => {
     if (!searchQuery.trim()) return listData;
     const query = searchQuery.trim().toLowerCase();
     return listData.filter(
@@ -128,42 +118,16 @@ const ConferenceRoomAuthorization = () => {
     );
   }, [searchQuery, listData]);
 
-console.log("=================================FIltertedData1===============", filteredData1);
-
-// =========================
-// SYNC FILTERED DATA
-// =========================
-useEffect(() => {
-    setFilteredData(authData);
-}, [authData]);
-
 // =========================
 // SEARCH
 // =========================
-const handleSearch = (value) => {
-    setSearchQuery(value);
-
-    if (!value) {
-        setFilteredData(authData);
-        return;
-    }
-
-    const filtered = authData.filter((item) =>
-    Object.values(item)
-        .join(" ")
-        .toLowerCase()
-        .includes(value.toLowerCase())
-    );
-
-    setFilteredData(filtered);
-};
+// The table filters through filteredData below.
+const handleSearch = (value) => setSearchQuery(value);
 
 // =========================
 // ROW CLICK → MODAL
 // =========================
   const handleRowClick = (row) => {
-    //console.log("=========mdalMap=======", TASK_MODAL_MAP[tabId]);
-    //console.log("----------ROWDATA-----------", row );
     const taskEmployeeConfig = {
         bookByName: row.BOOK_BY_NAME,
         room: row.original?.DETAILS?.ROOM_LABEL || "-",
@@ -189,13 +153,9 @@ const handleSearch = (value) => {
             divsn_desc: row.original?.DETAILS?.DIVSN_DESC || "",
     };
 
-    //console.log("----------taskEmployeeConfig-----------", taskEmployeeConfig );
-
     const modalMap = TASK_MODAL_MAP[357];
     if (!modalMap) return;
 
-    //const status = row.original?.STATUS;
-    //console.log("=========mdalMap=======", modalMap);
     setModalConfig({
         isOpen: true,
         mode: "auth",
@@ -220,43 +180,6 @@ const handleSearch = (value) => {
   // =========================
 
   // CFAuthorizationColumns.jsx
-  
-  
-  // const getColumns = () => {
-   
-  //   const baseColumns = [
-  //     {
-  //       header: "Created On",
-  //       body: (rowData) => {rowData.addedon}
-  //     },
-  //     {
-  //       header: "Created By",
-  //       body: (rowData) => rowData?.empName || "-",
-  //     },
-  //     {
-  //       header: "Booking For",
-  //       body: (rowData) => rowData?.empName || "-",
-  //     },
-  //   ];
-
-  //   // Add columns based on tabId
-  //   if (357) {
-  //       return [
-  //           ...baseColumns,
-  //           // { field: "room", header: "Room" },
-  //           {
-  //             header: "Date",
-  //             body: (rowData) => {formatDashDate(rowData.date)}
-  //           },
-  //           { field: "duration", header: "Duration" },
-  //           { field: "remarks", header: "Reason"}, 
-            
-  //           //{ field: "task", header: "Task" },
-  //       ];
-  //   }
-
-  //   return baseColumns;
-  // }; 
 
   const closeModal = () => {
       setModalConfig((prev) => ({
@@ -264,9 +187,6 @@ const handleSearch = (value) => {
       isOpen: false
       }));
   };
-
-  
-  
 
   return (
     <>
@@ -297,7 +217,7 @@ const handleSearch = (value) => {
 
           <div className="company-policies-table">
             <SDLDataTable
-              data={filteredData1}
+              data={filteredData}
               columns={cfcolumns}
               loading={loading}
               emptyMessage="No Tasks found"
@@ -315,7 +235,6 @@ const handleSearch = (value) => {
           <ConferenceRoomAuthorizationModal
               formSettings={modalConfig}
               onSuccess={() => {
-                  //console.log("Refreshing this table...");
                   setRefreshKey(prev => prev + 1);
               }}
               onClose={closeModal}

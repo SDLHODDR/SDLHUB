@@ -19,7 +19,8 @@ import Badge from "../../../../shared/components/Badge";
 import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/wideContentPages.css";
 import EportalPageLoader from "../loader/EportalPageLoader";
-
+import { handleError } from "../../../../shared/services/errorHandler";
+import { toISODate, isoToDate } from "../../../../shared/utils/formatUtils";
 
 const ItrDownloadReport = () => {
   const [loading, setLoading] = useState(false);
@@ -74,7 +75,7 @@ const ItrDownloadReport = () => {
         notifyError(res.message || "Failed to load report");
       }
     } catch (err) {
-      console.error(err);
+      handleError(err, { context: "Load ITR download report", fallback: "Failed to load report" });
     } finally {
       setLoading(false);
     }
@@ -90,7 +91,7 @@ const ItrDownloadReport = () => {
 
   const handleFromDateChange = (date) => {
     const formattedDate =
-      formatDateForForm(date);
+      toISODate(date);
 
     setFilters((prev) => {
       const updated = {
@@ -120,74 +121,12 @@ const ItrDownloadReport = () => {
 
   const handleToDateChange = (date) => {
     const formattedDate =
-      formatDateForForm(date);
+      toISODate(date);
 
     setFilters((prev) => ({
       ...prev,
       to_date: formattedDate,
     }));
-  };
-
-  /* =========================================================
-     DATE HELPERS
-  ========================================================= */
-
-  /**
-   * JS Date -> YYYY-MM-DD
-   *
-   * Used for API filters.
-   */
-  const formatDateForForm = (date) => {
-    if (
-      !date ||
-      !(date instanceof Date) ||
-      isNaN(date.getTime())
-    ) {
-      return "";
-    }
-
-    const year = date.getFullYear();
-
-    const month = String(
-      date.getMonth() + 1
-    ).padStart(2, "0");
-
-    const day = String(
-      date.getDate()
-    ).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-  };
-
-  /**
-   * YYYY-MM-DD -> JS Date
-   *
-   * Used by SDLCalendar.
-   */
-  const formDateToJSDate = (value) => {
-    if (!value) {
-      return null;
-    }
-
-    const match = String(value).match(
-      /^(\d{4})-(\d{2})-(\d{2})$/
-    );
-
-    if (!match) {
-      return null;
-    }
-
-    const [, year, month, day] = match;
-
-    const date = new Date(
-      Number(year),
-      Number(month) - 1,
-      Number(day)
-    );
-
-    return isNaN(date.getTime())
-      ? null
-      : date;
   };
 
   const handleChange = (e) => {
@@ -496,7 +435,7 @@ const ItrDownloadReport = () => {
               </label>
 
               <SDLCalendar
-                value={formDateToJSDate(
+                value={isoToDate(
                   filters.from_date
                 )}
                 onChange={handleFromDateChange}
@@ -512,14 +451,14 @@ const ItrDownloadReport = () => {
               </label>
 
               <SDLCalendar
-                value={formDateToJSDate(
+                value={isoToDate(
                   filters.to_date
                 )}
                 onChange={handleToDateChange}
                 allowAllDates={true}
                 minDate={
                   filters.from_date
-                    ? formDateToJSDate(
+                    ? isoToDate(
                         filters.from_date
                       )
                     : undefined

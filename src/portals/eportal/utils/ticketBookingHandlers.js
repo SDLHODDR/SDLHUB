@@ -4,6 +4,7 @@ import {
   closeTBTicket,
 } from "../services/ticketbookingService";
 import { confirmAction, notifyError, notifySuccess } from "../../../shared/services/alertService";
+import { handleError } from "../../../shared/services/errorHandler";
 
 export const createTicketBookingHandlers = ({ handleSuccess }) => {
   const sendAuth = async (id) => {
@@ -53,7 +54,7 @@ export const createTicketBookingHandlers = ({ handleSuccess }) => {
       }
       handleSuccess?.();
     } catch (err) {
-      console.error(err);
+      handleError(err, { context: "Close ticket booking request", fallback: "Unable to close request." });
     }
   };
 

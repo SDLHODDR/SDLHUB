@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { getAttendanceLog } from "../../../services/dashboardService";
 import Badge from "../../../../../shared/components/Badge";
+import { handleError } from "../../../../../shared/services/errorHandler";
+import { toDMYDate } from "../../../../../shared/utils/formatUtils";
 
 const formatDate = (date) =>
   date.toLocaleDateString("en-GB", {
@@ -8,15 +10,6 @@ const formatDate = (date) =>
     month: "short",
     year: "numeric",
   });
-
-const formatAPIDate = (date) =>
-  date
-    .toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    })
-    .replace(/ /g, "-");
 
 /* =========================
    TIME HELPERS
@@ -74,7 +67,7 @@ const AttendanceLog = ({ initialData = null }) => {
 
     try {
       const response = await getAttendanceLog(
-        formatAPIDate(selectedDate)
+        toDMYDate(selectedDate)
       );
 
       /*
@@ -90,7 +83,7 @@ const AttendanceLog = ({ initialData = null }) => {
       setRecords(data.records || []);
       setSummary(data.summary || null);
     } catch (err) {
-      console.error("Attendance load failed:", err);
+      handleError(err, { context: "Load attendance log", fallback: "Unable to load the attendance log." });
       setRecords([]);
       setSummary(null);
     } finally {

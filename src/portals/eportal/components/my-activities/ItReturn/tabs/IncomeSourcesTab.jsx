@@ -13,6 +13,7 @@ import {
 } from "../../../../../../shared/services/alertService";
 
 import { ITR_MESSAGES } from "../../../../constants/itrMessages";
+import { isPdfFile } from "../../../../../../shared/utils/fileUtils";
 
 function IncomeSourcesTab({ onDataSaved, editable }) {
   const [grossSalary, setGrossSalary] = useState([]);
@@ -37,8 +38,6 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
   const fetchData = async () => {
     try {
       const res = await getIncomeData();
-
-      console.log(res);
 
       if (res?.status) {
         const {
@@ -86,17 +85,6 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
   }, []);
 
   /* =========================================
-     PDF VALIDATION
-  ========================================= */
-
-  const isPdf = (file) => {
-    return (
-      file?.type === "application/pdf" ||
-      file?.name?.toLowerCase().endsWith(".pdf")
-    );
-  };
-
-  /* =========================================
      SAVE REGIME
   ========================================= */
 
@@ -141,7 +129,7 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
   ========================================= */
 
   const handleFileChange = (index, file, itaxId) => {
-    if (file && !isPdf(file)) {
+    if (file && !isPdfFile(file)) {
       notifyError(ITR_MESSAGES.ONLY_PDF_ALLOWED);
 
       // clear input
@@ -166,7 +154,7 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
   const handleSaveOtherIncome = async () => {
     try {
       for (const item of otherIncome) {
-        if (item.file && !isPdf(item.file)) {
+        if (item.file && !isPdfFile(item.file)) {
           notifyError(ITR_MESSAGES.ONLY_PDF_ALLOWED);
           return;
         }

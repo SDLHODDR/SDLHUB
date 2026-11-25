@@ -1,9 +1,8 @@
-//import { renderLeaveActions } from "./leavesActions";
 import Badge from "../../../../shared/components/Badge";
 import { IconWithTooltip } from "../tooltipHelper";
 import { formatDashDate } from "../../../../shared/utils/formatUtils";
 
-export const leavesColumns = (handlers) => [
+export const leavesColumns = () => [
   {
     field: "LVE_CODE",
     header: "Type",

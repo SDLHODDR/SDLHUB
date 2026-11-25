@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { saveQuestion, deleteQuestion } from "../services/questionService";
 import { notifySuccess, notifyError, confirmAction } from "../../../shared/services/alertService";
 import { buildOptionsFromRow } from "./questionOptionsUtils";
+import { handleError } from "../../../shared/services/errorHandler";
 
 const ANSWER_TYPES_WITH_OPTIONS = ["Radio", "Checkbox"];
 export const QUESTION_MAX_LENGTH = 100;
@@ -155,7 +156,7 @@ export const useQuestionMasterHandler = ({
         notifyError(res?.message || "Unable to delete");
       }
     } catch (err) {
-      console.error(err);
+      handleError(err, { context: "Delete question", fallback: "Unable to delete record." });
     } finally {
       setDeletingId(null);
     }

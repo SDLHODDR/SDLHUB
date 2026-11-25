@@ -42,7 +42,6 @@ export const getPolicies = () =>
     }
   }).then(withDocUrls);
 
-
 export const getActivePolicies = () =>
   eportalRequest({
     url: EPORTAL_API.POLICIES.GET_ACTIVE_POLICIES,

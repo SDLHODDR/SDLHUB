@@ -34,6 +34,7 @@ import SaveButton from '../../../../shared/components/buttons/SaveButton'
 import CancelButton from '../../../../shared/components/buttons/CancelButton'
 import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
 import SDLInput from '../../../../shared/components/form/SDLInput'
+import { handleError } from '../../../../shared/services/errorHandler'
 
 const emptyForm = {
   ID: '',
@@ -104,7 +105,7 @@ const PolicyList = () => {
       setDepartmentList(mapDepartmentOptions(deptRes))
       setDivisionList(mapDivisionOptions(divisionRes))
     } catch (error) {
-      console.error('Error fetching Policy lookups:', error)
+      handleError(error, { context: 'Load policy lookups', fallback: 'Unable to load companies and policy types.' })
     } finally {
       setLookupsLoading(false)
     }
@@ -178,7 +179,7 @@ const PolicyList = () => {
         }
       })
     } catch (error) {
-      console.error(error)
+      handleError(error, { context: 'Build policy rows', notify: false })
       return []
     }
   }, [policyData, companyLookup, departmentLookup, divisionLookup])

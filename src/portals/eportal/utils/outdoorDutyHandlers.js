@@ -1,22 +1,20 @@
 import {
   sendauthGPDataDetails,
   resendauthGPDataDetails,
-  //deleteGPData,
   closeGPTicket,
 } from "../services/outdoorDutyService";
 
 import { notifySuccess, confirmAction, notifyError } from "../../../shared/services/alertService";
+import { handleError } from "../../../shared/services/errorHandler";
 
 export const createOutdoorDutyHandlers = ({ handleSuccess, openModal }) => {
   const sendAuth = async (id) => {
     const result = await confirmAction(
       "Send for Authorization?"
     );
-       
-    
+
         if (!result) return;
     
-        //try {
           const response = await sendauthGPDataDetails({
             ID: id,
             sendAuth: true
@@ -79,7 +77,7 @@ export const createOutdoorDutyHandlers = ({ handleSuccess, openModal }) => {
     
           handleSuccess?.();
         } catch (err) {
-          console.error(err);
+          handleError(err, { context: "Close outdoor duty request", fallback: "Unable to close request." });
         }
       };
   

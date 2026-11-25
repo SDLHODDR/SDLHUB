@@ -296,8 +296,6 @@ const handleCompanyChange = async (selected) => {
   try {
     setLoadingDropdowns(true);
 
-    //const res = await getEmployeeAccessDropdowns(selected.value);
-
     const res = awaitgetEmployeeAccessDropdowns({
                 companyId,
                 divisionId,
@@ -609,9 +607,6 @@ const handleCompanyChange = async (selected) => {
               isDisabled={!selectedCompany || loadingDropdowns}
               isLoading={false}
               placeholder='Select Employee'
-              // placeholder={
-              //   selectedCompany ? 'Select Employee' : 'Select Company First'
-              // }
               noOptionsMessage={() =>
                 selectedCompany ? 'No employees found' : 'Select Company First'
               }

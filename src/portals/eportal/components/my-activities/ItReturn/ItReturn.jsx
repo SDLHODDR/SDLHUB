@@ -12,6 +12,7 @@ import SDLTabsComponent from "../../../../hrms/components/tabs/SDLTabsComponent"
 import { getItReturnConfig } from "../../../services/itReturnService";
 import "../../../assets/css/wideContentPages.css";
 import "../../../assets/css/itReturn.css";
+import { handleError } from "../../../../../shared/services/errorHandler";
 
 const ItReturn = () => {
   const [activeTab, setActiveTab] = useState("tab1");
@@ -23,13 +24,6 @@ const ItReturn = () => {
   const triggerPreviewRefresh = () => {
     setRefreshPreview((prev) => prev + 1);
   };
-
-  const [allowedDates, setAllowedDates] = useState({
-    from_date: "",
-    to_date: "",
-  });
-
-  const [today, setToday] = useState("");
 
   /* =========================================
      LOAD CONFIG (RUN ONCE)
@@ -43,32 +37,16 @@ const ItReturn = () => {
       const res = await getItReturnConfig();
 
       if (res?.status) {
-        const {
-          can_edit = false,
-          allowed_dates = {},
-          today = "",
-        } = res.data || {};
+        const { can_edit = false } = res.data || {};
 
         setCanEdit(Boolean(can_edit));
-        setAllowedDates(allowed_dates);
-        setToday(today);
       } else {
         setCanEdit(false);
-        setAllowedDates({
-          from_date: "",
-          to_date: "",
-        });
-        setToday("");
       }
     } catch (error) {
-      console.error("Config load error:", error);
+      handleError(error, { context: "Load IT declaration settings", fallback: "Unable to load IT declaration settings." });
 
       setCanEdit(false);
-      setAllowedDates({
-        from_date: "",
-        to_date: "",
-      });
-      setToday("");
     } finally {
       setLoadingConfig(false);
     }

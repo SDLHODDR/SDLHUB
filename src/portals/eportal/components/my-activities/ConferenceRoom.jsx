@@ -19,6 +19,7 @@ import SDLCalendar from "../../../../shared/components/calendar/SDLCalendar";
 
 import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/wideContentPages.css";
+import { handleError } from "../../../../shared/services/errorHandler";
 
 const ConferenceRoom = () => {
   /* =========================================================
@@ -76,33 +77,6 @@ const ConferenceRoom = () => {
     useState(null);
 
   /* =========================================================
-     DATE HELPER
-  ========================================================= */
-
-  const formatDateForForm = useCallback((date) => {
-    if (!date) return "";
-
-    const selectedDate =
-      date instanceof Date ? date : new Date(date);
-
-    if (Number.isNaN(selectedDate.getTime())) {
-      return "";
-    }
-
-    const year = selectedDate.getFullYear();
-
-    const month = String(
-      selectedDate.getMonth() + 1
-    ).padStart(2, "0");
-
-    const day = String(
-      selectedDate.getDate()
-    ).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-  }, []);
-
-  /* =========================================================
      OPEN EXISTING BOOKING
   ========================================================= */
 
@@ -141,11 +115,6 @@ const ConferenceRoom = () => {
 
       return;
     }
-
-    console.log(
-      "Conference calendar selected date:",
-      selectedDate
-    );
 
     /*
      * Store selected date
@@ -211,10 +180,7 @@ const ConferenceRoom = () => {
           setTotalRecords(0);
         }
       } catch (err) {
-        console.error(
-          "Conference rooms load failed:",
-          err
-        );
+        handleError(err, { context: "Load conference bookings", fallback: "Unable to load conference room bookings." });
 
         setBookings([]);
         setTotalRecords(0);

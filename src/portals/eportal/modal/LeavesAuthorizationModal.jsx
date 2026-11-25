@@ -1,4 +1,3 @@
-// import { useState, useEffect, useRef } from "react";
 import { useState, useEffect } from "react";
 import { authLRData, rejectLRData, getAuthLRSwipperData } from "../services/leavesService";
 import { notifyError, notifySuccess } from "../../../shared/services/alertService";
@@ -7,6 +6,7 @@ import SDLAuthorizationActionButtons from "../../../shared/components/buttons/SD
 import moment from "moment";
 import AuthModalLeavesList from "./AuthModalLeavesList";
 import SDLTabsComponent from "../../hrms/components/tabs/SDLTabsComponent";
+import { handleError } from "../../../shared/services/errorHandler";
 
 const AUTH_TABS = [
   { key: "request", label: "Leave Request" },
@@ -75,7 +75,6 @@ const LeavesAuthorizationModal = ({
     try {
       const latestData = formData;
 
-      //console.log("---------Reject request -------", latestData);
       const response = await rejectLRData({
         ...latestData,
         authForm: true,
@@ -91,14 +90,13 @@ const LeavesAuthorizationModal = ({
       notifySuccess("Request rejected successfully");
       onSuccess?.(); // only refetch on actual success
     } catch (err) {
-      console.error(err);
+      handleError(err, { context: "Reject leave request", fallback: "Unable to reject the request." });
     }
   };
 
   const handleAuthorize = async () => {
     try {
       const latestData = formData;
-      //console.log("---------Authorize request -------", latestData);
       const response = await authLRData({
         ...latestData,
         authForm: true,
@@ -148,9 +146,8 @@ const LeavesAuthorizationModal = ({
         response?.data || []
       );
 
-      console.log("========LEAVE REGISTER========",response);
     } catch (error) {
-      console.error("Error fetching leave history", error);
+      handleError(error, { context: "Load leave history", fallback: "Unable to load the leave history." });
     } finally {
       setLoading(false);
     }
@@ -162,9 +159,6 @@ const LeavesAuthorizationModal = ({
   useEffect(() => {
     fetchLeaveHistory();
   }, [formData]);
-
-  //console.log("---------****** FormData *********-------------", formData);
-  console.log("============== Leave Register resp =============", leaveHistoryData);
 
   return (
     <>

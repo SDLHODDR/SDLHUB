@@ -9,10 +9,15 @@ import {
   editTBRDataAUTH,
 } from "../services/ticketbookingService";
 import { notifyError, notifySuccess } from "../../../shared/services/alertService";
-//import Select from "react-select";
 import SDLReactSelect from "../../../shared/components/form/SDLReactSelect";
 import SDLPageLoader from "../../../shared/components/SDLPageLoader"
-import { validateTime } from "../../../shared/validation"
+import { handleError } from "../../../shared/services/errorHandler";
+import { toDMYDate } from "../../../shared/utils/formatUtils";
+import { validateTime } from "../../../shared/validation";
+
+// BCS_TRVLTKT_REQUEST.PERSON_NAME is VARCHAR2(100 BYTE): non-English letters
+// take 2-3 bytes each, so the save-time check counts bytes, not letters.
+const PERSON_NAME_MAX_BYTES = 100;
 
 const TicketBookingModal = ({
   formSettings,
@@ -22,21 +27,13 @@ const TicketBookingModal = ({
 }) => {
   const { mode } = formSettings;
 
-  //const [date, setDate] = useState(new Date());
-  //const [startTime, setStartTime] = useState("");
-  //const [endTime, setEndTime] = useState("");
   const [loading, setLoading] = useState(true);
   const [tbData, setTBData] = useState({});
   const [formData, setFormData] = useState({});
   const { isOpen, modalDate } = modalState;
 
   const [errors, setErrors] = useState({});
-  //const isReadOnly = ["view", "readonly"].includes(mode);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // const isEditMode = modalState.mode === "edit";
-  // const isRejectEditMode = mode === "edit-reject";
-  // const isPostRemarkMode = mode === "postremark";
-  // const isCreateMode = mode === "create";
 
   // ===========================
   // Field Controls
@@ -45,16 +42,6 @@ const TicketBookingModal = ({
   // formSettings/modalState/state). Pull it from wherever your API/modal
   // actually stores it. Using tbData?.status as a placeholder here —
   // adjust to match your real data shape.
-  //const status = tbData?.status;
-
-  //const enableOutType = isCreateMode || isEditMode || isRejectEditMode;
-  //const enablePostRemarks = (isEditMode && status === "Not send to auth") || isPostRemarkMode;
-
-  // useEffect(() => {
-  //   if (isOpen) {
-  //     setIsSubmitting(false); // reset every time modal opens
-  //   }
-  // }, [isOpen]);
 
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   if (isOpen !== prevIsOpen) {
@@ -102,9 +89,6 @@ const TicketBookingModal = ({
 
     setIsSubmitting(true); // disable immediately
 
-    //console.log("============ formData=======", formData);
-    //console.log("============ modalState id =======", modalState);
-
     try {
       const isEdit = modalState.mode === "edit";
       const payload = {
@@ -122,12 +106,11 @@ const TicketBookingModal = ({
         closeModal();
       } else {
         setIsSubmitting(false); // re-enable
-        notifyError(response?.message || "Unable to save Ticket Booking Request ");
+        notifyError(response?.message || "Unable to save Ticket Booking Request.");
       }
     } catch (err) {
-      console.error("Submit Error:", err);
+      handleError(err, { context: "Save ticket booking request", fallback: "Unable to save Ticket Booking Request." });
       setIsSubmitting(false); // re-enable on error
-      notifyError("Something went wrong while saving data");
     } finally {
       setIsSubmitting(false); // ALWAYS reset
       setLoading(false);
@@ -159,12 +142,11 @@ const TicketBookingModal = ({
         closeModal();
       } else {
         setIsSubmitting(false); // re-enable
-        notifyError(response?.message || "Unable to saved Ticket Booking");
+        notifyError(response?.message || "Unable to save Ticket Booking.");
       }
     } catch (err) {
-      console.error("Submit Error:", err);
+      handleError(err, { context: "Save ticket booking", fallback: "Unable to save Ticket Booking." });
       setIsSubmitting(false); // re-enable on error
-      notifyError("Something went wrong while saving data");
     } finally {
       setIsSubmitting(false); // ALWAYS reset
       setLoading(false);
@@ -172,18 +154,9 @@ const TicketBookingModal = ({
   };
 
   // ===========================
-  // Fetch Data
   // ===========================
-  // useEffect(() => {
-  //   if (isOpen) {
-  //     fetchTBData();
-  //   }
-  // }, [isOpen]);
 
-  console.log("+++++++=========modalState===========++++++", modalState);
-  
   const fetchTBData = useCallback(async () => {
-    //const fetchTBData = async () => {
       try {
         setLoading(true);
         const response = await getTBRDataDetails({
@@ -195,10 +168,9 @@ const TicketBookingModal = ({
         // The API returns { status, pass: { var: { type: {...} } } }.
         // Unwrap "pass" here so the rest of the component can treat
         // tbData as the object that actually holds "var".
-        //console.log("=============== RESPONSE ===================",response);
         setTBData(response?.data?.pass || {});
       } catch (error) {
-        console.error("Error fetching data:", error);
+        handleError(error, { context: "Load ticket booking", fallback: "Unable to fetch Ticket Booking." });
       } finally {
         // Without this the loader stayed on top of the form forever.
         setLoading(false);
@@ -212,49 +184,15 @@ const TicketBookingModal = ({
     }
   }, [isOpen, fetchTBData]);
 
-  console.log("=========TBData======",tbData);
-  // ===========================
-  // Initialize Form
-  // ===========================
-
-  // ===========================
-  // Format Date
-  // ===========================
-  const formatDate = (dateVal) => {
-    if (!dateVal) return "";
-
-    const date = new Date(dateVal);
-    if (isNaN(date)) return "";
-
-    const day = String(date.getDate()).padStart(2, "0");
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-
-    return `${day}-${months[date.getMonth()]}-${date.getFullYear()}`;
-  };
   const [prevTBData, setPrevTBData] = useState(tbData);
   if (tbData !== prevTBData) {
     setPrevTBData(tbData);
 
-    //const tbFormData = tbData?.form_data || null;
     const tbFormDataHdn = tbData?.hidden;
 
     const types = tbData?.var?.type;
     if (!types) return;
 
-    //if (tbFormData) {
       const initial = {};
 
         // Fields are grouped by input type (TEXT, TEXTAREA, SELECT, HIDDEN).
@@ -301,14 +239,11 @@ const TicketBookingModal = ({
         // Format Date
         const rawDate = initial["TRVL_DATE"] || modalDate;
         if (rawDate) {
-          initial["TRVL_DATE"] = formatDate(rawDate);
+          initial["TRVL_DATE"] = toDMYDate(rawDate);
         }
 
         setFormData(initial);
-    //}
   }
-  
-  console.log("+++++++++++=====formData================", formData);
 
   // ===========================
   // Handle Change
@@ -346,15 +281,6 @@ const TicketBookingModal = ({
   // the TEXT / TEXTAREA / SELECT / HIDDEN groups.
   const config = tbData?.var || { type: {} };
 
-  // ===========================
-  // Time helpers
-  // ===========================
-  const isValidTime = (time) => !validateTime(time, { required: true, allow24: true });
-
-  // const toMinutes = (time) => {
-  //   const [h, m] = time.split(":").map(Number);
-  //   return h * 60 + m;
-  // };
 
   const showEmp = (e) => {
     const { name, value } = e.target;
@@ -375,21 +301,33 @@ const TicketBookingModal = ({
     }));
   };
 
-  
-
   // ===========================
   // Validation
   // ===========================
+  /* Both times valid HH:MM and arrival earlier than departure: an overnight
+     journey. The backend then stores the arrival on the next day. */
+  const isOvernight = (depart, arrive) =>
+    !validateTime(depart, { required: true, allow24: true }) &&
+    !validateTime(arrive, { required: true, allow24: true }) &&
+    arrive < depart;
+
   const validateForm = (data) => {
     const newErrors = {};
 
-    // if (data.TRVL_EMP === "O" && !data.PERSON_NAME?.trim()) {
-    //   newErrors.PERSON_NAME = "Person Name is required";
-    // }
+    // Same departure and arrival time is never a valid journey.
+    // (Earlier arrival is allowed: it means the next day, see isOvernight.)
+    if (
+      data.TTNT_DEPR_TIME &&
+      data.TTNT_ARVL_TIME &&
+      data.TTNT_DEPR_TIME === data.TTNT_ARVL_TIME
+    ) {
+      newErrors.TTNT_ARVL_TIME = "Arrival time cannot be the same as departure time.";
+    }
+
     if (data.TRVL_EMP === "O" && !data.PERSON_NAME?.trim()) {
       newErrors.PERSON_NAME = "Person Name is required";
-    } else if (data.TRVL_EMP === "O" && data.PERSON_NAME && data.PERSON_NAME.trim().length > 50) {
-      newErrors.PERSON_NAME = "Person Name must not exceed 100 characters";
+    } else if (data.TRVL_EMP === "O" && new TextEncoder().encode(data.PERSON_NAME.trim()).length > PERSON_NAME_MAX_BYTES) {
+      newErrors.PERSON_NAME = `Person Name must not exceed ${PERSON_NAME_MAX_BYTES} characters`;
     }
 
     if (!data.TRVL_MODE?.trim()) {
@@ -406,23 +344,6 @@ const TicketBookingModal = ({
 
     if (!data.TRVL_FT_NAME?.trim() ) {
       newErrors.TRVL_FT_NAME = "Flight/Train Name is required";
-    }
-
-    // Only compare times when both are present and valid, otherwise
-    // toMinutes() will throw on an empty/invalid string.
-    if (
-      data.TTNT_DEPR_TIME &&
-      data.TTNT_ARVL_TIME &&
-      isValidTime(data.TTNT_DEPR_TIME) &&
-      isValidTime(data.TTNT_ARVL_TIME)
-    ) {
-      //const dep = toMinutes(data.TTNT_DEPR_TIME);
-      //const arr = toMinutes(data.TTNT_ARVL_TIME);
-
-      // if (arr <= dep) {
-      //   newErrors.TTNT_ARVL_TIME =
-      //     "Arrival time must be greater than Departure time";
-      // }
     }
 
     if (!data.TRVL_EMP?.trim()) {
@@ -450,20 +371,6 @@ const TicketBookingModal = ({
       label: `${emp.EMP_CODE} - ${emp.EMP_NAME}`,
     }),
   );
-
-  const selectedEmpCode =
-    bookingUserOptions.find(
-      (option) => String(option.value) === String(formData.EMP_CODE),
-    ) || null;
-
-  const handleEmpCodeChange = (selectedOption) => {
-    handleChange({
-      target: {
-        name: "EMP_CODE",
-        value: selectedOption ? selectedOption.value : "",
-      },
-    });
-  };
 
   return (
     <>
@@ -563,7 +470,7 @@ const TicketBookingModal = ({
                         className={`form-control ${errors.PERSON_NAME ? "is-invalid" : ""}`}
                         name="PERSON_NAME"
                         id="PERSON_NAME"
-                        maxLength={50}
+                        maxLength={PERSON_NAME_MAX_BYTES}
                         value={formData.PERSON_NAME || ""}
                         onChange={handleChange}
                       />
@@ -734,9 +641,13 @@ const TicketBookingModal = ({
                       hasError={Boolean(errors.TTNT_ARVL_TIME)}
                     />
 
-                    {errors.TTNT_ARVL_TIME && (
+                    {errors.TTNT_ARVL_TIME ? (
                       <div className="invalid-feedback d-block">
                         {errors.TTNT_ARVL_TIME}
+                      </div>
+                    ) : isOvernight(formData.TTNT_DEPR_TIME, formData.TTNT_ARVL_TIME) && (
+                      <div className="form-text text-warning">
+                        Arrives the next day (overnight journey).
                       </div>
                     )}
                   </div>

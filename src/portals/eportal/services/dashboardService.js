@@ -16,7 +16,6 @@ export const getAttendanceLog = (date) =>
 
 export const getAttendanceLogOD = (date, empCode) =>
   eportalRequest({
-   // url: EPORTAL_API.DASHBOARD.ATTENDANCE_LOG_OD,
     url: EPORTAL_API.DASHBOARD.ATTENDANCE_LOG1,
     method: "GET",
     params: { date, emp_code: empCode },

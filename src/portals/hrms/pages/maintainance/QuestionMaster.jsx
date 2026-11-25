@@ -24,6 +24,7 @@ import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import SaveButton from '../../../../shared/components/buttons/SaveButton'
 import CancelButton from '../../../../shared/components/buttons/CancelButton'
 import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
+import { handleError } from '../../../../shared/services/errorHandler'
 
 const ANSWER_TYPES = ['Text', 'Radio', 'Checkbox']
 
@@ -82,7 +83,7 @@ const QuestionMaster = () => {
         }))
       )
     } catch (err) {
-      console.error(err)
+      handleError(err, { context: 'Load question groups', fallback: 'Unable to load question groups.' })
     }
   }, [])
 
@@ -148,7 +149,7 @@ const QuestionMaster = () => {
         }
       })
     } catch (error) {
-      console.error(error)
+      handleError(error, { context: 'Build question rows', notify: false })
       return []
     }
   }, [questionMasterData])

@@ -9,6 +9,7 @@ import EportalPageLoader from "../loader/EportalPageLoader";
 import BreadcrumbNav from "../../../../shared/components/BreadcrumbNav";
 import { getPortalFromPath } from "../../../../shared/config/portalConfig";
 import "../../assets/css/wideContentPages.css";
+import { handleError } from "../../../../shared/services/errorHandler";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -42,7 +43,7 @@ const HolidayCalendar = () => {
         setHolidays([]);
       }
     } catch (err) {
-      console.error("Holiday fetch error:", err);
+      handleError(err, { context: "Load holidays", fallback: "Unable to load holidays." });
       setHolidays([]);
     } finally {
       setLoading(false);
@@ -66,7 +67,7 @@ const HolidayCalendar = () => {
         setHolidayRules([]);
       }
     } catch (err) {
-      console.error("Holiday rules fetch error:", err);
+      handleError(err, { context: "Load holiday rules", fallback: "Unable to load holiday rules." });
       setHolidayRules([]);
     } finally {
       setRulesLoading(false);

@@ -1,4 +1,3 @@
-//import React from "react";
 
 const AuthModalLeavesList = ({
   dataSource = [],
@@ -24,7 +23,6 @@ const AuthModalLeavesList = ({
     );
   }
 
-  let srNo = 1;
 
   return (
     <div className="table-responsive">
@@ -38,10 +36,6 @@ const AuthModalLeavesList = ({
       >
         <thead className="table-light">
           <tr>
-            {/* <th>No</th>
-            <th>Department</th>
-            <th>Code</th>
-            <th>Employee Name</th> */}
             <th>Leave Code</th>
             <th>Opening Balance</th>
             <th>Period</th>
@@ -53,13 +47,6 @@ const AuthModalLeavesList = ({
 
         <tbody>
           {safeData.map((emp, empIndex) => {
-            const totalRows =
-              emp.leave_details?.reduce(
-                (acc, lv) =>
-                  acc +
-                  (lv.periods?.length || 1),
-                0
-              ) || 1;
 
             let firstEmpRow = true;
 
@@ -81,10 +68,6 @@ const AuthModalLeavesList = ({
 
                   return periods.map(
                     (prd, prdIndex) => {
-                      const currentSrNo =
-                        firstEmpRow
-                          ? srNo++
-                          : null;
 
                       const row = (
                         <tr
@@ -92,45 +75,7 @@ const AuthModalLeavesList = ({
                         >
                           {firstEmpRow && (
                             <>
-                              {/* <td
-                                rowSpan={
-                                  totalRows
-                                }
-                                className="text-center align-middle"
-                              >
-                                {currentSrNo}
-                              </td> */}
 
-                              {/* <td
-                                rowSpan={
-                                  totalRows
-                                }
-                                className="align-middle"
-                              >
-                                {emp.DEPT}
-                              </td> */}
-
-                              {/* <td
-                                rowSpan={
-                                  totalRows
-                                }
-                                className="text-center align-middle"
-                              >
-                                {
-                                  emp.EMP_CODE
-                                }
-                              </td> */}
-
-                              {/* <td
-                                rowSpan={
-                                  totalRows
-                                }
-                                className="align-middle"
-                              >
-                                {
-                                  emp.EMP_NAME
-                                }
-                              </td> */}
                             </>
                           )}
 

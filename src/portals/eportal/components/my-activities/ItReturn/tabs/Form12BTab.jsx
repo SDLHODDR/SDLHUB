@@ -66,7 +66,8 @@ export const Form12BTab = ({ editable }) => {
                     form12B = {},
                 } = res.data || {};
 
-                setEligible(true);
+                // Only employees who joined during this financial year fill Form 12B
+                setEligible(Boolean(eligible));
 
                 if (form12B?.ID) {
 

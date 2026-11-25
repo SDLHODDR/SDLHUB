@@ -9,6 +9,7 @@ import {
   assignMemberToGroups,
   saveMemberDM
 } from "../services/telegramMemberService";
+import { handleError } from "../../../shared/services/errorHandler";
 
 const SDLTelegramMembers = () => {
   const [members, setMembers] = useState([]);
@@ -45,7 +46,7 @@ const SDLTelegramMembers = () => {
       }));
       setMembers(formattedMembers);
     } catch (error) {
-      console.log(error);
+      handleError(error, { context: "Load members", fallback: "Unable to load members." });
     } finally {
       setLoading(false);
     }
@@ -105,7 +106,7 @@ const SDLTelegramMembers = () => {
     try {
       await loadMembers();
     } catch (error) {
-      console.log(error);
+      handleError(error, { context: "Reload members", fallback: "Unable to load members." });
     }
   };
 
