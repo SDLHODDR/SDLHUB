@@ -1,5 +1,6 @@
 import { request } from "./request";
 import { PORTALAPI } from "./apiConfig";
+import { markSessionConfirmed } from "./api";
 
 /* ============================
    LOGIN
@@ -40,6 +41,10 @@ export const checkSession = () => {
     method: "GET",
     timeout: SESSION_CHECK_TIMEOUT_MS,
   })
+    .then((res) => {
+      if (res?.logged_in) markSessionConfirmed();
+      return res;
+    })
     .catch((err) => {
       // Ignore cancelled requests
       if (err?.status === 401) {
@@ -67,6 +72,9 @@ export const keepSessionAlive = () =>
   request({
     url: PORTALAPI.AUTH.SESSION_KEEPALIVE,
     method: "GET",
+  }).then((res) => {
+    if (res?.status === true) markSessionConfirmed();
+    return res;
   });
 
 /* ============================

@@ -2,6 +2,10 @@ import "../assets/css/sdlPageLoader.css";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
+/*
+ * Brief loader shown on each page change. It is rendered inside MainLayout's content area,
+ * so it covers only the page content; the header, menu and footer stay in place.
+ */
 const RouteLoader = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
@@ -25,9 +29,9 @@ const RouteLoader = () => {
   if (!loading) return null;
 
   return (
-    <div id="global-loader">
+    <div className="sdl-page-loader sdl-route-loader" role="status" aria-live="polite">
       <div className="sdl-page-loader-size">
-        <div className="whirly-loader"></div>
+        <div className="whirly-loader">Loading</div>
       </div>
     </div>
   );

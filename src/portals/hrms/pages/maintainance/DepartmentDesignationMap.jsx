@@ -13,6 +13,7 @@ import { notifySuccess, notifyError } from '../../../../shared/services/alertSer
 import '../../assets/departmentDesignation.css'
 import SDLReactMultiSelect from '../../../../shared/components/form/SDLReactMultiSelect'
 import UpdateButton from '../../../../shared/components/buttons/UpdateButton'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 // Same page sizes as the shared data grid (SDLDataTable).
 const PAGE_SIZES = [10, 25, 50, 100]
@@ -59,7 +60,8 @@ const DepartmentDesignationMap = () => {
 
   const TOP_CONTROL_WIDTH = '330px'
 
-  const [loading, setLoading] = useState(false)
+  // true from the start: the list is fetched on load, and "No data found" waits for it
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [first, setFirst] = useState(0)
   const [pageSize, setPageSize] = useState(PAGE_SIZES[0])
@@ -213,6 +215,7 @@ const DepartmentDesignationMap = () => {
 
   return (
     <>
+      {loading && <SDLPageLoader />}
       <div className='page-header' style={{ marginBottom: '8px' }}>
         <div className='add-item d-flex'>
           <div className='page-title'>
@@ -276,7 +279,7 @@ const DepartmentDesignationMap = () => {
                     {listData.length === 0 ? (
                       <tr>
                         <td colSpan={5} className='text-center py-4 text-muted'>
-                          No data found
+                          {loading ? '\u00a0' : 'No data found'}
                         </td>
                       </tr>
                     ) : (

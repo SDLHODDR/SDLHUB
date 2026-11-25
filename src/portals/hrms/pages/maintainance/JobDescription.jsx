@@ -211,7 +211,8 @@ const JobDescription = () => {
   const portal = getPortalFromPath(location.pathname)
   const portalHome = `/${portal.key}/dashboard`
 
-  const [loading, setLoading] = useState(false)
+  // true from the start: the list is fetched on load, and "No Job Descriptions found" waits for it
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [jobData, setJobData] = useState([])
   const [departments, setDepartments] = useState([])

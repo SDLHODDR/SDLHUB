@@ -24,6 +24,7 @@ import CancelButton from '../../../../shared/components/buttons/CancelButton'
 import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
 import SDLInput from '../../../../shared/components/form/SDLInput'
 import { handleError } from '../../../../shared/services/errorHandler'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const ACT_TYPES = { J: 'Join', E: 'Exit' }
 
@@ -38,7 +39,8 @@ const DepartmentActivity = () => {
     state => state.hrmsdeptactivitiesData?.data
   )
 
-  const [loading, setLoading] = useState(false)
+  // true from the start: the list is fetched on load, and "No data found" waits for it
+  const [loading, setLoading] = useState(true)
   const [listDeptMasterData, setListDeptMasterData] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -650,7 +652,9 @@ const DepartmentActivity = () => {
                 </>
               ) : (
                 <>
-                  {listData.length === 0 ? (
+                  {loading ? (
+                    <SDLPageLoader />
+                  ) : listData.length === 0 ? (
                     <div className='p-4 text-center text-muted'>
                       No data found
                     </div>

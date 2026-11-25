@@ -7,7 +7,11 @@ export const useMastersAuthorizationHandler = (tid = 0) => {
   const dispatch = useDispatch();
 
   const authMasterData = useSelector((state) => state.hrmsAuthData.data);
-  const loading = useSelector((state) => state.hrmsAuthData.loading);
+  const storeLoading = useSelector((state) => state.hrmsAuthData.loading);
+  // The task whose list has finished loading. Until the current task's fetch settles the
+  // list counts as loading, so "No data" (or another task's rows) is not shown first.
+  const [loadedTid, setLoadedTid] = useState(null);
+  const loading = storeLoading || (!!tid && String(loadedTid) !== String(tid));
 
   const [searchQuery, setSearchQuery] = useState("");
   const [listData, setListData] = useState([]);
@@ -19,12 +23,13 @@ export const useMastersAuthorizationHandler = (tid = 0) => {
 
   useEffect(() => {
     if (tid) {
+
       // Cancel this load if the page closes or loads another list first,
       // so a stale request can't show an error or overwrite newer data.
-      const load = dispatch(getHRMSAuthTableDataResponse({ task_id: tid }));
+      const load = dispatch(getHRMSAuthTableDataResponse({ task_id: tid })).finally(() => setLoadedTid(tid));
       load.unwrap().catch(error => handleError(error, { context: "Load master authorization requests", fallback: "Unable to load master authorization requests." }));
       return () => load.abort();
-    }
+   }
   }, [dispatch, tid, refreshKey]);
 
   useEffect(() => {

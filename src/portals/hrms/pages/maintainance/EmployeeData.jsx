@@ -17,6 +17,7 @@ import { parseDateValue } from '../../../../shared/utils/commonUtils'
 import { filterInput } from '../../../../shared/validation'
 import { employeeDocumentUrl } from '../../services/newEmployeeService'
 import { handleError } from '../../../../shared/services/errorHandler'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const toDateInputValue = date => {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) return ''
@@ -2491,9 +2492,11 @@ const renderSelect = (name, label, options, config = {}) => {
                 }))}
                 selectedTab={activeTab}
                 onTabChange={setActiveTab}
-                tabContent={renderTabContent()}
+                // While an employee's details load, the loader shows instead of empty tables.
+                tabContent={loading ? null : renderTabContent()}
                 loading={false}
               />
+              {loading && <SDLPageLoader />}
             </div>
           </div>
         </div>
