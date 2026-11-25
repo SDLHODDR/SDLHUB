@@ -13,6 +13,14 @@ export const getEmployees = (params = {}) =>
     params,
   });
 
+// Employees whose code or name contains every typed word (EmployeeSearchSelect).
+export const searchEmployees = ({ q, status = "active" }) =>
+  hrmsRequest({
+    url: HRMS_API.EMPLOYEE.SEARCH,
+    method: "GET",
+    params: { q, status },
+  });
+
 export const getEmployeeById = (id) =>
   hrmsRequest({
     url: HRMS_API.EMPLOYEE.GET_EMPLOYEE_BY_ID,

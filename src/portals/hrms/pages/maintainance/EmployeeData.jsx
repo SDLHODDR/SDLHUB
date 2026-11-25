@@ -2,7 +2,6 @@ import React, { useMemo, useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 // import Select from 'react-select'
 import {
-  getEmployees,
   getEmployeeById,
   getEmployeeMasters
 } from '../../services/employeeDataService'
@@ -17,6 +16,14 @@ import { parseDateValue } from '../../../../shared/utils/commonUtils'
 import { filterInput } from '../../../../shared/validation'
 import { employeeDocumentUrl } from '../../services/newEmployeeService'
 import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
+import EmployeeSearchSelect from '../../components/forms/EmployeeSearchSelect'
+
+// Search result -> option: keyed by HR_EMPLOYEE_INFO.ID, "NAME - CODE (status)".
+// Status: A = active, R = resigned (also N / T for new joiners).
+const employeeDataOption = row => ({
+  value: String(row.ID),
+  label: `${row.NAME} - ${row.EMP_CODE}${row.STATUS ? ` (${row.STATUS})` : ''}`
+})
 
 const toDateInputValue = date => {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) return ''
@@ -183,9 +190,6 @@ const EmployeeData = () => {
   const [activeTab, setActiveTab] = useState('personal')
   const [employeeData, setEmployeeData] = useState(INITIAL_EMPLOYEE_DATA)
   const [fieldErrors, setFieldErrors] = useState({})
-  const [employees, setEmployees] = useState([])
-  // True until the employee list has loaded (the select shows its loading dots).
-  const [employeesLoading, setEmployeesLoading] = useState(true)
   const [masters, setMasters] = useState({
     titles: [],
     states: [],
@@ -210,19 +214,6 @@ const EmployeeData = () => {
     organogramLocations: []
   })
 
-  const employeeOptions = useMemo(() => {
-    if (!Array.isArray(employees)) {
-      return []
-    }
-
-    return employees
-      .map(item => ({
-        value: String(item.ID || ''),
-        // Status in brackets: A = active, R = resigned (also N / T for new joiners).
-        label: item.EMP_NAME ? `${item.EMP_NAME}${item.STATUS ? ` (${item.STATUS})` : ''}` : ''
-      }))
-      .filter(item => item.value && item.label)
-  }, [employees])
 
   /*
    -----------TABS----------
@@ -910,24 +901,6 @@ const EmployeeData = () => {
     setEmployeeData(INITIAL_EMPLOYEE_DATA)
   }
 
-  const loadEmployees = async () => {
-    try {
-      const response = await getEmployees()
-
-      if (response?.status) {
-        setEmployees(Array.isArray(response.data) ? response.data : [])
-      } else {
-        console.error(response?.message || 'Unable to load employees.')
-        setEmployees([])
-      }
-    } catch (error) {
-      console.error('Error loading employees:', error)
-      setEmployees([])
-    } finally {
-      setEmployeesLoading(false)
-    }
-  }
-
   const loadEmployeeMasters = async () => {
     try {
       const response = await getEmployeeMasters()
@@ -943,7 +916,6 @@ const EmployeeData = () => {
   }
 
   useEffect(() => {
-    loadEmployees()
     loadEmployeeMasters()
   }, [])
 
@@ -2471,14 +2443,14 @@ const renderSelect = (name, label, options, config = {}) => {
             <div className='card-body'>
               {/* EMPLOYEE SELECT */}
               <div className='d-flex justify-content-end align-items-center mb-3'>
-                <SDLReactSelect
+                {/* Searches on Enter after 3 letters; includes resigned / inactive employees. */}
+                <EmployeeSearchSelect
                   value={selectedEmployeeId}
-                  options={employeeOptions}
                   onChange={(value, option) => handleEmployeeChange(option)}
-                  placeholder='Select Employee'
-                  isSearchable
-                  isClearable
-                  isLoading={loading || employeesLoading}
+                  status='all'
+                  getOption={employeeDataOption}
+                  placeholder='Search Employee'
+                  isLoading={loading}
                   width='330px'
                 />
               </div>

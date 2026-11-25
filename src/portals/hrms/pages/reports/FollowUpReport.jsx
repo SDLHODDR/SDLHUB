@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import SDLCalendar from '../../../../shared/components/calendar/SDLCalendar'
-import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
+import EmployeeSearchSelect from '../../components/forms/EmployeeSearchSelect'
 import { parseDateValue, toDateInputValue } from '../../../../shared/utils/commonUtils'
 import { openFollowUpReport } from '../../services/reportService'
 import ReportField from './ReportField'
@@ -11,7 +11,7 @@ const EMPTY = { employee: '', fromDate: '', toDate: '' }
 
 /* Follow Up report (legacy rept_admin.php?reptnm=followup): follow-ups an employee recorded in a period. */
 const FollowUpReport = () => {
-  const { options, loadError, loading } = useReportOptions('followup')
+  const { loadError, loading } = useReportOptions('followup')
   const [form, setForm] = useState(EMPTY)
   const [errors, setErrors] = useState({})
   const set = (key, value) => {
@@ -42,10 +42,11 @@ const FollowUpReport = () => {
       }}
     >
       <ReportField label='Employee' error={errors.employee} className='col-md-6 col-lg-4'>
-        <SDLReactSelect
+        {/* Active employees; searches on Enter after 3 letters. */}
+        <EmployeeSearchSelect
           value={form.employee}
-          options={options?.employees || []}
-          placeholder='Please Select'
+          placeholder='Search Employee'
+          hasError={!!errors.employee}
           onChange={value => set('employee', value || '')}
         />
       </ReportField>

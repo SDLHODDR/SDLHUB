@@ -12,6 +12,15 @@ export const getJobDescriptions = (params = {}) =>
     params,
   });
 
+// Job Description search field: up to 50 JDs whose "ID - label (divisions)" contains every
+// typed word (q: at least 3 characters).
+export const searchJobDescriptions = (q) =>
+  hrmsRequest({
+    url: HRMS_API.MAINTAINANCE.JOB_DESCRIPTION_LIST,
+    method: "GET",
+    params: { q },
+  });
+
 export const getJobDescriptionById = (id) =>
   hrmsRequest({
     url: HRMS_API.MAINTAINANCE.JOB_DESCRIPTION_LIST,

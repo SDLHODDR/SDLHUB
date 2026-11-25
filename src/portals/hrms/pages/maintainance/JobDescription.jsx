@@ -10,6 +10,7 @@ import { getMasterData } from '../../services/masterDataService'
 import { createCapabilityMaster } from '../../services/capablitiesService'
 import {
   getJobDescriptions,
+  searchJobDescriptions,
   getJobDescriptionById,
   saveJobDescription,
   getEducationLevelList,
@@ -38,6 +39,7 @@ import JDDataTable from '../../components/data-table/JDDataTable'
 import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
 import SDLDataTable from '../../../../shared/components/datatable/SDLDataTable'
 import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
+import SDLSearchSelect from '../../components/forms/SDLSearchSelect'
 import SDLReactMultiSelect from '../../../../shared/components/form/SDLReactMultiSelect'
 import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
 import SaveButton from '../../../../shared/components/buttons/SaveButton'
@@ -214,6 +216,9 @@ const JobDescription = () => {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [jobData, setJobData] = useState([])
+  // The full JD list is loaded only for the list view (see loadJobs).
+  const [jobsLoaded, setJobsLoaded] = useState(false)
+  const [jobsLoading, setJobsLoading] = useState(false)
   const [departments, setDepartments] = useState([])
   const [deptActivityCounts, setDeptActivityCounts] = useState({})
   const [docInputKey, setDocInputKey] = useState(0)
@@ -283,8 +288,10 @@ const JobDescription = () => {
   const loadData = useCallback(async () => {
     try {
       setLoading(true)
+      // The JD list itself is not loaded here: the search field queries the server and the
+      // list view loads it when opened (loadJobs).
+      setJobsLoaded(false)
       const [
-        jobsResponse,
         departmentsResponse,
         designationsResponse,
         levelsResponse,
@@ -304,7 +311,6 @@ const JobDescription = () => {
         organogramResponse,
         deptActivityResponse
       ] = await Promise.all([
-        getJobDescriptions(),
         getDepartmentMasterData(),
         getDesignationsMaster(),
         getMasterData('HR_ORG_LEVEL'),
@@ -328,7 +334,6 @@ const JobDescription = () => {
         })
       ])
 
-      setJobData(normalizeRecords(jobsResponse))
       setDepartments(normalizeRecords(departmentsResponse))
       setDesignations(normalizeRecords(designationsResponse))
       setLevels(normalizeRecords(levelsResponse))
@@ -368,6 +373,28 @@ const JobDescription = () => {
   useEffect(() => {
     void loadData() // eslint-disable-line react-hooks/set-state-in-effect
   }, [loadData])
+
+  // All JDs, for the list view: loaded when the list view is opened (again after a save).
+  useEffect(() => {
+    if (!showListView || jobsLoaded) return
+    let active = true
+    setJobsLoading(true) // eslint-disable-line react-hooks/set-state-in-effect
+    getJobDescriptions()
+      .then(response => {
+        if (!active) return
+        setJobData(normalizeRecords(response))
+        setJobsLoaded(true)
+      })
+      .catch(error => {
+        if (active) notifyError(error?.message || 'Unable to load job descriptions.')
+      })
+      .finally(() => {
+        if (active) setJobsLoading(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [showListView, jobsLoaded])
 
   const jobList = useMemo(() => {
     return normalizeRecords(jobData).map((item, index) => ({
@@ -411,6 +438,31 @@ const JobDescription = () => {
       STATUS: item.STATUS ?? item.status ?? ''
     }))
   }, [jobData])
+
+  // Options of the Job Description search field: "ID - label (divisions)", by ID.
+  const jobOptions = useMemo(
+    () =>
+      jobList
+        .map(item => ({
+          value: item.ID,
+          label: `${item.ID} - ${item.SH_DESC}${
+            item.DIVISION_NAMES ? ` (${item.DIVISION_NAMES})` : ''
+          }`
+        }))
+        .sort((a, b) => Number(a.value) - Number(b.value)),
+    [jobList]
+  )
+
+  // Job Description search field: the server returns the matching JDs (searchJobDescriptions).
+  const searchJobOptions = useCallback(async text => {
+    const response = await searchJobDescriptions(text)
+    if (!response?.status) throw new Error(response?.message || 'Unable to search job descriptions.')
+    return normalizeRecords(response).map(item => ({
+      value: item.ID,
+      label: `${item.ID} - ${item.SH_DESC}${item.DIVISION_NAMES ? ` (${item.DIVISION_NAMES})` : ''}`,
+      row: item
+    }))
+  }, [])
 
   const filteredList = useMemo(() => {
     if (!searchQuery.trim()) return jobList
@@ -3112,36 +3164,32 @@ if (!isValid) {
                 </div>
 
                 <div className='d-flex align-items-center gap-2'>
-                    <SDLReactSelect
+                    {/* Searches the loaded JDs on Enter after 3 letters (ID, label or division). */}
+                    <SDLSearchSelect
                       value={selectedJobId}
-                      options={jobList
-                        .map(item => ({
-                          value: item.ID,
-                          label: `${item.ID} - ${item.SH_DESC}${
-                            item.DIVISION_NAMES
-                              ? ` (${item.DIVISION_NAMES})`
-                              : ''
-                          }`
-                        }))
-                        .sort((a, b) => Number(a.value) - Number(b.value))}
+                      valueOption={
+                        jobOptions.find(
+                          option => String(option.value) === String(selectedJobId)
+                        ) ||
+                        (selectedJobId
+                          ? { value: selectedJobId, label: `${selectedJobId} - ${formData.SH_DESC || ''}` }
+                          : null)
+                      }
+                      search={searchJobOptions}
+                      minLengthMessage='Type at least 3 letters of the job description'
+                      noResultsMessage='No job descriptions found'
                       onChange={(value, option) => {
                         if (!option) {
                           resetForm()
                           return
                         }
 
-                        const selectedJob = jobList.find(
-                          item => String(item.ID) === String(option.value)
-                        )
-
-                        if (selectedJob) {
-                          startEditJob(selectedJob)
+                        // The search result row (startEditJob loads the full JD by its ID).
+                        if (option.row) {
+                          startEditJob(option.row)
                         }
                       }}
-                      placeholder='Select Job Description'
-                      isSearchable
-                      isClearable
-                      isLoading={loading}
+                      placeholder='Search Job Description'
                       width='330px'
                     />
 
@@ -3159,7 +3207,7 @@ if (!isValid) {
                   <SDLDataTable
                     data={filteredList}
                     columns={jobListColumns}
-                    loading={loading}
+                    loading={loading || jobsLoading || !jobsLoaded}
                     emptyMessage='No Job Descriptions found'
                     removableSort
                     onRowClick={event => {
