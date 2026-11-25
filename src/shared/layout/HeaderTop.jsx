@@ -427,6 +427,7 @@ const HeaderTop = () => {
 
         {/* Mobile Notification + Dropdown */}
         <div className="mobile-notification d-flex align-items-center d-lg-none">
+          {!isPolicyPage && <PortalSwitcher compact />}
           <SDLHUBNotification />
           {TELEGRAM_ENABLED && (
             <TelegramHeaderMenu mobile />

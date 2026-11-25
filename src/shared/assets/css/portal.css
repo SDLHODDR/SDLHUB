@@ -102,3 +102,71 @@ a.portal-item:focus {
   color: #666;
   margin-top: 0.25rem;
 }
+
+/* Compact portal switcher in the header on narrow screens (HeaderTop .mobile-notification). */
+.portal-switcher.portal-switcher-compact {
+  height: 60px;
+  margin-right: 4px;
+  gap: 0;
+}
+
+.portal-switcher-compact .portal-item {
+  position: relative;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.portal-switcher-compact .portal-item.active::after {
+  left: 10px;
+  right: 10px;
+}
+
+/* Narrow screens: the logo sits after the menu button (as on phones) to leave room for it. */
+@media (min-width: 576px) and (max-width: 991.96px) {
+  .header .header-left {
+    width: fit-content !important;
+    left: 60px;
+  }
+
+  .header .header-left .logo {
+    text-align: left;
+    width: auto;
+  }
+}
+
+/* Below tablet width: icons only (the name is in the link's tooltip). */
+@media (max-width: 767.98px) {
+  .portal-switcher-compact .portal-item {
+    padding: 0 8px;
+  }
+
+  .portal-switcher-compact .portal-item span {
+    display: none;
+  }
+
+  .portal-switcher-compact .portal-item i {
+    font-size: 20px;
+  }
+
+  .portal-switcher-compact .portal-item.active::after {
+    left: 6px;
+    right: 6px;
+  }
+}
+
+/* Narrow-screen user menu (⋮): only as wide as its items, both items the same height. */
+@media (max-width: 991.96px) {
+  .header .mobile-user-menu .dropdown-menu {
+    min-width: 0;
+    width: max-content;
+    padding: 4px 0;
+  }
+
+  .header .mobile-user-menu .dropdown-menu .dropdown-item {
+    font-size: 14px;
+    line-height: 20px;
+    padding: 8px 16px;
+    text-align: left;
+  }
+}

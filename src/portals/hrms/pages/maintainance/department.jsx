@@ -25,6 +25,7 @@ import CancelButton from '../../../../shared/components/buttons/CancelButton'
 import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import SDLInput from '../../../../shared/components/form/SDLInput'
 import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload
@@ -83,6 +84,8 @@ const Department = () => {
   const portalHome = `/${portal.key}/dashboard`
 
   const [loading, setLoading] = useState(false)
+  // true until the department list has loaded (so "No data found" is not shown before it)
+  const [listLoading, setListLoading] = useState(true)
   const [listDepartmentMasterData, setListDepartmentMasterData] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -121,6 +124,8 @@ const Department = () => {
       setListDepartmentMasterData(normalizedData)
     } catch (error) {
       console.error('REFRESH DEPARTMENT ERROR:', error)
+    } finally {
+      setListLoading(false)
     }
   }
 
@@ -285,9 +290,9 @@ const Department = () => {
       newErrors.DEPT_DESC = 'Department Name is required'
     } else if (deptDesc.length > 20) {
       newErrors.DEPT_DESC = 'Department Name cannot exceed 20 characters'
-    } else if (!/^[A-Za-z0-9\s&/]+$/.test(deptDesc)) {
+    } else if (!/^[A-Za-z0-9\s]+$/.test(deptDesc)) {
       newErrors.DEPT_DESC =
-        'Department Name can only contain letters, numbers, spaces, & and /'
+        'Department Name must not contain special characters'
     }
 
     setErrors(newErrors)
@@ -384,7 +389,7 @@ const Department = () => {
   const handleDeleteDept = async row => {
     try {
       const result = await confirmAction('Are you sure you want to Delete?')
-      if (!result) return
+      if (!result?.isConfirmed) return
       setDeletingId(row.ID)
 
       const payload = {
@@ -636,7 +641,9 @@ const Department = () => {
                 </>
               ) : (
                 <>
-                  {listData.length === 0 ? (
+                  {listLoading ? (
+                    <SDLPageLoader />
+                  ) : listData.length === 0 ? (
                     <div className='p-4 text-center text-muted'>
                       No data found
                     </div>

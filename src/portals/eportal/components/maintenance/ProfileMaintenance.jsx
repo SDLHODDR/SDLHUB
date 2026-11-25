@@ -44,7 +44,7 @@ const PROFILE_TABS = [
   { key: "dash", label: "Dashboard Access" },
   { key: "profileUsers", label: "Profile Users" },
 ];
-import { Alignment } from "ckeditor5";
+// import { Alignment } from "ckeditor5";
 
 const ProfileMaintenance = () => {
   const hasFetchedProfiles = useRef(false);

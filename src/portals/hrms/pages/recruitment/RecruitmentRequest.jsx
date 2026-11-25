@@ -302,7 +302,7 @@ const RecruitmentRequest = () => {
                       <input id='recruitment-position-count' className='form-control' disabled readOnly value={position.positionCount} />
                     </div>
                     <div className='col-sm-6 col-lg-3'>
-                      <label className='form-label' htmlFor='recruitment-occupied'>Positions Occupied</label>
+                      <label className='form-label' htmlFor='recruitment-occupied'>Positions Filled</label>
                       <input id='recruitment-occupied' className='form-control' disabled readOnly value={position.positionsOccupied} />
                     </div>
                     <div className='col-sm-6 col-lg-3'>

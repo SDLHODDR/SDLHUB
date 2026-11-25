@@ -2253,7 +2253,7 @@ textarea {
   border-radius: 4px 4px 0 0;
 
   background: transparent !important;
-  color: #6c757d !important;
+  color: #212529 !important;
 
   font-size: 14px;
   font-weight: 500;
@@ -2277,6 +2277,7 @@ textarea {
 .sdl-tabs .nav-link.active {
   background: #fff !important;
   color: #212529 !important;
+  font-weight: 700;
 
   border: 1px solid #ff9800 !important;
 
@@ -2290,7 +2291,7 @@ textarea {
 /* INACTIVE TAB */
 .sdl-tabs .nav-link:not(.active) {
   background: transparent !important;
-  color: #6c757d !important;
+  color: #212529 !important;
 
   border: 1px solid transparent !important;
 }
@@ -2298,7 +2299,7 @@ textarea {
 /* INACTIVE HOVER */
 .sdl-tabs .nav-link:not(.active):hover {
   background: transparent !important;
-  color: #495057 !important;
+  color: #000 !important;
 
   border-color: transparent !important;
 }

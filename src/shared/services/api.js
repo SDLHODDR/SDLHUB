@@ -130,6 +130,17 @@ const isSessionExpiredError = (error) =>
 
 let sessionCheckInFlight = null;
 
+// A failed response right after the session was confirmed (page load, keepalive,
+// or a previous check) is not a sign it has ended, so it does not trigger another
+// session_check. An expired session still gets a 401, which redirects at once.
+const SESSION_CONFIRMED_TTL_MS = 30 * 1000;
+let sessionConfirmedAt = 0;
+
+/** Called when the backend has just answered that the session is active. */
+export const markSessionConfirmed = () => {
+  sessionConfirmedAt = Date.now();
+};
+
 // Not every endpoint answers 401 without a session: some return 200 with
 // "Not logged in", others fail with a different error. So when any request
 // fails, ask the backend before showing that failure to the user. If the backend
@@ -139,10 +150,17 @@ const redirectIfSessionEnded = async (url = "") => {
     return false;
   }
 
+  if (Date.now() - sessionConfirmedAt < SESSION_CONFIRMED_TTL_MS) {
+    return false;
+  }
+
   if (!sessionCheckInFlight) {
     sessionCheckInFlight = coreAPI
       .get("/session_check.php")
-      .then((response) => response?.data?.logged_in === false)
+      .then((response) => {
+        if (response?.data?.logged_in === true) markSessionConfirmed();
+        return response?.data?.logged_in === false;
+      })
       .catch(() => false)
       .finally(() => {
         sessionCheckInFlight = null;

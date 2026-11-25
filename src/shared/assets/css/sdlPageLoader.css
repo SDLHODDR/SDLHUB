@@ -41,3 +41,10 @@
     transform: rotate(1turn);
   }
 }
+
+/* Route change loader (RouteLoader): covers only the page content, below the header and menu. */
+.sdl-page-loader.sdl-route-loader {
+  position: absolute;
+  z-index: 5;
+  background: #fff;
+}

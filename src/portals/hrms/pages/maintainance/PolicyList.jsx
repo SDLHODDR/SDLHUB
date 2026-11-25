@@ -34,6 +34,7 @@ import SaveButton from '../../../../shared/components/buttons/SaveButton'
 import CancelButton from '../../../../shared/components/buttons/CancelButton'
 import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
 import SDLInput from '../../../../shared/components/form/SDLInput'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const emptyForm = {
   ID: '',
@@ -88,8 +89,11 @@ const PolicyList = () => {
   const [formData, setFormData] = useState(emptyForm)
   const isPublished = isEditing && formData.STATUS === 'A'
 
+  // true until the first list has loaded ("No policies found" waits for it)
+  const [listLoading, setListLoading] = useState(true)
+
   useEffect(() => {
-    dispatch(getPolicyDataResponse())
+    dispatch(getPolicyDataResponse()).finally(() => setListLoading(false))
   }, [dispatch])
 
   const loadLookups = useCallback(async () => {
@@ -606,7 +610,9 @@ const PolicyList = () => {
                   </>
                 ) : (
                   <>
-                    {filteredData.length === 0 ? (
+                    {listLoading ? (
+                      <SDLPageLoader />
+                    ) : filteredData.length === 0 ? (
                       <div className='p-4 text-center text-muted'>
                         No policies found
                       </div>

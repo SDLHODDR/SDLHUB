@@ -29,7 +29,8 @@ const KRAActivity = () => {
   const portal = getPortalFromPath(location.pathname)
   const portalHome = `/${portal.key}/dashboard`
 
-  const [loading, setLoading] = useState(false)
+  // true from the start: the list is fetched on load, and "No data found" waits for it
+  const [loading, setLoading] = useState(true)
   const [listKRAMasterData, setListKRAMasterData] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
   const [showAll, setShowAll] = useState(false)
@@ -504,7 +505,9 @@ const KRAActivity = () => {
                   </>
                 ) : (
                   <>
-                    {listData.length === 0 ? (
+                    {loading ? (
+                      <SDLPageLoader />
+                    ) : listData.length === 0 ? (
                       <div className='p-4 text-center text-muted'>
                         No data found
                       </div>

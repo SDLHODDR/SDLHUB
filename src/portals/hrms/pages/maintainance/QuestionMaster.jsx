@@ -24,6 +24,7 @@ import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import SaveButton from '../../../../shared/components/buttons/SaveButton'
 import CancelButton from '../../../../shared/components/buttons/CancelButton'
 import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const ANSWER_TYPES = ['Text', 'Radio', 'Checkbox']
 
@@ -56,8 +57,11 @@ const QuestionMaster = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [deletingId, setDeletingId] = useState(null)
 
+  // true until the first question list has loaded ("No records found" waits for it)
+  const [listLoading, setListLoading] = useState(true)
+
   useEffect(() => {
-    dispatch(getQuestionMasterDataResponse())
+    dispatch(getQuestionMasterDataResponse()).finally(() => setListLoading(false))
   }, [dispatch])
 
   const loadLookups = useCallback(async () => {
@@ -777,7 +781,9 @@ const QuestionMaster = () => {
                   </>
                 ) : (
                   <>
-                    {filtered.length === 0 ? (
+                    {listLoading ? (
+                      <SDLPageLoader />
+                    ) : filtered.length === 0 ? (
                       <div className='p-4 text-center text-muted'>
                         No records found
                       </div>
