@@ -3,6 +3,7 @@ import { useEffect } from "react";
 
 import HeaderTop from "./HeaderTop";
 import Footer from "./Footer";
+import RouteLoader from "./RouteLoader";
 
 import EportalMenu from "../../portals/eportal/components/horizontal-menu/HorizontalMenu";
 import HrmsMenu from "../../portals/hrms/components/horizontal-menu/HorizontalMenu";
@@ -159,7 +160,9 @@ const MainLayout = () => {
       ========================================================= */}
 
       <div className="page-wrapper">
-        <div className="content">
+        {/* position: relative so the route loader covers only this area */}
+        <div className="content" style={{ position: "relative" }}>
+          <RouteLoader />
           <Outlet />
         </div>
       </div>

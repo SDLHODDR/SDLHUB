@@ -6,7 +6,11 @@ import { getHRMSAuthTableDataResponse } from "../../store/hrmsAuthorizationDataS
 export const useJoiningAuthorizationHandler = (tid = 0) => {
   const dispatch = useDispatch();
   const authJOINdata = useSelector((state) => state.hrmsAuthData.data);
-  const loading = useSelector((state) => state.hrmsAuthData.loading);
+  const storeLoading = useSelector((state) => state.hrmsAuthData.loading);
+  // The task whose list has finished loading. Until the current task's fetch settles the
+  // list counts as loading, so "No data" (or another task's rows) is not shown first.
+  const [loadedTid, setLoadedTid] = useState(null);
+  const loading = storeLoading || (!!tid && String(loadedTid) !== String(tid));
   const authExitArrdata = useSelector((state) => state.hrmsAuthData.exit_arr);
   const authJOINArrdata = useSelector((state) => state.hrmsAuthData.joining_arr);
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,7 +19,7 @@ export const useJoiningAuthorizationHandler = (tid = 0) => {
   
 
   useEffect(() => {
-    dispatch(getHRMSAuthTableDataResponse({ task_id: tid }));
+    dispatch(getHRMSAuthTableDataResponse({ task_id: tid })).finally(() => setLoadedTid(tid));
   }, [dispatch, tid, refreshKey]);
 
   useEffect(() => {

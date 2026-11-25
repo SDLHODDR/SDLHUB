@@ -30,7 +30,8 @@ const Organogram = () => {
   const portal = getPortalFromPath(location.pathname)
   const portalHome = `/${portal.key}/dashboard`
 
-  const [loadingOrgonogram, setLoadingOrgonogram] = useState(false)
+  // true from the start: the list is fetched on load
+  const [loadingOrgonogram, setLoadingOrgonogram] = useState(true)
 
   /* ==========================================================
       STATE

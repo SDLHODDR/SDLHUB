@@ -26,6 +26,7 @@ import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import SDLInput from '../../../../shared/components/form/SDLInput'
 import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
 import { validateFields, validateText } from '../../../../shared/validation'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const normalizeRecords = payload => {
   if (Array.isArray(payload)) return payload
@@ -84,6 +85,8 @@ const Department = () => {
   const portalHome = `/${portal.key}/dashboard`
 
   const [loading, setLoading] = useState(false)
+  // true until the department list has loaded (so "No data found" is not shown before it)
+  const [listLoading, setListLoading] = useState(true)
   const [listDepartmentMasterData, setListDepartmentMasterData] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -122,6 +125,8 @@ const Department = () => {
       setListDepartmentMasterData(normalizedData)
     } catch (error) {
       console.error('REFRESH DEPARTMENT ERROR:', error)
+    } finally {
+      setListLoading(false)
     }
   }
 
@@ -370,7 +375,7 @@ const Department = () => {
   const handleDeleteDept = async row => {
     try {
       const result = await confirmAction('Are you sure you want to Delete?')
-      if (!result) return
+      if (!result?.isConfirmed) return
       setDeletingId(row.ID)
 
       const payload = {
@@ -622,7 +627,9 @@ const Department = () => {
                 </>
               ) : (
                 <>
-                  {listData.length === 0 ? (
+                  {listLoading ? (
+                    <SDLPageLoader />
+                  ) : listData.length === 0 ? (
                     <div className='p-4 text-center text-muted'>
                       No data found
                     </div>

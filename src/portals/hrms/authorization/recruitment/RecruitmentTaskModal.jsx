@@ -112,7 +112,7 @@ const RecruitmentTaskModal = ({ taskId, title, record, onClose, onSuccess }) => 
             <Detail label='Organogram' value={request.organogram} className='col-md-8' />
             <Detail label='Open Location' value={request.location} className='col-md-4' />
             <Detail label='Position Count' value={request.positionCount} />
-            <Detail label='Positions Occupied' value={request.positionsOccupied} />
+            <Detail label='Positions Filled' value={request.positionsOccupied} />
             <Detail label='Required Positions' value={request.requiredPositions} />
             <Detail label='Fill By Date' value={request.tillDate} />
             <Detail label='Raised By' value={request.raisedBy} />

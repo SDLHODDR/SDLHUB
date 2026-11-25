@@ -18,6 +18,7 @@ import SaveButton from '../../../../shared/components/buttons/SaveButton'
 import CancelButton from '../../../../shared/components/buttons/CancelButton'
 import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
 import SDLInput from '../../../../shared/components/form/SDLInput'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 
 const Capabilities = () => {
   const dispatch = useDispatch()
@@ -44,8 +45,11 @@ const Capabilities = () => {
     CAPA_DESC: ''
   })
 
+  // true until the first list has loaded ("No records found" waits for it)
+  const [listLoading, setListLoading] = useState(true)
+
   useEffect(() => {
-    dispatch(getCapabilitiesDataResponse())
+    dispatch(getCapabilitiesDataResponse()).finally(() => setListLoading(false))
   }, [dispatch])
 
   const list = useMemo(() => {
@@ -401,7 +405,9 @@ const Capabilities = () => {
                   </>
                 ) : (
                 <>
-                  {filteredData.length === 0 ? (
+                  {listLoading ? (
+                    <SDLPageLoader />
+                  ) : filteredData.length === 0 ? (
                     <div className='p-4 text-center text-muted'>
                       No records found
                     </div>

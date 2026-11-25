@@ -14,6 +14,8 @@ export const getHRMSConfigs = () =>
   hrmsRequest({
     url: HRMS_API.MASTERDATA.GET_HRMS_CONFIGS,
     method: "GET",
+    // A second call while one is in flight reuses it (React StrictMode runs effects twice).
+    dedupe: true,
   });
 
 export const getFinEntities = async (payload = {}) => {

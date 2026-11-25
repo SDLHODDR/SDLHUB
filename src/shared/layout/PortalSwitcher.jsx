@@ -35,19 +35,21 @@ const isPlainLeftClick = (event) =>
   event.button === 0 &&
   !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey;
 
-const PortalSwitcher = () => {
+// compact: the copy shown in the header on narrow screens (below 992px), where the
+// full navbar is hidden. It skips the config load; the full switcher stays mounted.
+const PortalSwitcher = ({ compact = false }) => {
 
   const location = useLocation();
   const activePortal = getPortalFromPath(location.pathname);
 
   useEffect(() => {
-    if (activePortal.key === "hrms") {
+    if (!compact && activePortal.key === "hrms") {
       loadHRMSPortalConfigs();
     }
-  }, [activePortal.key]);
+  }, [compact, activePortal.key]);
 
   return (
-    <div className="portal-switcher">
+    <div className={`portal-switcher${compact ? " portal-switcher-compact" : ""}`}>
 
       {Object.values(PORTALS).map((portal) => (
 
@@ -56,6 +58,7 @@ const PortalSwitcher = () => {
         <Link
           key={portal.key}
           to={portal.path}
+          title={portal.label}
           className={`portal-item ${
             activePortal.key === portal.key
               ? "active"

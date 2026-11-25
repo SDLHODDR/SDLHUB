@@ -17,6 +17,29 @@ const LAST_KEEPALIVE_KEY = "session_last_keepalive";
 
 const memory = {};
 
+// Kept outside the component so a remount (React StrictMode mounts twice in
+// development) reuses the keepalive already in flight and the limit it returned.
+let idleLimitMs = DEFAULT_IDLE_LIMIT_MS;
+let keepaliveInFlight = null;
+
+const sendKeepalive = () => {
+  if (keepaliveInFlight) return keepaliveInFlight;
+  writeTime(LAST_KEEPALIVE_KEY, Date.now());
+  keepaliveInFlight = keepSessionAlive()
+    .then((res) => {
+      if (res?.idle_timeout) idleLimitMs = res.idle_timeout * 1000;
+    })
+    .catch((err) => {
+      // A 401 redirects in the API layer. Anything else is retried on the
+      // next activity, and the backend still enforces the limit.
+      console.error("Session keepalive failed:", err);
+    })
+    .finally(() => {
+      keepaliveInFlight = null;
+    });
+  return keepaliveInFlight;
+};
+
 const readTime = (key) => {
   try {
     const value = Number(localStorage.getItem(key));
@@ -47,20 +70,7 @@ const SessionTimeoutGuard = () => {
   const stayLoggedIn = useRef(null);
 
   useEffect(() => {
-    let idleLimitMs = DEFAULT_IDLE_LIMIT_MS;
     let ending = false;
-
-    const sendKeepalive = async () => {
-      writeTime(LAST_KEEPALIVE_KEY, Date.now());
-      try {
-        const res = await keepSessionAlive();
-        if (res?.idle_timeout) idleLimitMs = res.idle_timeout * 1000;
-      } catch (err) {
-        // A 401 redirects in the API layer. Anything else is retried on the
-        // next activity, and the backend still enforces the limit.
-        console.error("Session keepalive failed:", err);
-      }
-    };
 
     const endSession = async () => {
       ending = true;
