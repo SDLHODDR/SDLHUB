@@ -113,6 +113,11 @@ export const saveNewJoinee = post(HRMS_API.JOINING.SAVE_NEW_JOINEE)
 export const getRehireOptions = () =>
   hrmsRequest({ url: HRMS_API.JOINING.GET_REHIRE_EMPLOYEE, method: 'GET' })
 
+// Relieved Employee search field: relieved employees whose code or name contains every typed
+// word (q: at least 3 characters), up to 50.
+export const searchRehireEmployees = q =>
+  hrmsRequest({ url: HRMS_API.JOINING.GET_REHIRE_EMPLOYEE, method: 'GET', params: { q } })
+
 export const getRehireEmployee = empCode =>
   hrmsRequest({
     url: HRMS_API.JOINING.GET_REHIRE_EMPLOYEE,

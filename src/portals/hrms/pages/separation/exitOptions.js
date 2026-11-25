@@ -18,5 +18,5 @@ export const SEPARATION_STATUSES = {
   T: { label: 'In Progress', className: 'bg-warning text-dark' },
   A: { label: 'Approved', className: 'bg-info' },
   R: { label: 'Rejected', className: 'bg-danger' },
-  C: { label: 'Closed', className: 'bg-success' }
+  C: { label: 'Closed', className: 'bg-success rounded-pill' }
 }

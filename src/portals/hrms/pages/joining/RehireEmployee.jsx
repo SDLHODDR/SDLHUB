@@ -15,12 +15,14 @@ import {
   getNewEmployeeOfficeOptions,
   getRehireEmployee,
   getRehireOptions,
+  searchRehireEmployees,
   saveRehireEmployee
 } from '../../services/newEmployeeService'
 import { toOptions } from './joiningFormUtils'
 import '../../../../shared/assets/css/companyPolicies.css'
 import '../../assets/css/tenureChange.css'
 import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
+import SDLSearchSelect from '../../components/forms/SDLSearchSelect'
 import { validateDigits } from '../../../../shared/validation'
 
 const EMPTY_FORM = {
@@ -83,8 +85,14 @@ const tenureColumns = [
  * Rehire Employee (legacy rehire_emp.php): pick a relieved employee and enter
  * their new tenure and office, which makes them active again.
  */
+// Relieved Employee search field: the server returns the matches (up to 50).
+const searchRelievedEmployees = async text => {
+  const response = await searchRehireEmployees(text)
+  if (!response?.status) throw new Error(response?.message || 'Unable to search relieved employees.')
+  return toOptions(response.data?.employees)
+}
+
 const RehireEmployee = () => {
-  const [employees, setEmployees] = useState([])
   const [employeeTypes, setEmployeeTypes] = useState([])
   const [empCode, setEmpCode] = useState('')
   const [employee, setEmployee] = useState(null)
@@ -101,10 +109,9 @@ const RehireEmployee = () => {
     try {
       const response = await getRehireOptions()
       if (!response?.status) throw new Error(response?.message)
-      setEmployees(toOptions(response.data?.employees))
       setEmployeeTypes(toOptions(response.data?.employeeTypes))
     } catch (error) {
-      if (!error?.cancelled) notifyError(error?.message || 'Unable to load the relieved employees.')
+      if (!error?.cancelled) notifyError(error?.message || 'Unable to load the employee types.')
     }
   }, [])
 
@@ -274,11 +281,15 @@ const RehireEmployee = () => {
                   <label className='form-label'>
                     Relieved Employee <RequiredMark />
                   </label>
-                  <SDLReactSelect
+                  {/* Searches relieved employees on Enter after 3 letters of the name or code. */}
+                  <SDLSearchSelect
                     value={empCode}
-                    options={employees}
+                    valueOption={employee ? { value: employee.empCode, label: `${employee.name} - ${employee.empCode}` } : null}
+                    search={searchRelievedEmployees}
+                    minLengthMessage='Type at least 3 letters of the name or code'
+                    noResultsMessage='No relieved employees found'
                     onChange={value => selectEmployee(value || '')}
-                    placeholder='Please Select'
+                    placeholder='Search Relieved Employee'
                     isDisabled={saving}
                   />
                 </div>
