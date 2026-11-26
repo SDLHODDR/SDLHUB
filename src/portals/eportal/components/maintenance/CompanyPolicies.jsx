@@ -156,7 +156,6 @@ const CompanyPolicies = () => {
                                 value={searchQuery}
                                 onChange={setSearchQuery}
                                 placeholder="Search Policies..."
-                                 style={{ width: "270px" }}
                             />
                         </div>
                     </div>

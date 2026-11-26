@@ -70,7 +70,7 @@ const ProfileMaintenance = () => {
   const [submenuAccess, setSubmenuAccess] = useState({});
   const [taskAccess, setTaskAccess] = useState([]);
   const [dashAccess, setDashAccess] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(0); // number of tab loads in progress
 
   const [expandedMenus, setExpandedMenus] = useState({});
   const [menuSearch, setMenuSearch] = useState("");
@@ -194,23 +194,50 @@ const ProfileMaintenance = () => {
 
   /* ---------------- LOAD PROFILE ACCESS ---------------- */
 
-  const loadProfileAccess = async (profileId) => {
+  /*
+   * Lazy tab loading: a tab's data is fetched the first time the tab is
+   * opened for the selected profile and kept after that, so going back to
+   * a tab does not call the server again. Changing the profile clears it.
+   */
+  const loadedTabsRef = useRef(new Set()); // tabs already fetched for the current profile
+  const loadingTabsRef = useRef(new Set()); // tabs being fetched right now
+  const currentProfileRef = useRef(null); // ignores replies for a profile no longer selected
+
+  const loadProfileAccess = async (id, section) => {
     try {
-      setLoading(true);
+      setLoading((count) => count + 1);
 
-      const res = await getProfileAccess(profileId);
-      const access = res.data;
+      const res = await getProfileAccess(id, section);
 
-      setMenus(access.menus || []);
-      setTasks(access.tasks || []);
-      setDashboards(access.dashboards || []);
+      if (currentProfileRef.current !== id) return false;
 
-      setMenuAccess(access.menuAccess || {});
-      setSubmenuAccess(access.submenuAccess || {});
-      setTaskAccess((access.taskAccess || []).map(Number));
-      setDashAccess((access.dashAccess || []).map(Number));
+      if (!res?.status) {
+        handleError(apiError(res, "Unable to load profile access."), { context: "Load profile access" });
+        return false;
+      }
+
+      const access = res.data || {};
+
+      if (section === "menu") {
+        setMenus(access.menus || []);
+        setMenuAccess(access.menuAccess || {});
+        setSubmenuAccess(access.submenuAccess || {});
+      } else if (section === "task") {
+        setTasks(access.tasks || []);
+        setTaskAccess((access.taskAccess || []).map(Number));
+      } else if (section === "dash") {
+        setDashboards(access.dashboards || []);
+        setDashAccess((access.dashAccess || []).map(Number));
+      }
+
+      return true;
+    } catch (error) {
+      if (currentProfileRef.current === id) {
+        handleError(error, { context: "Load profile access", fallback: "Unable to load profile access." });
+      }
+      return false;
     } finally {
-      setLoading(false);
+      setLoading((count) => count - 1);
     }
   };
 
@@ -241,37 +268,68 @@ const ProfileMaintenance = () => {
     fetchProfiles();
   }, []);
 
-  const loadProfileUsers = async (profileId) => {
+  const loadProfileUsers = async (id) => {
     try {
       setUserLoading(true);
 
-      const res = await getProfileUsers(profileId);
+      const res = await getProfileUsers(id);
 
-      if (res?.status) {
-        setProfileUsers(res.data || []);
-      } else {
+      if (currentProfileRef.current !== id) return false;
+
+      setProfileUsers(res?.status ? res.data || [] : []);
+      setFirst(0);
+      return Boolean(res?.status);
+    } catch (error) {
+      if (currentProfileRef.current === id) {
+        handleError(error, { context: "Load profile users", fallback: "Unable to load profile users." });
         setProfileUsers([]);
       }
-    } catch (error) {
-      handleError(error, { context: "Load profile users", fallback: "Unable to load profile users." });
-      setProfileUsers([]);
+      return false;
     } finally {
       setUserLoading(false);
     }
   };
 
+  /* Fetch a tab's data unless it is already loaded (or loading). */
+  const loadTab = async (tab, id = currentProfileRef.current, { force = false } = {}) => {
+    if (!id) return;
+    if (!force && (loadedTabsRef.current.has(tab) || loadingTabsRef.current.has(tab))) return;
+
+    loadingTabsRef.current.add(tab);
+
+    const ok =
+      tab === "profileUsers"
+        ? await loadProfileUsers(id)
+        : await loadProfileAccess(id, tab);
+
+    if (currentProfileRef.current !== id) return; // profile changed meanwhile
+
+    loadingTabsRef.current.delete(tab);
+
+    // A failed load is not kept, so opening the tab again retries it.
+    if (ok) loadedTabsRef.current.add(tab);
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    loadTab(tab);
+  };
+
   /* ---------------- PROFILE CHANGE ---------------- */
 
-  const handleProfileChange = async (value) => {
+  const handleProfileChange = (value) => {
+    if (!value) {
+      resetProfileData();
+      return;
+    }
+
+    clearProfileData();
+    currentProfileRef.current = value;
     setProfileId(value);
-    setFirst(0);
 
-    // load all data
-    await loadProfileAccess(value);
-    await loadProfileUsers(value);
-
-    // Menu Access is the active tab after a profile change.
+    // Menu Access is the active tab after a profile change; only it is fetched now.
     setActiveTab("menu");
+    loadTab("menu", value);
   };
 
   /* ---------------- MENU CHECKBOX ---------------- */
@@ -366,12 +424,8 @@ const ProfileMaintenance = () => {
           res.message || PROFILE_MAINTENANCE_MESSAGES.MENU_SAVED,
         );
 
-        // reload page so latest menu access reflects in sidebar/menu
-
-        setProfileId(profileId);
-
-        await loadProfileAccess(profileId);
-        await loadProfileUsers(profileId);
+        // Reload the menu tab so it shows what was saved.
+        await loadTab("menu", profileId, { force: true });
       } else {
         notifyError(
           res.message || PROFILE_MAINTENANCE_MESSAGES.MENU_SAVE_FAILED,
@@ -487,10 +541,6 @@ const ProfileMaintenance = () => {
     );
   }, [userSearch, profileUsers]);
 
-  useEffect(() => {
-    setFirst(0);
-  }, [userSearch, profileUsers]);
-
   const handleMenuSearch = (value) => {
     setMenuSearch(value);
 
@@ -582,8 +632,11 @@ const ProfileMaintenance = () => {
     }
   };
 
-  const resetProfileData = () => {
-    setProfileId(null);
+  /* Clears all tab data and forgets which tabs were loaded. */
+  const clearProfileData = () => {
+    loadedTabsRef.current = new Set();
+    loadingTabsRef.current = new Set();
+    setFirst(0);
 
     setMenus([]);
     setTasks([]);
@@ -600,7 +653,13 @@ const ProfileMaintenance = () => {
     setTaskSearch("");
     setDashSearch("");
     setUserSearch("");
-};
+  };
+
+  const resetProfileData = () => {
+    currentProfileRef.current = null;
+    setProfileId(null);
+    clearProfileData();
+  };
 
   return (
     <>
@@ -635,8 +694,9 @@ const ProfileMaintenance = () => {
                   optionLabel="label"
                   optionValue="value"
                   placeholder="Select Profile"
-                  disabled={loading}
+                  disabled={loading > 0}
                   filter
+                  pt={{ filterInput: { name: "profileSearch" } }}
                   showClear
                   className="w-100"
                 />
@@ -663,7 +723,7 @@ const ProfileMaintenance = () => {
               <SDLTabsComponent
                 tabs={PROFILE_TABS}
                 selectedTab={activeTab}
-                onTabChange={setActiveTab}
+                onTabChange={handleTabChange}
               >
 
               {loading ? null : (
@@ -974,7 +1034,10 @@ const ProfileMaintenance = () => {
                       <div className="col-12 col-md-auto mb-2 mb-md-0">
                             <SDLSearch
                               value={userSearch}
-                              onChange={setUserSearch}
+                              onChange={(value) => {
+                                setUserSearch(value);
+                                setFirst(0); // back to page 1 for a new search
+                              }}
                               placeholder="Search users..."
                               className="mb-0 profile-search"
                             />

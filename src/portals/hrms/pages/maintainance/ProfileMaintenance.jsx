@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import ResetButton from '../../../../shared/components/buttons/ResetButton'
 import { useLocation } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -78,7 +78,7 @@ const ProfileMaintenance = () => {
 
   const [accessData, setAccessData] = useState(getInitialAccessData())
   const [loadingProfiles, setLoadingProfiles] = useState(false)
-  const [loadingAccess, setLoadingAccess] = useState(false)
+  const [loadingAccess, setLoadingAccess] = useState(0) // number of tab loads in progress
   const [saving, setSaving] = useState(false)
 
   /* ==========================================================
@@ -285,6 +285,88 @@ const ProfileMaintenance = () => {
     }
   }
 
+
+  /* ==========================================================
+      LOAD PROFILE ACCESS
+  ========================================================== */
+
+  /*
+   * Lazy tab loading: a tab's data is fetched the first time the tab is
+   * opened for the selected profile and kept after that, so going back to
+   * a tab does not call the server again. Changing the profile clears it.
+   */
+  const loadedTabsRef = useRef(new Set()) // tabs already fetched for the current profile
+  const loadingTabsRef = useRef(new Set()) // tabs being fetched right now
+  const currentProfileRef = useRef(null) // ignores replies for a profile no longer selected
+
+  const loadTab = async (tab, profileId = currentProfileRef.current) => {
+    if (!profileId) return
+    if (loadedTabsRef.current.has(tab) || loadingTabsRef.current.has(tab)) return
+
+    loadingTabsRef.current.add(tab)
+    setLoadingAccess(count => count + 1)
+
+    let ok = false
+
+    try {
+      const res = await getProfileAccess(profileId, tab)
+
+      if (currentProfileRef.current !== profileId) return
+
+      if (res?.status) {
+        const normalized = normalizeProfileAccess(res.data || {})
+
+        // Only this tab's data is replaced; other loaded tabs keep their state.
+        setAccessData(prev => ({ ...prev, [tab]: normalized.accessData[tab] }))
+
+        if (tab === 'menu') {
+          setExpandedMenus(normalized.expanded)
+        }
+
+        ok = true
+      } else {
+        notifyError(res?.message || 'Unable to load profile access.')
+      }
+    } catch (error) {
+      if (currentProfileRef.current === profileId) {
+        notifyError(error?.message || 'Unable to load profile access.')
+      }
+    } finally {
+      setLoadingAccess(count => count - 1)
+
+      if (currentProfileRef.current === profileId) {
+        loadingTabsRef.current.delete(tab)
+
+        // A failed load is not kept, so opening the tab again retries it.
+        if (ok) loadedTabsRef.current.add(tab)
+      }
+    }
+  }
+
+  const handleTabChange = tab => {
+    setActiveTab(tab)
+    loadTab(tab)
+  }
+
+  /* Forget all tab data, e.g. when the profile changes. */
+  const clearTabData = () => {
+    loadedTabsRef.current = new Set()
+    loadingTabsRef.current = new Set()
+    setAccessData(getInitialAccessData())
+    setExpandedMenus({})
+    setMenuSearch('')
+    setActiveTab('menu')
+  }
+
+  const handleProfileChange = profileId => {
+    clearTabData()
+    currentProfileRef.current = profileId
+    setSelectedProfile(profileId)
+
+    // Menu Access opens first, so only it is fetched now.
+    loadTab('menu', profileId)
+  }
+
   /* ==========================================================
       LOAD PROFILES
   ========================================================== */
@@ -313,7 +395,8 @@ const ProfileMaintenance = () => {
               firstProfile.profileId ??
               firstProfile.PROFILE_ID
 
-            setSelectedProfile(firstProfileId)
+            // Same path as picking it in the dropdown, so its Menu Access loads.
+            handleProfileChange(firstProfileId)
           } else {
             setSelectedProfile(null)
           }
@@ -330,49 +413,9 @@ const ProfileMaintenance = () => {
     }
 
     loadProfiles()
+    // Runs once when the page opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  /* ==========================================================
-      LOAD PROFILE ACCESS
-  ========================================================== */
-
-  useEffect(() => {
-    if (
-      selectedProfile === null ||
-      selectedProfile === undefined ||
-      selectedProfile === ''
-    ) {
-      return
-    }
-
-    const loadProfileAccess = async () => {
-      try {
-        setLoadingAccess(true)
-
-        const res = await getProfileAccess(selectedProfile)
-
-        if (res?.status) {
-          const data = res.data || {}
-
-          const normalized = normalizeProfileAccess(data)
-
-          setAccessData(normalized.accessData)
-
-          setExpandedMenus(normalized.expanded)
-        } else {
-          notifyError(res?.message || 'Unable to load profile access.')
-        }
-      } catch (error) {
-        console.error('Load profile access error:', error)
-
-        notifyError(error?.message || 'Unable to load profile access.')
-      } finally {
-        setLoadingAccess(false)
-      }
-    }
-
-    loadProfileAccess()
-  }, [selectedProfile])
 
   /* ==========================================================
       PROFILE DROPDOWN OPTIONS
@@ -703,57 +746,9 @@ const ProfileMaintenance = () => {
   ========================================================== */
 
   const resetPage = () => {
+    currentProfileRef.current = null
     setSelectedProfile(null)
-    setAccessData(getInitialAccessData())
-    setExpandedMenus({})
-    setMenuSearch('')
-    setActiveTab('menu')
-  }
-
-  /* ==========================================================
-    RESET ENTIRE PAGE
-  ========================================================== */
-
-  const resetEntirePage = () => {
-    setSelectedProfile(null)
-
-    setAccessData({
-      menu: {
-        menus: [],
-        subMenus: [],
-        selectedMenus: [],
-        selectedSubMenus: []
-      },
-
-      company: {
-        items: [],
-        selected: []
-      },
-
-      division: {
-        items: [],
-        selected: []
-      },
-
-      department: {
-        items: [],
-        selected: []
-      },
-
-      task: {
-        items: [],
-        selected: []
-      },
-
-      dashboard: {
-        items: [],
-        selected: []
-      }
-    })
-
-    setExpandedMenus({})
-    setMenuSearch('')
-    setActiveTab('menu')
+    clearTabData()
   }
 
   const handleSaveTab = async type => {
@@ -1120,7 +1115,7 @@ const ProfileMaintenance = () => {
                     return
                   }
 
-                  setSelectedProfile(value)
+                  handleProfileChange(value)
                 }}
                 placeholder='Select Profile'
                 isClearable
@@ -1170,7 +1165,7 @@ const ProfileMaintenance = () => {
                   }
                 ]}
                 selectedTab={activeTab}
-                onTabChange={setActiveTab}
+                onTabChange={handleTabChange}
               >
 
               {/* ==================================================

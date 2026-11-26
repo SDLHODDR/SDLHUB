@@ -25,7 +25,10 @@ export const useExitAuthorizationHandler = (tid = 0) => {
     if (tid) {
       // Cancel this load if the page closes or loads another list first,
       // so a stale request can't show an error or overwrite newer data.
-      const load = dispatch(getHRMSAuthTableDataResponse({ task_id: tid })).finally(() => setLoadedTid(tid));
+      // Keep the dispatched request itself: it carries unwrap() and abort().
+      // (.finally() would return a plain promise without them.)
+      const load = dispatch(getHRMSAuthTableDataResponse({ task_id: tid }));
+      load.finally(() => setLoadedTid(tid));
       load.unwrap().catch(error => handleError(error, { context: "Load exit requests", fallback: "Unable to load exit requests." }));
       return () => load.abort();
    }

@@ -326,11 +326,6 @@ const PolicyList = () => {
                           onChange={setSearchQuery}
                           placeholder='Search policies...'
                           className='mb-0'
-                          style={{
-                            width: '330px',
-                            minWidth: '330px',
-                            maxWidth: '330px'
-                          }}
                         />
                       </div>
                     )}

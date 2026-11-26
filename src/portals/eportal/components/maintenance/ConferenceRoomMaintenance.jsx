@@ -745,9 +745,6 @@ const ConferenceRoomMaintenance = () => {
                 value={searchQuery}
                 onChange={setSearchQuery}
                 placeholder="Search Conference Rooms..."
-                style={{
-                  width: "270px",
-                }}
               />
             </div>
           </div>

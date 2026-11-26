@@ -3107,7 +3107,6 @@ if (!isValid) {
                       onChange={setSearchQuery}
                       placeholder='Search Job Descriptions...'
                       className='mb-0'
-                      style={{ width: '330px', minWidth: '330px' }}
                     />
                   )}
                 </div>

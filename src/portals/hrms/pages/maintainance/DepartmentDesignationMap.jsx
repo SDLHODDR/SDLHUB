@@ -250,11 +250,6 @@ const DepartmentDesignationMap = () => {
                     onChange={handleSearch}
                     placeholder='Search Department...'
                     className='mb-0'
-                    style={{
-                      width: TOP_CONTROL_WIDTH,
-                      minWidth: TOP_CONTROL_WIDTH,
-                      maxWidth: TOP_CONTROL_WIDTH
-                    }}
                   />
                 </div>
               </div>

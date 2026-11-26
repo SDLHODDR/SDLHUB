@@ -59,7 +59,7 @@ const AppraisalAuthorization = () => {
         <div className='card-body'>
           <div className='row mb-3'>
             <div className='col-lg-4 col-md-6 col-12'>
-              <SDLSearch value={searchQuery} onChange={setSearchQuery} placeholder='Search Appraisals...' style={{ width: '270px' }} />
+              <SDLSearch value={searchQuery} onChange={setSearchQuery} placeholder='Search Appraisals...' />
             </div>
           </div>
           <div className='company-policies-table'>

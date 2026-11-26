@@ -24,16 +24,20 @@ import "./shared/assets/css/sweetalert.css";
 import "./shared/assets/css/portal.css";
 
 import { Provider } from "react-redux";
+import ErrorBoundary from "./shared/components/ErrorBoundary";
 import { store } from "./app/store.js";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
     <StrictMode>
-        <BrowserRouter>
-            <Provider store={store}>
-                <AuthProvider>
-                    <App />
-                </AuthProvider>
-            </Provider>
-        </BrowserRouter>
+        {/* Last resort for errors outside the page area (header, menu, login). */}
+        <ErrorBoundary variant="app">
+            <BrowserRouter>
+                <Provider store={store}>
+                    <AuthProvider>
+                        <App />
+                    </AuthProvider>
+                </Provider>
+            </BrowserRouter>
+        </ErrorBoundary>
     </StrictMode>,
 );

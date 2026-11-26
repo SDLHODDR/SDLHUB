@@ -1987,7 +1987,6 @@ const handleVerifyPersonalOtp = async () => {
                       value={searchQuery}
                       onChange={setSearchQuery}
                       placeholder='Search...'
-                      style={{ width: '280px' }}
                     />
 
                     {canManageFamily && (

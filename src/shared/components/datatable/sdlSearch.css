@@ -1,0 +1,11 @@
+/* One search box size for the whole application (the ePortal look):
+   330px wide (never wider than the screen), 40px high. */
+.search-set.fixWidth {
+    width: 330px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+
+.search-set.fixWidth .search-input .form-control {
+    height: 40px;
+}

@@ -49,7 +49,6 @@ const OutdoorDutyAuthorization = () => {
                 value={searchQuery}
                 onChange={setSearchQuery}
                 placeholder="Search Outduties..."
-                style={{ width: "270px" }}
               />
             </div>
           </div>

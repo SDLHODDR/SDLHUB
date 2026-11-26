@@ -462,7 +462,6 @@ const SeparationRequest = () => {
                     value={searchQuery}
                     onChange={setSearchQuery}
                     placeholder='Search Requests...'
-                    style={{ width: '330px', minWidth: '330px', maxWidth: '330px' }}
                   />
                 </div>
               </div>

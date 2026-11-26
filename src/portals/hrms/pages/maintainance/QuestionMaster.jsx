@@ -433,11 +433,6 @@ const QuestionMaster = () => {
                           onChange={setSearch}
                           placeholder='Search Question...'
                           className='mb-0'
-                          style={{
-                            width: '330px',
-                            minWidth: '330px',
-                            maxWidth: '330px'
-                          }}
                         />
                       </div>
                     )}

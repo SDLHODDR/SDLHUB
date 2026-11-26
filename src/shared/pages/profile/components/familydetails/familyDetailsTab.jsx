@@ -828,7 +828,6 @@ const FamilyDetailsTab = ({ profile, setProfile }) => {
             value={searchQuery}
             onChange={setSearchQuery}
             placeholder="Search..."
-            style={{ width: "280px" }}
           />
 
           {canManageFamily && (

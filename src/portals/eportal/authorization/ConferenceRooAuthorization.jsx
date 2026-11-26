@@ -210,7 +210,6 @@ const handleSearch = (value) => setSearchQuery(value);
                 value={searchQuery}
                 onChange={handleSearch}
                 placeholder="Search Bookings..."
-                style={{ width: "270px" }}
               />
             </div>
           </div>

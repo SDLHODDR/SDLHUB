@@ -232,11 +232,6 @@ const Capabilities = () => {
                         onChange={setSearchQuery}
                         placeholder='Search capabilities...'
                         className='mb-0'
-                        style={{
-                          width: '330px',
-                          minWidth: '330px',
-                          maxWidth: '330px'
-                        }}
                       />
                     </div>
                   )}
