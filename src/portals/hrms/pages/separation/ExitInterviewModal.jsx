@@ -89,7 +89,7 @@ const InterviewForm = ({ details, task, shellProps }) => {
         <div className={`tenure-rating-options${invalid}`}>
           {question.options.map(option => (
             <label key={option} className='form-check form-check-inline'>
-              <input
+              <input name="answerOption"
                 className='form-check-input'
                 type='checkbox'
                 checked={selected.includes(option)}
@@ -132,7 +132,7 @@ const InterviewForm = ({ details, task, shellProps }) => {
     return (
       <>
         {/* tenure-rating-answer gives the textarea its full height (theme fixes textarea height). */}
-        <textarea
+        <textarea name="answerRemarks"
           className={`form-control tenure-rating-answer${errors[question.id] ? ' is-invalid' : ''}`}
           rows='4'
           placeholder='Remarks'
@@ -226,7 +226,7 @@ const InterviewForm = ({ details, task, shellProps }) => {
           <div className='row g-3 mt-2'>
             <div className='col-lg-3 col-md-4'>
               <label className='form-label'>Retain Employee</label>
-              <select
+              <select name="retentionFlag"
                 className='form-select tenure-change-select'
                 value={retentionFlag}
                 onChange={event => {
@@ -243,7 +243,7 @@ const InterviewForm = ({ details, task, shellProps }) => {
                 Exit / Retention Comments <span className='text-danger'>*</span>
               </label>
               {/* Plain form-control textarea keeps the theme's single-field height. */}
-              <textarea
+              <textarea name="exitComments"
                 className={`form-control${errors.exitComments ? ' is-invalid' : ''}`}
                 rows='1'
                 value={exitComments}

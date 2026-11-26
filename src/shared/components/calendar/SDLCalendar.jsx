@@ -1,10 +1,14 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useId } from "react";
 import { Calendar } from "primereact/calendar";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { getCalendarData } from "../../services/calendarService";
 import "./SDLCalendar.css";
 
 const SDLCalendar = ({
+  /* Field id / name for the date input (an id is generated when neither is given) */
+  id,
+  name,
+
   /* =========================================================
      EXISTING STANDALONE CALLBACK
   ========================================================= */
@@ -46,6 +50,7 @@ const SDLCalendar = ({
   /* =========================================================
      INTERNAL STATE
   ========================================================= */
+  const generatedId = useId();
   const [internalDate, setInternalDate] = useState(null);
   const [holidays, setHolidays] = useState([]);
 
@@ -296,6 +301,8 @@ const SDLCalendar = ({
       <Calendar
         className={isInline ? "sdl-inline-calendar" : className}
         inputClassName={inputClassName}
+        inputId={id || generatedId}
+        name={name}
         value={selectedDate}
         onChange={handleChange}
         inline={isInline}

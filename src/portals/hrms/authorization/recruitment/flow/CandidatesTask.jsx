@@ -50,7 +50,7 @@ const SendSuitableBody = ({ details, selected, setSelected, busy }) => {
       body: row => {
         const locked = row.applicationStatus === 'A' || row.applicationStatus === 'R'
         return (
-          <input
+          <input name="selectCandidate"
             type='checkbox'
             className='form-check-input'
             aria-label={`Select ${row.name}`}

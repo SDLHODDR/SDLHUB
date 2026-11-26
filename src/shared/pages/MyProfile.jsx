@@ -1773,7 +1773,7 @@ const handleVerifyPersonalOtp = async () => {
                 </a>
 
                 {/* Hidden File Input */}
-                <input
+                <input name="profileImage"
                   type='file'
                   ref={fileInputRef}
                   hidden
@@ -3020,7 +3020,7 @@ const handleVerifyPersonalOtp = async () => {
                 <span className='text-danger'> *</span>
               </label>
 
-             <input
+             <input name="personalProof"
   type='file'
   className={`form-control ${
     personalErrors.address_proof
@@ -3189,7 +3189,7 @@ const handleVerifyPersonalOtp = async () => {
             {personalOtp.map(
               (value, index) => (
 
-                <input
+                <input name="otp"
                   key={index}
                   ref={el => {
                     personalOtpRefs.current[index] = el

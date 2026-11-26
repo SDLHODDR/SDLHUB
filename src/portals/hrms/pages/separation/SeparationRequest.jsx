@@ -329,7 +329,7 @@ const SeparationRequest = () => {
                       <label className='form-label'>
                         Resignation Type <RequiredMark />
                       </label>
-                      <select
+                      <select name="resignType"
                         className={`form-select tenure-change-select${errors.resignType ? ' is-invalid' : ''}`}
                         value={form.resignType}
                         disabled={!isEditable}
@@ -348,7 +348,7 @@ const SeparationRequest = () => {
                       <label className='form-label'>
                         Resignation Mode <RequiredMark />
                       </label>
-                      <select
+                      <select name="resignMode"
                         className={`form-select tenure-change-select${errors.resignMode ? ' is-invalid' : ''}`}
                         value={form.resignMode}
                         disabled={!isEditable}
@@ -367,7 +367,7 @@ const SeparationRequest = () => {
                       <label className='form-label'>
                         Recipient Email {form.resignMode === 'E' && <RequiredMark />}
                       </label>
-                      <input
+                      <input name="recipientEmail"
                         type='email'
                         className={`form-control${errors.recipientEmail ? ' is-invalid' : ''}`}
                         value={form.recipientEmail}
@@ -411,7 +411,7 @@ const SeparationRequest = () => {
                   <label className='form-label'>
                     Employee Comments <RequiredMark />
                   </label>
-                  <textarea
+                  <textarea name="employeeComments"
                     className={`form-control flex-grow-1${errors.employeeComments ? ' is-invalid' : ''}`}
                     style={{ minHeight: '206px' }}
                     value={form.employeeComments}

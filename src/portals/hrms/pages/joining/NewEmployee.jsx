@@ -866,7 +866,7 @@ const NewEmployee = () => {
   const renderTextarea = (name, label) => (
     <div style={styles.field}>
       {fieldLabel(label, true)}
-      <textarea
+      <textarea name={name}
         className={`form-control${errors[name] ? ' is-invalid' : ''}`}
         value={form[name] || ''}
         disabled={!canEdit}

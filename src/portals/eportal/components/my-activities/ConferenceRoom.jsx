@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { ActivityPageLayout, ActivitySectionHead, ActivityFilterBar } from "./common/ActivityLayout";
 import { DataTable } from "primereact/datatable";
+import { DATATABLE_PT } from "../../../../shared/components/datatable/paginatorPt";
 import { Column } from "primereact/column";
 import EportalPageLoader from "../loader/EportalPageLoader";
 
@@ -849,6 +850,7 @@ const ConferenceRoom = () => {
                   }
                   loading={false}
                   paginator
+                  pt={DATATABLE_PT}
                   lazy
                   first={
                     (currentPage -

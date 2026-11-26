@@ -1121,7 +1121,7 @@ const renderSelect = (name, label, options, config = {}) => {
         {required && <span style={styles.required}>*</span>}
       </label>
 
-      <textarea
+      <textarea name={name}
         className='form-control'
         value={employeeData[name] || ''}
         onChange={e => handleFieldChange(name, e.target.value)}
@@ -1264,7 +1264,7 @@ const renderSelect = (name, label, options, config = {}) => {
           marginTop: '-2px'
         }}
       >
-        <input
+        <input name="SAME_AS_CURRENT"
           type='checkbox'
           checked={Boolean(employeeData.SAME_AS_CURRENT)}
           onChange={e => handleFieldChange('SAME_AS_CURRENT', e.target.checked)}

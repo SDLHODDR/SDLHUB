@@ -436,7 +436,7 @@ const TenureChangeCtcModalContent = ({
                           Basic Criteria for PF
                         </td>
                         <td>
-                          <select
+                          <select name="pf"
                             className='form-select form-select-sm tenure-pf-basis-select'
                             value={pfInput}
                             onChange={event => setPfInput(event.target.value)}
@@ -517,7 +517,7 @@ const TenureChangeCtcModalContent = ({
                             </td>
                             <td>{head.name}</td>
                             <td>
-                              <input
+                              <input name="structureMonthly"
                                 className='form-control form-control-sm text-end'
                                 value={formatAmount(head.structureMonthly)}
                                 disabled
@@ -525,7 +525,7 @@ const TenureChangeCtcModalContent = ({
                               />
                             </td>
                             <td>
-                              <input
+                              <input name="structureAnnual"
                                 className='form-control form-control-sm text-end'
                                 value={formatAmount(head.structureAnnual)}
                                 disabled
@@ -533,7 +533,7 @@ const TenureChangeCtcModalContent = ({
                               />
                             </td>
                             <td>
-                              <input
+                              <input name="monthlyAmount"
                                 className='form-control form-control-sm text-end'
                                 type='number'
                                 min='0'
@@ -548,7 +548,7 @@ const TenureChangeCtcModalContent = ({
                               />
                             </td>
                             <td>
-                              <input
+                              <input name="annualAmount"
                                 className='form-control form-control-sm text-end'
                                 value={formatAmount(monthly * 12)}
                                 disabled
@@ -563,7 +563,7 @@ const TenureChangeCtcModalContent = ({
                           Sum in ₹:
                         </td>
                         <td>
-                          <input
+                          <input name="structureMonthlyTotal"
                             className='form-control form-control-sm text-end'
                             value={formatAmount(
                               ctcHeads.reduce(
@@ -576,7 +576,7 @@ const TenureChangeCtcModalContent = ({
                           />
                         </td>
                         <td>
-                          <input
+                          <input name="structureAnnualTotal"
                             className='form-control form-control-sm text-end'
                             value={formatAmount(
                               ctcHeads.reduce(
@@ -589,7 +589,7 @@ const TenureChangeCtcModalContent = ({
                           />
                         </td>
                         <td>
-                          <input
+                          <input name="monthlyTotal"
                             className='form-control form-control-sm text-end'
                             value={formatAmount(totals.monthly)}
                             disabled
@@ -597,7 +597,7 @@ const TenureChangeCtcModalContent = ({
                           />
                         </td>
                         <td>
-                          <input
+                          <input name="annualTotal"
                             className='form-control form-control-sm text-end'
                             value={formatAmount(totals.annual)}
                             disabled

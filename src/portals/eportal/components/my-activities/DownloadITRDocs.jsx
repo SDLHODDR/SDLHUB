@@ -284,7 +284,7 @@ useEffect(() => {
                   Employee Code
                 </label>
 
-                <input
+                <input name="empCode"
                   list="employeeList"
                   className={`form-control ${errors.empCode
                     ? "is-invalid"

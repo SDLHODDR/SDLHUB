@@ -628,7 +628,7 @@ const ProfileMaintenance = () => {
             {/* Left Side */}
             <div className="col-12 col-sm d-flex align-items-center gap-2">
               <div className="profile-selector" style={{ width: "320px", maxWidth: "100%", flex: "0 1 320px" }}>
-                <Dropdown
+                <Dropdown name="profileId" inputId="profileId"
                   value={profileId}
                   options={profiles}
                   onChange={(e) => handleProfileChange(e.value)}
@@ -744,7 +744,7 @@ const ProfileMaintenance = () => {
                                 {/* Checkbox only if allowed */}
                                 {showCheckbox && (
                                   <div className="form-check">
-                                    <input
+                                    <input name="menuAccess"
                                       className="form-check-input"
                                       type="checkbox"
                                       checked={menuAccess[menu.ID] || false}

@@ -515,7 +515,7 @@ const PolicyList = () => {
                               <span className='text-danger ms-1'>*</span>
                             )}
                           </label>
-                          <input
+                          <input name="policyFile"
                             type='file'
                             className={`form-control ${
                               errors.doc ? 'is-invalid' : ''
@@ -549,7 +549,7 @@ const PolicyList = () => {
                             Policy Description
                             <span className='text-danger ms-1'>*</span>
                           </label>
-                          <textarea
+                          <textarea name="POLICY_DESC"
                             className={`form-control ${
                               errors.POLICY_DESC ? 'is-invalid' : ''
                             }`}

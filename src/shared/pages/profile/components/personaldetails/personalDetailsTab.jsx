@@ -929,7 +929,7 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
                         Mobile No. <span className="text-danger ms-1">*</span>
                       </label>
                       <div className="d-flex align-items-center">
-                        <input
+                        <input name="mobile"
                           type="text"
                           className={getContactInputClass("mobile")}
                           value={contactForm.mobile}
@@ -952,7 +952,7 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
                         Personal Email <span className="text-danger ms-1">*</span>
                       </label>
                       <div className="d-flex align-items-center">
-                        <input
+                        <input name="personalEmail"
                           type="email"
                           className={getContactInputClass("personalEmail")}
                           value={contactForm.personalEmail}
@@ -973,7 +973,7 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
                         Marital Status <span className="text-danger ms-1">*</span>
                       </label>
                       <div className="d-flex align-items-center">
-                        <select
+                        <select name="maritalStatus"
                           className={getContactSelectClass("maritalStatus")}
                           value={contactForm.maritalStatus}
                           onChange={(e) => handleContactChange("maritalStatus", e.target.value)}
@@ -1044,7 +1044,7 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
                           Enter 5-Digit OTP <span className="text-danger ms-1">*</span>
                         </label>
                         <div className="input-group">
-                          <input
+                          <input name="otp"
                             type="text"
                             className={getContactInputClass("otp")}
                             value={contactForm.otp}
@@ -1328,7 +1328,7 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
                     <label className="form-label">
                       Address <span className="text-danger ms-1">*</span>
                     </label>
-                    <textarea
+                    <textarea name="address"
                       className={getAddressInputClass("address")}
                       rows="3"
                       value={addressForm.address}
@@ -1341,7 +1341,7 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
                     <label className="form-label">
                       City <span className="text-danger ms-1">*</span>
                     </label>
-                    <input
+                    <input name="city"
                       type="text"
                       className={getAddressInputClass("city")}
                       value={addressForm.city}
@@ -1354,7 +1354,7 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
                     <label className="form-label">
                       State <span className="text-danger ms-1">*</span>
                     </label>
-                    <input
+                    <input name="state"
                       type="text"
                       className={getAddressInputClass("state")}
                       value={addressForm.state}
@@ -1367,7 +1367,7 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
                     <label className="form-label">
                       Pincode <span className="text-danger ms-1">*</span>
                     </label>
-                    <input
+                    <input name="pincode"
                       type="text"
                       className={getAddressInputClass("pincode")}
                       value={addressForm.pincode}
@@ -1398,7 +1398,7 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
                     <label className="form-label">
                       Address <span className="text-danger ms-1">*</span>
                     </label>
-                    <textarea
+                    <textarea name="permnt_address"
                       className={getAddressInputClass("permnt_address")}
                       rows="3"
                       value={addressForm.permnt_address}
@@ -1412,7 +1412,7 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
                     <label className="form-label">
                       City <span className="text-danger ms-1">*</span>
                     </label>
-                    <input
+                    <input name="permnt_city"
                       type="text"
                       className={getAddressInputClass("permnt_city")}
                       value={addressForm.permnt_city}
@@ -1426,7 +1426,7 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
                     <label className="form-label">
                       State <span className="text-danger ms-1">*</span>
                     </label>
-                    <input
+                    <input name="permnt_state"
                       type="text"
                       className={getAddressInputClass("permnt_state")}
                       value={addressForm.permnt_state}
@@ -1440,7 +1440,7 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
                     <label className="form-label">
                       Pincode <span className="text-danger ms-1">*</span>
                     </label>
-                    <input
+                    <input name="permnt_pincode"
                       type="text"
                       className={getAddressInputClass("permnt_pincode")}
                       value={addressForm.permnt_pincode}
@@ -1461,7 +1461,7 @@ const PersonalDetailsTab = ({ profile, onProfileUpdated }) => {
                     </label>
                     <small className="text-muted">Max 1MB (PDF, JPG, PNG)</small>
                   </div>
-                  <input
+                  <input name="addressProof"
                     type="file"
                     className={
                       addressValidated.address_proof

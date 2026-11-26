@@ -831,7 +831,7 @@ const ConferenceRoomMaintenance = () => {
                         <span className="text-danger"> *</span>
                       </label>
 
-                      <input
+                      <input name="roomLabel"
                         type="text"
                         className={`form-control ${
                           formErrors.roomLabel ? "is-invalid" : ""
@@ -896,7 +896,7 @@ const ConferenceRoomMaintenance = () => {
                         <span className="text-danger"> *</span>
                       </label>
 
-                      <input
+                      <input name="roomCapacity"
                         type="text"
                         inputMode="numeric"
                         pattern="[0-9]*"
@@ -929,7 +929,7 @@ const ConferenceRoomMaintenance = () => {
                         Telephone Extension
                       </label>
 
-                      <input
+                      <input name="teleExt"
                         type="text"
                         className="form-control"
                         value={formData.teleExt}
@@ -1087,7 +1087,7 @@ const ConferenceRoomMaintenance = () => {
                   <div className="mb-3">
                     <label className="form-label">Room</label>
 
-                    <input
+                    <input name="selectedRoomLabel"
                       type="text"
                       className="form-control"
                       value={selectedRoom?.roomLabel || ""}
@@ -1106,7 +1106,7 @@ const ConferenceRoomMaintenance = () => {
                         <span className="text-danger"> *</span>
                       </label>
 
-                      <textarea
+                      <textarea name="statusReason"
                         className={`form-control ${
                           statusFormError ? "is-invalid" : ""
                         }`}

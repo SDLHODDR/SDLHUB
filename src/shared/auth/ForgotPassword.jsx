@@ -245,7 +245,7 @@ const ForgotPassword = () => {
                         <label className="form-label">
                           Employee Code <span className="text-danger">*</span>
                         </label>
-                        <input
+                        <input name="empCode"
                           type="text"
                           className="form-control"
                           placeholder="Enter Employee Code"
@@ -264,7 +264,7 @@ const ForgotPassword = () => {
 
                         <div className="d-flex justify-content-center gap-2 mt-2">
                           {otpValues.map((digit, index) => (
-                            <input
+                            <input name="otp"
                               key={index}
                               type="text"
                               maxLength="1"
@@ -312,7 +312,7 @@ const ForgotPassword = () => {
                           <label className="form-label">
                             New Password <span className="text-danger">*</span>
                           </label>
-                          <input
+                          <input name="newPassword"
                             type="password"
                             className="form-control"
                             placeholder="Enter new password"
@@ -326,7 +326,7 @@ const ForgotPassword = () => {
                             Confirm Password{" "}
                             <span className="text-danger">*</span>
                           </label>
-                          <input
+                          <input name="confirmPassword"
                             type="password"
                             className="form-control"
                             placeholder="Confirm new password"

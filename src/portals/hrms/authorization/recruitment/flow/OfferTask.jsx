@@ -75,7 +75,7 @@ const CtcTable = ({ heads, amounts, setAmounts, busy, showSuggested }) => (
             {showSuggested && <td className='text-end'>{formatAmount(head.suggested)}</td>}
             {showSuggested && <td className='text-end'>{formatAmount(head.suggested * 12)}</td>}
             <td>
-              <input
+              <input name="offerAmount"
                 type='number'
                 min='0'
                 step='0.01'

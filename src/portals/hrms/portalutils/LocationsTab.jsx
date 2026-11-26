@@ -1,4 +1,5 @@
 import { DataTable } from "primereact/datatable";
+import { DATATABLE_PT } from "../../../shared/components/datatable/paginatorPt";
 import SDLPageLoader from "../../../shared/components/SDLPageLoader";
 import { createPortal } from "react-dom";
 import { useState } from "react";
@@ -32,6 +33,7 @@ const LocationsDataTable = ({
       dataKey='SNO'
       size='small'
       paginator={locations.length > page.rows}
+      pt={DATATABLE_PT}
       first={page.first}
       rows={page.rows}
       rowsPerPageOptions={[10, 25, 50]}

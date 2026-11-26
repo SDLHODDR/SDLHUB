@@ -822,7 +822,7 @@ const CtcSection = ({ details, userTaskId, onReload, onSubmitted, onCancel }) =>
                   <td className='text-end'>{amountText(structure[code] ?? 0)}</td>
                   <td className='text-end'>{amountText((structure[code] ?? 0) * 12)}</td>
                   <td>
-                    <input
+                    <input name="monthlyAmount"
                       className='form-control text-end'
                       value={monthly[code] ?? ''}
                       aria-label={`${head.DESCR} monthly`}
@@ -948,7 +948,7 @@ const DocumentsSection = ({ details, userTaskId, onReload, onSubmitted, onCancel
             <label style={styles.label}>
               Select Document (PNG/JPG/JPEG/DOC/PDF)<span style={styles.required}>*</span>
             </label>
-            <input
+            <input name="uploadFile"
               key={inputKey}
               type='file'
               className='form-control'

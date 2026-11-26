@@ -223,7 +223,7 @@ const JoiningChecklistModal = ({ record, onClose, onDone }) => {
                       />
                     </td>
                     <td>
-                      <input
+                      <input name="checklistRemarks"
                         type='text'
                         className={`form-control form-control-sm${showMissing && !String(row.remarks || '').trim() ? ' is-invalid' : ''}`}
                         aria-label={`Remarks for ${row.label}`}

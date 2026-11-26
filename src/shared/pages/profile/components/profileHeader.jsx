@@ -300,7 +300,7 @@ const profileHeader = ({ profile = {}, onProfileImageUpdated }) => {
               HIDDEN FILE INPUT
           ================================================= */}
 
-          <input
+          <input name="profileImage"
             ref={fileInputRef}
             type="file"
             hidden

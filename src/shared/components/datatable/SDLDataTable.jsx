@@ -2,6 +2,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import "./sdlDataTable.css";
 import SDLPageLoader from "../SDLPageLoader";
+import { DATATABLE_PT } from "./paginatorPt";
 
 const SDLDataTable = ({
     data = [],
@@ -37,6 +38,7 @@ const SDLDataTable = ({
             responsiveLayout="scroll"
             scrollable
             paginatorDropdownAppendTo="self"
+            pt={DATATABLE_PT}
             tableStyle={tableStyle}
             emptyMessage={loading ? " " : emptyMessage}
             className={`p-datatable-sm ${onRowClick ? "sdl-clickable-rows" : ""} ${className}`}

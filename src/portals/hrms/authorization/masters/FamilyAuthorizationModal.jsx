@@ -338,7 +338,7 @@ const FamilyAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
                   </label>
 
                   <div className="position-relative">
-                    <textarea
+                    <textarea name="remarks"
                       ref={textareaRef}
                       rows="2"
                       className={`form-control ${

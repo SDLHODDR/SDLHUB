@@ -665,7 +665,7 @@ const QuestionMaster = () => {
                         <div className='mb-3'>
                           <label className='form-label'>Question</label>
 
-                          <textarea
+                          <textarea name="QUES_DESCR"
                             className={`form-control ${
                               errors.QUES_DESCR ? 'is-invalid' : ''
                             }`}
@@ -719,7 +719,7 @@ const QuestionMaster = () => {
                                       </span>
                                     )}
 
-                                    <input
+                                    <input name="option"
                                       className={`form-control ${
                                         errors[`OPTION_${idx}`]
                                           ? 'is-invalid'

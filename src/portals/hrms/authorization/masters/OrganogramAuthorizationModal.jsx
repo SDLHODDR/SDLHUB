@@ -156,7 +156,7 @@ const OrganogramAuthorizationModal = ({
               <label className="form-label fw-semibold">
                 Authorization Remarks <span className="text-muted">(Required for Rejection)</span>
               </label>
-              <textarea
+              <textarea name="remarks"
                 rows="3"
                 className={`form-control ${remarkError ? "is-invalid" : ""}`}
                 value={remarks}

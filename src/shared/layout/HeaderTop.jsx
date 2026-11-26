@@ -265,7 +265,7 @@ const HeaderTop = () => {
           <li className="nav-item nav-searchinputs ">
             <div className="top-nav-search d-none">
               <div className="searchinputs input-group">
-                <input type="text" placeholder="Search" />
+                <input name="search" type="text" placeholder="Search" />
                 <div className="search-addon">
                   <span>
                     <i className="ti ti-search"></i>

@@ -103,7 +103,7 @@ const menuStyles = {
 // react-select's own isSelected (no extra state needed).
 const CheckboxOption = (props) => (
   <components.Option {...props}>
-    <input
+    <input name="option"
       type="checkbox"
       checked={props.isSelected}
       onChange={() => {}} // click handled by the row itself, not the checkbox

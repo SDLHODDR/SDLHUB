@@ -129,7 +129,7 @@ const ExitLetterModal = ({ config, record, onClose, onSuccess }) => {
 
           <div className='row align-items-center g-2 pt-3 border-top'>
             <div className='col-md-4 col-sm-6'>
-              <select
+              <select name="template"
                 className='form-select tenure-template-select tenure-change-select'
                 value={template}
                 onChange={event => setTemplate(event.target.value)}
