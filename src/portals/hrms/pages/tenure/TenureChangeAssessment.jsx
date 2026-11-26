@@ -130,11 +130,11 @@ const TenureChangeAssessment = () => {
                 ))}
                 <tr>
                   <th className="tenure-rating-question">13) Area of Improvement</th>
-                  <td><textarea className="form-control" rows="2" value={assessment.improvement} onChange={(event) => updateAssessment("improvement", event.target.value)} /></td>
+                  <td><textarea name="improvement" className="form-control" rows="2" value={assessment.improvement} onChange={(event) => updateAssessment("improvement", event.target.value)} /></td>
                 </tr>
                 <tr>
                   <th className="tenure-rating-question">14) Appraiser's Comments</th>
-                  <td><textarea className="form-control" rows="2" value={assessment.appraiserComments} onChange={(event) => updateAssessment("appraiserComments", event.target.value)} /></td>
+                  <td><textarea name="appraiserComments" className="form-control" rows="2" value={assessment.appraiserComments} onChange={(event) => updateAssessment("appraiserComments", event.target.value)} /></td>
                 </tr>
               </tbody>
             </table>
@@ -143,22 +143,22 @@ const TenureChangeAssessment = () => {
           <div className="row g-3 mt-2">
             <div className="col-lg-4 col-md-6">
               <label className="form-label">Employee Type <span className="text-danger">*</span></label>
-              <select className="form-select tenure-change-select" value={assessment.employeeType} onChange={(event) => updateAssessment("employeeType", event.target.value)}>
+              <select name="employeeType" className="form-select tenure-change-select" value={assessment.employeeType} onChange={(event) => updateAssessment("employeeType", event.target.value)}>
                 <option value="">Select Employee Type</option>
                 {tenureTypeOptions.map((type) => <option key={type} value={type}>{type}</option>)}
               </select>
             </div>
             <div className="col-lg-4 col-md-6">
               <label className="form-label">Period (In Months)</label>
-              <input className="form-control" type="number" min="0" value={assessment.period} onChange={(event) => updateAssessment("period", event.target.value)} />
+              <input name="period" className="form-control" type="number" min="0" value={assessment.period} onChange={(event) => updateAssessment("period", event.target.value)} />
             </div>
             <div className="col-lg-4 col-md-6">
               <label className="form-label">Current CTC</label>
-              <input className="form-control" value={currentCtcValue !== "" && currentCtcValue != null ? currentCtcValue : "-"} disabled />
+              <input name="currentCtc" className="form-control" value={currentCtcValue !== "" && currentCtcValue != null ? currentCtcValue : "-"} disabled />
             </div>
             <div className="col-lg-4 col-md-6">
               <label className="form-label">Proposed CTC</label>
-              <input className="form-control" type="number" min="0" placeholder="Enter proposed CTC" value={assessment.proposedCtc} onChange={(event) => updateAssessment("proposedCtc", event.target.value)} />
+              <input name="proposedCtc" className="form-control" type="number" min="0" placeholder="Enter proposed CTC" value={assessment.proposedCtc} onChange={(event) => updateAssessment("proposedCtc", event.target.value)} />
             </div>
             <div className="col-lg-4 col-md-6">
               <label className="form-label">Effective From <span className="text-danger">*</span></label>
@@ -170,14 +170,14 @@ const TenureChangeAssessment = () => {
             </div>
             <div className="col-lg-4 col-md-6">
               <label className="form-label">Next Appraisal Year <span className="text-danger">*</span></label>
-              <select className="form-select tenure-change-select" value={assessment.nextAppraisalYear} onChange={(event) => updateAssessment("nextAppraisalYear", event.target.value)}>
+              <select name="nextAppraisalYear" className="form-select tenure-change-select" value={assessment.nextAppraisalYear} onChange={(event) => updateAssessment("nextAppraisalYear", event.target.value)}>
                 <option value="">Select Year</option>
                 {[2027, 2028, 2029, 2030, 2031].map((year) => <option key={year} value={year}>{year}</option>)}
               </select>
             </div>
             <div className="col-12">
               <label className="form-label">Assessment Remarks</label>
-              <textarea className="form-control" rows="2" value={assessment.remarks} onChange={(event) => updateAssessment("remarks", event.target.value)} />
+              <textarea name="remarks" className="form-control" rows="2" value={assessment.remarks} onChange={(event) => updateAssessment("remarks", event.target.value)} />
             </div>
           </div>
 

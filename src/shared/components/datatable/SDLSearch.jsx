@@ -1,10 +1,13 @@
+import "./sdlSearch.css";
+
+// Standard search box for every page; size and style live in sdlSearch.css.
 const SDLSearch = ({
     value = "",
     onChange,
     placeholder = "Search...",
     className = "",
     disabled = false,
-    name,
+    name = "search",
     id,
     autoFocus = false,
     onKeyDown,

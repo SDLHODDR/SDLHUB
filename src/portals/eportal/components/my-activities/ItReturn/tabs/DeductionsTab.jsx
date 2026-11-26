@@ -291,7 +291,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
                   {/* Amount + File */}
                   <div className="col-md-5">
                     <div className="d-flex gap-2">
-                      <input
+                      <input name="deductionAmount"
                         type="number"
                         className="form-control"
                         placeholder="Amount"
@@ -304,7 +304,7 @@ const DeductionsTab = ({ onDataSaved, editable }) => {
                         }
                       />
 
-                      <input
+                      <input name="deductionProof"
                         type="file"
                         className="form-control"
                         accept="application/pdf"

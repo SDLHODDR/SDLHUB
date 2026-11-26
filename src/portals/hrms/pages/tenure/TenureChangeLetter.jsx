@@ -81,7 +81,7 @@ const TenureChangeLetter = () => {
           <div className="row align-items-end g-3 mt-3">
             <div className="col-lg-3 col-md-5">
               <label className="form-label">Letter Template</label>
-              <select className="form-select" value={letterType} onChange={(event) => { setLetterType(event.target.value); setReferenceCode(""); }}>
+              <select name="letterType" className="form-select" value={letterType} onChange={(event) => { setLetterType(event.target.value); setReferenceCode(""); }}>
                 <option value="">Select Letter Template</option>
                 {tenureTypeOptions.map((type) => <option key={type} value={type}>{type}</option>)}
               </select>

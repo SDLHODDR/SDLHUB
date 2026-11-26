@@ -103,7 +103,7 @@ const History = ({ history }) => {
 const QuestionInput = ({ question, value, disabled, onChange }) => {
   if (question.type === 'T') {
     return (
-      <textarea
+      <textarea name="answer"
         className='form-control form-control-sm'
         rows={2}
         maxLength={1000}
@@ -382,7 +382,7 @@ const EmployeeAppraisalModal = ({ record, onClose, onDone }) => {
                       </th>
                       <th className='recruitment-group-heading'>
                         <div className='input-group input-group-sm'>
-                          <input
+                          <input name="kraPercentage"
                             className={`form-control text-end${flag(!String(kras[kra.id]?.perc ?? '').trim())}`}
                             inputMode='numeric'
                             aria-label={`Appraised percentage for ${kra.description}`}
@@ -404,7 +404,7 @@ const EmployeeAppraisalModal = ({ record, onClose, onDone }) => {
                           <span className='text-danger'> *</span>
                         </td>
                         <td>
-                          <input
+                          <input name="activityValue"
                             className={`form-control form-control-sm${flag(!String(kras[kra.id]?.activities?.[activity.id] ?? '').trim())}`}
                             aria-label={`Remarks for ${activity.description}`}
                             maxLength={REVIEW_MAX}
@@ -470,7 +470,7 @@ const EmployeeAppraisalModal = ({ record, onClose, onDone }) => {
                           </td>
                           {question.type !== 'T' && (
                             <td>
-                              <textarea
+                              <textarea name="questionRemarks"
                                 className='form-control form-control-sm'
                                 rows={2}
                                 placeholder='Remarks'

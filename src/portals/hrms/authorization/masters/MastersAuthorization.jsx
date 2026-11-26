@@ -85,7 +85,6 @@ const MastersAuthorization = () => {
                 value={searchQuery}
                 onChange={setSearchQuery}
                 placeholder="Search Requests..."
-                style={{ width: "270px" }}
               />
             </div>
           </div>

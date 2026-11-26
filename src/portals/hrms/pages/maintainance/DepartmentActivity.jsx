@@ -403,11 +403,6 @@ const DepartmentActivity = () => {
                         onChange={setSearchQuery}
                         placeholder='Search Department Activity...'
                         className='mb-0'
-                        style={{
-                          width: '330px',
-                          minWidth: '330px',
-                          maxWidth: '330px'
-                        }}
                       />
                     </div>
                   )}

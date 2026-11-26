@@ -198,7 +198,7 @@ const AppraisalQuestionsTab = ({ detail, busy, run }) => {
                       {questions.map(question => (
                         <tr key={question.id}>
                           <td className='text-center'>
-                            <input
+                            <input name="selectQuestion"
                               type='checkbox'
                               className='form-check-input'
                               aria-label={question.question}

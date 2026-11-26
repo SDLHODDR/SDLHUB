@@ -244,7 +244,7 @@ const BankAuthorizationModal = ({ show, record, onClose, onSuccess }) => {
                     Authorization Remarks{" "}
                     <span className="text-muted">(Required for Rejection)</span>
                   </label>
-                  <textarea
+                  <textarea name="remarks"
                     rows="2"
                     className={`form-control ${inlineError ? "is-invalid" : ""}`}
                     placeholder="Enter approval/rejection remarks..."

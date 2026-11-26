@@ -1486,7 +1486,7 @@ const LeavesModal = ({
                     Alloted
                   </label>
 
-                  <input
+                  <input name="BAL"
                     className="form-control"
                     value={
                       formData.BAL ??
@@ -1503,7 +1503,7 @@ const LeavesModal = ({
                     Unapproved
                   </label>
 
-                  <input
+                  <input name="UNAUTH_BAL"
                     className="form-control"
                     value={
                       formData.UNAUTH_BAL ??
@@ -1520,7 +1520,7 @@ const LeavesModal = ({
                     Net Balance
                   </label>
 
-                  <input
+                  <input name="NET_BAL"
                     className="form-control"
                     value={
                       formData.NET_BAL ??
@@ -1703,7 +1703,7 @@ const LeavesModal = ({
                     No Of Days
                   </label>
 
-                  <input
+                  <input name="NO_DAYS"
                     className={`form-control ${
                       errors.NO_DAYS
                         ? "is-invalid"

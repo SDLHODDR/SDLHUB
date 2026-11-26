@@ -134,7 +134,7 @@ const Login = () => {
                 <div className="mb-3">
                   <label className="form-label">Employee Code</label>
                   <div className="input-group">
-                    <input
+                    <input name="username"
                       type="text"
                       className="form-control"
                       placeholder="Enter employee code"
@@ -148,7 +148,7 @@ const Login = () => {
                 <div className="mb-3">
                   <label className="form-label">Password</label>
                   <div className="pass-group">
-                    <input
+                    <input name="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter password"
                       className="pass-input form-control"

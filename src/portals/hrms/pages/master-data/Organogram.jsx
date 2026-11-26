@@ -162,11 +162,6 @@ const Organogram = () => {
                         // Search logic will be connected to the list view
                       }}
                       className='mb-0'
-                        style={{
-                          width: '330px',
-                          minWidth: '330px',
-                          maxWidth: '330px'
-                        }}
                     />
                   )}
                 </div>

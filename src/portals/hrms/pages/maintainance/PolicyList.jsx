@@ -326,11 +326,6 @@ const PolicyList = () => {
                           onChange={setSearchQuery}
                           placeholder='Search policies...'
                           className='mb-0'
-                          style={{
-                            width: '330px',
-                            minWidth: '330px',
-                            maxWidth: '330px'
-                          }}
                         />
                       </div>
                     )}
@@ -515,7 +510,7 @@ const PolicyList = () => {
                               <span className='text-danger ms-1'>*</span>
                             )}
                           </label>
-                          <input
+                          <input name="policyFile"
                             type='file'
                             className={`form-control ${
                               errors.doc ? 'is-invalid' : ''
@@ -549,7 +544,7 @@ const PolicyList = () => {
                             Policy Description
                             <span className='text-danger ms-1'>*</span>
                           </label>
-                          <textarea
+                          <textarea name="POLICY_DESC"
                             className={`form-control ${
                               errors.POLICY_DESC ? 'is-invalid' : ''
                             }`}

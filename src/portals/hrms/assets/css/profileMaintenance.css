@@ -154,24 +154,6 @@
     margin-bottom:18px;
 }
 
-.profile-menu-search{
-    width:420px;
-    max-width:100%;
-}
-
-.profile-menu-search .form-control{
-    height:40px;
-    border-radius:5px;
-    border:1px solid #dfe3e8;
-    font-size:13px;
-    box-shadow:none;
-}
-
-.profile-menu-search .form-control:focus{
-    border-color:#ff963f;
-    box-shadow:0 0 0 2px rgba(255,150,63,.08);
-}
-
 .profile-menu-actions{
     display:flex;
     gap:8px;

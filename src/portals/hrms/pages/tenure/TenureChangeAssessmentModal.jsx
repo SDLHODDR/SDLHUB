@@ -537,7 +537,7 @@ const TenureChangeAssessmentModal = ({
                                 </th>
                                 <td>
                                   {isCommentQuestion ? (
-                                    <textarea
+                                    <textarea name="answer"
                                       className={`form-control tenure-rating-answer${validationErrors[question.id] ? " is-invalid" : ""}`}
                                       rows="4"
                                       value={answerValue}
@@ -562,7 +562,7 @@ const TenureChangeAssessmentModal = ({
                                             key={option}
                                             className="form-check form-check-inline"
                                           >
-                                            <input
+                                            <input name="answerOption"
                                               className="form-check-input"
                                               type="checkbox"
                                               checked={selected}
@@ -626,7 +626,7 @@ const TenureChangeAssessmentModal = ({
                                       ))}
                                     </div>
                                   ) : (
-                                    <textarea
+                                    <textarea name="answer"
                                       className={`form-control tenure-rating-answer${validationErrors[question.id] ? " is-invalid" : ""}`}
                                       rows="4"
                                       value={
@@ -668,7 +668,7 @@ const TenureChangeAssessmentModal = ({
                       <label className="form-label">
                         Employee Type <span className="text-danger">*</span>
                       </label>
-                      <select
+                      <select name="employeeType"
                         className={`form-select tenure-change-select${validationErrors.employeeType ? " is-invalid" : ""}`}
                         value={assessment.employeeType}
                         aria-invalid={Boolean(validationErrors.employeeType)}
@@ -711,7 +711,7 @@ const TenureChangeAssessmentModal = ({
                           </>
                         )}
                       </label>
-                      <input
+                      <input name="period"
                         className={`form-control text-end${periodInputError || validationErrors.period ? " is-invalid" : ""}`}
                         type="text"
                         inputMode="numeric"
@@ -742,7 +742,7 @@ const TenureChangeAssessmentModal = ({
                     </div>
                     <div className="col-lg-4 col-md-6">
                       <label className="form-label">Current CTC</label>
-                      <input
+                      <input name="currentCtc"
                         className="form-control text-end"
                         value={employee.currentCtc || "-"}
                         disabled
@@ -755,7 +755,7 @@ const TenureChangeAssessmentModal = ({
                           (in lakhs e.g. 30000)
                         </small>
                       </label>
-                      <input
+                      <input name="proposedCtc"
                         className={`form-control text-end${proposedCtcInputError || validationErrors.proposedCtc ? " is-invalid" : ""}`}
                         type="text"
                         inputMode="numeric"
@@ -792,7 +792,7 @@ const TenureChangeAssessmentModal = ({
                         </small>
                       </label>
                       <div className="input-group tenure-effective-date-wrap">
-                        <input
+                        <input name="effectiveFrom"
                           className={`form-control${validationErrors.effectiveFrom ? " is-invalid" : ""}`}
                           type="text"
                           value={
@@ -959,7 +959,7 @@ const TenureChangeAssessmentModal = ({
                         Next Appraisal Year{" "}
                         <span className="text-danger">*</span>
                       </label>
-                      <select
+                      <select name="nextAppraisalYear"
                         className={`form-select tenure-change-select${validationErrors.nextAppraisalYear ? " is-invalid" : ""}`}
                         value={assessment.nextAppraisalYear}
                         onChange={(event) =>
@@ -983,7 +983,7 @@ const TenureChangeAssessmentModal = ({
                         Assessment Remarks{" "}
                         <span className="text-danger">*</span>
                       </label>
-                      <textarea
+                      <textarea name="remarks"
                         className={`form-control${validationErrors.remarks ? " is-invalid" : ""}`}
                         rows="2"
                         value={assessment.remarks}

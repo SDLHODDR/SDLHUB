@@ -143,7 +143,7 @@ const ActivityForm = ({ details, task, shellProps }) => {
                   <td>{index + 1}</td>
                   <td>{activity.activity}</td>
                   <td>
-                    <select
+                    <select name="activityStatus"
                       className={`form-select form-select-sm tenure-change-select${errors[activity.id] && !rows[activity.id]?.status ? ' is-invalid' : ''}`}
                       value={rows[activity.id]?.status ?? ''}
                       onChange={event =>
@@ -160,7 +160,7 @@ const ActivityForm = ({ details, task, shellProps }) => {
                     </select>
                   </td>
                   <td>
-                    <input
+                    <input name="activityRemarks"
                       type='text'
                       className={`form-control form-control-sm${errors[activity.id] && !rows[activity.id]?.remarks?.trim() ? ' is-invalid' : ''}`}
                       value={rows[activity.id]?.remarks ?? ''}

@@ -480,7 +480,7 @@ const PersonalInfoAuthorizationModal = ({
                   </label>
 
                   <div className="position-relative">
-                    <textarea
+                    <textarea name="remarks"
                       ref={textareaRef}
                       rows="2"
                       className={`form-control ${

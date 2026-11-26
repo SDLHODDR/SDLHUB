@@ -16,12 +16,13 @@ export const getProfiles = () =>
 
 /* ---------------- GET PROFILE ACCESS ---------------- */
 
-export const getProfileAccess = (profileId) =>
+// section: "menu" | "task" | "dash" fetches only that tab's data; omit it for all three.
+export const getProfileAccess = (profileId, section) =>
   eportalRequest({
     url: EPORTAL_API.PROFILE_MAINTENANCE.GET_PROFILE_ACCESS,
     method: "GET",
     dedupe: true,
-    params: { profile: profileId },
+    params: section ? { profile: profileId, section } : { profile: profileId },
     fallback: {
       status: false,
       menu: [],

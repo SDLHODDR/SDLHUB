@@ -112,7 +112,7 @@ const TenureChangeCtc = () => {
                 <tr>
                   <td className="text-center">1</td>
                   <td>Basic Criteria for PF (1: 12% of 15000　0: 12% of Basic)</td>
-                  <td><input className="form-control form-control-sm text-end" type="number" min="0" value={pfInput} onChange={(event) => setPfInput(event.target.value)} aria-label="PF calculation input" /></td>
+                  <td><input name="pfAmount" className="form-control form-control-sm text-end" type="number" min="0" value={pfInput} onChange={(event) => setPfInput(event.target.value)} aria-label="PF calculation input" /></td>
                 </tr>
               </tbody>
             </table>
@@ -135,19 +135,19 @@ const TenureChangeCtc = () => {
                     <tr key={head.name}>
                       <td className="text-center">{index < 6 ? index + 1 : index + 2}</td>
                       <td>{head.name}</td>
-                      <td><input className="form-control form-control-sm text-end" value={formatAmount(head.monthly)} disabled aria-label={`${head.name} structure monthly`} /></td>
-                      <td><input className="form-control form-control-sm text-end" value={formatAmount(head.monthly * 12)} disabled aria-label={`${head.name} structure annual`} /></td>
-                      <td><input className="form-control form-control-sm text-end" type="number" min="0" value={monthlyAmounts[index] ?? ""} onChange={(event) => setMonthlyAmounts((current) => ({ ...current, [index]: event.target.value }))} aria-label={`${head.name} monthly amount`} /></td>
-                      <td><input className="form-control form-control-sm text-end" value={formatAmount(monthly * 12)} disabled aria-label={`${head.name} annual amount`} /></td>
+                      <td><input name="structureMonthly" className="form-control form-control-sm text-end" value={formatAmount(head.monthly)} disabled aria-label={`${head.name} structure monthly`} /></td>
+                      <td><input name="structureAnnual" className="form-control form-control-sm text-end" value={formatAmount(head.monthly * 12)} disabled aria-label={`${head.name} structure annual`} /></td>
+                      <td><input name="monthlyAmount" className="form-control form-control-sm text-end" type="number" min="0" value={monthlyAmounts[index] ?? ""} onChange={(event) => setMonthlyAmounts((current) => ({ ...current, [index]: event.target.value }))} aria-label={`${head.name} monthly amount`} /></td>
+                      <td><input name="annualAmount" className="form-control form-control-sm text-end" value={formatAmount(monthly * 12)} disabled aria-label={`${head.name} annual amount`} /></td>
                     </tr>
                   );
                 })}
                 <tr>
                   <td colSpan="2" className="text-end fw-semibold">Sum in ₹:</td>
-                  <td><input className="form-control form-control-sm text-end" value={formatAmount(ctcHeads.reduce((sum, head) => sum + head.monthly, 0))} disabled aria-label="Structure monthly total" /></td>
-                  <td><input className="form-control form-control-sm text-end" value={formatAmount(ctcHeads.reduce((sum, head) => sum + head.monthly * 12, 0))} disabled aria-label="Structure annual total" /></td>
-                  <td><input className="form-control form-control-sm text-end" value={formatAmount(totals.monthly)} disabled aria-label="Monthly total" /></td>
-                  <td><input className="form-control form-control-sm text-end" value={formatAmount(totals.annual)} disabled aria-label="Annual total" /></td>
+                  <td><input name="structureMonthlyTotal" className="form-control form-control-sm text-end" value={formatAmount(ctcHeads.reduce((sum, head) => sum + head.monthly, 0))} disabled aria-label="Structure monthly total" /></td>
+                  <td><input name="structureAnnualTotal" className="form-control form-control-sm text-end" value={formatAmount(ctcHeads.reduce((sum, head) => sum + head.monthly * 12, 0))} disabled aria-label="Structure annual total" /></td>
+                  <td><input name="monthlyTotal" className="form-control form-control-sm text-end" value={formatAmount(totals.monthly)} disabled aria-label="Monthly total" /></td>
+                  <td><input name="annualTotal" className="form-control form-control-sm text-end" value={formatAmount(totals.annual)} disabled aria-label="Annual total" /></td>
                 </tr>
               </tbody>
             </table>

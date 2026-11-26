@@ -7,13 +7,13 @@ export const getProfiles = () =>
     method: "GET",
   });
 
-export const getProfileAccess = (profileId) =>
+// section: "menu" | "company" | "division" | "department" | "task" | "dashboard"
+// fetches only that tab's data; omit it for all tabs.
+export const getProfileAccess = (profileId, section) =>
   hrmsRequest({
     url: HRMS_API.MAINTAINANCE.GET_PROFILE_ACCESS,
     method: "GET",
-    params: {
-      profileId,
-    },
+    params: section ? { profileId, section } : { profileId },
   });
 
 export const saveProfileAccess = ({

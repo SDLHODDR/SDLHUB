@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Paginator } from 'primereact/paginator'
+import { PAGINATOR_PT } from '../../../../shared/components/datatable/paginatorPt'
 import SaveButton from '../../../../shared/components/buttons/SaveButton'
 import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import { getAppraisalOrganogramEmployees } from '../../services/appraisalService'
@@ -170,7 +171,7 @@ const AppraisalEmployeesTab = ({ detail, busy, run }) => {
                     <thead>
                       <tr>
                         <th style={{ width: '3rem' }} className='text-center'>
-                          <input
+                          <input name="selectAllEmployees"
                             type='checkbox'
                             className='form-check-input'
                             aria-label='Select all employees'
@@ -194,7 +195,7 @@ const AppraisalEmployeesTab = ({ detail, busy, run }) => {
                       {pageEmployees.map(employee => (
                         <tr key={`${employee.locationId}-${employee.code}`}>
                           <td className='text-center'>
-                            <input
+                            <input name="selectEmployee"
                               type='checkbox'
                               className='form-check-input'
                               aria-label={employee.name}
@@ -228,6 +229,7 @@ const AppraisalEmployeesTab = ({ detail, busy, run }) => {
                     dropdownAppendTo='self'
                     pageLinkSize={3}
                     className='appraisal-paginator'
+                    pt={PAGINATOR_PT}
                   />
                 )}
                 {selected.size > 0 && <div className='text-muted small mt-1 text-center'>{selected.size} selected across all pages</div>}

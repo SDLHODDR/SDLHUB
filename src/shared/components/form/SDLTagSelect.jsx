@@ -184,7 +184,7 @@ const SDLTagSelect = ({
       {isOpen && !disabled && (
         <div className="sdl-select-panel position-absolute w-100" style={{ zIndex: 1050, top: "100%" }}>
           <div className="sdl-select-search-row">
-            <input
+            <input name="selectAll"
               type="checkbox"
               className="sdl-checkbox"
               checked={allFilteredSelected}
@@ -193,7 +193,7 @@ const SDLTagSelect = ({
               title="Select all"
             />
             <div className="sdl-select-search-box">
-              <input
+              <input name="tagSearch"
                 ref={searchInputRef}
                 type="text"
                 autoFocus
@@ -227,7 +227,7 @@ const SDLTagSelect = ({
                     className={`sdl-select-option-row ${checked ? "sdl-selected" : ""}`}
                     onClick={() => toggleOption(opt.id)}
                   >
-                    <input
+                    <input name="tagOption"
                       type="checkbox"
                       className="sdl-checkbox"
                       checked={checked}

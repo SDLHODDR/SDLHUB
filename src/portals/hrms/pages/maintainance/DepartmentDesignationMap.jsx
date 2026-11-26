@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Paginator } from 'primereact/paginator'
+import { PAGINATOR_PT } from '../../../../shared/components/datatable/paginatorPt'
 import { getPortalFromPath } from '../../../../shared/config/portalConfig'
 import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
 import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
@@ -249,11 +250,6 @@ const DepartmentDesignationMap = () => {
                     onChange={handleSearch}
                     placeholder='Search Department...'
                     className='mb-0'
-                    style={{
-                      width: TOP_CONTROL_WIDTH,
-                      minWidth: TOP_CONTROL_WIDTH,
-                      maxWidth: TOP_CONTROL_WIDTH
-                    }}
                   />
                 </div>
               </div>
@@ -321,6 +317,7 @@ const DepartmentDesignationMap = () => {
 
               {listData.length > 0 && (
                 <Paginator
+                  pt={PAGINATOR_PT}
                   first={pageStart}
                   rows={pageSize}
                   totalRecords={listData.length}

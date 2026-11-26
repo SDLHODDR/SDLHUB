@@ -309,7 +309,7 @@ const FinalAppraisal = () => {
                               <tr key={employee.code} className={employee.editable ? '' : 'final-appraisal-locked'}>
                                 <td className='text-center'>
                                   {employee.editable ? (
-                                    <input
+                                    <input name="selectEmployee"
                                       type='checkbox'
                                       className='form-check-input'
                                       aria-label={`Select ${employee.name}`}
@@ -346,7 +346,7 @@ const FinalAppraisal = () => {
                                   </button>
                                 </td>
                                 <td>
-                                  <select
+                                  <select name="promotion"
                                     className='form-select form-select-sm'
                                     aria-label={`Promotion for ${employee.name}`}
                                     value={edit.promotion || 'N'}
@@ -358,7 +358,7 @@ const FinalAppraisal = () => {
                                   </select>
                                 </td>
                                 <td>
-                                  <input
+                                  <input name="increment"
                                     type='number'
                                     min='0'
                                     step='1'
@@ -383,7 +383,7 @@ const FinalAppraisal = () => {
                                   </td>
                                 ))}
                                 <td>
-                                  <textarea
+                                  <textarea name="remarks"
                                     className='form-control form-control-sm'
                                     rows={2}
                                     style={{ minWidth: '16rem' }}

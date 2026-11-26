@@ -539,7 +539,7 @@ const MasterData = () => {
                     {isAdding && (
                       <tr className='hrms-new-row'>
                         <td>
-                          <input
+                          <input name="description"
                             type='text'
                             className={`form-control form-control-sm ${
                               newDescriptionError ? 'is-invalid' : ''
@@ -652,7 +652,7 @@ const MasterData = () => {
                             <td>
                               {isEditing ? (
                                 <>
-                                  <input
+                                  <input name="editDescription"
                                     type='text'
                                     className={`form-control form-control-sm ${
                                       editDescriptionError ? 'is-invalid' : ''

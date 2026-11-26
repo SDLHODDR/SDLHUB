@@ -1612,7 +1612,7 @@ const JobDescription = () => {
                   return (
                     <tr key={`${groupId}-${subGroupId}-${questionId}`}>
                       <td className='text-center'>
-                        <input
+                        <input name="selectQuestion"
                           type='checkbox'
                           checked={isSelected}
                           onChange={event => {
@@ -3171,7 +3171,6 @@ if (!isValid) {
                       onChange={setSearchQuery}
                       placeholder='Search Job Descriptions...'
                       className='mb-0'
-                      style={{ width: '330px', minWidth: '330px' }}
                     />
                   )}
                 </div>
@@ -3517,7 +3516,7 @@ if (!isValid) {
                                 Upload Document
                               </label>
 
-                              <input
+                              <input name="UPLOAD_DOC"
                                 key={docInputKey}
                                 type='file'
                                 className='form-control'
@@ -3554,7 +3553,7 @@ if (!isValid) {
                             <span style={jdStyles.required}>*</span>
                           </label>
 
-                          <textarea
+                          <textarea name="DESCR"
                             className={`form-control ${
                               errors.DESCR ? 'is-invalid' : ''
                             }`}

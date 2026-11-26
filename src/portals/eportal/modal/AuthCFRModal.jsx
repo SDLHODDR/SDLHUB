@@ -692,7 +692,7 @@ const AuthCFRModal = ({
                     Date
                   </label>
 
-                  <input
+                  <input name="date"
                     type="text"
                     className="form-control"
                     value={
@@ -709,7 +709,7 @@ const AuthCFRModal = ({
                     From Time
                   </label>
 
-                  <input
+                  <input name="startTime"
                     type="text"
                     className="form-control"
                     value={formatTime(
@@ -728,7 +728,7 @@ const AuthCFRModal = ({
 
                   <div className="d-flex gap-2">
 
-                    <input
+                    <input name="durationHours"
                       type="text"
                       className="form-control"
                       value={`${Math.floor(
@@ -740,7 +740,7 @@ const AuthCFRModal = ({
                       disabled
                     />
 
-                    <input
+                    <input name="durationMinutes"
                       type="text"
                       className="form-control"
                       value={`${String(
@@ -770,7 +770,7 @@ const AuthCFRModal = ({
                     Booking By
                   </label>
 
-                  <input
+                  <input name="bookedBy"
                     type="text"
                     className="form-control"
                     value={
@@ -789,7 +789,7 @@ const AuthCFRModal = ({
                     No of Attendees
                   </label>
 
-                  <input
+                  <input name="attendees"
                     type="number"
                     className="form-control"
                     value={
@@ -814,7 +814,7 @@ const AuthCFRModal = ({
                     Division
                   </label>
 
-                  <input
+                  <input name="division"
                     type="text"
                     className="form-control"
                     value={
@@ -831,7 +831,7 @@ const AuthCFRModal = ({
                     Reason
                   </label>
 
-                  <textarea
+                  <textarea name="remarks"
                     className="form-control"
                     rows="2"
                     value={
@@ -854,7 +854,7 @@ const AuthCFRModal = ({
 
                   <div className="form-check">
 
-                    <input
+                    <input name="facility1"
                       className="form-check-input"
                       type="checkbox"
                       checked={isSelectedFacility(
@@ -876,7 +876,7 @@ const AuthCFRModal = ({
 
                   <div className="form-check">
 
-                    <input
+                    <input name="facility2"
                       className="form-check-input"
                       type="checkbox"
                       checked={isSelectedFacility(
@@ -898,7 +898,7 @@ const AuthCFRModal = ({
 
                   <div className="form-check">
 
-                    <input
+                    <input name="facility3"
                       className="form-check-input"
                       type="checkbox"
                       checked={isSelectedFacility(

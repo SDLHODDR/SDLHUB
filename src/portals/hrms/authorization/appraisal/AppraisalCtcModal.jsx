@@ -168,7 +168,7 @@ const AppraisalCtcModal = ({ record, onClose, onDone }) => {
                     <td className='text-end'>{appraisalInr(head.structure)}</td>
                     <td className='text-end'>{head.structure === null ? '-' : appraisalInr(head.structure * 12)}</td>
                     <td>
-                      <input
+                      <input name="ctcAmount"
                         className='form-control form-control-sm text-end'
                         inputMode='decimal'
                         aria-label={`Monthly ${head.label}`}

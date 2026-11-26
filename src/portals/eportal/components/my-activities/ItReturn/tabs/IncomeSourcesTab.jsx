@@ -272,7 +272,7 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
                   <div className="col-md-3">
                     <div className="input-group">
                       <span className="input-group-text">₹</span>
-                      <input
+                      <input name="incomeAmount"
                         type="text"
                         className="form-control"
                         value={Number(item.AMOUNT || 0).toLocaleString()}
@@ -322,7 +322,7 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
                       <div className="d-flex gap-2">
                         <div className="input-group">
                           <span className="input-group-text">₹</span>
-                          <input
+                          <input name="otherIncomeAmount"
                             type="number"
                             className="form-control"
                             placeholder="Amount"
@@ -333,7 +333,7 @@ function IncomeSourcesTab({ onDataSaved, editable }) {
                           />
                         </div>
 
-                        <input
+                        <input name="otherIncomeProof"
                           type="file"
                           className="form-control"
                           accept="application/pdf"

@@ -313,7 +313,6 @@ const TenureChange = () => {
                     onChange={setSearch}
                     placeholder="Search employees..."
                     className="mb-0"
-                    style={{ width: '100%' }}
                   />
                 </div>
               </div>

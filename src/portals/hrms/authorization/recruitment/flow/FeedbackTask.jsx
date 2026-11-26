@@ -27,7 +27,7 @@ const groupRows = rows => {
 const QuestionInput = ({ question, value, onChange, disabled }) => {
   if (question.type === 'T') {
     return (
-      <input
+      <input name="answer"
         type='text'
         className='form-control form-control-sm'
         aria-label={question.question}
@@ -160,7 +160,7 @@ const InterviewerForm = ({ details, form, setForm, busy, tab, setTab, missing })
                       />
                     </td>
                     <td>
-                      <textarea
+                      <textarea name="answerRemarks"
                         className={`form-control form-control-sm${missing?.remarks.has(question.id) ? ' is-invalid' : ''}`}
                         rows={2}
                         placeholder='Remarks *'

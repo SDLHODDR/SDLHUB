@@ -47,7 +47,6 @@ const TicketBookingAuthorization = () => {
                 value={searchQuery}
                 onChange={setSearchQuery}
                 placeholder="Search Ticket bookings..."
-                style={{ width: "270px" }}
               />
             </div>
           </div>

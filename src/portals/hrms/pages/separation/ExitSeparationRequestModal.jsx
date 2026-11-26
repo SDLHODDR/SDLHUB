@@ -190,7 +190,7 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
               <label className='form-label'>
                 Employee Code <RequiredMark />
               </label>
-              <input
+              <input name="employee"
                 className='form-control'
                 value={`${employee.name || '-'} - ${employee.code || '-'}`}
                 disabled
@@ -201,7 +201,7 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
                 Resignation Type <RequiredMark />
               </label>
               {isDeactivate ? (
-                <select
+                <select name="resignType"
                   className={`form-select tenure-change-select${errors.resignType ? ' is-invalid' : ''}`}
                   value={form.resignType}
                   onChange={event => update('resignType', event.target.value)}
@@ -214,7 +214,7 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
                   ))}
                 </select>
               ) : (
-                <input
+                <input name="resignType"
                   className='form-control'
                   value={labelFor(RESIGNATION_TYPES, separation.resignType)}
                   disabled
@@ -227,7 +227,7 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
                 Resignation Mode <RequiredMark />
               </label>
               {isDeactivate ? (
-                <select
+                <select name="resignMode"
                   className={`form-select tenure-change-select${errors.resignMode ? ' is-invalid' : ''}`}
                   value={form.resignMode}
                   onChange={event => update('resignMode', event.target.value)}
@@ -240,7 +240,7 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
                   ))}
                 </select>
               ) : (
-                <input
+                <input name="resignMode"
                   className='form-control'
                   value={labelFor(RESIGNATION_MODES, separation.resignMode)}
                   disabled
@@ -250,7 +250,7 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
             </div>
             <div className='col-md-4'>
               <label className='form-label'>Recipient Email</label>
-              <input
+              <input name="recipientEmail"
                 className='form-control'
                 value={separation.recipientEmail || ''}
                 disabled
@@ -260,7 +260,7 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
               <label className='form-label'>
                 Resignation Date <RequiredMark />
               </label>
-              <input
+              <input name="resignationDate"
                 className='form-control'
                 value={separation.resignationDate || '-'}
                 disabled
@@ -270,7 +270,7 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
               <label className='form-label'>
                 Expected Relieving Date <RequiredMark />
               </label>
-              <input
+              <input name="expectedRelievingDate"
                 className='form-control'
                 value={separation.expectedRelievingDate || '-'}
                 disabled
@@ -283,7 +283,7 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
           <label className='form-label'>
             Employee Comments <RequiredMark />
           </label>
-          <textarea
+          <textarea name="employeeComments"
             className='form-control flex-grow-1'
             style={{ minHeight: '206px' }}
             value={separation.employeeComments || ''}
@@ -308,7 +308,7 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
             Approved Relieve Date <RequiredMark />
           </label>
           {isDeactivate ? (
-            <input
+            <input name="relievingDate"
               className='form-control'
               value={separation.relievingDate || '-'}
               disabled
@@ -328,7 +328,7 @@ const SeparationForm = ({ details, isDeactivate, task, shellProps }) => {
           <label className='form-label'>
             Authorize Comments <RequiredMark />
           </label>
-          <input
+          <input name="authorizeComments"
             className={`form-control${errors.authorizeComments ? ' is-invalid' : ''}`}
             value={form.authorizeComments}
             disabled={isDeactivate}

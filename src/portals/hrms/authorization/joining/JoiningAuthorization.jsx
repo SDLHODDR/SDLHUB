@@ -119,7 +119,6 @@ const JoiningAuthorization = () => {
                             value={searchQuery}
                             onChange={setSearchQuery}
                             placeholder="Search Joining..."
-                            style={{ width: "270px" }}
                         />
                     </div>
                 </div>

@@ -663,7 +663,7 @@ const handleCompanyChange = async (selected) => {
                     padding: '0.5rem'
                   }}
                 >
-                  <input
+                  <input name="selectGroup"
                     type='checkbox'
                     checked={selectedGroups[group.groupCode] || false}
                     onChange={() => toggleGroup(group)}
@@ -711,7 +711,7 @@ const handleCompanyChange = async (selected) => {
                       return (
                         <div key={emp.empCode} className='row mb-2'>
                           <div className='col-md-4 d-flex align-items-center'>
-                            <input
+                            <input name="selectEmployee"
                               type='checkbox'
                               className='form-check-input me-2'
                               checked={selectedEmployees[emp.empCode] || false}

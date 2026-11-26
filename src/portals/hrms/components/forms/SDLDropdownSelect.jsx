@@ -216,7 +216,7 @@ const SDLDropdownSelect = ({
           >
             <div className="sdl-select-search-row">
               <div className="sdl-select-search-box">
-                <input
+                <input name="dropdownSearch"
                   ref={searchInputRef}
                   type="text"
                   autoFocus

@@ -47,7 +47,6 @@ const LeavesAuthorization = () => {
                 value={searchQuery}
                 onChange={setSearchQuery}
                 placeholder="Search Leaves..."
-                style={{ width: "270px" }}
               />
             </div>
           </div>
