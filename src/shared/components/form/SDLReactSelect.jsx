@@ -250,3 +250,5 @@ const SDLReactSelect = ({
 };
 
 export default SDLReactSelect;
+// Shared with selects built on react-select directly (e.g. EmployeeSearchSelect), so they look the same.
+export const sdlSelectStyles = (hasError = false) => ({ ...getStyles(hasError), ...menuStyles });

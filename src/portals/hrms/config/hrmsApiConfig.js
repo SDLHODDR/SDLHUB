@@ -154,6 +154,8 @@ export const HRMS_API = {
 
   EMPLOYEE: {
     GET_EMPLOYEES: "/maintainance/employeedata/getEmployees.php",
+    // Employee search fields: ?q=<at least 3 characters>&status=active|all, up to 50 matches.
+    SEARCH: "/maintainance/employeedata/searchEmployees.php",
     GET_EMPLOYEE_BY_ID: "/maintainance/employeedata/getEmployeeById.php",
     GET_MASTERS: "/maintainance/employeedata/getEmployeeMasters.php",
   },

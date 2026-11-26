@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import SDLDataTable from '../../../../shared/components/datatable/SDLDataTable'
 import SDLSearch from '../../../../shared/components/datatable/SDLSearch'
@@ -10,14 +10,13 @@ import {
   confirmAction
 } from '../../../../shared/services/alertService'
 import {
-  getEmployeeAccessEmployees,
   getEmployeeAccess,
   saveEmployeeAccess,
   disableEmployeeAccess
 } from '../../services/employeeAccessService'
 import { getPortalFromPath } from '../../../../shared/config/portalConfig'
 // import "../../../../../_archive/src/portals/hrms/assets/css/employeeAccess.css";
-import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
+import EmployeeSearchSelect from '../../components/forms/EmployeeSearchSelect'
 import SDLReactMultiSelect from '../../../../shared/components/form/SDLReactMultiSelect'
 import SaveButton from '../../../../shared/components/buttons/SaveButton'
 import CancelButton from '../../../../shared/components/buttons/CancelButton'
@@ -37,7 +36,6 @@ const EmployeeAccess = () => {
      STATE
   ========================================================== */
 
-  const [employees, setEmployees] = useState([])
 
   const [selectedEmployee, setSelectedEmployee] = useState(null)
 
@@ -47,7 +45,6 @@ const EmployeeAccess = () => {
 
   const [employeeProfiles, setEmployeeProfiles] = useState([])
 
-  const [loadingEmployees, setLoadingEmployees] = useState(false)
 
   const [loadingAccess, setLoadingAccess] = useState(false)
 
@@ -56,34 +53,6 @@ const EmployeeAccess = () => {
   const [disablingId, setDisablingId] = useState(null)
 
   const [searchQuery, setSearchQuery] = useState('')
-
-  /* ==========================================================
-     LOAD EMPLOYEES
-  ========================================================== */
-
-  useEffect(() => {
-    const loadEmployees = async () => {
-      try {
-        setLoadingEmployees(true)
-
-        const res = await getEmployeeAccessEmployees()
-
-        if (res?.status) {
-          setEmployees(Array.isArray(res.data) ? res.data : [])
-        } else {
-          notifyError(res?.message || 'Unable to load employees.')
-        }
-      } catch (error) {
-        console.error('Load employees error:', error)
-
-        notifyError(error?.message || 'Unable to load employees.')
-      } finally {
-        setLoadingEmployees(false)
-      }
-    }
-
-    loadEmployees()
-  }, [])
 
   /* ==========================================================
      LOAD EMPLOYEE ACCESS
@@ -298,13 +267,6 @@ const EmployeeAccess = () => {
      EMPLOYEE OPTIONS
   ========================================================== */
 
-  const employeeOptions = useMemo(() => {
-    return employees.map(employee => ({
-      label: employee.label || `${employee.empCode} - ${employee.empName}`,
-
-      value: String(employee.empCode || employee.id)
-    }))
-  }, [employees])
 
   /* ==========================================================
      PROFILE LABEL
@@ -461,16 +423,13 @@ const EmployeeAccess = () => {
                 <div className='col-md-4'>
                   <div className='form-group'>
                     <label className='form-label'>Employee</label>
-                    <SDLReactSelect
+                    {/* Active employees; searches on Enter after 3 letters. */}
+                    <EmployeeSearchSelect
                       value={selectedEmployee}
-                      options={employeeOptions}
                       onChange={handleEmployeeChange}
-                      placeholder='Select Employee'
-                      isSearchable
-                      isClearable
-                      isDisabled={loadingEmployees || saving || loadingAccess}
-                      isLoading={loadingEmployees}
-                      width='100%'
+                      getOption={row => ({ value: row.EMP_CODE, label: `${row.EMP_CODE} - ${row.NAME}` })}
+                      placeholder='Search Employee'
+                      isDisabled={saving || loadingAccess}
                     />
                   </div>
                 </div>
