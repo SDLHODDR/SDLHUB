@@ -1,0 +1,47 @@
+/* My Activities > Daily Timesheet */
+
+/* Task and description cells: long text wraps (keeps line breaks typed in the description). */
+.timesheet-page .timesheet-text-cell {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+
+/* Long file names wrap instead of widening the column. */
+.timesheet-page .timesheet-doc-link {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Description: one line, cut with "..."; the full text shows in a tooltip on hover. */
+.timesheet-page .timesheet-desc-cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+
+.timesheet-desc-tooltip .tooltip-inner {
+  max-width: 420px;
+  text-align: left;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* Task details popup (Daily Timesheet Report) */
+.timesheet-detail-label {
+  font-size: 12px;
+  color: #6c757d;
+  margin-bottom: 2px;
+}
+
+.timesheet-detail-value {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.timesheet-detail-text {
+  white-space: pre-line;
+  max-height: 220px;
+  overflow-y: auto;
+}

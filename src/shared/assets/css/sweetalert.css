@@ -133,3 +133,14 @@
     border-radius: 6px !important;
     white-space: nowrap;
 }
+
+/* Extra note under a confirmation message (confirmAction options.note). */
+.swal2-html-container .swal-confirm-note {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #fff4e5;
+  color: #b45309;
+  font-size: 13px;
+  font-weight: 600;
+}

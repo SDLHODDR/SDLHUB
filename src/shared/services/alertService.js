@@ -75,15 +75,26 @@ export const notifyWarning = (
   });
 };
 
+const escapeHtml = (value) =>
+  String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
+
+/*
+ * Yes / Cancel confirmation. Resolves to true when confirmed.
+ * options.note: an extra line shown under the message (e.g. a deadline).
+ */
 export const confirmAction = async (
   title = "Are you sure?",
   text = "This action cannot be undone",
   options = {}
 ) => {
+  const body = options.note
+    ? { html: `${escapeHtml(text)}<div class="swal-confirm-note"><i class="ti ti-info-circle"></i> ${escapeHtml(options.note)}</div>` }
+    : { text };
+
   const result = await Swal.fire({
     icon: "warning",
     title,
-    text,
+    ...body,
     showCancelButton: true,
     confirmButtonText: "Yes",
     cancelButtonText: "Cancel",

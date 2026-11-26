@@ -16,6 +16,16 @@ export const EPORTAL_API = {
     GET_HOLIDAYS: "/holidays/getHolidays.php",
     GET_HOLIDAY_RULES: "/holidays/getHolidayRules.php",
   },
+  TIMESHEET: {
+    GET_DAY: "/timesheet/getTimesheetDay.php",
+    SAVE_TASK: "/timesheet/saveTimesheetTask.php",
+    DELETE_TASK: "/timesheet/deleteTimesheetTask.php",
+    SUBMIT: "/timesheet/submitTimesheet.php",
+    VIEW_DOCUMENT: "/timesheet/viewTimesheetDocument.php",
+    GET_MANAGERS: "/timesheet/getTimesheetManagers.php",
+    GET_REPORT: "/timesheet/getTimesheetReport.php",
+    EXPORT_REPORT: "/timesheet/exportTimesheetReport.php",
+  },
   CONFERENCE_ROOM: {
     GET_CONFERENCE_ROOM_BOOKINGS: "/conference/getConferenceRooms.php",
     GET_BOOKING_DROPDOWN_DATA: "/conference/getBookingDropdownData.php",

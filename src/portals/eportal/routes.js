@@ -6,6 +6,7 @@ import DownloadITRDocs from "./components/my-activities/DownloadITRDocs";
 import OutdoorDuty from "./components/my-activities/OutdoorDuty";
 import TicketBooking from "./components/my-activities/TicketBooking";
 import Leave from "./components/my-activities/Leaves";
+import Timesheet from "./components/my-activities/Timesheet";
 
 import Policies from "./components/policies-documents/Policies";
 import HolidayCalendar from "./components/policies-documents/HolidayCalendar";
@@ -19,6 +20,7 @@ import DailyAttendanceInfo from "./components/reports/DailyAttendanceInfo";
 import ItrDownloadReport from "./components/reports/ItrDownloadReport";
 import PolicyEndorsementReport from "./components/reports/PolicyEndorsementReport";
 import ViewLogs from "./components/reports/ViewLog";
+import TimesheetReport from "./components/reports/TimesheetReport";
 
 import OutdoorDutyAuthorization from "./authorization/OutdoorDutyAuthorization";
 import TicketBookingAuthorization from "./authorization/TicketBookingAuthorization";
@@ -39,6 +41,7 @@ export const eportalRoutes = [
 	{ path: "eportal/conference-room", element: ConferenceRoom, },
 	{ path: "eportal/it-return", element: ItReturn, },
 	{ path: "eportal/download-itr", element: DownloadITRDocs, },
+	{ path: "eportal/timesheet", element: Timesheet, },
 
 	// Policies & Documents
 	{ path: "eportal/my-documents", element: MyDocuments, },
@@ -56,6 +59,7 @@ export const eportalRoutes = [
 	{ path: "eportal/itr-report", element: ItrDownloadReport, },
 	{ path: "eportal/policy-endorsement-report", element: PolicyEndorsementReport, },
 	{ path: "eportal/view-logs", element: ViewLogs, },
+	{ path: "eportal/timesheet-report", element: TimesheetReport, },
 
 	// Profile
 	{ path: "eportal/my-profile", element: MyProfile, },
