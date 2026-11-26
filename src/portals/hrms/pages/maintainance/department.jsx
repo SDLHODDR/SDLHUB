@@ -1,7 +1,5 @@
-import { useMemo, useState, useEffect, useCallback } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-// NOTE: hrmsDepartmentSlice may not exist in all installs. Use dynamic import to avoid module-not-found errors.
 // TODO: create/verify departmentService with these methods (or adjust import paths)
 import {
   getDepartmentMasterData,
@@ -79,7 +77,6 @@ const getDisplayValue = (item, keys, fallback = '-') => {
 }
 
 const Department = () => {
-  const dispatch = useDispatch()
 
   const location = useLocation()
   const portal = getPortalFromPath(location.pathname)
@@ -91,9 +88,6 @@ const Department = () => {
   const [listDepartmentMasterData, setListDepartmentMasterData] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
 
-  // department data from redux (slice name may vary) - adjust selector if needed
-  const departmentData = useSelector(state => state.hrmsDepartmentData?.data)
-
   const [showAll, setShowAll] = useState(false)
   const [selectedDept, setSelectedDept] = useState('')
   const [isEditing, setIsEditing] = useState(false)
@@ -102,23 +96,6 @@ const Department = () => {
 
   const TOP_CONTROL_WIDTH = '330px'
 
-  const refreshDepartmentData = useCallback(async () => {
-    try {
-      const slicePath = '../../../../store/hrms/hrmsDepartmentSlice'
-      const mod = await import(/* @vite-ignore */ slicePath)
-      if (mod && mod.getDepartmentDataResponse) {
-        dispatch(mod.getDepartmentDataResponse())
-      }
-    } catch {
-      // optional redux slice not present in this build - nothing to refresh
-    }
-  }, [dispatch])
-
-  useEffect(() => {
-    // attempt to refresh via redux slice if present; safe no-op otherwise
-    refreshDepartmentData()
-  }, [refreshDepartmentData])
-
   const fetchDepartmentMasterData = async () => {
     try {
       const response = await getDepartmentMasterData()
@@ -126,6 +103,8 @@ const Department = () => {
       setListDepartmentMasterData(normalizedData)
     } catch (error) {
       handleError(error, { context: 'Load departments', fallback: 'Unable to load departments.' })
+    } finally {
+      setListLoading(false)
     }
   }
 
@@ -309,8 +288,6 @@ const Department = () => {
         resetForm()
         // refresh list
         await fetchDepartmentMasterData() // <-- refresh from API
-
-        void refreshDepartmentData()
         setShowAll(true)
       } else {
         notifyError(response?.message || 'Unable to save Department')
@@ -394,7 +371,6 @@ const Department = () => {
 
       // refresh list
       await fetchDepartmentMasterData()
-      void refreshDepartmentData()
     } catch (err) {
       handleError(err, { context: 'Delete department', fallback: 'Unable to delete record.' })
     } finally {
