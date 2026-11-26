@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
 import SDLDataTable from '../../../../shared/components/datatable/SDLDataTable'
@@ -408,9 +408,16 @@ const NewEmployee = () => {
     office.DESIGNATION,
     office.ORGANOGRAM
   ].join('|')
+  // Loaded when the Office Details tab is open (not on page load), and again only when the
+  // employee, company or an office field changes.
+  const officeOptionsRequestRef = useRef('')
   useEffect(() => {
-    if (!empCode) return undefined
+    if (!empCode || activeTab !== 'office') return undefined
+    const requestKey = [empCode, form.COMPANY, officeOptionsKey].join('|')
+    if (officeOptionsRequestRef.current === requestKey) return undefined
+    officeOptionsRequestRef.current = requestKey
     let active = true
+    let done = false
     getNewEmployeeOfficeOptions({
       emp_code: empCode,
       company: form.COMPANY || undefined,
@@ -429,14 +436,22 @@ const NewEmployee = () => {
         }
       })
       .catch(error => {
+        // Failed: tried again the next time the tab is opened.
+        officeOptionsRequestRef.current = ''
         if (active) {
           notifyError(error?.message || 'Unable to load the office options.')
         }
       })
+      .finally(() => {
+        done = true
+      })
     return () => {
       active = false
+      // Left before it finished (e.g. the tab was changed): load it again next time.
+      if (!done) officeOptionsRequestRef.current = ''
     }
   }, [
+    activeTab,
     empCode,
     officeOptionsKey,
     form.COMPANY,

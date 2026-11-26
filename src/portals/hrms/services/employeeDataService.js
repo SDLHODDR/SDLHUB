@@ -21,11 +21,12 @@ export const searchEmployees = ({ q, status = "active" }) =>
     params: { q, status },
   });
 
-export const getEmployeeById = (id) =>
+// sections: the tabs' data to return (e.g. "employee", "office", "bank"); all when omitted.
+export const getEmployeeById = (id, sections) =>
   hrmsRequest({
     url: HRMS_API.EMPLOYEE.GET_EMPLOYEE_BY_ID,
     method: "GET",
-    params: { id },
+    params: sections ? { id, sections } : { id },
   });
 
 // =====================================================

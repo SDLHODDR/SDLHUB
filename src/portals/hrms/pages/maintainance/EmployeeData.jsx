@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useMemo, useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 // import Select from 'react-select'
 import {
@@ -173,6 +173,22 @@ const getApiField = (record, ...names) => {
 const asRecordList = value => {
   if (Array.isArray(value)) return value
   return value && typeof value === 'object' ? [value] : []
+}
+
+// getEmployeeById section of each tab (Personal and Basic Details share the employee record).
+const TAB_SECTIONS = {
+  personal: 'employee',
+  basic: 'employee',
+  office: 'office',
+  tenure: 'tenure',
+  bank: 'bank',
+  qualification: 'qualification',
+  experience: 'experience',
+  reference: 'reference',
+  family: 'family',
+  documents: 'documents',
+  access: 'access',
+  kra: 'kra'
 }
 
 const EmployeeData = () => {
@@ -678,7 +694,207 @@ const EmployeeData = () => {
     return 'fas fa-file'
   }
 
+  /*
+   * Employee details are loaded per tab: the employee record (Personal and Basic Details)
+   * when an employee is picked, and each other tab's section (getEmployeeById ?sections=)
+   * the first time the tab is opened for that employee.
+   */
+  const sectionMappers = {
+    // Personal + Basic Details
+    employee: responseData => {
+      const employee = getApiField(responseData, 'employee') || {}
+      return {
+        //Personal details
+        ID: employee.ID || '',
+        EMP_CODE: employee.EMP_CODE || '',
+        TITLE: employee.TITLE || '',
+        FIRST_NAME: employee.FNAME || '',
+        MIDDLE_NAME: employee.MNAME || '',
+        LAST_NAME: employee.LNAME || '',
+        CURRENT_ADDRESS: employee.ADDRESS || '',
+        CURRENT_CITY: employee.CITY || '',
+        CURRENT_STATE: employee.STATE || '',
+        CURRENT_PINCODE: employee.PINCODE || '',
+        CURRENT_COUNTRY: employee.COUNTRY || '',
+        PERMANENT_ADDRESS: employee.PERMNT_ADDRESS || '',
+        PERMANENT_CITY: employee.PERMNT_CITY || '',
+        PERMANENT_STATE: employee.PERMNT_STATE || '',
+        PERMANENT_PINCODE: employee.PERMNT_PINCODE || '',
+        PERMANENT_COUNTRY: employee.PERMNT_COUNTRY || '',
+        TELEPHONE: employee.PHONE || '',
+        MOBILE_NUMBER: employee.CELL || '',
+        PERSONAL_EMAIL: employee.PER_EMAIL || '',
+        COMPANY_EMAIL: employee.COM_EMAIL || '',
+        DATE_OF_BIRTH: formatDateForInput(employee.DOB),
+        DATE_OF_JOINING: formatDateForInput(employee.DOJ),
+        EMERGENCY_CONTACT: employee.TEL_NO_EMERG || '',
+        GENDER: employee.GENDER || '',
+        BLOOD_GROUP: employee.BLOOD_GRP || '',
+        PROFILE_PHOTO: employee.PICS || '',
+        COMPANY: employee.COMP_ID || '',
+        STATUS: employee.STATUS || '',
+
+        // Basic Details
+        EMPLOYEE_CODE: employee.EMP_CODE || '',
+        AADHAAR_NO: employee.ADHAR_NO || '',
+        PAN_NO: employee.PAN_NO || '',
+        DRIVING_LICENSE_NO: employee.DRIV_LICE_NO || '',
+        PASSPORT_NO: employee.PASSPORT_NO || '',
+        ESI_NO: employee.ESI_NO || '',
+        NATIONALITY: employee.NATIONALITY || '',
+        MARITAL_STATUS: employee.M_STATUS || '',
+        DATE_OF_ANNIVERSARY: employee.DATE_OF_ANNIVERSARY || '',
+        MOTHER_TONGUE: employee.MOTHER_LANG || '',
+        RELIGION: employee.RELIGION || '',
+        PF_NO: employee.PF_NO || '',
+        FPF_NO: employee.FPF_NO || '',
+        PF_NOMINEE: employee.PF_NOMINEE || '',
+        MEMBER_ID: employee.MEMBER_ID || '',
+        UAN_NO: employee.UAN_NO || '',
+        RETIREMENT_AGE: employee.RETIRE_AGE || '',
+        GRATUITY_DATE: formatDateForInput(employee.GRATUITY_DATE),
+        CITIZEN_NO: employee.CITIZEN_NO || ''
+      }
+    },
+    office: responseData => {
+      const officeDetails = asRecordList(
+        getApiField(responseData, 'officeDetails', 'OFFICE_DETAILS')
+      )
+      const currentOffice = officeDetails[0] || {}
+      const reportsTo =
+        asRecordList(getApiField(responseData, 'reportsTo'))[0] || {}
+      return {
+        DEPARTMENT: getApiField(currentOffice, 'DEPT_ID') || '',
+        DESIGNATION: getApiField(currentOffice, 'DESI_ID') || '',
+        DIVISION: getApiField(currentOffice, 'DIVSN_ID') || '',
+        ORGANOGRAM: getApiField(currentOffice, 'ORG_ID') || '',
+        ORGANOGRAM_LOCATION: getApiField(currentOffice, 'ORG_LOC_ID') || '',
+        EFFECTIVE_FROM: formatDateForInput(getApiField(currentOffice, 'EFFEC_FROM')),
+        EFFECTIVE_TO: formatDateForInput(getApiField(currentOffice, 'EFFEC_TO')),
+        REPORTS_TO: [reportsTo.FNAME, reportsTo.LNAME]
+          .filter(value => value && value !== '.')
+          .join(' '),
+        OFFICE_DETAILS: officeDetails
+      }
+    },
+    tenure: responseData => {
+      const tenureDetails = asRecordList(getApiField(responseData, 'tenure'))
+      const currentTenure = tenureDetails[0] || {}
+      return {
+        TENURE_EMPLOYEE_TYPE: currentTenure.ETYPE_ID || '',
+        TENURE_PERIOD: currentTenure.ETYPE_PERIOD || '',
+        TENURE_EFFECTIVE_FROM: formatDateForInput(currentTenure.EFF_FROM),
+        TENURE_EFFECTIVE_TO: formatDateForInput(currentTenure.EFF_TO),
+        TENURE_STATUS: currentTenure.EMP_STATUS || '',
+        TENURE_DETAILS: tenureDetails
+      }
+    },
+    bank: responseData => {
+      const bankDetails = asRecordList(getApiField(responseData, 'banks'))
+      const currentBank = bankDetails[0] || {}
+      return {
+        BANK_NAME: currentBank.BANK_NAME || '',
+        BANK_BRANCH: currentBank.BANK_BRANCH || '',
+        BANK_IFSC: currentBank.BANK_IFSC || '',
+        BANK_ACNO: currentBank.BANK_ACNO || '',
+        BANK_NOMINEE: currentBank.BANK_NOMINEE || '',
+        BANK_STATUS: currentBank.STATUS || '',
+        BANK_DETAILS: bankDetails
+      }
+    },
+    qualification: responseData => {
+      const qualificationDetails = asRecordList(getApiField(responseData, 'education'))
+      const currentQualification = qualificationDetails[0] || {}
+      return {
+        QUALIFICATION_INSTITUTE: currentQualification.INST_NAME || '',
+        QUALIFICATION_COURSE: currentQualification.COURSE || '',
+        QUALIFICATION_GRADE: currentQualification.PERGRADE || '',
+        QUALIFICATION_START_DATE: formatDateForInput(currentQualification.FROM_DATE),
+        QUALIFICATION_END_DATE: formatDateForInput(currentQualification.TO_DATE),
+        QUALIFICATION_REMARK: currentQualification.REMARKS || '',
+        QUALIFICATION_DETAILS: qualificationDetails
+      }
+    },
+    experience: responseData => {
+      const experienceDetails = asRecordList(getApiField(responseData, 'experience'))
+      const currentExperience = experienceDetails[0] || {}
+      return {
+        PREVIOUS_COMPANY: currentExperience.ORG_NAME || '',
+        PREVIOUS_DESIGNATION: currentExperience.DESIG || '',
+        PREVIOUS_FROM_DATE: formatDateForInput(currentExperience.FROM_DATE),
+        PREVIOUS_TO_DATE: formatDateForInput(currentExperience.TO_DATE),
+        PREVIOUS_GROSS_SALARY: currentExperience.GROSS_SALARY || '',
+        PREVIOUS_JOB_DESCRIPTION: currentExperience.DUTY_NATURE || '',
+        PREVIOUS_LEAVE_REASON: currentExperience.LEAVE_REASON || '',
+        EXPERIENCE_DETAILS: experienceDetails
+      }
+    },
+    reference: responseData => ({
+      REFERENCE_DETAILS: asRecordList(getApiField(responseData, 'references'))
+    }),
+    family: responseData => ({
+      FAMILY_DETAILS: asRecordList(getApiField(responseData, 'family'))
+    }),
+    documents: responseData => ({
+      DOCUMENTS: asRecordList(getApiField(responseData, 'documents'))
+    }),
+    access: responseData => ({
+      APPLICATION_ACCESS: asRecordList(getApiField(responseData, 'userAccess'))
+    }),
+    kra: responseData => ({
+      KRA: asRecordList(getApiField(responseData, 'kra'))
+    })
+  }
+
+  // Sections of the open employee already loaded (or loading); reset when another is picked.
+  const loadedSectionsRef = useRef({ employeeId: '', sections: new Set() })
+  const [sectionLoading, setSectionLoading] = useState(false)
+
+  const loadEmployeeSection = async (employeeId, section) => {
+    const loaded = loadedSectionsRef.current
+    if (loaded.employeeId !== employeeId || loaded.sections.has(section)) return
+    loaded.sections.add(section)
+    setSectionLoading(true)
+    try {
+      const response = await getEmployeeById(employeeId, section)
+      // Another employee was picked meanwhile.
+      if (loadedSectionsRef.current.employeeId !== employeeId) return
+      if (!response?.status) throw new Error(response?.message || 'Unable to load employee details.')
+      const responseData = response.data?.data ?? response.data ?? response
+      const mapped = sectionMappers[section](responseData)
+      setEmployeeData(prev => ({ ...prev, ...mapped }))
+      if (section === 'office') {
+        const officeMasterData = getApiField(responseData, 'officeMasters')
+        setOfficeMasters({
+          departments: asRecordList(getApiField(officeMasterData, 'departments')),
+          designations: asRecordList(getApiField(officeMasterData, 'designations')),
+          divisions: asRecordList(getApiField(officeMasterData, 'divisions')),
+          organograms: asRecordList(getApiField(officeMasterData, 'organograms')),
+          organogramLocations: asRecordList(getApiField(officeMasterData, 'organogramLocations'))
+        })
+      }
+    } catch (error) {
+      // Not loaded: tried again the next time the tab is opened.
+      loaded.sections.delete(section)
+      handleError(error, { context: 'Load employee details', fallback: 'Unable to load employee details.' })
+    } finally {
+      if (loadedSectionsRef.current.employeeId === employeeId) setSectionLoading(false)
+    }
+  }
+
+  // The open tab's section, the first time the tab is opened for this employee.
+  useEffect(() => {
+    const section = TAB_SECTIONS[activeTab]
+    // Async load; state is set when the request settles.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (selectedEmployeeId && section) void loadEmployeeSection(selectedEmployeeId, section)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, selectedEmployeeId])
+
   const handleEmployeeChange = async option => {
+    loadedSectionsRef.current = { employeeId: '', sections: new Set() }
+    setSectionLoading(false)
+
     if (!option) {
       setSelectedEmployeeId('')
       setEmployeeData({})
@@ -692,191 +908,27 @@ const EmployeeData = () => {
     try {
       setLoading(true)
 
-      const response = await getEmployeeById(employeeId)
+      // Only the employee record (Personal and Basic Details); other tabs load when opened.
+      const response = await getEmployeeById(employeeId, 'employee')
 
       if (response?.status) {
         const responseData = response.data?.data ?? response.data ?? response
-        const employee = getApiField(responseData, 'employee') || {}
-        const officeDetails = asRecordList(
-          getApiField(responseData, 'officeDetails', 'OFFICE_DETAILS')
-        )
-        const tenureDetails = asRecordList(getApiField(responseData, 'tenure'))
-        const currentTenure = tenureDetails[0] || {}
-        const reportsTo =
-          asRecordList(getApiField(responseData, 'reportsTo'))[0] || {}
-        const reportsToName = [reportsTo.FNAME, reportsTo.LNAME]
-          .filter(value => value && value !== '.')
-          .join(' ')
-        const currentOffice = officeDetails[0] || {}
-        const bankDetails = asRecordList(getApiField(responseData, 'banks'))
-        const currentBank = bankDetails[0] || {}
-        const qualificationDetails = asRecordList(
-          getApiField(responseData, 'education')
-        )
-        const currentQualification = qualificationDetails[0] || {}
-        const experienceDetails = asRecordList(
-          getApiField(responseData, 'experience')
-        )
-        const currentExperience = experienceDetails[0] || {}
-        const referenceDetails = asRecordList(
-          getApiField(responseData, 'references')
-        )
-        const familyDetails = asRecordList(getApiField(responseData, 'family'))
-        const documentDetails = asRecordList(
-          getApiField(responseData, 'documents')
-        )
-        const applicationAccess = asRecordList(
-          getApiField(responseData, 'userAccess')
-        )
-        const kraDetails = asRecordList(getApiField(responseData, 'kra'))
+        console.log('Selected employee data:', getApiField(responseData, 'employee'))
 
-        console.log('Selected employee data:', employee)
+        // Every tab starts empty (an empty section maps to blank fields and lists).
+        const blankSections = Object.entries(sectionMappers)
+          .filter(([section]) => section !== 'employee')
+          .reduce((fields, [, mapper]) => ({ ...fields, ...mapper({}) }), {})
 
-        setShowAllTabs(true)
-        setActiveTab('personal')
-
+        loadedSectionsRef.current = { employeeId, sections: new Set(['employee']) }
         setOfficeMasters({
-          departments: asRecordList(
-            getApiField(getApiField(responseData, 'officeMasters'), 'departments')
-          ),
-          designations: asRecordList(
-            getApiField(getApiField(responseData, 'officeMasters'), 'designations')
-          ),
-          divisions: asRecordList(
-            getApiField(getApiField(responseData, 'officeMasters'), 'divisions')
-          ),
-          organograms: asRecordList(
-            getApiField(getApiField(responseData, 'officeMasters'), 'organograms')
-          ),
-          organogramLocations: asRecordList(
-            getApiField(
-              getApiField(responseData, 'officeMasters'),
-              'organogramLocations'
-            )
-          )
+          departments: [],
+          designations: [],
+          divisions: [],
+          organograms: [],
+          organogramLocations: []
         })
-
-        setEmployeeData({
-          //Personal details
-          ID: employee.ID || '',
-          EMP_CODE: employee.EMP_CODE || '',
-          TITLE: employee.TITLE || '',
-          FIRST_NAME: employee.FNAME || '',
-          MIDDLE_NAME: employee.MNAME || '',
-          LAST_NAME: employee.LNAME || '',
-          CURRENT_ADDRESS: employee.ADDRESS || '',
-          CURRENT_CITY: employee.CITY || '',
-          CURRENT_STATE: employee.STATE || '',
-          CURRENT_PINCODE: employee.PINCODE || '',
-          CURRENT_COUNTRY: employee.COUNTRY || '',
-          PERMANENT_ADDRESS: employee.PERMNT_ADDRESS || '',
-          PERMANENT_CITY: employee.PERMNT_CITY || '',
-          PERMANENT_STATE: employee.PERMNT_STATE || '',
-          PERMANENT_PINCODE: employee.PERMNT_PINCODE || '',
-          PERMANENT_COUNTRY: employee.PERMNT_COUNTRY || '',
-          TELEPHONE: employee.PHONE || '',
-          MOBILE_NUMBER: employee.CELL || '',
-          PERSONAL_EMAIL: employee.PER_EMAIL || '',
-          COMPANY_EMAIL: employee.COM_EMAIL || '',
-          DATE_OF_BIRTH: formatDateForInput(employee.DOB),
-          DATE_OF_JOINING: formatDateForInput(employee.DOJ),
-          EMERGENCY_CONTACT: employee.TEL_NO_EMERG || '',
-          GENDER: employee.GENDER || '',
-          BLOOD_GROUP: employee.BLOOD_GRP || '',
-          PROFILE_PHOTO: employee.PICS || '',
-          COMPANY: employee.COMP_ID || '',
-          STATUS: employee.STATUS || '',
-
-          // Basic Details
-          EMPLOYEE_CODE: employee.EMP_CODE || '',
-          AADHAAR_NO: employee.ADHAR_NO || '',
-          PAN_NO: employee.PAN_NO || '',
-          DRIVING_LICENSE_NO: employee.DRIV_LICE_NO || '',
-          PASSPORT_NO: employee.PASSPORT_NO || '',
-          ESI_NO: employee.ESI_NO || '',
-          NATIONALITY: employee.NATIONALITY || '',
-          MARITAL_STATUS: employee.M_STATUS || '',
-          DATE_OF_ANNIVERSARY: employee.DATE_OF_ANNIVERSARY || '',
-          MOTHER_TONGUE: employee.MOTHER_LANG || '',
-          RELIGION: employee.RELIGION || '',
-          PF_NO: employee.PF_NO || '',
-          FPF_NO: employee.FPF_NO || '',
-          PF_NOMINEE: employee.PF_NOMINEE || '',
-          MEMBER_ID: employee.MEMBER_ID || '',
-          UAN_NO: employee.UAN_NO || '',
-          RETIREMENT_AGE: employee.RETIRE_AGE || '',
-          GRATUITY_DATE: formatDateForInput(employee.GRATUITY_DATE),
-          CITIZEN_NO: employee.CITIZEN_NO || '',
-
-          // Office Details
-          DEPARTMENT: getApiField(currentOffice, 'DEPT_ID') || '',
-          DESIGNATION: getApiField(currentOffice, 'DESI_ID') || '',
-          DIVISION: getApiField(currentOffice, 'DIVSN_ID') || '',
-          ORGANOGRAM: getApiField(currentOffice, 'ORG_ID') || '',
-          ORGANOGRAM_LOCATION: getApiField(currentOffice, 'ORG_LOC_ID') || '',
-          EFFECTIVE_FROM: formatDateForInput(
-            getApiField(currentOffice, 'EFFEC_FROM')
-          ),
-          EFFECTIVE_TO: formatDateForInput(getApiField(currentOffice, 'EFFEC_TO')),
-
-          REPORTS_TO: reportsToName,
-          OFFICE_DETAILS: officeDetails,
-
-          // Tenure Details
-          TENURE_EMPLOYEE_TYPE: currentTenure.ETYPE_ID || '',
-          TENURE_PERIOD: currentTenure.ETYPE_PERIOD || '',
-          TENURE_EFFECTIVE_FROM: formatDateForInput(currentTenure.EFF_FROM),
-          TENURE_EFFECTIVE_TO: formatDateForInput(currentTenure.EFF_TO),
-          TENURE_STATUS: currentTenure.EMP_STATUS || '',
-          TENURE_DETAILS: tenureDetails,
-
-          // Bank Details
-          BANK_NAME: currentBank.BANK_NAME || '',
-          BANK_BRANCH: currentBank.BANK_BRANCH || '',
-          BANK_IFSC: currentBank.BANK_IFSC || '',
-          BANK_ACNO: currentBank.BANK_ACNO || '',
-          BANK_NOMINEE: currentBank.BANK_NOMINEE || '',
-          BANK_STATUS: currentBank.STATUS || '',
-          BANK_DETAILS: bankDetails,
-
-          // Qualification Details
-          QUALIFICATION_INSTITUTE: currentQualification.INST_NAME || '',
-          QUALIFICATION_COURSE: currentQualification.COURSE || '',
-          QUALIFICATION_GRADE: currentQualification.PERGRADE || '',
-          QUALIFICATION_START_DATE: formatDateForInput(
-            currentQualification.FROM_DATE
-          ),
-          QUALIFICATION_END_DATE: formatDateForInput(
-            currentQualification.TO_DATE
-          ),
-          QUALIFICATION_REMARK: currentQualification.REMARKS || '',
-          QUALIFICATION_DETAILS: qualificationDetails,
-
-          // Experience Details
-          PREVIOUS_COMPANY: currentExperience.ORG_NAME || '',
-          PREVIOUS_DESIGNATION: currentExperience.DESIG || '',
-          PREVIOUS_FROM_DATE: formatDateForInput(currentExperience.FROM_DATE),
-          PREVIOUS_TO_DATE: formatDateForInput(currentExperience.TO_DATE),
-          PREVIOUS_GROSS_SALARY: currentExperience.GROSS_SALARY || '',
-          PREVIOUS_JOB_DESCRIPTION: currentExperience.DUTY_NATURE || '',
-          PREVIOUS_LEAVE_REASON: currentExperience.LEAVE_REASON || '',
-          EXPERIENCE_DETAILS: experienceDetails,
-
-          // Reference Details
-          REFERENCE_DETAILS: referenceDetails,
-
-          // Family Details
-          FAMILY_DETAILS: familyDetails,
-
-          // Document Details
-          DOCUMENTS: documentDetails,
-
-          // Application Access
-          APPLICATION_ACCESS: applicationAccess,
-
-          // KRA Details
-          KRA: kraDetails
-        })
+        setEmployeeData({ ...blankSections, ...sectionMappers.employee(responseData) })
         setShowAllTabs(true)
         setActiveTab('personal')
       } else {
@@ -2464,11 +2516,12 @@ const renderSelect = (name, label, options, config = {}) => {
                 }))}
                 selectedTab={activeTab}
                 onTabChange={setActiveTab}
-                // While an employee's details load, the loader shows instead of empty tables.
-                tabContent={loading ? null : renderTabContent()}
+                // While an employee's details (or the open tab's section) load, the loader
+                // shows instead of empty tables.
+                tabContent={loading || sectionLoading ? null : renderTabContent()}
                 loading={false}
               />
-              {loading && <SDLPageLoader />}
+              {(loading || sectionLoading) && <SDLPageLoader />}
             </div>
           </div>
         </div>
