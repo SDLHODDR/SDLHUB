@@ -45,3 +45,85 @@
   max-height: 220px;
   overflow-y: auto;
 }
+
+/* Description / Remarks editors in the task form */
+.timesheet-editor .rsw-editor {
+  border-radius: 6px;
+  border-color: #ced4da;
+}
+.timesheet-editor.is-invalid .rsw-editor {
+  border-color: #dc3545;
+}
+.timesheet-editor .rsw-ce ul,
+.timesheet-editor .rsw-ce ol,
+.timesheet-detail-html ul,
+.timesheet-detail-html ol {
+  padding-left: 1.4rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Formatted description / remarks in the details popup */
+.timesheet-detail-html {
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+}
+.timesheet-detail-html p {
+  margin-bottom: 0.25rem;
+}
+
+/* The theme hides list markers globally; show bullets / numbers here. */
+.timesheet-editor .rsw-ce ul,
+.timesheet-detail-html ul {
+  list-style: disc;
+}
+.timesheet-editor .rsw-ce ol,
+.timesheet-detail-html ol {
+  list-style: decimal;
+}
+.timesheet-editor .rsw-ce li,
+.timesheet-detail-html li {
+  display: list-item;
+}
+
+/* Font / Font size dropdowns in the editor toolbar */
+.timesheet-editor .rsw-toolbar select {
+  height: 28px;
+  margin: 3px 2px 3px 4px;
+  padding: 0 6px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background-color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+.timesheet-editor .rsw-toolbar select:focus {
+  border-color: #ff9800;
+  outline: none;
+}
+
+/* Compact editors so the task form fits without scrolling. The app's global
+   style fixes every editor at 200px (.rsw-ce in customStyle.scss); here the
+   box starts small, grows with the text and scrolls inside after a limit. */
+.timesheet-editor .rsw-ce {
+  height: auto !important;
+  overflow-y: auto;
+}
+.timesheet-editor--description .rsw-ce {
+  min-height: 72px;    /* about 3 lines */
+  max-height: 140px;   /* about 6 lines, then scrolls inside */
+}
+.timesheet-editor--remarks .rsw-ce {
+  min-height: 52px;    /* about 2 lines */
+  max-height: 100px;
+}
+
+/* Task form: tighter labels; a narrow toolbar (Remarks) wraps instead of clipping. */
+.timesheet-task-form .form-label {
+  margin-bottom: 4px;
+}
+.timesheet-editor .rsw-toolbar {
+  flex-wrap: wrap;
+  height: auto !important;
+  min-height: 34px;
+}

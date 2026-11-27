@@ -96,7 +96,7 @@ const TimesheetReport = () => {
     const query = search.trim().toLowerCase();
     if (!query) return rows;
     return rows.filter((row) =>
-      [row.empName, row.empCode, row.category, row.title, row.description, row.taskStatusText, row.dayStatusText]
+      [row.empName, row.empCode, row.project, row.category, row.title, row.descriptionText, row.taskStatusText, row.dayStatusText]
         .some((value) => String(value || "").toLowerCase().includes(query)),
     );
   }, [rows, search]);
@@ -134,7 +134,8 @@ const TimesheetReport = () => {
       ),
       style: { width: "170px" },
     },
-    { field: "category", header: "Category", sortable: true, style: { width: "120px" } },
+    { field: "project", header: "Project", sortable: true, body: (row) => row.project || "-", style: { width: "95px" } },
+    { field: "category", header: "Category", sortable: true, style: { width: "115px" } },
     {
       field: "title",
       header: "Task",
@@ -145,9 +146,9 @@ const TimesheetReport = () => {
       field: "description",
       header: "Description",
       body: (row) =>
-        row.description ? (
-          <OverlayTrigger placement="top" overlay={<Tooltip className="timesheet-desc-tooltip">{row.description}</Tooltip>}>
-            <div className="timesheet-desc-cell" tabIndex={0}>{row.description}</div>
+        row.descriptionText ? (
+          <OverlayTrigger placement="top" overlay={<Tooltip className="timesheet-desc-tooltip">{row.descriptionText}</Tooltip>}>
+            <div className="timesheet-desc-cell" tabIndex={0}>{row.descriptionText}</div>
           </OverlayTrigger>
         ) : (
           <span className="text-muted">-</span>

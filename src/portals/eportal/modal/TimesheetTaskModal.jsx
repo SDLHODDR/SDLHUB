@@ -1,13 +1,15 @@
 import { useRef, useState } from "react";
 import SDLReactSelect from "../../../shared/components/form/SDLReactSelect";
+import SDLtextEditor from "../../../shared/components/editor/SDLtextEditor";
 import { validateFields, validateRequired, validateLength, hasErrors } from "../../../shared/validation";
 import { handleError, apiError } from "../../../shared/services/errorHandler";
 import { notifySuccess } from "../../../shared/services/alertService";
-import { toDMYDate, isoToDate } from "../../../shared/utils/formatUtils";
+import { toDMYDate, isoToDate, stripHtmlToText } from "../../../shared/utils/formatUtils";
 import { saveTimesheetTask, openTimesheetDocument } from "../services/timesheetService";
 import { TS_LIMITS, TS_TASK_STATUS_OPTIONS, TS_DOCUMENT } from "../constants/timesheetConstants";
 
 const EMPTY_TASK = {
+  projectId: "",
   categoryId: "",
   title: "",
   description: "",
@@ -15,6 +17,15 @@ const EMPTY_TASK = {
   remarks: "",
   reportTo: "",
 };
+
+/* Editor toolbar: font, size, simple formatting and lists (the server keeps only these). */
+const EDITOR_TOOLBAR = ["fontName", "fontSize", "separator", "bold", "italic", "underline", "separator", "numberedList", "bulletList"];
+
+/* Visible length of the editor's HTML (what the limits count). */
+const textLength = (html) => stripHtmlToText(html).trim().length;
+
+/* Length check for formatted text: "" or the message. */
+const htmlMax = (max, label) => (html) => (textLength(html) > max ? `${label} must not exceed ${max} characters.` : "");
 
 const formatSize = (bytes) =>
   bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
@@ -32,17 +43,19 @@ const checkDocument = (file) => {
  * Add / edit one task of a timesheet day.
  *   date        "YYYY-MM-DD"
  *   task        the task being edited, or null to add
+ *   projects    [{ value, label }]
  *   categories  [{ value, label }]
  *   managers    { options: [{ value, label }], defaultCode, deptName }
  *               reporting managers of the employee's department
  */
-const TimesheetTaskModal = ({ date, task, categories = [], managers = {}, onClose, onSaved }) => {
+const TimesheetTaskModal = ({ date, task, projects = [], categories = [], managers = {}, onClose, onSaved }) => {
   const isEdit = Boolean(task?.id);
   const fileInputRef = useRef(null);
 
   const [form, setForm] = useState(() =>
     isEdit
       ? {
+          projectId: task.projectId || "",
           categoryId: task.categoryId,
           title: task.title,
           description: task.description || "",
@@ -80,15 +93,16 @@ const TimesheetTaskModal = ({ date, task, categories = [], managers = {}, onClos
 
   const validate = () =>
     validateFields(form, {
+      projectId: [validateRequired, { message: "Please select a project." }],
       categoryId: [validateRequired, { message: "Please select a category." }],
       title: [
         [validateRequired, { message: "Please enter the task." }],
         [validateLength, { max: TS_LIMITS.TITLE, label: "Task" }],
       ],
-      description: [validateLength, { max: TS_LIMITS.DESCRIPTION, label: "Description" }],
+      description: htmlMax(TS_LIMITS.DESCRIPTION, "Description"),
       taskStatus: [validateRequired, { message: "Please select the task status." }],
       reportTo: [validateRequired, { message: "Please select the reporting manager." }],
-      remarks: [validateLength, { max: TS_LIMITS.REMARKS, label: "Remarks" }],
+      remarks: htmlMax(TS_LIMITS.REMARKS, "Remarks"),
     });
 
   const handleSave = async (event) => {
@@ -149,8 +163,22 @@ const TimesheetTaskModal = ({ date, task, categories = [], managers = {}, onClos
           </div>
 
           <form onSubmit={handleSave} noValidate>
-            <div className="modal-body">
-              <div className="row g-3">
+            <div className="modal-body timesheet-task-form">
+              <div className="row g-2">
+                <div className="col-md-6">
+                  <label className="form-label">
+                    Project <span className="text-danger">*</span>
+                  </label>
+                  <SDLReactSelect
+                    value={form.projectId}
+                    options={projects}
+                    onChange={(value) => setField("projectId", value)}
+                    placeholder="Select Project"
+                    hasError={Boolean(errors.projectId)}
+                  />
+                  {fieldError("projectId")}
+                </div>
+
                 <div className="col-md-6">
                   <label className="form-label">
                     Category <span className="text-danger">*</span>
@@ -179,7 +207,7 @@ const TimesheetTaskModal = ({ date, task, categories = [], managers = {}, onClos
                   {fieldError("taskStatus")}
                 </div>
 
-                <div className="col-12">
+                <div className="col-md-6">
                   <label className="form-label">
                     Reporting Manager <span className="text-danger">*</span>
                   </label>
@@ -214,39 +242,40 @@ const TimesheetTaskModal = ({ date, task, categories = [], managers = {}, onClos
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label" htmlFor="ts-description">Description</label>
-                  <textarea
-                    id="ts-description"
-                    name="description"
-                    rows={3}
-                    className={`form-control ${errors.description ? "is-invalid" : ""}`}
-                    value={form.description}
-                    maxLength={TS_LIMITS.DESCRIPTION}
-                    placeholder="Details of the work done (optional)"
-                    onChange={(e) => setField("description", e.target.value)}
-                  />
+                  <label className="form-label">Description</label>
+                  <div className={`timesheet-editor timesheet-editor--description ${errors.description ? "is-invalid" : ""}`}>
+                    <SDLtextEditor
+                      value={form.description}
+                      onChange={(e) => setField("description", e.target.value)}
+                      placeholder="Details of the work done (optional)"
+                      toolbarConfig={EDITOR_TOOLBAR}
+                      containerProps={{ style: { minHeight: 0 } }}
+                    />
+                  </div>
                   <div className="d-flex justify-content-between">
                     <div>{fieldError("description")}</div>
-                    <small className="text-muted">{form.description.length}/{TS_LIMITS.DESCRIPTION}</small>
+                    <small className="text-muted">{textLength(form.description)}/{TS_LIMITS.DESCRIPTION}</small>
                   </div>
                 </div>
 
-                <div className="col-md-6">
-                  <label className="form-label" htmlFor="ts-remarks">Remarks</label>
-                  <input
-                    id="ts-remarks"
-                    name="remarks"
-                    type="text"
-                    className={`form-control ${errors.remarks ? "is-invalid" : ""}`}
-                    value={form.remarks}
-                    maxLength={TS_LIMITS.REMARKS}
-                    placeholder="Blockers, follow-ups (optional)"
-                    onChange={(e) => setField("remarks", e.target.value)}
-                  />
-                  {fieldError("remarks")}
+                <div className="col-md-7">
+                  <label className="form-label">Remarks</label>
+                  <div className={`timesheet-editor timesheet-editor--remarks ${errors.remarks ? "is-invalid" : ""}`}>
+                    <SDLtextEditor
+                      value={form.remarks}
+                      onChange={(e) => setField("remarks", e.target.value)}
+                      placeholder="Blockers, follow-ups (optional)"
+                      toolbarConfig={EDITOR_TOOLBAR}
+                      containerProps={{ style: { minHeight: 0 } }}
+                    />
+                  </div>
+                  <div className="d-flex justify-content-between">
+                    <div>{fieldError("remarks")}</div>
+                    <small className="text-muted">{textLength(form.remarks)}/{TS_LIMITS.REMARKS}</small>
+                  </div>
                 </div>
 
-                <div className="col-md-6">
+                <div className="col-md-5">
                   <label className="form-label" htmlFor="ts-document">Upload Document</label>
                   <input
                     id="ts-document"

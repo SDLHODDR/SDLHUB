@@ -33,7 +33,26 @@ import {
   BtnStyles,
   HtmlButton,
   Separator,
+  createDropdown,
 } from "react-simple-wysiwyg";
+
+/* Font size / font dropdowns (browser fontSize / fontName commands -> <font size> / <font face>). */
+const BtnFontSize = createDropdown("Font size", [
+  ["Small", "fontSize", "2"],
+  ["Normal", "fontSize", "3"],
+  ["Large", "fontSize", "5"],
+  ["Extra Large", "fontSize", "6"],
+]);
+
+const BtnFontName = createDropdown("Font", [
+  ["Default", "fontName", "Nunito"],
+  ["Arial", "fontName", "Arial"],
+  ["Georgia", "fontName", "Georgia"],
+  ["Times New Roman", "fontName", "Times New Roman"],
+  ["Courier New", "fontName", "Courier New"],
+  ["Verdana", "fontName", "Verdana"],
+  ["Tahoma", "fontName", "Tahoma"],
+]);
 
 // Map of available tools -> component. Add more here if the library supports them.
 const TOOL_MAP = {
@@ -49,6 +68,8 @@ const TOOL_MAP = {
   clearFormatting: BtnClearFormatting,
   htmlMode: HtmlButton,
   styles: BtnStyles,
+  fontSize: BtnFontSize,
+  fontName: BtnFontName,
   separator: Separator,
 };
 
