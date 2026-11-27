@@ -1,6 +1,7 @@
 export const PORTALAPI = {
   AUTH: {
     LOGIN: "/auth.php",
+    CAPTCHA: "/captcha.php",
     LOGOUT: "/logout.php",
     SESSION_CHECK: "/session_check.php",
     SESSION_KEEPALIVE: "/session_keepalive.php",

@@ -13,6 +13,16 @@ export const login = (payload) =>
   });
 
 /* ============================
+   LOGIN CAPTCHA (new image each call)
+============================ */
+export const getCaptcha = () =>
+  request({
+    url: PORTALAPI.AUTH.CAPTCHA,
+    method: "GET",
+    params: { t: Date.now() },
+  });
+
+/* ============================
    LOGOUT
 ============================ */
 export const logoutAPI = () =>

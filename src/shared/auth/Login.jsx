@@ -1,6 +1,6 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { login, normalizeUser } from "../services/authService";
+import { getCaptcha, login, normalizeUser } from "../services/authService";
 import AuthContext from "./AuthContext";
 import { LOGOS, IMAGES } from "../assets/assets";
 import { getPendingPolicies } from "../services/policyEndorsement";
@@ -17,7 +17,29 @@ const Login = () => {
       : "",
   );
   const [loading, setLoading] = useState(false);
+  const [captcha, setCaptcha] = useState("");
+  const [captchaImage, setCaptchaImage] = useState("");
+  const [captchaLoading, setCaptchaLoading] = useState(true);
   const { setUser } = useContext(AuthContext);
+
+  // Each image can be used for one login attempt only, so a new one is
+  // loaded after every failed attempt.
+  const requestCaptcha = () =>
+    getCaptcha()
+      .then((res) => setCaptchaImage(res?.status ? res.data?.image || "" : ""))
+      .catch(() => setCaptchaImage(""))
+      .finally(() => setCaptchaLoading(false));
+
+  const loadCaptcha = () => {
+    setCaptcha("");
+    setCaptchaLoading(true);
+    requestCaptcha();
+  };
+
+  useEffect(() => {
+    requestCaptcha();
+    // Runs once, on opening the login page.
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,18 +52,28 @@ const Login = () => {
       return;
     }
 
+    if (!captcha.trim()) {
+      setError("Please enter the captcha.");
+      return;
+    }
+
+    let loggedIn = false;
+
     try {
       setLoading(true);
 
       const response = await login({
         login_code: trimmedCode,
         password,
+        captcha: captcha.trim(),
       });
 
       if (!response?.status) {
         setError(response?.message || "Invalid login");
         return;
       }
+
+      loggedIn = true;
 
       const { user, csrf_token } = response.data || {}; //redirect
 
@@ -110,6 +142,7 @@ const Login = () => {
       );
     } finally {
       setLoading(false);
+      if (!loggedIn) loadCaptcha();
     }
   };
 
@@ -166,6 +199,56 @@ const Login = () => {
                       />
                     </span>
                   </div>
+                </div>
+
+                {/* Captcha: image, refresh and code on one line */}
+                <div className="mb-3 d-flex align-items-center gap-2">
+                  <div
+                    className="border rounded bg-white d-flex align-items-center justify-content-center flex-shrink-0"
+                    style={{ width: 160, height: 48 }}
+                  >
+                    {captchaLoading ? (
+                      <span className="spinner-border spinner-border-sm" role="status" />
+                    ) : captchaImage ? (
+                      <img
+                        src={captchaImage}
+                        alt="Captcha code"
+                        width={160}
+                        height={48}
+                        className="rounded"
+                        draggable={false}
+                      />
+                    ) : (
+                      <small className="text-danger px-2 text-center">
+                        Unable to load captcha
+                      </small>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-link text-secondary p-1 flex-shrink-0"
+                    onClick={loadCaptcha}
+                    disabled={captchaLoading || loading}
+                    title="Get a new captcha"
+                    aria-label="Get a new captcha"
+                  >
+                    <i className="ti ti-refresh fs-5" />
+                  </button>
+                  <input
+                    id="login-captcha"
+                    name="captcha"
+                    type="text"
+                    className="form-control flex-grow-1"
+                    style={{ height: 48, minWidth: 0 }}
+                    placeholder="Code"
+                    aria-label="Captcha code"
+                    value={captcha}
+                    maxLength={5}
+                    autoComplete="off"
+                    autoCapitalize="characters"
+                    spellCheck={false}
+                    onChange={(e) => setCaptcha(e.target.value.toUpperCase())}
+                  />
                 </div>
 
                 {/* Forgot password */}
