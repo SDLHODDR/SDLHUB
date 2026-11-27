@@ -62,6 +62,7 @@ const TimesheetTaskDetailsModal = ({ task, onClose }) => {
               </Detail>
               <Detail label="Reporting Manager">{orDash(task.reportToName)}</Detail>
 
+              <Detail label="Project">{orDash(task.project)}</Detail>
               <Detail label="Category">{task.category}</Detail>
               <Detail label="Task Status">
                 <Badge text={task.taskStatusText} className={TS_TASK_STATUS_BADGE[task.taskStatus]} />
@@ -72,11 +73,20 @@ const TimesheetTaskDetailsModal = ({ task, onClose }) => {
               </Detail>
 
               <Detail label="Description" wide>
-                <div className="timesheet-detail-text">{orDash(task.description)}</div>
+                {/* Server-cleaned HTML (only p, br, lists, b/i/u; no attributes) - see tsCleanHtml. */}
+                {task.description ? (
+                  <div className="timesheet-detail-html" dangerouslySetInnerHTML={{ __html: task.description }} />
+                ) : (
+                  orDash("")
+                )}
               </Detail>
 
               <Detail label="Remarks" wide>
-                <div className="timesheet-detail-text">{orDash(task.remarks)}</div>
+                {task.remarks ? (
+                  <div className="timesheet-detail-html" dangerouslySetInnerHTML={{ __html: task.remarks }} />
+                ) : (
+                  orDash("")
+                )}
               </Detail>
 
               <Detail label="Document">

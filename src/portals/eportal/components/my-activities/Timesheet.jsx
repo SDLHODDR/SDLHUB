@@ -146,7 +146,8 @@ const Timesheet = () => {
       body: (row, options) => options.rowIndex + 1,
       style: { width: "50px" },
     },
-    { field: "category", header: "Category", sortable: true, style: { width: "140px" } },
+    { field: "project", header: "Project", sortable: true, body: (row) => row.project || "-", style: { width: "100px" } },
+    { field: "category", header: "Category", sortable: true, style: { width: "130px" } },
     {
       field: "title",
       header: "Task",
@@ -158,12 +159,12 @@ const Timesheet = () => {
       field: "description",
       header: "Description",
       body: (row) =>
-        row.description ? (
+        row.descriptionText ? (
           <OverlayTrigger
             placement="top"
-            overlay={<Tooltip className="timesheet-desc-tooltip">{row.description}</Tooltip>}
+            overlay={<Tooltip className="timesheet-desc-tooltip">{row.descriptionText}</Tooltip>}
           >
-            <div className="timesheet-desc-cell" tabIndex={0}>{row.description}</div>
+            <div className="timesheet-desc-cell" tabIndex={0}>{row.descriptionText}</div>
           </OverlayTrigger>
         ) : (
           <span className="text-muted">-</span>
@@ -303,6 +304,7 @@ const Timesheet = () => {
         <TimesheetTaskModal
           date={selectedDate}
           task={modal.task}
+          projects={dayData?.projects || []}
           categories={dayData?.categories || []}
           managers={managers}
           onClose={() => setModal(null)}
