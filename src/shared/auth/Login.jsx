@@ -202,9 +202,9 @@ const Login = () => {
                 </div>
 
                 {/* Captcha: image, refresh and code on one line */}
-                <div className="mb-3 d-flex align-items-center gap-2">
+                <div className="mb-3 d-flex align-items-center justify-content-center gap-2">
                   <div
-                    className="border rounded bg-white d-flex align-items-center justify-content-center flex-shrink-0"
+                    className="rounded bg-white d-flex align-items-center justify-content-center flex-shrink-0 overflow-hidden"
                     style={{ width: 160, height: 48 }}
                   >
                     {captchaLoading ? (
@@ -226,21 +226,28 @@ const Login = () => {
                   </div>
                   <button
                     type="button"
-                    className="btn btn-link text-secondary p-1 flex-shrink-0"
+                    className="btn btn-link text-secondary p-0 lh-1 flex-shrink-0 text-decoration-none"
+                    style={{ fontSize: 22 }}
                     onClick={loadCaptcha}
                     disabled={captchaLoading || loading}
                     title="Get a new captcha"
                     aria-label="Get a new captcha"
                   >
-                    <i className="ti ti-refresh fs-5" />
+                    <i className="ti ti-refresh" />
                   </button>
                   <input
                     id="login-captcha"
                     name="captcha"
                     type="text"
-                    className="form-control flex-grow-1"
-                    style={{ height: 48, minWidth: 0 }}
-                    placeholder="Code"
+                    className="form-control border-0 shadow-none text-center fw-semibold flex-shrink-0"
+                    style={{
+                      width: 130,
+                      height: 48,
+                      background: "#e8f0fe",
+                      letterSpacing: "0.3em",
+                      fontSize: 18,
+                    }}
+                    placeholder="CODE"
                     aria-label="Captcha code"
                     value={captcha}
                     maxLength={5}
