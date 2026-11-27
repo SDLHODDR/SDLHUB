@@ -87,19 +87,15 @@
     }
   }
   option:checked {
-    background-color: rgba(var(variables.$primary), 0.2);
     color: variables.$primary;
   }
   option:select {
-    background-color: rgba(var(variables.$primary), 0.2);
     color: variables.$primary;
   }
   option:hover {
-    background-color: rgba(var(variables.$primary), 0.2);
     color: variables.$primary;
   }
   option:focus {
-    background-color: rgba(var(variables.$primary), 0.2);
     color: variables.$primary;
   }
 }
@@ -288,7 +284,6 @@ fieldset:disabled .btn {
   border-color: variables.$primary;
 }
 .form-select:focus {
-  border-color: rgba(var(variables.$primary), 0.5);
   outline: 0;
   box-shadow: none;
 }
@@ -453,7 +448,6 @@ fieldset:disabled .btn {
   }
 
   &.on {
-    background-color: rgba(var(variables.$primary), 0.3);
 
     span {
       background-color: variables.$primary;

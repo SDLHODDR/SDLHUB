@@ -288,11 +288,9 @@
     }
   }
   &.dropmenu-light-primary {
-    background-color: rgba(var(variables.$secondary), 0.1);
     @include dropmenu-light-color(variables.$primary);
   }
   &.dropmenu-light-secondary {
-    background-color: rgba(var(variables.$secondary), 0.1);
     @include dropmenu-light-color(variables.$secondary);
   }
   &.dropmenu-light-info {
