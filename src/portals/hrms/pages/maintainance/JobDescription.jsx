@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback } from 'react'
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import BreadcrumbNav from '../../../../shared/components/BreadcrumbNav'
 import { getPortalFromPath } from '../../../../shared/config/portalConfig'
@@ -42,6 +42,7 @@ import SDLReactSelect from '../../../../shared/components/form/SDLReactSelect'
 import SDLSearchSelect from '../../components/forms/SDLSearchSelect'
 import SDLReactMultiSelect from '../../../../shared/components/form/SDLReactMultiSelect'
 import SDLTabsComponent from '../../components/tabs/SDLTabsComponent'
+import SDLPageLoader from '../../../../shared/components/SDLPageLoader'
 import SaveButton from '../../../../shared/components/buttons/SaveButton'
 import CancelButton from '../../../../shared/components/buttons/CancelButton'
 import ViewToggleButton from '../../../../shared/components/buttons/ViewToggleButton'
@@ -208,13 +209,29 @@ const upsertListRecord = (records, record, recordId) => {
   )
 }
 
+// Dropdown lists each tab needs; a tab's lists are loaded the first time it is opened.
+const TAB_MASTERS = {
+  basic: ['departments', 'designations', 'levels', 'educationLevels'],
+  responsibilities: [],
+  kra: ['kras'],
+  education: ['qualifications'],
+  skills: ['skills', 'expertiseLevels'],
+  allowances: ['allowances', 'expenseTypes', 'frequencies'],
+  ctc: ['ctcHeads'],
+  questions: ['questionTemplates', 'questionGroups'],
+  deptref: ['departments', 'deptActivityCounts'],
+  division: ['divisions'],
+  // The induction organogram names are built from the division, department and designation lists.
+  induction: ['inductions', 'organograms', 'divisions', 'departments', 'designations']
+}
+
 const JobDescription = () => {
   const location = useLocation()
   const portal = getPortalFromPath(location.pathname)
   const portalHome = `/${portal.key}/dashboard`
 
   // true from the start: the list is fetched on load, and "No Job Descriptions found" waits for it
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [jobData, setJobData] = useState([])
   // The full JD list is loaded only for the list view (see loadJobs).
@@ -286,94 +303,89 @@ const JobDescription = () => {
   })
   const [editingCtcId, setEditingCtcId] = useState(null)
 
-  const loadData = useCallback(async () => {
-    try {
-      setLoading(true)
-      // The JD list itself is not loaded here: the search field queries the server and the
-      // list view loads it when opened (loadJobs).
-      setJobsLoaded(false)
-      const [
-        departmentsResponse,
-        designationsResponse,
-        levelsResponse,
-        educationLevelResponse,
-        kraResponse,
-        qualificationResponse,
-        skillResponse,
-        expertiseResponse,
-        allowanceResponse,
-        expenseTypeResponse,
-        frequencyResponse,
-        ctcHeadResponse,
-        questionTemplateResponse,
-        questionGroupResponse,
-        divisionResponse,
-        inductionResponse,
-        organogramResponse,
-        deptActivityResponse
-      ] = await Promise.all([
-        getDepartmentMasterData(),
-        getDesignationsMaster(),
-        getMasterData('HR_ORG_LEVEL'),
-        getEducationLevelList(),
-        getKRAList(),
-        getQualificationList(),
-        getSkillList(),
-        getExpertiseLevelList(),
-        getAllowanceList(),
-        getExpenseTypeList(),
-        getFrequencyList(),
-        getCTCHeadList(),
-        getQuestionTemplateList(),
-        getQuestionGroupList(),
-        getDivisionList(),
-        getInductionList(),
-        getOrganogramList(),
-        getJdDeptActivityCounts().catch(error => {
+  // Loaders of the dropdown lists, by name (TAB_MASTERS says which tab needs which).
+  const masterLoaders = useMemo(
+    () => ({
+      departments: async () => setDepartments(normalizeRecords(await getDepartmentMasterData())),
+      designations: async () => setDesignations(normalizeRecords(await getDesignationsMaster())),
+      levels: async () => setLevels(normalizeRecords(await getMasterData('HR_ORG_LEVEL'))),
+      educationLevels: async () => setEducationLevelList(normalizeRecords(await getEducationLevelList())),
+      kras: async () => setKraList(normalizeRecords(await getKRAList())),
+      qualifications: async () => setQualificationList(normalizeRecords(await getQualificationList())),
+      skills: async () => setSkillList(normalizeRecords(await getSkillList())),
+      expertiseLevels: async () => setExpertiseLevelList(normalizeRecords(await getExpertiseLevelList())),
+      allowances: async () => setAllowanceList(normalizeRecords(await getAllowanceList())),
+      expenseTypes: async () => setExpenseTypeList(normalizeRecords(await getExpenseTypeList())),
+      frequencies: async () => setFrequencyList(normalizeRecords(await getFrequencyList())),
+      ctcHeads: async () => setCtcHeadList(normalizeRecords(await getCTCHeadList())),
+      questionTemplates: async () => setQuestionTemplateList(normalizeRecords(await getQuestionTemplateList())),
+      questionGroups: async () => setQuestionGroupList(normalizeRecords(await getQuestionGroupList())),
+      divisions: async () => setDivisionList(normalizeRecords(await getDivisionList())),
+      inductions: async () => setInductionList(normalizeRecords(await getInductionList())),
+      organograms: async () => setOrganogramList(normalizeRecords(await getOrganogramList())),
+      deptActivityCounts: async () => {
+        // Only orders the Department Reference list; a failure leaves it unordered.
+        const response = await getJdDeptActivityCounts().catch(error => {
           console.error('Load department activity counts error:', error)
           return null
         })
-      ])
-
-      setDepartments(normalizeRecords(departmentsResponse))
-      setDesignations(normalizeRecords(designationsResponse))
-      setLevels(normalizeRecords(levelsResponse))
-      setEducationLevelList(normalizeRecords(educationLevelResponse))
-      setKraList(normalizeRecords(kraResponse))
-      setQualificationList(normalizeRecords(qualificationResponse))
-      setSkillList(normalizeRecords(skillResponse))
-      setExpertiseLevelList(normalizeRecords(expertiseResponse))
-      setAllowanceList(normalizeRecords(allowanceResponse))
-      setExpenseTypeList(normalizeRecords(expenseTypeResponse))
-      setFrequencyList(normalizeRecords(frequencyResponse))
-      setCtcHeadList(normalizeRecords(ctcHeadResponse))
-      setQuestionTemplateList(normalizeRecords(questionTemplateResponse))
-      setQuestionGroupList(normalizeRecords(questionGroupResponse))
-      setDivisionList(normalizeRecords(divisionResponse))
-      setInductionList(normalizeRecords(inductionResponse))
-      setOrganogramList(normalizeRecords(organogramResponse))
-      setDeptActivityCounts(
-        Object.fromEntries(
-          (deptActivityResponse?.data?.counts || []).map(row => [
-            String(row.DEPT_ID),
-            {
-              joining: Number(row.JOINING_COUNT) || 0,
-              exit: Number(row.EXIT_COUNT) || 0
-            }
-          ])
+        setDeptActivityCounts(
+          Object.fromEntries(
+            (response?.data?.counts || []).map(row => [
+              String(row.DEPT_ID),
+              {
+                joining: Number(row.JOINING_COUNT) || 0,
+                exit: Number(row.EXIT_COUNT) || 0
+              }
+            ])
+          )
         )
-      )
-    } catch (error) {
-      console.error('Error loading job descriptions page data:', error)
-      notifyError(error?.message || 'Unable to load job description data.')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+      }
+    }),
+    []
+  )
 
+  // Lists already loaded (or loading) on this visit, so each is fetched only once.
+  const loadedMastersRef = useRef(new Set())
+  const [mastersLoading, setMastersLoading] = useState(0)
+
+  /** Loads the named lists not loaded yet (all of them with force, e.g. after a save). */
+  const loadMasters = useCallback(
+    async (names, force = false) => {
+      const pending = names.filter(name => force || !loadedMastersRef.current.has(name))
+      if (!pending.length) return
+      pending.forEach(name => loadedMastersRef.current.add(name))
+      setMastersLoading(count => count + 1)
+      try {
+        await Promise.all(
+          pending.map(name =>
+            masterLoaders[name]().catch(error => {
+              // Not loaded: tried again the next time the tab is opened.
+              loadedMastersRef.current.delete(name)
+              throw error
+            })
+          )
+        )
+      } catch (error) {
+        console.error('Error loading job description lists:', error)
+        notifyError(error?.message || 'Unable to load job description data.')
+      } finally {
+        setMastersLoading(count => count - 1)
+      }
+    },
+    [masterLoaders]
+  )
+
+  // Each tab's lists are loaded when the tab is opened (Basic Details first).
   useEffect(() => {
-    void loadData() // eslint-disable-line react-hooks/set-state-in-effect
-  }, [loadData])
+    void loadMasters(TAB_MASTERS[activeTab] || [])
+  }, [activeTab, loadMasters])
+
+  /** After a save: reload the lists already loaded, and the JD list the next time it is shown. */
+  const refreshLoadedMasters = () => {
+    setJobsLoaded(false)
+    return loadMasters([...loadedMastersRef.current], true)
+  }
 
   // All JDs, for the list view: loaded when the list view is opened (again after a save).
   useEffect(() => {
@@ -2477,7 +2489,7 @@ if (!isValid) {
         }
       }
 
-      await loadData()
+      await refreshLoadedMasters()
 
       if (savedJobId) {
         setSelectedJobId(savedJobId)
@@ -2662,7 +2674,7 @@ if (!isValid) {
       const response = await sendJobDescriptionForAuth({ id: formData.id })
       if (response?.status) {
         setFormData(prev => ({ ...prev, STATUS: 'T' }))
-        await loadData()
+        await refreshLoadedMasters()
         window.dispatchEvent(new Event('hrms-auth-tasks-changed'))
         notifySuccess(
           response?.message ||
@@ -3233,6 +3245,8 @@ if (!isValid) {
                     TABS
                     ============================ */}
 
+                  {/* While the open tab's dropdown lists load. */}
+                  {mastersLoading > 0 && <SDLPageLoader />}
                   <SDLTabsComponent
                     tabs={visibleTabs.map(([key, label]) => ({
                       key,

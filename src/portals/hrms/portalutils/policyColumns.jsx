@@ -25,12 +25,12 @@ export const policyColumns = ({ handleEdit }) => [
   },
   {
     header: 'Start Date',
-    style: { textAlign: 'center' },
+    style: { textAlign: 'left' },
     body: row => formatDashDate(row.START_DATE_DISPLAY)
   },
   {
     header: 'End Date',
-    style: { textAlign: 'center' },
+    style: { textAlign: 'left' },
     body: row => formatDashDate(row.END_DATE_DISPLAY)
   },
   // {
